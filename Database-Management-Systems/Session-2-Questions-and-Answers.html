@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Session 2: Questions &amp; Answers — DBMS</title>
+<style>
+  :root {
+    --bg: #0f172a; --surface: #1e293b; --surface2: #334155; --border: #475569;
+    --text: #e2e8f0; --text-muted: #94a3b8; --code-bg: #0d1117;
+    --accent: #818cf8; --accent-dim: rgba(129,140,248,0.12);
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: var(--bg); color: var(--text); line-height: 1.7;
+    display: flex; min-height: 100vh;
+  }
+  .sidebar {
+    position: fixed; top: 0; left: 0; width: 280px; height: 100vh;
+    background: var(--surface); border-right: 1px solid var(--border);
+    overflow-y: auto; padding: 24px 16px; z-index: 100;
+    transition: transform 0.3s ease;
+  }
+  .sidebar h3 { color: var(--accent); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 16px; }
+  .sidebar a {
+    display: block; padding: 7px 12px; margin-bottom: 2px; border-radius: 6px;
+    color: var(--text-muted); text-decoration: none; font-size: 0.85rem;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis; transition: all 0.2s;
+  }
+  .sidebar a:hover, .sidebar a.active { background: var(--accent-dim); color: var(--accent); }
+  .sidebar-toggle {
+    display: none; position: fixed; top: 14px; left: 14px; z-index: 200;
+    background: var(--surface2); border: 1px solid var(--border); color: var(--text);
+    width: 40px; height: 40px; border-radius: 8px; font-size: 1.3rem; cursor: pointer;
+  }
+  .main { margin-left: 280px; flex: 1; padding: 48px 40px 80px; max-width: 900px; }
+  .header { margin-bottom: 40px; }
+  .header h1 { font-size: 2rem; font-weight: 700; color: var(--text); }
+  .header .subtitle { color: var(--text-muted); font-size: 1rem; margin-top: 4px; }
+  .controls {
+    display: flex; gap: 12px; align-items: center; flex-wrap: wrap;
+    margin-bottom: 32px; padding: 16px 20px; background: var(--surface);
+    border-radius: 10px; border: 1px solid var(--border);
+  }
+  .controls button {
+    padding: 8px 18px; border-radius: 7px; border: 1px solid var(--border);
+    background: var(--surface2); color: var(--text); font-size: 0.88rem; cursor: pointer; transition: all 0.2s;
+  }
+  .controls button:hover { border-color: var(--accent); color: var(--accent); }
+  .score { margin-left: auto; font-size: 0.95rem; color: var(--text-muted); font-weight: 600; }
+  .score span { color: var(--accent); }
+  .qa-card {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+    margin-bottom: 20px; overflow: hidden; transition: border-color 0.2s;
+  }
+  .qa-card:hover { border-color: var(--accent); }
+  .qa-header {
+    display: flex; align-items: center; gap: 14px; padding: 18px 22px; cursor: pointer; user-select: none;
+  }
+  .badge {
+    flex-shrink: 0; width: 36px; height: 36px; border-radius: 8px;
+    background: var(--accent-dim); color: var(--accent); font-weight: 700; font-size: 0.95rem;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .qa-header .question { flex: 1; font-weight: 600; font-size: 1.05rem; }
+  .qa-header .chevron {
+    flex-shrink: 0; font-size: 1.1rem; color: var(--text-muted); transition: transform 0.3s;
+  }
+  .qa-card.open .chevron { transform: rotate(180deg); }
+  .qa-answer { max-height: 0; overflow: hidden; transition: max-height 0.4s ease; }
+  .qa-card.open .qa-answer { max-height: 8000px; }
+  .answer-body { padding: 0 22px 22px 72px; color: var(--text); }
+  .answer-body p { margin-bottom: 12px; }
+  .answer-body strong { color: var(--text); }
+  .answer-body ul, .answer-body ol { margin: 8px 0 12px 20px; }
+  .answer-body li { margin-bottom: 6px; }
+  .review-check { display: flex; align-items: center; gap: 6px; margin-left: auto; flex-shrink: 0; }
+  .review-check input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--accent); cursor: pointer; }
+  .review-check label { font-size: 0.78rem; color: var(--text-muted); cursor: pointer; }
+  .answer-body table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 0.92rem; }
+  .answer-body th {
+    background: var(--surface2); text-align: left; padding: 10px 14px;
+    border: 1px solid var(--border); color: var(--accent); font-weight: 600;
+  }
+  .answer-body td { padding: 10px 14px; border: 1px solid var(--border); }
+  .answer-body tr:hover td { background: rgba(129,140,248,0.04); }
+  .answer-body pre {
+    background: var(--code-bg); border: 1px solid var(--border); border-radius: 8px;
+    padding: 16px 20px; overflow-x: auto; margin: 12px 0; font-size: 0.88rem; line-height: 1.6;
+  }
+  .answer-body code {
+    font-family: 'Cascadia Code', 'Fira Code', 'Consolas', monospace;
+    background: var(--code-bg); padding: 2px 6px; border-radius: 4px; font-size: 0.88rem;
+  }
+  .answer-body pre code { background: none; padding: 0; }
+  .callout {
+    background: var(--accent-dim); border-left: 4px solid var(--accent);
+    padding: 14px 18px; border-radius: 0 8px 8px 0; margin: 12px 0; font-size: 0.93rem;
+  }
+  @media print {
+    .sidebar, .sidebar-toggle, .controls, .review-check, .chevron { display: none !important; }
+    .main { margin-left: 0; padding: 20px; max-width: 100%; }
+    .qa-answer { max-height: none !important; overflow: visible !important; }
+    .qa-card { break-inside: avoid; border: 1px solid #ccc; }
+    body { background: #fff; color: #000; }
+    .answer-body, .answer-body p, .answer-body li, .answer-body td { color: #000; }
+    .answer-body th { background: #eee; color: #000; }
+    .badge { background: #e0e0e0; color: #000; }
+    .header h1 { color: #000; } .header .subtitle { color: #444; }
+  }
+  @media (max-width: 768px) {
+    .sidebar { transform: translateX(-100%); }
+    .sidebar.open { transform: translateX(0); }
+    .sidebar-toggle { display: flex; align-items: center; justify-content: center; }
+    .main { margin-left: 0; padding: 24px 16px 60px; }
+    .answer-body { padding: 0 16px 18px 16px; }
+  }
+</style>
+</head>
+<body>
+
+<button class="sidebar-toggle" onclick="document.querySelector('.sidebar').classList.toggle('open')">☰</button>
+
+<nav class="sidebar" id="sidebar">
+  <h3>Quick Jump</h3>
+  <a href="#q1">Q1. What is SQL?</a>
+  <a href="#q2">Q2. CREATE TABLE with constraints</a>
+  <a href="#q3">Q3. SELECT execution order</a>
+  <a href="#q4">Q4. SQL query examples</a>
+  <a href="#q5">Q5. Types of JOINs</a>
+  <a href="#q6">Q6. Subqueries</a>
+  <a href="#q7">Q7. ACID properties</a>
+  <a href="#q8">Q8. Isolation levels</a>
+  <a href="#q9">Q9. MVCC</a>
+  <a href="#q10">Q10. Deadlocks</a>
+  <a href="#q11">Q11. Write-Ahead Logging</a>
+  <a href="#q12">Q12. Schema evolution</a>
+  <a href="#q13">Q13. Denormalisation</a>
+  <a href="#q14">Q14. CTEs &amp; window functions</a>
+  <a href="#q15">Q15. Relational DB limitations</a>
+</nav>
+
+<div class="main">
+  <div class="header">
+    <h1>Session 2: Questions &amp; Answers</h1>
+    <div class="subtitle">SQL Fundamentals &amp; Transactions — 15 Questions</div>
+  </div>
+
+  <div class="controls">
+    <button onclick="toggleAll(true)">Show All</button>
+    <button onclick="toggleAll(false)">Hide All</button>
+    <div class="score">Reviewed: <span id="reviewed-count">0</span> / 15</div>
+  </div>
+
+  <!-- Q1 -->
+  <div class="qa-card" id="q1">
+    <div class="qa-header" onclick="toggleCard(this)">
+      <div class="badge">1</div>
+      <div class="question">What is SQL? Why is it called a declarative language?</div>
+      <div class="review-check" onclick="event.stopPropagation()">
+        <input type="checkbox" id="r1" onchange="updateScore()"><label for="r1">Reviewed</label>
+      </div>
+      <div class="chevron">▼</div>
+    </div>
+    <div class="qa-answer">
+      <div class="answer-body">
+        <p><strong>SQL (Structured Query Language)</strong> is the standard language for relational databases, combining DDL, DML, DCL, and TCL.</p>
+        <p>It is <strong>declarative</strong> because you specify <strong>what</strong> data you want, not <strong>how</strong> to get it. When you write <code>SELECT * FROM EMPLOYEE WHERE Salary &gt; 70000</code>, you don't tell the DBMS which index to use, how to scan the table, or in what order to process rows. The <strong>query optimizer</strong> decides the most efficient execution plan based on available indexes, table statistics, and data distribution.</p>
+        <p>In contrast, a <strong>procedural</strong> language (C, Python) requires step-by-step instructions: open file, read line, compare, accumulate results.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Q2 -->
+  <div class="qa-card" id="q2">
+    <div class="qa-header" onclick="toggleCard(this)">
+      <div class="badge">2</div>
+      <div class="question">Write SQL to create an EMPLOYEE table with constraints. Explain each constraint.</div>
+      <div class="review-check" onclick="event.stopPropagation()">
+        <input type="checkbox" id="r2" onchange="updateScore()"><label for="r2">Reviewed</label>
+      </div>
+      <div class="chevron">▼</div>
+    </div>
+    <div class="qa-answer">
+      <div class="answer-body">
+<pre><code>CREATE TABLE EMPLOYEE (
+    Emp_ID      INT            PRIMARY KEY,
+    First_Name  VARCHAR(50)    NOT NULL,
+    Last_Name   VARCHAR(50)    NOT NULL,
+    Email       VARCHAR(100)   UNIQUE,
+    Hire_Date   DATE           DEFAULT CURRENT_DATE,
+    Salary      DECIMAL(10,2)  CHECK (Salary &gt; 0),
+    Dept_ID     INT,
+    FOREIGN KEY (Dept_ID) REFERENCES DEPARTMENT(Dept_ID)
+        ON DELETE SET NULL ON UPDATE CASCADE
+);</code></pre>
+        <table>
+          <tr><th>Constraint</th><th>Explanation</th></tr>
+          <tr><td><code>PRIMARY KEY</code></td><td>Uniquely identifies each row. Implies NOT NULL + UNIQUE.</td></tr>
+          <tr><td><code>NOT NULL</code></td><td>Column must always have a value — inserting NULL is rejected.</td></tr>
+          <tr><td><code>UNIQUE</code></td><td>No two rows can have the same Email. NULLs may be allowed (one per row in most DBMSs).</td></tr>
+          <tr><td><code>DEFAULT</code></td><td>If no Hire_Date is provided during INSERT, use the current date.</td></tr>
+          <tr><td><code>CHECK</code></td><td>Salary must be positive — any INSERT/UPDATE violating this is rejected.</td></tr>
+          <tr><td><code>FOREIGN KEY</code></td><td>Dept_ID must match an existing Dept_ID in DEPARTMENT (or be NULL).</td></tr>
+          <tr><td><code>ON DELETE SET NULL</code></td><td>If a department is deleted, employees' Dept_ID becomes NULL (not deleted).</td></tr>
+          <tr><td><code>ON UPDATE CASCADE</code></td><td>If a department's Dept_ID changes, the change propagates to all referencing employees.</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Q3 -->
+  <div class="qa-card" id="q3">
+    <div class="qa-header" onclick="toggleCard(this)">
+      <div class="badge">3</div>
+      <div class="question">Explain the logical execution order of a SELECT query. Why can't you use a SELECT alias in WHERE?</div>
+      <div class="review-check" onclick="event.stopPropagation()">
+        <input type="checkbox" id="r3" onchange="updateScore()"><label for="r3">Reviewed</label>
+      </div>
+      <div class="chevron">▼</div>
+    </div>
+    <div class="qa-answer">
+      <div class="answer-body">
+<pre><code>1. FROM       — Identify source tables, perform joins.
+2. WHERE      — Filter individual rows.
+3. GROUP BY   — Group remaining rows by specified columns.
+4. HAVING     — Filter groups (not individual rows).
+5. SELECT     — Choose columns/expressions to return; compute aliases.
+6. ORDER BY   — Sort the result.
+7. LIMIT      — Restrict the number of rows returned.</code></pre>
+        <p><strong>Why aliases fail in WHERE:</strong> Aliases are created in step 5 (SELECT), but WHERE runs in step 2 — before the alias exists. The DBMS doesn't know what the alias refers to yet.</p>
+        <p><strong>Workaround:</strong> Use a subquery or CTE, or repeat the expression in WHERE.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Q4 -->
+  <div class="qa-card" id="q4">
+    <div class="qa-header" onclick="toggleCard(this)">
+      <div class="badge">4</div>
+      <div class="question">Write SQL for: (a) employees earning above average, (b) department employee counts sorted, (c) departments with employees using EXISTS.</div>
+      <div class="review-check" onclick="event.stopPropagation()">
+        <input type="checkbox" id="r4" onchange="updateScore()"><label for="r4">Reviewed</label>
+      </div>
+      <div class="chevron">▼</div>
+    </div>
+    <div class="qa-answer">
+      <div class="answer-body">
+        <p><strong>(a) Above-average salary (scalar subquery):</strong></p>
+<pre><code>SELECT First_Name, Salary FROM EMPLOYEE
+WHERE Salary &gt; (SELECT AVG(Salary) FROM EMPLOYEE);</code></pre>
+
+        <p><strong>(b) Employee count per department, only departments with &gt;5, sorted descending:</strong></p>
+<pre><code>SELECT Dept_ID, COUNT(*) AS Emp_Count, AVG(Salary) AS Avg_Sal
+FROM EMPLOYEE
+GROUP BY Dept_ID
+HAVING COUNT(*) &gt; 5
+ORDER BY Avg_Sal DESC;</code></pre>
+
+        <p><strong>(c) Departments that have at least one employee (correlated EXISTS):</strong></p>
+<pre><code>SELECT D.Dept_Name FROM DEPARTMENT D
+WHERE EXISTS (SELECT 1 FROM EMPLOYEE E WHERE E.Dept_ID = D.Dept_ID);</code></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- Q5 -->
+  <div class="qa-card" id="q5">
+    <div class="qa-header" onclick="toggleCard(this)">
+      <div class="badge">5</div>
+      <div class="question">Explain the different types of JOINs. When would you use each?</div>
+      <div class="review-check" onclick="event.stopPropagation()">
+        <input type="checkbox" id="r5" onchange="updateScore()"><label for="r5">Reviewed</label>
+      </div>
+      <div class="chevron">▼</div>
+    </div>
+    <div class="qa-answer">
+      <div class="answer-body">
+        <table>
+          <tr><th>Join Type</th><th>Returns</th><th>Use when</th></tr>
+          <tr><td><strong>INNER JOIN</strong></td><td>Only rows matching in both tables.</td><td>You only want data that exists in both (e.g. students with assigned departments).</td></tr>
+          <tr><td><strong>LEFT JOIN</strong></td><td>All left rows + matching right (NULLs if no match).</td><td>You want all items from the left regardless of match (e.g. all employees, with dept name if assigned).</td></tr>
+          <tr><td><strong>RIGHT JOIN</strong></td><td>All right rows + matching left.</td><td>Mirror of LEFT JOIN.</td></tr>
+          <tr><td><strong>FULL OUTER JOIN</strong></td><td>All rows from both; NULLs where no match.</td><td>You want everything from both sides.</td></tr>
+          <tr><td><strong>CROSS JOIN</strong></td><td>Cartesian product (every combination).</td><td>Generate all possible pairs.</td></tr>
+          <tr><td><strong>SELF JOIN</strong></td><td>Table joined to itself.</td><td>Self-referencing relationships (employee &rarr; manager).</td></tr>
+        </table>
+        <p><strong>Example — Self Join:</strong></p>
+<pre><code>SELECT E.First_Name AS Employee, M.First_Name AS Manager
+FROM EMPLOYEE E LEFT JOIN EMPLOYEE M ON E.Manager_ID = M.Emp_ID;</code></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- Q6 -->
+  <div class="qa-card" id="q6">
+    <div class="qa-header" onclick="toggleCard(this)">
+      <div class="badge">6</div>
+      <div class="question">What is a subquery? Compare regular vs correlated subqueries.</div>
+      <div class="review-check" onclick="event.stopPropagation()">
+        <input type="checkbox" id="r6" onchange="updateScore()"><label for="r6">Reviewed</label>
+      </div>
+      <div class="chevron">▼</div>
+    </div>
+    <div class="qa-answer">
+      <div class="answer-body">
+        <p>A <strong>subquery</strong> is a SELECT inside another SQL statement.</p>
+        <table>
+          <tr><th>Aspect</th><th>Regular subquery</th><th>Correlated subquery</th></tr>
+          <tr><td><strong>Execution</strong></td><td>Runs <strong>once</strong>; result reused for all outer rows.</td><td>Re-runs <strong>for each outer row</strong>.</td></tr>
+          <tr><td><strong>References outer query?</strong></td><td>No.</td><td>Yes — uses columns from the outer query.</td></tr>
+          <tr><td><strong>Performance</strong></td><td>Generally faster (one execution).</td><td>Can be slower (N executions for N outer rows).</td></tr>
+          <tr><td><strong>Example</strong></td><td><code>WHERE Salary &gt; (SELECT AVG(Salary) FROM EMPLOYEE)</code></td><td><code>WHERE EXISTS (SELECT 1 FROM EMPLOYEE E WHERE E.Dept_ID = D.Dept_ID)</code></td></tr>
+        </table>
+        <p>The optimizer can sometimes convert correlated subqueries to joins for better performance.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Q7 -->
+  <div class="qa-card" id="q7">
+    <div class="qa-header" onclick="toggleCard(this)">
+      <div class="badge">7</div>
+      <div class="question">What is a transaction? Explain the ACID properties with a bank transfer example.</div>
+      <div class="review-check" onclick="event.stopPropagation()">
+        <input type="checkbox" id="r7" onchange="updateScore()"><label for="r7">Reviewed</label>
+      </div>
+      <div class="chevron">▼</div>
+    </div>
+    <div class="qa-answer">
+      <div class="answer-body">
+        <p>A <strong>transaction</strong> is a logical unit of work — one or more operations that must all succeed or all fail.</p>
+        <div class="callout"><strong>Bank transfer: Move 500 from Account A to Account B.</strong></div>
+        <table>
+          <tr><th>ACID Property</th><th>How it applies</th></tr>
+          <tr><td><strong>Atomicity</strong></td><td>Both the debit (A-500) and credit (B+500) happen, or neither does. If the system crashes between them, the debit is rolled back.</td></tr>
+          <tr><td><strong>Consistency</strong></td><td>Total money in the system stays the same. If a constraint says balance &ge; 0, a transfer that would make A negative is rejected.</td></tr>
+          <tr><td><strong>Isolation</strong></td><td>While the transfer is in progress, no other transaction sees the intermediate state (A debited, B not yet credited). They see either the before-state or the after-state.</td></tr>
+          <tr><td><strong>Durability</strong></td><td>Once the bank confirms "transfer successful," the change is permanent — even if the server crashes one millisecond later. The WAL ensures committed changes can be recovered.</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Q8 -->
+  <div class="qa-card" id="q8">
+    <div class="qa-header" onclick="toggleCard(this)">
+      <div class="badge">8</div>
+      <div class="question">Explain the four SQL isolation levels and what anomalies each prevents.</div>
+      <div class="review-check" onclick="event.stopPropagation()">
+        <input type="checkbox" id="r8" onchange="updateScore()"><label for="r8">Reviewed</label>
+      </div>
+      <div class="chevron">▼</div>
+    </div>
+    <div class="qa-answer">
+      <div class="answer-body">
+        <table>
+          <tr><th>Level</th><th>Dirty Read</th><th>Non-Repeatable Read</th><th>Phantom Read</th><th>Concurrency</th></tr>
+          <tr><td><strong>READ UNCOMMITTED</strong></td><td>Possible</td><td>Possible</td><td>Possible</td><td>Highest (almost no locking)</td></tr>
+          <tr><td><strong>READ COMMITTED</strong></td><td>Prevented</td><td>Possible</td><td>Possible</td><td>High (default in PostgreSQL)</td></tr>
+          <tr><td><strong>REPEATABLE READ</strong></td><td>Prevented</td><td>Prevented</td><td>Possible</td><td>Medium (default in MySQL InnoDB)</td></tr>
+          <tr><td><strong>SERIALIZABLE</strong></td><td>Prevented</td><td>Prevented</td><td>Prevented</td><td>Lowest (full isolation, most locking)</td></tr>
+        </table>
+        <p>Higher isolation = fewer anomalies but lower concurrency (more blocking/waiting between transactions).</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Q9 -->
+  <div class="qa-card" id="q9">
+    <div class="qa-header" onclick="toggleCard(this)">
+      <div class="badge">9</div>
+      <div class="question">What is MVCC? How does it improve concurrency?</div>
+      <div class="review-check" onclick="event.stopPropagation()">
+        <input type="checkbox" id="r9" onchange="updateScore()"><label for="r9">Reviewed</label>
+      </div>
+      <div class="chevron">▼</div>
+    </div>
+    <div class="qa-answer">
+      <div class="answer-body">
+        <p><strong>Multi-Version Concurrency Control (MVCC)</strong> keeps multiple versions of each row. When a transaction writes a row, it creates a <strong>new version</strong> rather than overwriting the old one. Readers see the version that was current when their transaction started (a "snapshot").</p>
+        <div class="callout"><strong>Key benefit:</strong> Readers never block writers, and writers never block readers. This dramatically improves concurrency for read-heavy workloads compared to pure locking, where a writer holding an exclusive lock blocks all readers.</div>
+        <p><strong>How it works:</strong></p>
+        <ol>
+          <li>Each row version is tagged with the transaction ID that created it.</li>
+          <li>When a transaction reads, it sees only versions created by committed transactions that started before it.</li>
+          <li>Old versions are garbage-collected after all transactions that could see them have finished.</li>
+        </ol>
+        <p><strong>Used by:</strong> PostgreSQL, Oracle, MySQL InnoDB, CockroachDB.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Q10 -->
+  <div class="qa-card" id="q10">
+    <div class="qa-header" onclick="toggleCard(this)">
+      <div class="badge">10</div>
+      <div class="question">What is a deadlock? How is it detected and resolved?</div>
+      <div class="review-check" onclick="event.stopPropagation()">
+        <input type="checkbox" id="r10" onchange="updateScore()"><label for="r10">Reviewed</label>
+      </div>
+      <div class="chevron">▼</div>
+    </div>
+    <div class="qa-answer">
+      <div class="answer-body">
+        <p>A <strong>deadlock</strong> occurs when two or more transactions are each waiting for a lock held by another — forming a circular wait. Neither can proceed.</p>
+        <p><strong>Example:</strong></p>
+<pre><code>T1 holds lock on Row A, waits for lock on Row B
+T2 holds lock on Row B, waits for lock on Row A
+→ Neither can proceed — deadlock!</code></pre>
+        <p><strong>Detection:</strong> The DBMS builds a <strong>wait-for graph</strong> — a directed graph where an edge T1&rarr;T2 means "T1 is waiting for a lock held by T2." A <strong>cycle</strong> in this graph indicates a deadlock.</p>
+        <p><strong>Resolution:</strong> The DBMS selects a <strong>victim</strong> transaction (typically the one that has done the least work) and aborts it. The victim's locks are released, allowing the other transaction(s) to proceed. The victim can be restarted.</p>
+        <p><strong>Prevention strategies:</strong> Wait-die (older waits, younger aborts), wound-wait (older kills younger), or timeout-based (abort after waiting too long).</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Q11 -->
+  <div class="qa-card" id="q11">
+    <div class="qa-header" onclick="toggleCard(this)">
+      <div class="badge">11</div>
+      <div class="question">Explain Write-Ahead Logging (WAL) and its role in recovery.</div>
+      <div class="review-check" onclick="event.stopPropagation()">
+        <input type="checkbox" id="r11" onchange="updateScore()"><label for="r11">Reviewed</label>
+      </div>
+      <div class="chevron">▼</div>
+    </div>
+    <div class="qa-answer">
+      <div class="answer-body">
+        <p><strong>WAL rule:</strong> Before any change is written to the database on disk, the corresponding <strong>log record</strong> must first be written to the log file on stable storage.</p>
+        <p><strong>Log records contain:</strong> Transaction ID, data item identifier, old value (before-image for UNDO), new value (after-image for REDO), COMMIT/ABORT markers.</p>
+        <p><strong>Recovery after crash:</strong></p>
+        <ol>
+          <li><strong>REDO:</strong> For committed transactions whose changes might not have reached disk — re-apply using new values from log.</li>
+          <li><strong>UNDO:</strong> For active (uncommitted) transactions at crash time — roll back using old values from log.</li>
+        </ol>
+        <p><strong>Checkpoints</strong> periodically flush dirty pages to disk, limiting how far back recovery must scan.</p>
+        <p>WAL is the foundation of durability — it's how the DBMS guarantees that committed data survives any crash.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Q12 -->
+  <div class="qa-card" id="q12">
+    <div class="qa-header" onclick="toggleCard(this)">
+      <div class="badge">12</div>
+      <div class="question">What is schema evolution? What is the expand-and-contract pattern?</div>
+      <div class="review-check" onclick="event.stopPropagation()">
+        <input type="checkbox" id="r12" onchange="updateScore()"><label for="r12">Reviewed</label>
+      </div>
+      <div class="chevron">▼</div>
+    </div>
+    <div class="qa-answer">
+      <div class="answer-body">
+        <p><strong>Schema evolution</strong> is modifying the database schema after it's in production (adding columns, changing types, adding constraints).</p>
+        <p><strong>Expand-and-contract pattern</strong> (safest approach for zero-downtime changes):</p>
+        <ol>
+          <li><strong>Expand:</strong> Add the new column alongside the old one. Both old and new app versions work.</li>
+          <li><strong>Migrate:</strong> Backfill the new column with data from the old column (or a transformation of it).</li>
+          <li><strong>Switch:</strong> Update applications to use the new column.</li>
+          <li><strong>Contract:</strong> Drop the old column once all apps are migrated.</li>
+        </ol>
+        <p>This avoids breaking existing applications during the transition period.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Q13 -->
+  <div class="qa-card" id="q13">
+    <div class="qa-header" onclick="toggleCard(this)">
+      <div class="badge">13</div>
+      <div class="question">What is denormalisation? When would you use it?</div>
+      <div class="review-check" onclick="event.stopPropagation()">
+        <input type="checkbox" id="r13" onchange="updateScore()"><label for="r13">Reviewed</label>
+      </div>
+      <div class="chevron">▼</div>
+    </div>
+    <div class="qa-answer">
+      <div class="answer-body">
+        <p><strong>Denormalisation</strong> intentionally reintroduces redundancy into a normalised database to improve <strong>read performance</strong>.</p>
+        <table>
+          <tr><th>Scenario</th><th>Technique</th><th>Trade-off</th></tr>
+          <tr><td>Frequent expensive joins</td><td>Store redundant columns to avoid the join.</td><td>Faster reads; slower writes; risk of data inconsistency.</td></tr>
+          <tr><td>Repeated aggregations</td><td>Materialised views or pre-computed summary tables.</td><td>Faster queries; data may be stale until refreshed.</td></tr>
+          <tr><td>Read-heavy workloads</td><td>Duplicate data optimised for specific read patterns.</td><td>More storage; update anomalies possible.</td></tr>
+        </table>
+        <p><strong>Rule:</strong> Normalise first for correctness. Denormalise selectively only for <strong>measured</strong> performance problems — never as a default.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Q14 -->
+  <div class="qa-card" id="q14">
+    <div class="qa-header" onclick="toggleCard(this)">
+      <div class="badge">14</div>
+      <div class="question">Explain CTEs and window functions with examples.</div>
+      <div class="review-check" onclick="event.stopPropagation()">
+        <input type="checkbox" id="r14" onchange="updateScore()"><label for="r14">Reviewed</label>
+      </div>
+      <div class="chevron">▼</div>
+    </div>
+    <div class="qa-answer">
+      <div class="answer-body">
+        <p><strong>CTE (Common Table Expression):</strong> A temporary named result set within a single query.</p>
+<pre><code>WITH DeptStats AS (
+    SELECT Dept_ID, AVG(Salary) AS Avg_Sal FROM EMPLOYEE GROUP BY Dept_ID
+)
+SELECT D.Dept_Name, DS.Avg_Sal
+FROM DeptStats DS JOIN DEPARTMENT D ON DS.Dept_ID = D.Dept_ID
+WHERE DS.Avg_Sal &gt; 70000;</code></pre>
+
+        <p><strong>Window function:</strong> Calculates across a set of rows related to the current row <strong>without collapsing</strong> the result (unlike GROUP BY which collapses rows into groups).</p>
+<pre><code>SELECT Emp_ID, Dept_ID, Salary,
+    RANK() OVER (PARTITION BY Dept_ID ORDER BY Salary DESC) AS Dept_Rank,
+    AVG(Salary) OVER (PARTITION BY Dept_ID) AS Dept_Avg,
+    Salary - AVG(Salary) OVER (PARTITION BY Dept_ID) AS Diff_From_Avg
+FROM EMPLOYEE;</code></pre>
+        <p>This returns every employee row with their rank within their department and how far they are from the department average — without losing individual rows.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Q15 -->
+  <div class="qa-card" id="q15">
+    <div class="qa-header" onclick="toggleCard(this)">
+      <div class="badge">15</div>
+      <div class="question">What are the limitations of relational databases that motivated NoSQL?</div>
+      <div class="review-check" onclick="event.stopPropagation()">
+        <input type="checkbox" id="r15" onchange="updateScore()"><label for="r15">Reviewed</label>
+      </div>
+      <div class="chevron">▼</div>
+    </div>
+    <div class="qa-answer">
+      <div class="answer-body">
+        <table>
+          <tr><th>Limitation</th><th>Explanation</th></tr>
+          <tr><td><strong>Rigid schema</strong></td><td>ALTER TABLE on billions of rows can lock the table for hours. Web apps need to evolve schemas every sprint.</td></tr>
+          <tr><td><strong>Impedance mismatch</strong></td><td>Object-oriented app data (nested objects, lists) doesn't map cleanly to flat tables. ORMs add complexity.</td></tr>
+          <tr><td><strong>Horizontal scaling is hard</strong></td><td>Sharding breaks joins, foreign keys, and distributed transactions.</td></tr>
+          <tr><td><strong>Unstructured data</strong></td><td>JSON documents, social graphs, time-series, and key-value pairs don't fit rows/columns naturally.</td></tr>
+          <tr><td><strong>High write throughput</strong></td><td>WAL + ACID creates bottlenecks at millions of writes/second (ad-tech, IoT, logging).</td></tr>
+          <tr><td><strong>Global distribution</strong></td><td>Strong consistency across continents requires synchronous replication with 100-300ms latency per write.</td></tr>
+        </table>
+        <p><strong>NoSQL types:</strong> Key-Value (Redis), Document (MongoDB), Column-Family (Cassandra), Graph (Neo4j). They trade ACID for scalability (BASE model).</p>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  function toggleCard(header) { header.closest('.qa-card').classList.toggle('open'); }
+  function toggleAll(show) { document.querySelectorAll('.qa-card').forEach(c => { if (show) c.classList.add('open'); else c.classList.remove('open'); }); }
+  function updateScore() { document.getElementById('reviewed-count').textContent = document.querySelectorAll('.review-check input:checked').length; }
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) { document.querySelectorAll('.sidebar a').forEach(a => a.classList.remove('active')); const link = document.querySelector('.sidebar a[href="#' + e.target.id + '"]'); if (link) link.classList.add('active'); } });
+  }, { rootMargin: '-20% 0px -70% 0px' });
+  document.querySelectorAll('.qa-card').forEach(c => observer.observe(c));
+</script>
+</body>
+</html>

@@ -1,0 +1,881 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 1: Analyzing Algorithms — Q&A</title>
+<style>
+  :root {
+    --bg: #f8f9fa; --card: #fff; --primary: #2563eb; --primary-light: #dbeafe;
+    --text: #1e293b; --text-light: #64748b; --border: #e2e8f0;
+    --green: #16a34a; --green-bg: #dcfce7; --red: #dc2626; --red-bg: #fee2e2;
+    --code-bg: #f1f5f9; --accent: #7c3aed; --accent-bg: #f5f3ff;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; padding: 0 0 60px; }
+  .header { background: linear-gradient(135deg, #1e40af, #7c3aed); color: #fff; padding: 40px 24px; text-align: center; }
+  .header h1 { font-size: 2em; margin-bottom: 8px; }
+  .header p { opacity: .85; font-size: 1.05em; }
+  .container { max-width: 900px; margin: 0 auto; padding: 0 20px; }
+
+  /* Table of Contents */
+  .toc { background: var(--card); border-radius: 12px; padding: 28px 32px; margin: 28px 0; box-shadow: 0 1px 3px rgba(0,0,0,.08); }
+  .toc h2 { font-size: 1.2em; margin-bottom: 14px; color: var(--primary); }
+  .toc ul { list-style: none; columns: 2; column-gap: 24px; }
+  .toc li { padding: 4px 0; break-inside: avoid; }
+  .toc a { color: var(--primary); text-decoration: none; font-size: .95em; }
+  .toc a:hover { text-decoration: underline; }
+
+  /* Section headers */
+  .section-title { background: var(--primary); color: #fff; padding: 14px 24px; border-radius: 10px 10px 0 0; margin-top: 36px; font-size: 1.15em; letter-spacing: .3px; }
+
+  /* Question card */
+  .qa { background: var(--card); border-radius: 0 0 10px 10px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,.08); overflow: hidden; border: 1px solid var(--border); border-top: none; }
+  .qa + .qa { border-radius: 10px; border-top: 1px solid var(--border); }
+  .qa:last-child { margin-bottom: 0; }
+
+  /* Question (clickable) */
+  .q { padding: 18px 24px; cursor: pointer; display: flex; align-items: flex-start; gap: 14px; user-select: none; transition: background .15s; }
+  .q:hover { background: var(--primary-light); }
+  .q-num { background: var(--primary); color: #fff; font-weight: 700; font-size: .82em; min-width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .q-text { font-weight: 600; font-size: 1.02em; flex: 1; }
+  .q-arrow { font-size: 1.2em; color: var(--text-light); transition: transform .25s; flex-shrink: 0; margin-top: 4px; }
+  .qa.open .q-arrow { transform: rotate(180deg); }
+
+  /* Answer (collapsible) */
+  .a { max-height: 0; overflow: hidden; transition: max-height .4s ease; }
+  .qa.open .a { max-height: 8000px; }
+  .a-inner { padding: 0 24px 24px; border-top: 1px dashed var(--border); margin-top: 0; padding-top: 18px; }
+
+  /* Code blocks */
+  pre { background: var(--code-bg); border-radius: 8px; padding: 16px 20px; overflow-x: auto; font-size: .88em; line-height: 1.6; margin: 12px 0; border: 1px solid var(--border); font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace; }
+  code { font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace; font-size: .9em; background: var(--code-bg); padding: 2px 6px; border-radius: 4px; }
+  pre code { background: none; padding: 0; }
+
+  /* Tables */
+  table { width: 100%; border-collapse: collapse; margin: 14px 0; font-size: .92em; }
+  th { background: var(--primary); color: #fff; padding: 10px 14px; text-align: left; font-weight: 600; }
+  td { padding: 10px 14px; border-bottom: 1px solid var(--border); }
+  tr:nth-child(even) td { background: #f8fafc; }
+  tr:hover td { background: var(--primary-light); }
+
+  /* Callout boxes */
+  .correct { background: var(--green-bg); border-left: 4px solid var(--green); padding: 12px 16px; border-radius: 0 8px 8px 0; margin: 12px 0; }
+  .wrong { background: var(--red-bg); border-left: 4px solid var(--red); padding: 12px 16px; border-radius: 0 8px 8px 0; margin: 12px 0; }
+  .note { background: var(--accent-bg); border-left: 4px solid var(--accent); padding: 12px 16px; border-radius: 0 8px 8px 0; margin: 12px 0; }
+
+  /* Badges */
+  .badge { display: inline-block; padding: 2px 10px; border-radius: 20px; font-size: .78em; font-weight: 600; margin-right: 6px; }
+  .badge-true { background: var(--green-bg); color: var(--green); }
+  .badge-false { background: var(--red-bg); color: var(--red); }
+
+  /* Controls */
+  .controls { display: flex; gap: 10px; margin: 20px 0; flex-wrap: wrap; }
+  .btn { padding: 8px 18px; border-radius: 8px; border: 1px solid var(--border); background: var(--card); cursor: pointer; font-size: .9em; font-weight: 500; transition: all .15s; }
+  .btn:hover { background: var(--primary); color: #fff; border-color: var(--primary); }
+  .btn.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+
+  strong { color: var(--text); }
+  p { margin: 8px 0; }
+  ul, ol { margin: 8px 0 8px 20px; }
+  li { margin: 4px 0; }
+  h4 { margin: 16px 0 8px; color: var(--primary); font-size: 1em; }
+  hr { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
+  .checkmark { color: var(--green); font-weight: bold; }
+
+  @media (max-width: 600px) {
+    .toc ul { columns: 1; }
+    .header h1 { font-size: 1.5em; }
+    .q { padding: 14px 16px; }
+    .a-inner { padding: 0 16px 16px; padding-top: 14px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>Chapter 1: Analyzing Algorithms</h1>
+  <p>Questions &amp; Answers &mdash; BITS Pilani DSA Exam Preparation</p>
+  <p style="font-size:.88em; margin-top:6px; opacity:.7;">T1: Goodrich &amp; Tamassia &bull; R1: CLRS 4.3, 4.4, 4.5</p>
+</div>
+
+<div class="container">
+
+<!-- Controls -->
+<div class="controls">
+  <button class="btn" onclick="toggleAll(true)">Expand All Answers</button>
+  <button class="btn" onclick="toggleAll(false)">Collapse All Answers</button>
+</div>
+
+<!-- TOC -->
+<div class="toc">
+  <h2>Sections (50 Questions)</h2>
+  <ul>
+    <li><a href="#secA">A. Conceptual / Theory (Q1–Q8)</a></li>
+    <li><a href="#secB">B. Counting Primitive Ops (Q9–Q11)</a></li>
+    <li><a href="#secC">C. Asymptotic Notation Proofs (Q12–Q20)</a></li>
+    <li><a href="#secD">D. Iterative Algorithm Analysis (Q21–Q26)</a></li>
+    <li><a href="#secE">E. Loop Invariants &amp; Correctness (Q27–Q29)</a></li>
+    <li><a href="#secF">F. Writing Recurrences (Q30)</a></li>
+    <li><a href="#secG">G. Master Theorem (Q31–Q32)</a></li>
+    <li><a href="#secH">H. Recursion Tree Method (Q33–Q36)</a></li>
+    <li><a href="#secI">I. Substitution Method (Q37–Q41)</a></li>
+    <li><a href="#secJ">J. Mixed / Exam-Style (Q42–Q50)</a></li>
+  </ul>
+</div>
+
+<!-- ============================================ -->
+<!-- SECTION A -->
+<!-- ============================================ -->
+<div class="section-title" id="secA">Section A: Conceptual / Theory Questions</div>
+
+<div class="qa" onclick="this.classList.toggle('open')">
+  <div class="q"><span class="q-num">1</span><span class="q-text">What is an algorithm? State its five essential properties.</span><span class="q-arrow">&#9662;</span></div>
+  <div class="a"><div class="a-inner">
+    <p>An algorithm is a <strong>well-defined, finite sequence of computational steps</strong> that takes some input and produces an output.</p>
+    <p><strong>Five essential properties:</strong></p>
+    <ol>
+      <li><strong>Input</strong> &mdash; Zero or more quantities are externally supplied</li>
+      <li><strong>Output</strong> &mdash; At least one quantity is produced</li>
+      <li><strong>Definiteness</strong> &mdash; Each instruction is clear and unambiguous</li>
+      <li><strong>Finiteness</strong> &mdash; The algorithm terminates after a finite number of steps</li>
+      <li><strong>Effectiveness</strong> &mdash; Every instruction is basic enough to be carried out in practice</li>
+    </ol>
+  </div></div>
+</div>
+
+<div class="qa" onclick="this.classList.toggle('open')">
+  <div class="q"><span class="q-num">2</span><span class="q-text">What are the limitations of experimental analysis? Why prefer theoretical analysis?</span><span class="q-arrow">&#9662;</span></div>
+  <div class="a"><div class="a-inner">
+    <h4>Limitations of Experimental Analysis:</h4>
+    <ol>
+      <li>Algorithm must be <strong>fully implemented</strong> first</li>
+      <li>Results only valid for <strong>specific inputs tested</strong></li>
+      <li>Comparisons require <strong>same hardware/software environment</strong></li>
+      <li>Results are <strong>not portable</strong> across machines</li>
+    </ol>
+    <h4>Why Theoretical Analysis is Preferred:</h4>
+    <ol>
+      <li>Takes into account <strong>all possible inputs</strong></li>
+      <li>Evaluates speed <strong>independent of hardware</strong></li>
+      <li>Can study at <strong>pseudocode level</strong> without implementing</li>
+      <li>Characterizes running time as a <strong>function of input size n</strong></li>
+    </ol>
+  </div></div>
+</div>
+
+<div class="qa" onclick="this.classList.toggle('open')">
+  <div class="q"><span class="q-num">3</span><span class="q-text">Explain the Random Access Machine (RAM) model and its key assumptions.</span><span class="q-arrow">&#9662;</span></div>
+  <div class="a"><div class="a-inner">
+    <p>The RAM model is a theoretical model of computation providing a machine-independent framework.</p>
+    <h4>Key Assumptions:</h4>
+    <ol>
+      <li><strong>Single processor</strong> &mdash; sequential execution</li>
+      <li><strong>Constant-time operations</strong> &mdash; arithmetic, comparison, assignment, array indexing each take O(1)</li>
+      <li><strong>Flat memory</strong> &mdash; unlimited, constant-time access to any cell</li>
+      <li><strong>Fixed word size</strong> &mdash; w = c&middot;log n bits</li>
+    </ol>
+    <p><strong>Ignores:</strong> memory hierarchy, caching, parallelism, compiler optimizations, pipelining.</p>
+    <div class="note">Despite simplifications, an O(n log n) algorithm virtually always beats O(n&sup2;) in practice for large n.</div>
+  </div></div>
+</div>
+
+<div class="qa" onclick="this.classList.toggle('open')">
+  <div class="q"><span class="q-num">4</span><span class="q-text">Differentiate between best, worst, and average case analysis. Which is most commonly used?</span><span class="q-arrow">&#9662;</span></div>
+  <div class="a"><div class="a-inner">
+    <table>
+      <tr><th>Aspect</th><th>Best Case</th><th>Worst Case</th><th>Average Case</th></tr>
+      <tr><td><strong>Measures</strong></td><td>min T over all inputs</td><td>max T over all inputs</td><td>expected T over distribution</td></tr>
+      <tr><td><strong>Usefulness</strong></td><td>Rarely informative</td><td>Gives upper-bound guarantee</td><td>Realistic prediction</td></tr>
+      <tr><td><strong>Difficulty</strong></td><td>Easy</td><td>Moderate</td><td>Hard</td></tr>
+    </table>
+    <div class="correct"><strong>Worst case is most commonly used</strong> because it gives a guarantee, requires no probability assumptions, and is the fairest basis for comparison.</div>
+  </div></div>
+</div>
+
+<div class="qa" onclick="this.classList.toggle('open')">
+  <div class="q"><span class="q-num">5</span><span class="q-text">What is the difference between partial correctness and total correctness?</span><span class="q-arrow">&#9662;</span></div>
+  <div class="a"><div class="a-inner">
+    <table>
+      <tr><th></th><th>Partial Correctness</th><th>Total Correctness</th></tr>
+      <tr><td><strong>Definition</strong></td><td>IF terminates, THEN output is correct</td><td>ALWAYS terminates AND output is correct</td></tr>
+      <tr><td><strong>Termination?</strong></td><td>Not required</td><td>Must be guaranteed</td></tr>
+    </table>
+    <div class="note"><strong>Total Correctness = Partial Correctness + Termination</strong></div>
+  </div></div>
+</div>
+
+<div class="qa" onclick="this.classList.toggle('open')">
+  <div class="q"><span class="q-num">6</span><span class="q-text">What is a loop invariant? State and explain its three properties.</span><span class="q-arrow">&#9662;</span></div>
+  <div class="a"><div class="a-inner">
+    <p>A loop invariant is a logical assertion about the algorithm's state that holds at a specific point in a loop. It is analogous to mathematical induction.</p>
+    <ol>
+      <li><strong>Initialization (Base Case)</strong> &mdash; true before the first iteration</li>
+      <li><strong>Maintenance (Inductive Step)</strong> &mdash; if true before an iteration, remains true after</li>
+      <li><strong>Termination</strong> &mdash; when the loop ends, the invariant + termination condition proves correctness</li>
+    </ol>
+  </div></div>
+</div>
+
+<div class="qa" onclick="this.classList.toggle('open')">
+  <div class="q"><span class="q-num">7</span><span class="q-text">What is the divide-and-conquer paradigm? Give three examples.</span><span class="q-arrow">&#9662;</span></div>
+  <div class="a"><div class="a-inner">
+    <p>Three steps at each level of recursion:</p>
+    <ol>
+      <li><strong>Divide</strong> &mdash; break into smaller subproblems</li>
+      <li><strong>Conquer</strong> &mdash; solve recursively (or directly for base case)</li>
+      <li><strong>Combine</strong> &mdash; merge subproblem solutions</li>
+    </ol>
+    <table>
+      <tr><th>Algorithm</th><th>Recurrence</th><th>Complexity</th></tr>
+      <tr><td>Merge Sort</td><td>T(n) = 2T(n/2) + O(n)</td><td>O(n log n)</td></tr>
+      <tr><td>Binary Search</td><td>T(n) = T(n/2) + O(1)</td><td>O(log n)</td></tr>
+      <tr><td>Strassen&rsquo;s Matrix Multiply</td><td>T(n) = 7T(n/2) + O(n&sup2;)</td><td>O(n<sup>2.807</sup>)</td></tr>
+    </table>
+  </div></div>
+</div>
+
+<div class="qa" onclick="this.classList.toggle('open')">
+  <div class="q"><span class="q-num">8</span><span class="q-text">When does the Master Theorem NOT apply? Give examples.</span><span class="q-arrow">&#9662;</span></div>
+  <div class="a"><div class="a-inner">
+    <h4>1. Unequal subproblem sizes:</h4>
+    <pre><code>T(n) = T(n/3) + T(2n/3) + n</code></pre>
+    <h4>2. Non-polynomial gap between f(n) and n<sup>log<sub>b</sub>a</sup>:</h4>
+    <pre><code>T(n) = 2T(n/2) + n/log n     (gap between Case 1 &amp; 2)
+T(n) = 4T(n/2) + n&sup2; log n   (gap between Case 2 &amp; 3)</code></pre>
+    <h4>3. Subtraction instead of division:</h4>
+    <pre><code>T(n) = T(n-1) + n
+T(n) = 2T(n-1) + 1           (Towers of Hanoi)</code></pre>
+    <h4>4. Non-constant number of subproblems:</h4>
+    <pre><code>T(n) = nT(n/2) + n            (a depends on n)</code></pre>
+    <div class="note">Use <strong>Recursion Tree</strong> or <strong>Substitution Method</strong> instead.</div>
+  </div></div>
+</div>
+
+<!-- ============================================ -->
+<!-- SECTION B -->
+<!-- ============================================ -->
+<div class="section-title" id="secB">Section B: Counting Primitive Operations</div>
+
+<div class="qa" onclick="this.classList.toggle('open')">
+  <div class="q"><span class="q-num">9</span><span class="q-text">Count primitive operations and give Big-&Theta; for <code>arrayMax(A, n)</code>.</span><span class="q-arrow">&#9662;</span></div>
+  <div class="a"><div class="a-inner">
+    <pre><code>Algorithm arrayMax(A, n)
+    currentMax &larr; A[0]
+    for i &larr; 1 to n-1 do
+        if A[i] &gt; currentMax then
+            currentMax &larr; A[i]
+    return currentMax</code></pre>
+    <table>
+      <tr><th>Line</th><th>Operation</th><th>Count (worst)</th></tr>
+      <tr><td><code>currentMax &larr; A[0]</code></td><td>index + assign</td><td>2</td></tr>
+      <tr><td><code>for i &larr; 1 to n-1</code></td><td>init + increments + compares</td><td>2n</td></tr>
+      <tr><td><code>if A[i] &gt; currentMax</code></td><td>index + compare &times; (n-1)</td><td>2(n-1)</td></tr>
+      <tr><td><code>currentMax &larr; A[i]</code></td><td>index + assign &times; (n-1) worst</td><td>2(n-1)</td></tr>
+      <tr><td><code>return</code></td><td>return</td><td>1</td></tr>
+      <tr><td><strong>Total</strong></td><td></td><td><strong>6n &minus; 3</strong></td></tr>
+    </table>
+    <p>Best case (max at index 0): <strong>4n &minus; 1</strong> ops. Either way: <strong>T(n) = &Theta;(n)</strong></p>
+  </div></div>
+</div>
+
+<div class="qa" onclick="this.classList.toggle('open')">
+  <div class="q"><span class="q-num">10</span><span class="q-text">Count primitive operations for <code>PrefixAverages(X, n)</code> with nested loops.</span><span class="q-arrow">&#9662;</span></div>
+  <div class="a"><div class="a-inner">
+    <pre><code>Algorithm PrefixAverages(X, n)
+    Let A be an array of n numbers
+    for i &larr; 0 to n-1 do
+        s &larr; 0
+        for j &larr; 0 to i do
+            s &larr; s + X[j]
+        A[i] &larr; s / (i + 1)
+    return A</code></pre>
+    <p>Inner loop runs: &Sigma;(i+1) for i=0 to n-1 = <strong>n(n+1)/2</strong> iterations.</p>
+    <div class="correct"><strong>T(n) = &Theta;(n&sup2;)</strong></div>
+  </div></div>
+</div>
+
+<div class="qa" onclick="this.classList.toggle('open')">
+  <div class="q"><span class="q-num">11</span><span class="q-text">Analyze the improved <code>PrefixAverages2</code> and compare with Q10.</span><span class="q-arrow">&#9662;</span></div>
+  <div class="a"><div class="a-inner">
+    <pre><code>Algorithm PrefixAverages2(X, n)
+    Let A be an array of n numbers
+    s &larr; 0
+    for i &larr; 0 to n-1 do
+        s &larr; s + X[i]
+        A[i] &larr; s / (i + 1)
+    return A</code></pre>
+    <p>Single loop, O(1) work per iteration.</p>
+    <div class="correct"><strong>T(n) = &Theta;(n)</strong> &mdash; linear time!</div>
+    <div class="note">Improved version is <strong>n times faster</strong> by maintaining a running sum instead of recomputing from scratch.</div>
+  </div></div>
+</div>
+
+<!-- ============================================ -->
+<!-- SECTION C -->
+<!-- ============================================ -->
+<div class="section-title" id="secC">Section C: Asymptotic Notation &mdash; Proofs &amp; Comparisons</div>
+
+<div class="qa" onclick="this.classList.toggle('open')">
+  <div class="q"><span class="q-num">12</span><span class="q-text">Prove that 5n&sup2; + 3n + 20 = O(n&sup2;).</span><span class="q-arrow">&#9662;</span></div>
+  <div class="a"><div class="a-inner">
+    <p>Need c &gt; 0 and n<sub>0</sub> such that 5n&sup2; + 3n + 20 &le; c&middot;n&sup2; for all n &ge; n<sub>0</sub>.</p>
+    <pre><code>For n &ge; 1:
+5n&sup2; + 3n + 20 &le; 5n&sup2; + 3n&sup2; + 20n&sup2; = 28n&sup2;
+
+Choose c = 28, n&#x2080; = 1.  &check;</code></pre>
+    <p>Tighter: for n &ge; 5: 5n&sup2; + n&sup2; + n&sup2; = 7n&sup2;, so c = 7, n<sub>0</sub> = 5. <span class="checkmark">&check;</span></p>
+  </div></div>
+</div>
+
+<div class="qa" onclick="this.classList.toggle('open')">
+  <div class="q"><span class="q-num">13</span><span class="q-text">Prove that 3n&sup3; + 2n&sup2; + 5 = &Theta;(n&sup3;).</span><span class="q-arrow">&#9662;</span></div>
+  <div class="a"><div class="a-inner">
+    <p><strong>Upper bound (O):</strong> 3n&sup3; + 2n&sup3; + 5n&sup3; = 10n&sup3; &rArr; c<sub>2</sub> = 10</p>
+    <p><strong>Lower bound (&Omega;):</strong> 3n&sup3; + 2n&sup2; + 5 &ge; 3n&sup3; &rArr; c<sub>1</sub> = 3</p>
+    <div class="correct"><strong>&Theta;(n&sup3;)</strong> with c<sub>1</sub> = 3, c<sub>2</sub> = 10, n<sub>0</sub> = 1. <span class="checkmark">&check;</span></div>
+  </div></div>
+</div>
+
+<div class="qa" onclick="this.classList.toggle('open')">
+  <div class="q"><span class="q-num">14</span><span class="q-text">Prove that n&sup2; &ne; O(n).</span><span class="q-arrow">&#9662;</span></div>
+  <div class="a"><div class="a-inner">
+    <p>Suppose n&sup2; = O(n). Then n&sup2; &le; c&middot;n &rArr; n &le; c for all n &ge; n<sub>0</sub>.</p>
+    <p>But n grows without bound, so no finite c works. <strong>Contradiction.</strong></p>
+    <div class="wrong">Therefore n&sup2; &ne; O(n). <span class="checkmark">&check;</span></div>
+  </div></div>
+</div>
+
+<div class="qa" onclick="this.classList.toggle('open')">
+  <div class="q"><span class="q-num">15</span><span class="q-text">Prove or disprove: 2<sup>n+1</sup> = O(2<sup>n</sup>).</span><span class="q-arrow">&#9662;</span></div>
+  <div class="a"><div class="a-inner">
+    <p><span class="badge badge-true">TRUE</span></p>
+    <pre><code>2<sup>n+1</sup> = 2 &middot; 2<sup>n</sup> &le; 2 &middot; 2<sup>n</sup>
+
+Choose c = 2, n&#x2080; = 1.  &check;</code></pre>
+    <div class="note">The constant factor 2 is absorbed. In fact 2<sup>n+1</sup> = &Theta;(2<sup>n</sup>).</div>
+  </div></div>
+</div>
+
+<div class="qa" onclick="this.classList.toggle('open')">
+  <div class="q"><span class="q-num">16</span><span class="q-text">Prove or disprove: 2<sup>2n</sup> = O(2<sup>n</sup>).</span><span class="q-arrow">&#9662;</span></div>
+  <div class="a"><div class="a-inner">
+    <p><span class="badge badge-false">FALSE</span></p>
+    <p>2<sup>2n</sup> = (2<sup>n</sup>)&sup2;. We'd need (2<sup>n</sup>)&sup2; &le; c&middot;2<sup>n</sup>, i.e., 2<sup>n</sup> &le; c. But 2<sup>n</sup> &rarr; &infin;. <strong>Contradiction.</strong></p>
+    <div class="wrong"><strong>Key lesson:</strong> 2<sup>2n</sup> is exponentially larger than 2<sup>n</sup>. Don't confuse with 2<sup>n+1</sup> = 2&middot;2<sup>n</sup> which IS O(2<sup>n</sup>).</div>
+  </div></div>
+</div>
+
+<div class="qa" onclick="this.classList.toggle('open')">
+  <div class="q"><span class="q-num">17</span><span class="q-text">Order these functions by growth rate: n&sup2;, 2<sup>n</sup>, n log n, &radic;n, log n, n!, (log n)&sup2;, n, 1, n&sup3;, n log&sup2; n</span><span class="q-arrow">&#9662;</span></div>
+  <div class="a"><div class="a-inner">
+    <pre><code>1  &lt;  log n  &lt;  (log n)&sup2;  &lt;  &radic;n  &lt;  n  &lt;  n log n  &lt;  n log&sup2; n  &lt;  n&sup2;  &lt;  n&sup3;  &lt;  2<sup>n</sup>  &lt;  n!</code></pre>
+    <h4>Tricky comparisons:</h4>
+    <ul>
+      <li>(log n)&sup2; vs &radic;n: any polynomial of log grows slower than any power of n</li>
+      <li>n&sup3; vs 2<sup>n</sup>: any polynomial &lt; any exponential</li>
+      <li>2<sup>n</sup> vs n!: by Stirling's, n! &asymp; (n/e)<sup>n</sup> grows much faster</li>
+    </ul>
+  </div></div>
+</div>
+
+<div class="qa" onclick="this.classList.toggle('open')">
+  <div class="q"><span class="q-num">18</span><span class="q-text">For each pair, state O, &Omega;, or &Theta; relationship.</span><span class="q-arrow">&#9662;</span></div>
+  <div class="a"><div class="a-inner">
+    <table>
+      <tr><th>#</th><th>f(n)</th><th>g(n)</th><th>Answer</th></tr>
+      <tr><td>a</td><td>n&sup2;</td><td>n&sup3;</td><td><strong>f = O(g)</strong></td></tr>
+      <tr><td>b</td><td>n&sup2; log n</td><td>n&sup2;</td><td><strong>f = &Omega;(g)</strong></td></tr>
+      <tr><td>c</td><td>3n&sup2; + 7n</td><td>n&sup2;</td><td><strong>f = &Theta;(g)</strong></td></tr>
+      <tr><td>d</td><td>2<sup>n</sup></td><td>3<sup>n</sup></td><td><strong>f = O(g)</strong> &mdash; (2/3)<sup>n</sup> &rarr; 0</td></tr>
+      <tr><td>e</td><td>log&sub2; n</td><td>log&sub3; n</td><td><strong>f = &Theta;(g)</strong> &mdash; differ by constant log&sub2;3</td></tr>
+      <tr><td>f</td><td>n!</td><td>2<sup>n</sup></td><td><strong>f = &Omega;(g)</strong></td></tr>
+      <tr><td>g</td><td>n</td><td>n<sup>1+1/log n</sup></td><td><strong>f = &Theta;(g)</strong> &mdash; since n<sup>1/log n</sup> = 2</td></tr>
+    </table>
+  </div></div>
+</div>
+
+<div class="qa" onclick="this.classList.toggle('open')">
+  <div class="q"><span class="q-num">19</span><span class="q-text">Using limits, find the asymptotic relationship between n&sup2; and n&sup2; log n.</span><span class="q-arrow">&#9662;</span></div>
+  <div class="a"><div class="a-inner">
+    <pre><code>lim (n&rarr;&infin;) n&sup2; / (n&sup2; log n) = lim 1/log n = 0</code></pre>
+    <p>Since the limit is 0: <strong>n&sup2; = o(n&sup2; log n)</strong>, meaning n&sup2; grows strictly slower.</p>
+  </div></div>
+</div>
+
+<div class="qa" onclick="this.classList.toggle('open')">
+  <div class="q"><span class="q-num">20</span><span class="q-text">Prove that log(n!) = &Theta;(n log n).</span><span class="q-arrow">&#9662;</span></div>
+  <div class="a"><div class="a-inner">
+    <h4>Upper bound:</h4>
+    <pre><code>n! &le; n<sup>n</sup>  &rArr;  log(n!) &le; n log n  &rArr;  O(n log n) &check;</code></pre>
+    <h4>Lower bound:</h4>
+    <pre><code>n! &ge; (n/2)<sup>n/2</sup>   (top half of product, each term &ge; n/2)
+
+log(n!) &ge; (n/2) log(n/2) = (n/2)(log n - 1) = &Omega;(n log n)  &check;</code></pre>
+    <div class="correct"><strong>log(n!) = &Theta;(n log n)</strong> <span class="checkmark">&check;</span></div>
+  </div></div>
+</div>
+
+<!-- ============================================ -->
+<!-- SECTION D -->
+<!-- ============================================ -->
+<div class="section-title" id="secD">Section D: Analyzing Iterative Algorithms</div>
+
+<div class="qa" onclick="this.classList.toggle('open')">
+  <div class="q"><span class="q-num">21</span><span class="q-text">Time complexity of triple-nested loop (each 1 to n)?</span><span class="q-arrow">&#9662;</span></div>
+  <div class="a"><div class="a-inner">
+    <pre><code>for i &larr; 1 to n do
+    for j &larr; 1 to n do
+        for k &larr; 1 to n do
+            x &larr; x + 1</code></pre>
+    <p>n &times; n &times; n = n&sup3; executions of the innermost statement.</p>
+    <div class="correct"><strong>T(n) = &Theta;(n&sup3;)</strong></div>
+  </div></div>
+</div>
+
+<div class="qa" onclick="this.classList.toggle('open')">
+  <div class="q"><span class="q-num">22</span><span class="q-text">Analyze: inner loop <code>j &larr; 1 to i</code> inside <code>i &larr; 1 to n</code>.</span><span class="q-arrow">&#9662;</span></div>
+  <div class="a"><div class="a-inner">
+    <pre><code>Total = &Sigma; i for i = 1 to n = 1 + 2 + ... + n = n(n+1)/2</code></pre>
+    <div class="correct"><strong>T(n) = &Theta;(n&sup2;)</strong></div>
+  </div></div>
+</div>
+
+<div class="qa" onclick="this.classList.toggle('open')">
+  <div class="q"><span class="q-num">23</span><span class="q-text">Analyze: outer loop halves, inner loop doubles.</span><span class="q-arrow">&#9662;</span></div>
+  <div class="a"><div class="a-inner">
+    <pre><code>i &larr; n
+while i &ge; 1 do
+    j &larr; i
+    while j &le; n do
+        x &larr; x + 1;  j &larr; 2*j
+    i &larr; i/2</code></pre>
+    <p>Outer: i = n, n/2, ..., 1 &rarr; log n + 1 iterations.</p>
+    <p>For i = n/2<sup>k</sup>: inner runs k + 1 times.</p>
+    <pre><code>Total = &Sigma;(k+1) for k = 0 to log n = (log n + 1)(log n + 2)/2</code></pre>
+    <div class="correct"><strong>T(n) = &Theta;(log&sup2; n)</strong></div>
+  </div></div>
+</div>
+
+<div class="qa" onclick="this.classList.toggle('open')">
+  <div class="q"><span class="q-num">24</span><span class="q-text">Analyze: linear outer &times; logarithmic inner (j doubles).</span><span class="q-arrow">&#9662;</span></div>
+  <div class="a"><div class="a-inner">
+    <p>Outer loop: n times. Inner loop: j = 1, 2, 4, ... until j &ge; n &rarr; log n iterations.</p>
+    <div class="correct"><strong>T(n) = &Theta;(n log n)</strong></div>
+  </div></div>
+</div>
+
+<div class="qa" onclick="this.classList.toggle('open')">
+  <div class="q"><span class="q-num">25</span><span class="q-text">Analyze: inner loop runs i&sup2; times.</span><span class="q-arrow">&#9662;</span></div>
+  <div class="a"><div class="a-inner">
+    <pre><code>Total = &Sigma; i&sup2; for i = 1 to n = n(n+1)(2n+1)/6</code></pre>
+    <div class="correct"><strong>T(n) = &Theta;(n&sup3;)</strong></div>
+  </div></div>
+</div>
+
+<div class="qa" onclick="this.classList.toggle('open')">
+  <div class="q"><span class="q-num">26</span><span class="q-text">Two sequential blocks: nested n&times;n loop, then single n loop.</span><span class="q-arrow">&#9662;</span></div>
+  <div class="a"><div class="a-inner">
+    <p>Block 1: &Theta;(n&sup2;). Block 2: &Theta;(n). By sum rule:</p>
+    <div class="correct"><strong>T(n) = &Theta;(n&sup2;)</strong> &mdash; dominant term wins.</div>
+  </div></div>
+</div>
+
+<!-- ============================================ -->
+<!-- SECTION E -->
+<!-- ============================================ -->
+<div class="section-title" id="secE">Section E: Loop Invariants &amp; Correctness Proofs</div>
+
+<div class="qa" onclick="this.classList.toggle('open')">
+  <div class="q"><span class="q-num">27</span><span class="q-text">Prove Selection Sort correct using a loop invariant.</span><span class="q-arrow">&#9662;</span></div>
+  <div class="a"><div class="a-inner">
+    <pre><code>SelectionSort(A, n)
+    for i &larr; 0 to n-2 do
+        min &larr; i
+        for j &larr; i+1 to n-1 do
+            if A[j] &lt; A[min] then min &larr; j
+        swap(A[i], A[min])</code></pre>
+    <p><strong>Invariant:</strong> At start of iteration i, A[0..i-1] contains the i smallest elements in sorted order.</p>
+    <h4>Initialization (i = 0):</h4>
+    <p>A[0..-1] is empty &mdash; trivially sorted. <span class="checkmark">&check;</span></p>
+    <h4>Maintenance:</h4>
+    <p>Inner loop finds min element in A[i..n-1]. After swap, A[0..i] has the (i+1) smallest elements sorted. <span class="checkmark">&check;</span></p>
+    <h4>Termination (i = n-1):</h4>
+    <p>A[0..n-2] sorted with smallest n-1 elements. Remaining A[n-1] must be largest. Entire array sorted. <span class="checkmark">&check;</span></p>
+  </div></div>
+</div>
+
+<div class="qa" onclick="this.classList.toggle('open')">
+  <div class="q"><span class="q-num">28</span><span class="q-text">State a loop invariant for Binary Search and prove correctness.</span><span class="q-arrow">&#9662;</span></div>
+  <div class="a"><div class="a-inner">
+    <p><strong>Invariant:</strong> If <code>key</code> exists in A, then key is in A[lo..hi].</p>
+    <h4>Initialization:</h4>
+    <p>lo=0, hi=n-1 covers entire array. <span class="checkmark">&check;</span></p>
+    <h4>Maintenance:</h4>
+    <ul>
+      <li>A[mid] = key &rArr; return mid (correct!) <span class="checkmark">&check;</span></li>
+      <li>key &lt; A[mid] &rArr; key can't be in A[mid..hi]; set hi &larr; mid-1 <span class="checkmark">&check;</span></li>
+      <li>key &gt; A[mid] &rArr; key can't be in A[lo..mid]; set lo &larr; mid+1 <span class="checkmark">&check;</span></li>
+    </ul>
+    <h4>Termination:</h4>
+    <p>lo &gt; hi means range is empty. Key would need to be in an empty range &mdash; contradiction. Returning -1 is correct. <span class="checkmark">&check;</span></p>
+    <p><strong>Termination proof:</strong> (hi - lo) strictly decreases each iteration.</p>
+  </div></div>
+</div>
+
+<div class="qa" onclick="this.classList.toggle('open')">
+  <div class="q"><span class="q-num">29</span><span class="q-text">Prove <code>Power(a, n)</code> correctly computes a<sup>n</sup>.</span><span class="q-arrow">&#9662;</span></div>
+  <div class="a"><div class="a-inner">
+    <pre><code>Power(a, n)
+    if n = 0 return 1
+    if n is even:  half &larr; Power(a, n/2); return half &times; half
+    else:          return a &times; Power(a, n-1)</code></pre>
+    <p><strong>Proof by strong induction on n:</strong></p>
+    <p><strong>Base (n=0):</strong> Returns 1 = a&sup0;. <span class="checkmark">&check;</span></p>
+    <p><strong>Even n:</strong> half = a<sup>n/2</sup> (by IH). Returns a<sup>n/2</sup> &middot; a<sup>n/2</sup> = a<sup>n</sup>. <span class="checkmark">&check;</span></p>
+    <p><strong>Odd n:</strong> Returns a &middot; a<sup>n-1</sup> (by IH) = a<sup>n</sup>. <span class="checkmark">&check;</span></p>
+    <p><strong>Terminates:</strong> n strictly decreases each call, base case at 0. <span class="checkmark">&check;</span></p>
+  </div></div>
+</div>
+
+<!-- ============================================ -->
+<!-- SECTION F -->
+<!-- ============================================ -->
+<div class="section-title" id="secF">Section F: Writing Recurrence Relations</div>
+
+<div class="qa" onclick="this.classList.toggle('open')">
+  <div class="q"><span class="q-num">30</span><span class="q-text">Write recurrence relations for 6 classic recursive algorithms.</span><span class="q-arrow">&#9662;</span></div>
+  <div class="a"><div class="a-inner">
+    <table>
+      <tr><th>Algorithm</th><th>Recurrence</th><th>Solution</th></tr>
+      <tr><td>(a) Factorial</td><td>T(n) = T(n-1) + O(1)</td><td><strong>O(n)</strong></td></tr>
+      <tr><td>(b) Fibonacci (naive)</td><td>T(n) = T(n-1) + T(n-2) + O(1)</td><td><strong>O(2<sup>n</sup>)</strong> &asymp; O(&phi;<sup>n</sup>)</td></tr>
+      <tr><td>(c) Merge Sort</td><td>T(n) = 2T(n/2) + O(n)</td><td><strong>O(n log n)</strong></td></tr>
+      <tr><td>(d) Binary Search</td><td>T(n) = T(n/2) + O(1)</td><td><strong>O(log n)</strong></td></tr>
+      <tr><td>(e) Towers of Hanoi</td><td>T(n) = 2T(n-1) + O(1)</td><td><strong>O(2<sup>n</sup>)</strong> = 2<sup>n</sup>-1 exactly</td></tr>
+      <tr><td>(f) Fast Exponentiation</td><td>T(n) = T(n/2) + O(1)</td><td><strong>O(log n)</strong></td></tr>
+    </table>
+  </div></div>
+</div>
+
+<!-- ============================================ -->
+<!-- SECTION G -->
+<!-- ============================================ -->
+<div class="section-title" id="secG">Section G: Master Theorem</div>
+
+<div class="qa" onclick="this.classList.toggle('open')">
+  <div class="q"><span class="q-num">31</span><span class="q-text">Solve 8 recurrences using the Master Theorem (a through h).</span><span class="q-arrow">&#9662;</span></div>
+  <div class="a"><div class="a-inner">
+    <table>
+      <tr><th>Recurrence</th><th>a</th><th>b</th><th>n<sup>log<sub>b</sub>a</sup></th><th>Case</th><th>T(n)</th></tr>
+      <tr><td>(a) T = 4T(n/2) + n</td><td>4</td><td>2</td><td>n&sup2;</td><td>1</td><td><strong>&Theta;(n&sup2;)</strong></td></tr>
+      <tr><td>(b) T = 4T(n/2) + n&sup2;</td><td>4</td><td>2</td><td>n&sup2;</td><td>2</td><td><strong>&Theta;(n&sup2; log n)</strong></td></tr>
+      <tr><td>(c) T = 4T(n/2) + n&sup3;</td><td>4</td><td>2</td><td>n&sup2;</td><td>3</td><td><strong>&Theta;(n&sup3;)</strong></td></tr>
+      <tr><td>(d) T = 2T(n/4) + &radic;n</td><td>2</td><td>4</td><td>&radic;n</td><td>2</td><td><strong>&Theta;(&radic;n log n)</strong></td></tr>
+      <tr><td>(e) T = 7T(n/2) + n&sup2;</td><td>7</td><td>2</td><td>n<sup>2.807</sup></td><td>1</td><td><strong>&Theta;(n<sup>2.807</sup>)</strong> (Strassen)</td></tr>
+      <tr><td>(f) T = T(2n/3) + 1</td><td>1</td><td>3/2</td><td>1</td><td>2</td><td><strong>&Theta;(log n)</strong></td></tr>
+      <tr><td>(g) T = 16T(n/4) + n&sup2;</td><td>16</td><td>4</td><td>n&sup2;</td><td>2</td><td><strong>&Theta;(n&sup2; log n)</strong></td></tr>
+      <tr><td>(h) T = 3T(n/9) + &radic;n</td><td>3</td><td>9</td><td>&radic;n</td><td>2</td><td><strong>&Theta;(&radic;n log n)</strong></td></tr>
+    </table>
+  </div></div>
+</div>
+
+<div class="qa" onclick="this.classList.toggle('open')">
+  <div class="q"><span class="q-num">32</span><span class="q-text">For which recurrences does the Master Theorem NOT apply? Explain.</span><span class="q-arrow">&#9662;</span></div>
+  <div class="a"><div class="a-inner">
+    <h4>(a) T(n) = 2T(n/2) + n log n</h4>
+    <p>n<sup>log<sub>b</sub>a</sup> = n. f(n) = n log n is larger but <strong>not polynomially larger</strong>. Falls in the gap. Extended Case 2 gives <strong>&Theta;(n log&sup2; n)</strong>.</p>
+    <h4>(b) T(n) = T(n-2) + n&sup2;</h4>
+    <p><strong>Subtraction recurrence</strong>. By unrolling: &asymp; n/2 terms of O(n&sup2;) &rArr; <strong>&Theta;(n&sup3;)</strong>.</p>
+    <h4>(c) T(n) = T(n/2) + T(n/3) + n</h4>
+    <p><strong>Different subproblem sizes</strong> &mdash; doesn't fit aT(n/b) form.</p>
+    <h4>(d) T(n) = 0.5T(n/2) + n</h4>
+    <p><strong>a = 0.5 &lt; 1</strong> &mdash; Master Theorem requires a &ge; 1.</p>
+  </div></div>
+</div>
+
+<!-- ============================================ -->
+<!-- SECTION H -->
+<!-- ============================================ -->
+<div class="section-title" id="secH">Section H: Recursion Tree Method</div>
+
+<div class="qa" onclick="this.classList.toggle('open')">
+  <div class="q"><span class="q-num">33</span><span class="q-text">Solve T(n) = 4T(n/2) + cn using the recursion tree.</span><span class="q-arrow">&#9662;</span></div>
+  <div class="a"><div class="a-inner">
+    <pre><code>Level i: 4<sup>i</sup> nodes, each cn/2<sup>i</sup>  &rarr;  Total: 2<sup>i</sup>&middot;cn
+
+Ratio between levels = 2 &gt; 1  (INCREASING series)
+
+T(n) = cn &middot; &Sigma; 2<sup>i</sup> for i=0..lg n-1  +  &Theta;(n&sup2;)
+     = cn(n-1) + &Theta;(n&sup2;)
+     = &Theta;(n&sup2;)</code></pre>
+    <div class="correct"><strong>Leaves dominate</strong>. Matches Case 1 (a=4, b=2, n<sup>log<sub>2</sub>4</sup> = n&sup2;).</div>
+  </div></div>
+</div>
+
+<div class="qa" onclick="this.classList.toggle('open')">
+  <div class="q"><span class="q-num">34</span><span class="q-text">Solve T(n) = T(n/3) + T(2n/3) + cn (unequal split, Master Theorem fails).</span><span class="q-arrow">&#9662;</span></div>
+  <div class="a"><div class="a-inner">
+    <pre><code>Every complete level sums to cn.
+
+Shortest path (always left):  depth = log&sub3; n
+Longest path (always right):  depth = log<sub>3/2</sub> n
+
+Both are &Theta;(log n).</code></pre>
+    <div class="correct"><strong>T(n) = &Theta;(n log n)</strong></div>
+  </div></div>
+</div>
+
+<div class="qa" onclick="this.classList.toggle('open')">
+  <div class="q"><span class="q-num">35</span><span class="q-text">Solve T(n) = T(n/2) + cn&sup2; using the recursion tree.</span><span class="q-arrow">&#9662;</span></div>
+  <div class="a"><div class="a-inner">
+    <pre><code>Level i: (1/4)<sup>i</sup> &middot; cn&sup2;
+
+Ratio = 1/4 &lt; 1  (DECREASING series)
+
+T(n) &lt; cn&sup2; &middot; 1/(1-1/4) = cn&sup2; &middot; 4/3</code></pre>
+    <div class="correct"><strong>Root dominates. T(n) = &Theta;(n&sup2;)</strong></div>
+  </div></div>
+</div>
+
+<div class="qa" onclick="this.classList.toggle('open')">
+  <div class="q"><span class="q-num">36</span><span class="q-text">Solve T(n) = 3T(n/2) + cn using the recursion tree.</span><span class="q-arrow">&#9662;</span></div>
+  <div class="a"><div class="a-inner">
+    <pre><code>Level i: (3/2)<sup>i</sup> &middot; cn
+
+Ratio = 3/2 &gt; 1  (INCREASING)
+Leaves: 3<sup>lg n</sup> = n<sup>lg 3</sup> &asymp; n<sup>1.585</sup></code></pre>
+    <div class="correct"><strong>Leaves dominate. T(n) = &Theta;(n<sup>lg 3</sup>) &asymp; &Theta;(n<sup>1.585</sup>)</strong></div>
+  </div></div>
+</div>
+
+<!-- ============================================ -->
+<!-- SECTION I -->
+<!-- ============================================ -->
+<div class="section-title" id="secI">Section I: Substitution Method</div>
+
+<div class="qa" onclick="this.classList.toggle('open')">
+  <div class="q"><span class="q-num">37</span><span class="q-text">Prove T(n) = 2T(n/2) + n is O(n log n) by substitution.</span><span class="q-arrow">&#9662;</span></div>
+  <div class="a"><div class="a-inner">
+    <p><strong>Guess:</strong> T(n) &le; c&middot;n&middot;lg n</p>
+    <pre><code>T(n) = 2T(n/2) + n
+     &le; 2&middot;c&middot;(n/2)&middot;lg(n/2) + n
+     = c&middot;n&middot;(lg n - 1) + n
+     = c&middot;n&middot;lg n - cn + n
+     = c&middot;n&middot;lg n + n(1 - c)
+     &le; c&middot;n&middot;lg n           when c &ge; 1  &check;</code></pre>
+    <p><strong>Base:</strong> T(2) = 4 &le; c&middot;2&middot;1 = 2c &rArr; c &ge; 2. <span class="checkmark">&check;</span></p>
+  </div></div>
+</div>
+
+<div class="qa" onclick="this.classList.toggle('open')">
+  <div class="q"><span class="q-num">38</span><span class="q-text">Prove T(n) = T(n-1) + n is O(n&sup2;) by substitution.</span><span class="q-arrow">&#9662;</span></div>
+  <div class="a"><div class="a-inner">
+    <p><strong>Guess:</strong> T(n) &le; c&middot;n&sup2;</p>
+    <pre><code>T(n) &le; c(n-1)&sup2; + n
+     = cn&sup2; - 2cn + c + n
+     = cn&sup2; + n(1-2c) + c
+     &le; cn&sup2;              when c &ge; 1  &check;</code></pre>
+  </div></div>
+</div>
+
+<div class="qa" onclick="this.classList.toggle('open')">
+  <div class="q"><span class="q-num">39</span><span class="q-text">Prove T(n) = 4T(n/2) + n is O(n&sup2;) &mdash; subtracting lower-order term technique.</span><span class="q-arrow">&#9662;</span></div>
+  <div class="a"><div class="a-inner">
+    <h4>Attempt 1 (fails):</h4>
+    <pre><code>Guess T(n) &le; cn&sup2;:
+T(n) &le; 4c(n/2)&sup2; + n = cn&sup2; + n    ← NOT &le; cn&sup2;. Stuck!</code></pre>
+    <h4>Attempt 2 (works &mdash; subtract dn):</h4>
+    <pre><code>Guess T(n) &le; cn&sup2; - dn:
+T(n) &le; 4(c(n/2)&sup2; - d(n/2)) + n
+     = cn&sup2; - 2dn + n
+     = cn&sup2; - dn + n(1-d)
+     &le; cn&sup2; - dn              when d &ge; 1  &check;</code></pre>
+    <div class="note"><strong>Key technique from CLRS 4.3:</strong> Subtracting a lower-order term gives &ldquo;room&rdquo; to absorb the extra +n.</div>
+  </div></div>
+</div>
+
+<div class="qa" onclick="this.classList.toggle('open')">
+  <div class="q"><span class="q-num">40</span><span class="q-text">Solve T(n) = 3T(&radic;n) + log n by changing variables.</span><span class="q-arrow">&#9662;</span></div>
+  <div class="a"><div class="a-inner">
+    <pre><code>Let m = lg n, so n = 2<sup>m</sup>, &radic;n = 2<sup>m/2</sup>
+
+T(2<sup>m</sup>) = 3T(2<sup>m/2</sup>) + m
+
+Let S(m) = T(2<sup>m</sup>):
+S(m) = 3S(m/2) + m
+
+Master: a=3, b=2, f(m)=m, m<sup>lg 3</sup> = m<sup>1.585</sup>
+f(m) = O(m<sup>1.585-&epsilon;</sup>) &rarr; Case 1
+
+S(m) = &Theta;(m<sup>lg 3</sup>)
+
+Substitute back (m = lg n):</code></pre>
+    <div class="correct"><strong>T(n) = &Theta;((lg n)<sup>lg 3</sup>) &asymp; &Theta;((lg n)<sup>1.585</sup>)</strong></div>
+  </div></div>
+</div>
+
+<div class="qa" onclick="this.classList.toggle('open')">
+  <div class="q"><span class="q-num">41</span><span class="q-text">Prove T(n) = 2T(&lfloor;n/2&rfloor; + 17) + n is O(n lg n) (CLRS 4.3-6).</span><span class="q-arrow">&#9662;</span></div>
+  <div class="a"><div class="a-inner">
+    <p><strong>Guess:</strong> T(n) &le; c(n-a)lg(n-a). Choose <strong>a = 34</strong>.</p>
+    <pre><code>T(n) &le; 2c(n/2+17-34)lg(n/2+17-34) + n
+     = c(n-34)lg((n-34)/2) + n
+     = c(n-34)lg(n-34) - c(n-34) + n
+     &le; c(n-34)lg(n-34)    for c &gt; 1, large n  &check;</code></pre>
+    <div class="note">The "+17" in the subproblem size doesn't affect the asymptotic result.</div>
+  </div></div>
+</div>
+
+<!-- ============================================ -->
+<!-- SECTION J -->
+<!-- ============================================ -->
+<div class="section-title" id="secJ">Section J: Mixed / Exam-Style Problems</div>
+
+<div class="qa" onclick="this.classList.toggle('open')">
+  <div class="q"><span class="q-num">42</span><span class="q-text">Mystery algorithm: two recursive calls on halves, O(1) combine. Time complexity?</span><span class="q-arrow">&#9662;</span></div>
+  <div class="a"><div class="a-inner">
+    <pre><code>T(n) = 2T(n/2) + O(1)
+Master: a=2, b=2, n<sup>log<sub>2</sub>2</sup> = n
+f(n) = 1 = O(n<sup>1-&epsilon;</sup>) &rarr; Case 1</code></pre>
+    <div class="correct"><strong>T(n) = &Theta;(n)</strong> &mdash; finds max element via divide-and-conquer.</div>
+  </div></div>
+</div>
+
+<div class="qa" onclick="this.classList.toggle('open')">
+  <div class="q"><span class="q-num">43</span><span class="q-text">Solve T(n) = T(n/4) + T(n/2) + n&sup2; via recursion tree.</span><span class="q-arrow">&#9662;</span></div>
+  <div class="a"><div class="a-inner">
+    <p>Level cost ratio &asymp; 5/16 &lt; 1 (decreasing geometric series).</p>
+    <pre><code>T(n) &le; cn&sup2; &middot; 1/(1-5/16) = cn&sup2; &middot; 16/11</code></pre>
+    <div class="correct"><strong>Root dominates. T(n) = &Theta;(n&sup2;)</strong></div>
+  </div></div>
+</div>
+
+<div class="qa" onclick="this.classList.toggle('open')">
+  <div class="q"><span class="q-num">44</span><span class="q-text">5 subproblems of size n/3 with O(n log n) overhead. Complexity?</span><span class="q-arrow">&#9662;</span></div>
+  <div class="a"><div class="a-inner">
+    <pre><code>T(n) = 5T(n/3) + O(n log n)
+n<sup>log<sub>3</sub>5</sup> = n<sup>1.465</sup>
+
+n log n = O(n<sup>1.065</sup>) and 1.065 &lt; 1.465 &rarr; Case 1</code></pre>
+    <div class="correct"><strong>T(n) = &Theta;(n<sup>log<sub>3</sub>5</sup>) &asymp; &Theta;(n<sup>1.465</sup>)</strong></div>
+  </div></div>
+</div>
+
+<div class="qa" onclick="this.classList.toggle('open')">
+  <div class="q"><span class="q-num">45</span><span class="q-text">Prove Insertion Sort worst case = &Theta;(n&sup2;) and best case = &Theta;(n).</span><span class="q-arrow">&#9662;</span></div>
+  <div class="a"><div class="a-inner">
+    <h4>Best case (already sorted):</h4>
+    <p>While-loop body never executes (t<sub>j</sub> = 1 for all j). Only linear terms remain.</p>
+    <div class="correct"><strong>T<sub>best</sub>(n) = &Theta;(n)</strong></div>
+    <h4>Worst case (reverse sorted):</h4>
+    <p>For each j, the while loop runs j times: &Sigma;j = n(n-1)/2.</p>
+    <div class="wrong"><strong>T<sub>worst</sub>(n) = &Theta;(n&sup2;)</strong></div>
+  </div></div>
+</div>
+
+<div class="qa" onclick="this.classList.toggle('open')">
+  <div class="q"><span class="q-num">46</span><span class="q-text">True or False (8 statements with justification).</span><span class="q-arrow">&#9662;</span></div>
+  <div class="a"><div class="a-inner">
+    <table>
+      <tr><th>#</th><th>Statement</th><th>Answer</th><th>Justification</th></tr>
+      <tr><td>a</td><td>n&sup2; + 10&sup6;n = &Theta;(n&sup2;)</td><td><span class="badge badge-true">TRUE</span></td><td>n&sup2; dominates for n &ge; 10&sup6;</td></tr>
+      <tr><td>b</td><td>f = O(g) &rArr; g = O(f)</td><td><span class="badge badge-false">FALSE</span></td><td>n = O(n&sup2;) but n&sup2; &ne; O(n)</td></tr>
+      <tr><td>c</td><td>f = O(g) and g = O(f) &rArr; f = &Theta;(g)</td><td><span class="badge badge-true">TRUE</span></td><td>g = O(f) &equiv; f = &Omega;(g)</td></tr>
+      <tr><td>d</td><td>n<sup>1/2</sup> = O(n<sup>2/3</sup>)</td><td><span class="badge badge-true">TRUE</span></td><td>n<sup>-1/6</sup> &rarr; 0</td></tr>
+      <tr><td>e</td><td>10<sup>n</sup> = O(2<sup>n</sup>)</td><td><span class="badge badge-false">FALSE</span></td><td>5<sup>n</sup> &rarr; &infin;</td></tr>
+      <tr><td>f</td><td>Master Thm solves T(n-1)+1</td><td><span class="badge badge-false">FALSE</span></td><td>Subtraction, not division</td></tr>
+      <tr><td>g</td><td>Worst case = lower bound</td><td><span class="badge badge-false">FALSE</span></td><td>Worst case is upper bound (max over inputs)</td></tr>
+      <tr><td>h</td><td>O(n) &sub; O(n log n) &sub; O(n&sup2;)</td><td><span class="badge badge-true">TRUE</span></td><td>Strict set inclusion</td></tr>
+    </table>
+  </div></div>
+</div>
+
+<div class="qa" onclick="this.classList.toggle('open')">
+  <div class="q"><span class="q-num">47</span><span class="q-text">Solve T(n) = 3T(n/3) + n by unrolling (repeated substitution).</span><span class="q-arrow">&#9662;</span></div>
+  <div class="a"><div class="a-inner">
+    <pre><code>T(n) = 3T(n/3) + n
+     = 9T(n/9) + n + n     = 9T(n/9) + 2n
+     = 27T(n/27) + 3n
+     ...
+After k steps: T(n) = 3<sup>k</sup> &middot; T(n/3<sup>k</sup>) + k&middot;n
+
+Bottom out at n/3<sup>k</sup> = 1 &rArr; k = log&sub3; n
+
+T(n) = n &middot; T(1) + n &middot; log&sub3; n = O(n) + O(n log n)</code></pre>
+    <div class="correct"><strong>T(n) = &Theta;(n log n)</strong> &mdash; matches Master Case 2.</div>
+  </div></div>
+</div>
+
+<div class="qa" onclick="this.classList.toggle('open')">
+  <div class="q"><span class="q-num">48</span><span class="q-text">T(n) = 2T(n-1) + O(1). Time complexity? Which famous problem?</span><span class="q-arrow">&#9662;</span></div>
+  <div class="a"><div class="a-inner">
+    <pre><code>After k steps: T(n) = 2<sup>k</sup>&middot;T(n-k) + (2<sup>k</sup>-1)c
+When k = n:    T(n) = 2<sup>n</sup>&middot;O(1) + O(2<sup>n</sup>)</code></pre>
+    <div class="correct"><strong>T(n) = &Theta;(2<sup>n</sup>)</strong> &mdash; This is the <strong>Towers of Hanoi</strong> recurrence. Minimum moves = 2<sup>n</sup> - 1.</div>
+  </div></div>
+</div>
+
+<div class="qa" onclick="this.classList.toggle('open')">
+  <div class="q"><span class="q-num">49</span><span class="q-text">Algorithm A: 100n log n vs Algorithm B: 2n&sup2;. Which is better for large n?</span><span class="q-arrow">&#9662;</span></div>
+  <div class="a"><div class="a-inner">
+    <table>
+      <tr><th>n</th><th>A = 100n log n</th><th>B = 2n&sup2;</th><th>Winner</th></tr>
+      <tr><td>100</td><td>66,438</td><td>20,000</td><td>B</td></tr>
+      <tr><td>500</td><td>448,856</td><td>500,000</td><td><strong>A</strong></td></tr>
+      <tr><td>1,000</td><td>996,578</td><td>2,000,000</td><td><strong>A</strong></td></tr>
+      <tr><td>10,000</td><td>13,287,712</td><td>200,000,000</td><td><strong>A by 15x</strong></td></tr>
+    </table>
+    <div class="correct"><strong>Algorithm A (O(n log n)) is better for large n.</strong> Constants only affect the crossover point (&asymp; n = 400).</div>
+  </div></div>
+</div>
+
+<div class="qa" onclick="this.classList.toggle('open')">
+  <div class="q"><span class="q-num">50</span><span class="q-text">T(n) = 4T(n/2) + n&sup2; log n &mdash; can Master Theorem apply? Find T(n).</span><span class="q-arrow">&#9662;</span></div>
+  <div class="a"><div class="a-inner">
+    <p>a=4, b=2, n<sup>log<sub>b</sub>a</sup> = n&sup2;, f(n) = n&sup2; log n.</p>
+    <p>f(n) is larger than n&sup2; but <strong>not polynomially larger</strong> (log n &ne; &Omega;(n<sup>&epsilon;</sup>)). Falls in the <strong>gap between Case 2 and Case 3</strong>.</p>
+    <h4>Solve by substitution:</h4>
+    <pre><code>Guess T(n) &le; c&middot;n&sup2;&middot;log&sup2; n:
+
+T(n) &le; 4c(n/2)&sup2;log&sup2;(n/2) + n&sup2; log n
+     = cn&sup2;(log n - 1)&sup2; + n&sup2; log n
+     = cn&sup2; log&sup2; n - 2cn&sup2; log n + cn&sup2; + n&sup2; log n
+     = cn&sup2; log&sup2; n + (1-2c)n&sup2; log n + cn&sup2;
+     &le; cn&sup2; log&sup2; n       when c &ge; 1  &check;</code></pre>
+    <div class="correct"><strong>T(n) = O(n&sup2; log&sup2; n)</strong><br>Extended Case 2: f(n) = &Theta;(n<sup>log<sub>b</sub>a</sup> &middot; log<sup>k</sup> n) &rArr; T(n) = &Theta;(n<sup>log<sub>b</sub>a</sup> &middot; log<sup>k+1</sup> n)</div>
+  </div></div>
+</div>
+
+<!-- Quick Reference -->
+<div class="section-title" style="background: var(--accent); margin-top: 40px;">Quick Reference: Key Formulas</div>
+<div class="qa open" style="border-top: none;">
+  <div class="a" style="max-height: 8000px;"><div class="a-inner" style="border-top: none; padding-top: 24px;">
+    <h4>Summation Formulas</h4>
+    <pre><code>&Sigma;(i=1..n) 1  = n
+&Sigma;(i=1..n) i  = n(n+1)/2
+&Sigma;(i=1..n) i&sup2; = n(n+1)(2n+1)/6
+&Sigma;(i=0..n) r<sup>i</sup> = (r<sup>n+1</sup>-1)/(r-1)       for r &ne; 1
+&Sigma;(i=0..&infin;) r<sup>i</sup> = 1/(1-r)                for |r| &lt; 1</code></pre>
+    <h4>Master Theorem: T(n) = aT(n/b) + f(n)</h4>
+    <table>
+      <tr><th>Case</th><th>Condition</th><th>Result</th><th>Intuition</th></tr>
+      <tr><td>1</td><td>f(n) = O(n<sup>log<sub>b</sub>a - &epsilon;</sup>)</td><td>&Theta;(n<sup>log<sub>b</sub>a</sup>)</td><td>Leaves dominate</td></tr>
+      <tr><td>2</td><td>f(n) = &Theta;(n<sup>log<sub>b</sub>a</sup>)</td><td>&Theta;(n<sup>log<sub>b</sub>a</sup> &middot; log n)</td><td>All levels equal</td></tr>
+      <tr><td>3</td><td>f(n) = &Omega;(n<sup>log<sub>b</sub>a + &epsilon;</sup>) + regularity</td><td>&Theta;(f(n))</td><td>Root dominates</td></tr>
+    </table>
+  </div></div>
+</div>
+
+</div><!-- container -->
+
+<script>
+function toggleAll(open) {
+  document.querySelectorAll('.qa').forEach(el => {
+    if (open) el.classList.add('open');
+    else el.classList.remove('open');
+  });
+}
+</script>
+</body>
+</html>

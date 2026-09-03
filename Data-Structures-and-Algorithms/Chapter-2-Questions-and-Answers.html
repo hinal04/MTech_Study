@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 2: Elementary Data Structures — Questions &amp; Answers</title>
+<style>
+  :root{--bg:#f8f9fa;--card:#fff;--primary:#0d9488;--primary-light:#ccfbf1;--text:#1e293b;--text-light:#64748b;--border:#e2e8f0;--green:#16a34a;--green-bg:#dcfce7;--orange:#ea580c;--orange-bg:#fff7ed;--code-bg:#f1f5f9;--accent:#7c3aed;--accent-bg:#f5f3ff;--s1:#0d9488;--s2:#7c3aed;--s3:#ea580c;--s4:#1e40af}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);line-height:1.75;padding-bottom:80px}
+  .header{background:linear-gradient(135deg,#0f766e,#0d9488,#2dd4bf);color:#fff;padding:44px 24px 36px;text-align:center}
+  .header h1{font-size:2em;margin-bottom:6px}.header p{opacity:.85;font-size:1em}
+  .header .sub{font-size:.85em;opacity:.6;margin-top:6px}
+  .container{max-width:900px;margin:0 auto;padding:0 20px}
+  .controls{display:flex;gap:10px;flex-wrap:wrap;margin:24px 0 16px;align-items:center}
+  .ctrl-btn{padding:8px 16px;border:1px solid var(--border);border-radius:8px;background:var(--card);color:var(--text-light);cursor:pointer;font-size:.85em;transition:all .2s}
+  .ctrl-btn:hover{background:var(--primary-light);color:var(--primary)}
+  .score{margin-left:auto;font-weight:700;color:var(--primary);font-size:.95em}
+  .sec-label{background:var(--primary);color:#fff;padding:14px 24px;border-radius:10px;margin:32px 0 16px;font-size:1.15em;font-weight:700}
+  .sec-label.s2{background:var(--accent)}.sec-label.s3{background:var(--orange)}.sec-label.s4{background:var(--s4)}
+
+  /* Question card */
+  .q{background:var(--card);border:1px solid var(--border);border-radius:10px;margin-bottom:12px;overflow:hidden;transition:box-shadow .2s}
+  .q:hover{box-shadow:0 2px 12px rgba(0,0,0,.07)}
+  .q-head{display:flex;align-items:flex-start;gap:12px;padding:16px 20px;cursor:pointer;user-select:none}
+  .q-head:hover{background:#f1f5f9}
+  .q-num{flex-shrink:0;width:34px;height:34px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.82em;color:#fff;background:var(--primary)}
+  .q-num.c2{background:var(--accent)}.q-num.c3{background:var(--orange)}.q-num.c4{background:var(--s4)}
+  .q-title{flex:1;font-weight:600;font-size:.95em;padding-top:5px}
+  .q-chk{flex-shrink:0;margin-top:5px}.q-chk input{width:17px;height:17px;accent-color:var(--green);cursor:pointer}
+  .q-arrow{flex-shrink:0;font-size:14px;color:var(--text-light);margin-top:6px;transition:transform .3s}
+  .q.open .q-arrow{transform:rotate(180deg);color:var(--primary)}
+
+  /* Answer */
+  .q-ans{max-height:0;overflow:hidden;transition:max-height .4s ease,padding .3s;padding:0 20px}
+  .q.open .q-ans{max-height:5000px;padding:16px 20px 20px;border-top:1px solid var(--border)}
+  .q-ans p{margin:8px 0;font-size:.93em}.q-ans strong{color:var(--text)}
+  .q-ans ul,.q-ans ol{margin:6px 0 12px 20px;font-size:.93em}.q-ans li{margin:4px 0}
+  .q-ans table{width:100%;border-collapse:collapse;margin:10px 0;font-size:.88em}
+  .q-ans th{background:var(--primary);color:#fff;padding:8px 12px;text-align:left;font-size:.85em}
+  .q-ans td{padding:8px 12px;border-bottom:1px solid var(--border)}
+  .q-ans tr:nth-child(even) td{background:#f8fafc}
+  .q-ans pre{background:var(--code-bg);border:1px solid var(--border);border-radius:8px;padding:14px 18px;overflow-x:auto;font-size:.85em;line-height:1.55;margin:10px 0}
+  .q-ans code{font-family:'SF Mono','Fira Code','Consolas',monospace;font-size:.88em;background:var(--code-bg);padding:2px 5px;border-radius:4px}
+  .q-ans pre code{background:none;padding:0}
+  .q-ans .tip{background:var(--green-bg);border-left:4px solid var(--green);padding:10px 14px;border-radius:0 8px 8px 0;margin:10px 0;font-size:.9em}
+  .q-ans .warn{background:var(--orange-bg);border-left:4px solid var(--orange);padding:10px 14px;border-radius:0 8px 8px 0;margin:10px 0;font-size:.9em}
+
+  .back-top{position:fixed;bottom:24px;right:24px;background:var(--primary);color:#fff;width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,.2);text-decoration:none;opacity:0;transition:opacity .3s;z-index:50}
+  .back-top.visible{opacity:1}
+  @media(max-width:700px){.header h1{font-size:1.5em}.q-head{padding:14px 16px}.q-ans{padding:0 16px}}
+  @media print{.controls,.back-top,.q-chk,.q-arrow{display:none}.q-ans{max-height:none!important;padding:14px 20px!important;border-top:1px solid #ddd}}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>Chapter 2: Questions &amp; Answers</h1>
+  <p>Elementary Data Structures &mdash; 30 Questions</p>
+  <div class="sub">Stacks &bull; Queues &bull; Amortised Analysis &bull; Lists</div>
+</div>
+
+<div class="container">
+
+<div class="controls">
+  <button class="ctrl-btn" onclick="toggleAll(true)">Show All</button>
+  <button class="ctrl-btn" onclick="toggleAll(false)">Hide All</button>
+  <button class="ctrl-btn" onclick="toggleSec('s1',true)">Stacks</button>
+  <button class="ctrl-btn" onclick="toggleSec('s2',true)">Queues</button>
+  <button class="ctrl-btn" onclick="toggleSec('s3',true)">Amortised</button>
+  <button class="ctrl-btn" onclick="toggleSec('s4',true)">Lists</button>
+  <div class="score">Reviewed: <span id="sc">0</span>/30</div>
+</div>
+
+<!-- ==================== STACKS ==================== -->
+<div class="sec-label" id="sec-s1">Stacks (Q1–Q8)</div>
+
+<div class="q" data-s="s1"><div class="q-head" onclick="tog(this)"><div class="q-num">Q1</div><div class="q-title">Define the Stack ADT. What principle does it follow?</div><div class="q-chk"><input type="checkbox" onchange="sc()" title="Reviewed"></div><div class="q-arrow">&#9660;</div></div><div class="q-ans">
+  <p>A <strong>stack</strong> follows <strong>LIFO (Last In, First Out)</strong> — the most recently inserted element is removed first.</p>
+  <table><tr><th>Operation</th><th>Time</th></tr><tr><td>push(x), pop(), top(), isEmpty()</td><td>All O(1)</td></tr></table>
+  <p>Precondition: pop() and top() require non-empty stack (underflow error otherwise).</p>
+</div></div>
+
+<div class="q" data-s="s1"><div class="q-head" onclick="tog(this)"><div class="q-num">Q2</div><div class="q-title">Compare array-based and linked-list-based stack implementations.</div><div class="q-chk"><input type="checkbox" onchange="sc()" title="Reviewed"></div><div class="q-arrow">&#9660;</div></div><div class="q-ans">
+  <table><tr><th>Aspect</th><th>Array</th><th>Linked List</th></tr>
+  <tr><td>Size</td><td>Fixed (or dynamic)</td><td>Dynamic</td></tr>
+  <tr><td>Push/Pop</td><td>O(1)</td><td>O(1) at head</td></tr>
+  <tr><td>Memory</td><td>Contiguous, cache-friendly</td><td>Scattered, pointer overhead</td></tr>
+  <tr><td>Overflow</td><td>Possible</td><td>Only if system memory exhausted</td></tr></table>
+</div></div>
+
+<div class="q" data-s="s1"><div class="q-head" onclick="tog(this)"><div class="q-num">Q3</div><div class="q-title">Convert <code>A * (B + C) - D / E</code> to postfix using a stack.</div><div class="q-chk"><input type="checkbox" onchange="sc()" title="Reviewed"></div><div class="q-arrow">&#9660;</div></div><div class="q-ans">
+  <table><tr><th>Token</th><th>Action</th><th>Stack</th><th>Output</th></tr>
+  <tr><td>A</td><td>Output</td><td></td><td>A</td></tr>
+  <tr><td>*</td><td>Push</td><td>[*]</td><td>A</td></tr>
+  <tr><td>(</td><td>Push</td><td>[*, (]</td><td>A</td></tr>
+  <tr><td>B</td><td>Output</td><td>[*, (]</td><td>A B</td></tr>
+  <tr><td>+</td><td>Push</td><td>[*, (, +]</td><td>A B</td></tr>
+  <tr><td>C</td><td>Output</td><td>[*, (, +]</td><td>A B C</td></tr>
+  <tr><td>)</td><td>Pop to (</td><td>[*]</td><td>A B C +</td></tr>
+  <tr><td>-</td><td>Pop *, Push -</td><td>[-]</td><td>A B C + *</td></tr>
+  <tr><td>D</td><td>Output</td><td>[-]</td><td>A B C + * D</td></tr>
+  <tr><td>/</td><td>Push</td><td>[-, /]</td><td>A B C + * D</td></tr>
+  <tr><td>E</td><td>Output</td><td>[-, /]</td><td>A B C + * D E</td></tr>
+  <tr><td>End</td><td>Pop all</td><td>[]</td><td><strong>A B C + * D E / -</strong></td></tr></table>
+</div></div>
+
+<div class="q" data-s="s1"><div class="q-head" onclick="tog(this)"><div class="q-num">Q4</div><div class="q-title">Evaluate postfix: <code>6 2 3 + - 3 8 2 / + *</code></div><div class="q-chk"><input type="checkbox" onchange="sc()" title="Reviewed"></div><div class="q-arrow">&#9660;</div></div><div class="q-ans">
+  <table><tr><th>Token</th><th>Action</th><th>Stack</th></tr>
+  <tr><td>6</td><td>push</td><td>[6]</td></tr>
+  <tr><td>2</td><td>push</td><td>[6, 2]</td></tr>
+  <tr><td>3</td><td>push</td><td>[6, 2, 3]</td></tr>
+  <tr><td>+</td><td>2+3=5</td><td>[6, 5]</td></tr>
+  <tr><td>-</td><td>6-5=1</td><td>[1]</td></tr>
+  <tr><td>3</td><td>push</td><td>[1, 3]</td></tr>
+  <tr><td>8</td><td>push</td><td>[1, 3, 8]</td></tr>
+  <tr><td>2</td><td>push</td><td>[1, 3, 8, 2]</td></tr>
+  <tr><td>/</td><td>8/2=4</td><td>[1, 3, 4]</td></tr>
+  <tr><td>+</td><td>3+4=7</td><td>[1, 7]</td></tr>
+  <tr><td>*</td><td>1&times;7=7</td><td>[7]</td></tr></table>
+  <div class="tip"><strong>Result: 7</strong></div>
+</div></div>
+
+<div class="q" data-s="s1"><div class="q-head" onclick="tog(this)"><div class="q-num">Q5</div><div class="q-title">How can you implement two stacks in a single array?</div><div class="q-chk"><input type="checkbox" onchange="sc()" title="Reviewed"></div><div class="q-arrow">&#9660;</div></div><div class="q-ans">
+  <p>Stack 1 grows from index 0 <strong>rightward</strong>. Stack 2 grows from index n-1 <strong>leftward</strong>. Overflow when they meet: <code>top1 + 1 == top2</code>.</p>
+  <pre><code>init: top1 = -1, top2 = n
+push1(x): top1++; A[top1] = x
+push2(x): top2--; A[top2] = x
+pop1(): return A[top1--]
+pop2(): return A[top2++]</code></pre>
+  <p>Total capacity shared — if one stack uses less, the other can use more.</p>
+</div></div>
+
+<div class="q" data-s="s1"><div class="q-head" onclick="tog(this)"><div class="q-num">Q6</div><div class="q-title">Check if <code>{[()]}</code> is balanced. Show the trace.</div><div class="q-chk"><input type="checkbox" onchange="sc()" title="Reviewed"></div><div class="q-arrow">&#9660;</div></div><div class="q-ans">
+  <table><tr><th>Char</th><th>Action</th><th>Stack</th></tr>
+  <tr><td>{</td><td>Push</td><td>[{]</td></tr><tr><td>[</td><td>Push</td><td>[{, []</td></tr>
+  <tr><td>(</td><td>Push</td><td>[{, [, (]</td></tr><tr><td>)</td><td>Pop ( match &check;</td><td>[{, []</td></tr>
+  <tr><td>]</td><td>Pop [ match &check;</td><td>[{]</td></tr><tr><td>}</td><td>Pop { match &check;</td><td>[]</td></tr></table>
+  <div class="tip">Stack empty &rarr; <strong>Balanced</strong> &check;</div>
+</div></div>
+
+<div class="q" data-s="s1"><div class="q-head" onclick="tog(this)"><div class="q-num">Q7</div><div class="q-title">How is the function call stack used during recursion? Trace factorial(3).</div><div class="q-chk"><input type="checkbox" onchange="sc()" title="Reviewed"></div><div class="q-arrow">&#9660;</div></div><div class="q-ans">
+  <pre><code>factorial(3) pushed → calls factorial(2)
+factorial(2) pushed → calls factorial(1)
+factorial(1) pushed → base case, returns 1
+factorial(2) pops → 2 × 1 = 2, returns 2
+factorial(3) pops → 3 × 2 = 6, returns 6</code></pre>
+  <p>Each call pushes a <strong>stack frame</strong> (local vars + return address). Stack overflow occurs when recursion is too deep.</p>
+</div></div>
+
+<div class="q" data-s="s1"><div class="q-head" onclick="tog(this)"><div class="q-num">Q8</div><div class="q-title">List 5 applications of stacks.</div><div class="q-chk"><input type="checkbox" onchange="sc()" title="Reviewed"></div><div class="q-arrow">&#9660;</div></div><div class="q-ans">
+  <ol><li>Parenthesis/bracket matching</li><li>Infix to postfix conversion</li><li>Postfix expression evaluation</li><li>Function call stack (recursion)</li><li>Undo mechanism</li><li>DFS (iterative)</li><li>Backtracking (N-Queens, Sudoku)</li></ol>
+</div></div>
+
+<!-- ==================== QUEUES ==================== -->
+<div class="sec-label s2" id="sec-s2">Queues (Q9–Q16)</div>
+
+<div class="q" data-s="s2"><div class="q-head" onclick="tog(this)"><div class="q-num c2">Q9</div><div class="q-title">Define the Queue ADT. How is it different from a stack?</div><div class="q-chk"><input type="checkbox" onchange="sc()" title="Reviewed"></div><div class="q-arrow">&#9660;</div></div><div class="q-ans">
+  <p><strong>Queue = FIFO</strong> (first in, first out). <strong>Stack = LIFO</strong> (last in, first out).</p>
+  <table><tr><th></th><th>Stack</th><th>Queue</th></tr>
+  <tr><td>Insert</td><td>push (top)</td><td>enqueue (rear)</td></tr>
+  <tr><td>Remove</td><td>pop (top)</td><td>dequeue (front)</td></tr>
+  <tr><td>Analogy</td><td>Stack of plates</td><td>Ticket counter line</td></tr></table>
+</div></div>
+
+<div class="q" data-s="s2"><div class="q-head" onclick="tog(this)"><div class="q-num c2">Q10</div><div class="q-title">Why is a circular array better than a linear array for queues?</div><div class="q-chk"><input type="checkbox" onchange="sc()" title="Reviewed"></div><div class="q-arrow">&#9660;</div></div><div class="q-ans">
+  <p><strong>Linear:</strong> After dequeues, front moves right, leaving wasted empty slots. Reusing them requires O(n) shifting.</p>
+  <p><strong>Circular:</strong> Uses <code>mod</code> arithmetic to wrap around: <code>rear = (rear+1) % capacity</code>. No wasted space, no shifting, all O(1).</p>
+</div></div>
+
+<div class="q" data-s="s2"><div class="q-head" onclick="tog(this)"><div class="q-num c2">Q11</div><div class="q-title">Implement a queue using two stacks. Trace: enqueue(1), enqueue(2), dequeue(), enqueue(3), dequeue().</div><div class="q-chk"><input type="checkbox" onchange="sc()" title="Reviewed"></div><div class="q-arrow">&#9660;</div></div><div class="q-ans">
+  <p>S1 = input, S2 = output. When S2 empty, transfer all from S1.</p>
+  <table><tr><th>Op</th><th>S1</th><th>S2</th><th>Output</th></tr>
+  <tr><td>enqueue(1)</td><td>[1]</td><td>[]</td><td></td></tr>
+  <tr><td>enqueue(2)</td><td>[1,2]</td><td>[]</td><td></td></tr>
+  <tr><td>dequeue()</td><td>[]</td><td>[2,1]→pop 1</td><td><strong>1</strong></td></tr>
+  <tr><td>enqueue(3)</td><td>[3]</td><td>[2]</td><td></td></tr>
+  <tr><td>dequeue()</td><td>[3]</td><td>pop 2</td><td><strong>2</strong></td></tr></table>
+  <p>Amortised O(1) — each element transferred at most once.</p>
+</div></div>
+
+<div class="q" data-s="s2"><div class="q-head" onclick="tog(this)"><div class="q-num c2">Q12</div><div class="q-title">What is a Deque? When would you use it?</div><div class="q-chk"><input type="checkbox" onchange="sc()" title="Reviewed"></div><div class="q-arrow">&#9660;</div></div><div class="q-ans">
+  <p><strong>Deque (Double-Ended Queue)</strong> — insert/remove at both ends in O(1).</p>
+  <p><strong>Use cases:</strong> Sliding window maximum, 0-1 BFS, palindrome check. Can act as both stack and queue.</p>
+</div></div>
+
+<div class="q" data-s="s2"><div class="q-head" onclick="tog(this)"><div class="q-num c2">Q13</div><div class="q-title">Implement a stack using two queues.</div><div class="q-chk"><input type="checkbox" onchange="sc()" title="Reviewed"></div><div class="q-arrow">&#9660;</div></div><div class="q-ans">
+  <pre><code>push(x):
+    enqueue x onto Q2
+    while Q1 not empty:
+        dequeue from Q1, enqueue onto Q2
+    swap Q1 and Q2
+
+pop():
+    return dequeue from Q1</code></pre>
+  <p>push = O(n), pop = O(1). After push, Q1 has elements in stack order.</p>
+</div></div>
+
+<div class="q" data-s="s2"><div class="q-head" onclick="tog(this)"><div class="q-num c2">Q14</div><div class="q-title">Trace BFS from vertex A: A—B, A—C, B—D, C—D, D—E.</div><div class="q-chk"><input type="checkbox" onchange="sc()" title="Reviewed"></div><div class="q-arrow">&#9660;</div></div><div class="q-ans">
+  <table><tr><th>Step</th><th>Dequeue</th><th>Enqueue</th><th>Queue</th></tr>
+  <tr><td>0</td><td>—</td><td>A</td><td>[A]</td></tr>
+  <tr><td>1</td><td>A</td><td>B, C</td><td>[B, C]</td></tr>
+  <tr><td>2</td><td>B</td><td>D</td><td>[C, D]</td></tr>
+  <tr><td>3</td><td>C</td><td>(D visited)</td><td>[D]</td></tr>
+  <tr><td>4</td><td>D</td><td>E</td><td>[E]</td></tr>
+  <tr><td>5</td><td>E</td><td>—</td><td>[]</td></tr></table>
+  <p><strong>BFS order: A → B → C → D → E</strong></p>
+</div></div>
+
+<div class="q" data-s="s2"><div class="q-head" onclick="tog(this)"><div class="q-num c2">Q15</div><div class="q-title">What is a priority queue? How is it different from a regular queue?</div><div class="q-chk"><input type="checkbox" onchange="sc()" title="Reviewed"></div><div class="q-arrow">&#9660;</div></div><div class="q-ans">
+  <table><tr><th></th><th>Queue</th><th>Priority Queue</th></tr>
+  <tr><td>Order</td><td>FIFO</td><td>By priority</td></tr>
+  <tr><td>Insert</td><td>O(1)</td><td>O(log n)</td></tr>
+  <tr><td>Remove</td><td>O(1)</td><td>O(log n)</td></tr>
+  <tr><td>Implementation</td><td>Array/linked list</td><td>Binary heap</td></tr>
+  <tr><td>Use</td><td>BFS, scheduling</td><td>Dijkstra's, Huffman</td></tr></table>
+</div></div>
+
+<div class="q" data-s="s2"><div class="q-head" onclick="tog(this)"><div class="q-num c2">Q16</div><div class="q-title">List 5 applications of queues.</div><div class="q-chk"><input type="checkbox" onchange="sc()" title="Reviewed"></div><div class="q-arrow">&#9660;</div></div><div class="q-ans">
+  <ol><li>BFS graph traversal</li><li>Level-order tree traversal</li><li>Task scheduling (OS ready queue)</li><li>Print spooling</li><li>Producer-consumer buffer</li></ol>
+</div></div>
+
+<!-- ==================== AMORTISED ==================== -->
+<div class="sec-label s3" id="sec-s3">Amortised Analysis (Q17–Q23)</div>
+
+<div class="q" data-s="s3"><div class="q-head" onclick="tog(this)"><div class="q-num c3">Q17</div><div class="q-title">What is amortised analysis? How is it different from average-case?</div><div class="q-chk"><input type="checkbox" onchange="sc()" title="Reviewed"></div><div class="q-arrow">&#9660;</div></div><div class="q-ans">
+  <table><tr><th></th><th>Amortised</th><th>Average-case</th></tr>
+  <tr><td>Measures</td><td>Avg cost over worst-case <strong>sequence</strong></td><td>Expected cost over random <strong>inputs</strong></td></tr>
+  <tr><td>Probability?</td><td><strong>No</strong></td><td>Yes</td></tr>
+  <tr><td>Guarantee</td><td>Deterministic bound for any sequence</td><td>Probabilistic</td></tr></table>
+</div></div>
+
+<div class="q" data-s="s3"><div class="q-head" onclick="tog(this)"><div class="q-num c3">Q18</div><div class="q-title">Prove MULTIPOP stack has O(1) amortised cost (Aggregate Method).</div><div class="q-chk"><input type="checkbox" onchange="sc()" title="Reviewed"></div><div class="q-arrow">&#9660;</div></div><div class="q-ans">
+  <div class="warn"><strong>Naive:</strong> MULTIPOP costs O(n) → n ops = O(n²)? Too pessimistic!</div>
+  <div class="tip"><strong>Proof:</strong> Each element pushed at most once (cost ≤ n). Each popped at most once (cost ≤ n). Total ≤ 2n. <strong>Amortised = 2n/n = O(1).</strong></div>
+  <p><strong>Key insight:</strong> You can't pop more than you've pushed.</p>
+</div></div>
+
+<div class="q" data-s="s3"><div class="q-head" onclick="tog(this)"><div class="q-num c3">Q19</div><div class="q-title">Prove two-stack queue has O(1) amortised cost.</div><div class="q-chk"><input type="checkbox" onchange="sc()" title="Reviewed"></div><div class="q-arrow">&#9660;</div></div><div class="q-ans">
+  <p>Each element: push S1 (1) + pop S1 (1) + push S2 (1) + pop S2 (1) = <strong>4 moves max</strong>.</p>
+  <p>n operations, at most n elements → Total ≤ 4n → <strong>Amortised = O(1).</strong></p>
+</div></div>
+
+<div class="q" data-s="s3"><div class="q-head" onclick="tog(this)"><div class="q-num c3">Q20</div><div class="q-title">Prove dynamic array insertion has O(1) amortised cost.</div><div class="q-chk"><input type="checkbox" onchange="sc()" title="Reviewed"></div><div class="q-arrow">&#9660;</div></div><div class="q-ans">
+  <p>Doubling capacity. Copy costs: 1+2+4+...+n &lt; 2n. Plus n normal inserts.</p>
+  <p><strong>Total &lt; 3n → Amortised = 3n/n = O(1).</strong></p>
+</div></div>
+
+<div class="q" data-s="s3"><div class="q-head" onclick="tog(this)"><div class="q-num c3">Q21</div><div class="q-title">Why doubling gives O(1) amortised but adding a constant gives O(n)?</div><div class="q-chk"><input type="checkbox" onchange="sc()" title="Reviewed"></div><div class="q-arrow">&#9660;</div></div><div class="q-ans">
+  <table><tr><th>Strategy</th><th>Total copies</th><th>Amortised</th></tr>
+  <tr><td>Doubling (×2)</td><td>1+2+4+...+n = O(n) (geometric)</td><td><strong>O(1)</strong></td></tr>
+  <tr><td>Adding constant c</td><td>c+2c+3c+... = O(n²/c) (arithmetic)</td><td><strong>O(n)</strong></td></tr></table>
+  <p>Geometric growth makes resize cost negligible. Arithmetic growth does not.</p>
+</div></div>
+
+<div class="q" data-s="s3"><div class="q-head" onclick="tog(this)"><div class="q-num c3">Q22</div><div class="q-title">Trace amortised cost of 8 dynamic array insertions.</div><div class="q-chk"><input type="checkbox" onchange="sc()" title="Reviewed"></div><div class="q-arrow">&#9660;</div></div><div class="q-ans">
+  <table><tr><th>#</th><th>Cap</th><th>Resize?</th><th>Cost</th></tr>
+  <tr><td>1</td><td>1→2</td><td>Yes</td><td><strong>2</strong></td></tr>
+  <tr><td>2</td><td>2→4</td><td>Yes</td><td><strong>3</strong></td></tr>
+  <tr><td>3</td><td>4</td><td>No</td><td>1</td></tr>
+  <tr><td>4</td><td>4→8</td><td>Yes</td><td><strong>5</strong></td></tr>
+  <tr><td>5-7</td><td>8</td><td>No</td><td>1 each</td></tr>
+  <tr><td>8</td><td>8→16</td><td>Yes</td><td><strong>9</strong></td></tr></table>
+  <p>Total: 2+3+1+5+1+1+1+9 = <strong>23</strong>. Amortised: 23/8 ≈ 2.88 = <strong>O(1)</strong> ✓</p>
+</div></div>
+
+<div class="q" data-s="s3"><div class="q-head" onclick="tog(this)"><div class="q-num c3">Q23</div><div class="q-title">Prove binary counter increment has O(1) amortised cost.</div><div class="q-chk"><input type="checkbox" onchange="sc()" title="Reviewed"></div><div class="q-arrow">&#9660;</div></div><div class="q-ans">
+  <p>Bit i flips n/2<sup>i</sup> times over n increments.</p>
+  <pre><code>Total = n + n/2 + n/4 + ... = n × (1 + 1/2 + 1/4 + ...) < 2n</code></pre>
+  <p><strong>Amortised = 2n/n = O(1).</strong></p>
+</div></div>
+
+<!-- ==================== LISTS ==================== -->
+<div class="sec-label s4" id="sec-s4">Lists (Q24–Q30)</div>
+
+<div class="q" data-s="s4"><div class="q-head" onclick="tog(this)"><div class="q-num c4">Q24</div><div class="q-title">Key advantage of doubly linked list over singly linked list?</div><div class="q-chk"><input type="checkbox" onchange="sc()" title="Reviewed"></div><div class="q-arrow">&#9660;</div></div><div class="q-ans">
+  <p><strong>O(1) deletion given a node pointer.</strong> In singly linked, deleting needs the predecessor (O(n) traversal). In doubly linked, <code>node.prev</code> is already available.</p>
+  <p>Critical for: <strong>LRU Cache</strong> (move accessed node to front in O(1)).</p>
+</div></div>
+
+<div class="q" data-s="s4"><div class="q-head" onclick="tog(this)"><div class="q-num c4">Q25</div><div class="q-title">Reverse a singly linked list. Trace on 1→2→3→NULL.</div><div class="q-chk"><input type="checkbox" onchange="sc()" title="Reviewed"></div><div class="q-arrow">&#9660;</div></div><div class="q-ans">
+  <pre><code>prev=NULL, curr=head
+while curr ≠ NULL:
+    next = curr.next
+    curr.next = prev
+    prev = curr; curr = next
+return prev</code></pre>
+  <table><tr><th>Step</th><th>prev</th><th>curr</th><th>Result</th></tr>
+  <tr><td>1</td><td>1</td><td>2</td><td>NULL←1 &nbsp; 2→3</td></tr>
+  <tr><td>2</td><td>2</td><td>3</td><td>NULL←1←2 &nbsp; 3</td></tr>
+  <tr><td>3</td><td>3</td><td>NULL</td><td>3→2→1→NULL ✓</td></tr></table>
+  <p><strong>O(n) time, O(1) space.</strong></p>
+</div></div>
+
+<div class="q" data-s="s4"><div class="q-head" onclick="tog(this)"><div class="q-num c4">Q26</div><div class="q-title">Detect a cycle using Floyd's algorithm. Why does it work?</div><div class="q-chk"><input type="checkbox" onchange="sc()" title="Reviewed"></div><div class="q-arrow">&#9660;</div></div><div class="q-ans">
+  <pre><code>slow = fast = head
+while fast ≠ NULL AND fast.next ≠ NULL:
+    slow = slow.next       // 1 step
+    fast = fast.next.next  // 2 steps
+    if slow == fast: return True (cycle!)
+return False</code></pre>
+  <p><strong>Why:</strong> In a cycle, fast gains 1 step per iteration. Since cycle has finite length, fast catches slow. <strong>O(n) time, O(1) space.</strong></p>
+  <p><strong>Find start:</strong> After meeting, reset slow to head. Move both 1 step at a time — they meet at cycle start.</p>
+</div></div>
+
+<div class="q" data-s="s4"><div class="q-head" onclick="tog(this)"><div class="q-num c4">Q27</div><div class="q-title">Design an LRU Cache (Doubly Linked List + Hash Map).</div><div class="q-chk"><input type="checkbox" onchange="sc()" title="Reviewed"></div><div class="q-arrow">&#9660;</div></div><div class="q-ans">
+  <p><strong>DLL:</strong> Most recent at head, least recent at tail. <strong>HashMap:</strong> key → node pointer.</p>
+  <pre><code>get(key):
+    if in map: moveToHead(node), return value
+    else: return -1
+
+put(key, val):
+    if in map: update val, moveToHead
+    else: addToHead, if over capacity → removeTail</code></pre>
+  <p>All operations <strong>O(1)</strong>. DLL enables O(1) removal; HashMap enables O(1) lookup.</p>
+</div></div>
+
+<div class="q" data-s="s4"><div class="q-head" onclick="tog(this)"><div class="q-num c4">Q28</div><div class="q-title">When should you use an array vs a linked list?</div><div class="q-chk"><input type="checkbox" onchange="sc()" title="Reviewed"></div><div class="q-arrow">&#9660;</div></div><div class="q-ans">
+  <table><tr><th>Use Array</th><th>Use Linked List</th></tr>
+  <tr><td>Frequent random access</td><td>Frequent insert/delete at arbitrary positions</td></tr>
+  <tr><td>Known/predictable size</td><td>Highly dynamic size</td></tr>
+  <tr><td>Cache performance matters</td><td>Need O(1) delete given node (doubly)</td></tr>
+  <tr><td>Need binary search</td><td>Implementing stacks/queues</td></tr></table>
+  <p><strong>Default to arrays.</strong> Use linked lists only when insert/delete is frequent and index access is rare.</p>
+</div></div>
+
+<div class="q" data-s="s4"><div class="q-head" onclick="tog(this)"><div class="q-num c4">Q29</div><div class="q-title">Implement a stack using a singly linked list in C.</div><div class="q-chk"><input type="checkbox" onchange="sc()" title="Reviewed"></div><div class="q-arrow">&#9660;</div></div><div class="q-ans">
+  <pre><code>struct Node { int data; struct Node* next; };
+struct Stack { struct Node* head; };
+
+void push(struct Stack* s, int x) {
+    struct Node* n = malloc(sizeof(struct Node));
+    n->data = x;
+    n->next = s->head;
+    s->head = n;
+}
+int pop(struct Stack* s) {
+    if (!s->head) return -1; // underflow
+    struct Node* t = s->head;
+    int val = t->data;
+    s->head = s->head->next;
+    free(t);
+    return val;
+}</code></pre>
+  <p>All O(1). No overflow.</p>
+</div></div>
+
+<div class="q" data-s="s4"><div class="q-head" onclick="tog(this)"><div class="q-num c4">Q30</div><div class="q-title">Find the middle of a linked list in one pass.</div><div class="q-chk"><input type="checkbox" onchange="sc()" title="Reviewed"></div><div class="q-arrow">&#9660;</div></div><div class="q-ans">
+  <pre><code>slow = fast = head
+while fast ≠ NULL AND fast.next ≠ NULL:
+    slow = slow.next       // 1 step
+    fast = fast.next.next  // 2 steps
+return slow  // middle!</code></pre>
+  <p>When fast reaches end (n nodes), slow is at n/2. <strong>O(n) time, O(1) space, single pass.</strong></p>
+  <table><tr><th>Step</th><th>slow</th><th>fast</th></tr>
+  <tr><td>0</td><td>1</td><td>1</td></tr><tr><td>1</td><td>2</td><td>3</td></tr><tr><td>2</td><td>3</td><td>5 (end)</td></tr></table>
+  <p>Middle of 1→2→3→4→5 = <strong>3</strong> ✓</p>
+</div></div>
+
+</div><!-- container -->
+
+<a href="#" class="back-top" id="bt">&uarr;</a>
+
+<script>
+function tog(h){if(event.target.type==='checkbox')return;h.closest('.q').classList.toggle('open')}
+function toggleAll(show){document.querySelectorAll('.q').forEach(q=>show?q.classList.add('open'):q.classList.remove('open'))}
+function toggleSec(s,show){document.querySelectorAll(`.q[data-s="${s}"]`).forEach(q=>show?q.classList.add('open'):q.classList.remove('open'))}
+function sc(){document.getElementById('sc').textContent=document.querySelectorAll('.q-chk input:checked').length}
+window.addEventListener('scroll',()=>{document.getElementById('bt').classList.toggle('visible',window.scrollY>400)});
+</script>
+</body>
+</html>

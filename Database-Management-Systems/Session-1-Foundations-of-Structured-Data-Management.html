@@ -1,0 +1,965 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Session 1: Foundations of Structured Data Management</title>
+<style>
+  :root {
+    --bg: #0f172a;
+    --surface: #1e293b;
+    --surface2: #334155;
+    --border: #475569;
+    --text: #e2e8f0;
+    --text-muted: #94a3b8;
+    --code-bg: #0d1117;
+    --accent: #38bdf8;
+    --accent-dim: rgba(56, 189, 248, 0.15);
+    --accent-border: rgba(56, 189, 248, 0.3);
+    --header-gradient: linear-gradient(135deg, #1e3a5f, #1e40af, #38bdf8);
+    --success: #4ade80;
+    --warning: #fbbf24;
+    --danger: #f87171;
+    --sidebar-width: 280px;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; scroll-padding-top: 80px; }
+
+  body {
+    font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.75;
+    font-size: 16px;
+  }
+
+  /* ── Progress Bar ── */
+  #progress-bar {
+    position: fixed; top: 0; left: 0; height: 3px;
+    background: var(--accent); z-index: 10000;
+    transition: width 0.15s ease-out; width: 0%;
+  }
+
+  /* ── Sidebar ── */
+  .sidebar {
+    position: fixed; top: 0; left: 0;
+    width: var(--sidebar-width); height: 100vh;
+    background: var(--surface); border-right: 1px solid var(--border);
+    overflow-y: auto; z-index: 1000; padding: 20px 0;
+    transition: transform 0.3s ease;
+  }
+  .sidebar-header {
+    padding: 16px 20px 20px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 12px;
+  }
+  .sidebar-header h3 {
+    font-size: 14px; color: var(--accent);
+    text-transform: uppercase; letter-spacing: 1.5px;
+    margin-bottom: 4px;
+  }
+  .sidebar-header p {
+    font-size: 11px; color: var(--text-muted);
+  }
+  .sidebar nav { padding: 0 10px; }
+  .sidebar nav a {
+    display: block; padding: 8px 16px; margin: 2px 0;
+    color: var(--text-muted); text-decoration: none;
+    font-size: 13.5px; border-radius: 6px;
+    transition: all 0.2s ease; line-height: 1.5;
+  }
+  .sidebar nav a:hover {
+    background: var(--accent-dim); color: var(--accent);
+  }
+  .sidebar nav a.active {
+    background: var(--accent-dim); color: var(--accent);
+    border-left: 3px solid var(--accent);
+  }
+
+  /* ── Hamburger toggle ── */
+  .sidebar-toggle {
+    display: none; position: fixed; top: 14px; left: 14px;
+    z-index: 1100; background: var(--surface); border: 1px solid var(--border);
+    color: var(--accent); font-size: 22px; padding: 6px 10px;
+    border-radius: 6px; cursor: pointer;
+  }
+
+  /* ── Main content ── */
+  .main { margin-left: var(--sidebar-width); padding: 0; }
+
+  /* ── Hero Header ── */
+  .hero {
+    background: var(--header-gradient);
+    padding: 60px 48px 50px; position: relative; overflow: hidden;
+  }
+  .hero::after {
+    content: ''; position: absolute; top: 0; right: 0;
+    width: 400px; height: 400px;
+    background: radial-gradient(circle, rgba(56,189,248,0.12) 0%, transparent 70%);
+    border-radius: 50%;
+  }
+  .hero h1 {
+    font-size: 2.4rem; font-weight: 800; color: #fff;
+    margin-bottom: 12px; position: relative; z-index: 1;
+  }
+  .hero .subtitle {
+    font-size: 1.05rem; color: rgba(255,255,255,0.8);
+    max-width: 700px; position: relative; z-index: 1;
+  }
+  .hero .meta {
+    margin-top: 20px; display: flex; flex-wrap: wrap; gap: 10px;
+    position: relative; z-index: 1;
+  }
+  .hero .meta span {
+    background: rgba(255,255,255,0.15); padding: 5px 14px;
+    border-radius: 20px; font-size: 0.82rem; color: rgba(255,255,255,0.9);
+  }
+
+  /* ── Content area ── */
+  .content { max-width: 920px; margin: 0 auto; padding: 40px 48px 80px; }
+
+  /* ── Section headings ── */
+  .content h2 {
+    font-size: 1.7rem; font-weight: 700; color: var(--accent);
+    margin: 50px 0 10px; padding-bottom: 10px;
+    border-bottom: 2px solid var(--accent-border);
+  }
+  .content h2:first-child { margin-top: 0; }
+  .content h3 {
+    font-size: 1.25rem; font-weight: 600; color: #e0e7ff;
+    margin: 32px 0 10px;
+  }
+  .content h4 {
+    font-size: 1.05rem; font-weight: 600; color: var(--text);
+    margin: 24px 0 8px;
+  }
+
+  /* ── Paragraphs & lists ── */
+  .content p { margin: 12px 0; color: var(--text); }
+  .content ul, .content ol { margin: 10px 0 10px 24px; }
+  .content li { margin: 5px 0; }
+  .content strong { color: #f1f5f9; }
+
+  /* ── Tables ── */
+  .table-wrapper { overflow-x: auto; margin: 18px 0; border-radius: 8px; border: 1px solid var(--border); }
+  table {
+    width: 100%; border-collapse: collapse;
+    font-size: 0.92rem;
+  }
+  thead th {
+    background: linear-gradient(135deg, #1e3a5f, #1e40af);
+    color: #fff; padding: 12px 16px;
+    text-align: left; font-weight: 600;
+    font-size: 0.85rem; text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  tbody td {
+    padding: 10px 16px; border-top: 1px solid var(--border);
+    color: var(--text); vertical-align: top;
+  }
+  tbody tr:nth-child(even) { background: rgba(30, 41, 59, 0.5); }
+  tbody tr:nth-child(odd) { background: rgba(15, 23, 42, 0.5); }
+  tbody tr:hover { background: var(--accent-dim); }
+
+  /* ── Code blocks ── */
+  pre {
+    background: var(--code-bg); border: 1px solid var(--border);
+    border-radius: 8px; padding: 20px; margin: 16px 0;
+    overflow-x: auto; font-size: 0.88rem; line-height: 1.7;
+  }
+  pre code { color: #e6edf3; font-family: 'Cascadia Code', 'Fira Code', 'JetBrains Mono', 'Consolas', monospace; }
+  code {
+    font-family: 'Cascadia Code', 'Fira Code', 'JetBrains Mono', 'Consolas', monospace;
+    background: var(--code-bg); padding: 2px 7px; border-radius: 4px;
+    font-size: 0.88em; color: var(--accent);
+  }
+  pre code { background: none; padding: 0; }
+
+  /* ── Callout boxes ── */
+  .callout {
+    padding: 18px 22px; margin: 18px 0;
+    border-radius: 8px; border-left: 4px solid;
+  }
+  .callout-info { background: rgba(56,189,248,0.08); border-color: var(--accent); }
+  .callout-warn { background: rgba(251,191,36,0.08); border-color: var(--warning); }
+  .callout-tip { background: rgba(74,222,128,0.08); border-color: var(--success); }
+  .callout-title {
+    font-weight: 700; margin-bottom: 6px; font-size: 0.92rem;
+  }
+  .callout-info .callout-title { color: var(--accent); }
+  .callout-warn .callout-title { color: var(--warning); }
+  .callout-tip .callout-title { color: var(--success); }
+
+  /* ── Keyword highlight chips ── */
+  .keyword {
+    display: inline-block; background: var(--accent-dim);
+    color: var(--accent); padding: 1px 9px; border-radius: 4px;
+    font-size: 0.85em; font-weight: 600; margin: 0 1px;
+  }
+
+  /* ── Back to top button ── */
+  #back-to-top {
+    position: fixed; bottom: 32px; right: 32px;
+    width: 44px; height: 44px; border-radius: 50%;
+    background: var(--accent); color: var(--bg);
+    border: none; font-size: 20px; cursor: pointer;
+    display: none; align-items: center; justify-content: center;
+    box-shadow: 0 4px 16px rgba(56,189,248,0.3);
+    transition: transform 0.2s ease, opacity 0.2s ease;
+    z-index: 900;
+  }
+  #back-to-top:hover { transform: translateY(-2px); }
+
+  /* ── Reference block ── */
+  .ref-block {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 8px; padding: 20px 24px; margin: 18px 0;
+    font-size: 0.9rem; color: var(--text-muted);
+  }
+  .ref-block strong { color: var(--accent); }
+
+  /* ── Print styles ── */
+  @media print {
+    .sidebar, #back-to-top, #progress-bar, .sidebar-toggle { display: none !important; }
+    .main { margin-left: 0 !important; }
+    .hero { background: #1e40af !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    body { background: #fff; color: #000; font-size: 11pt; }
+    .content { max-width: 100%; padding: 20px; }
+    table, th, td { border: 1px solid #333; }
+    thead th { background: #1e40af !important; color: #fff !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    pre { background: #f3f4f6 !important; color: #000 !important; border: 1px solid #ccc; }
+    code { background: #eee; color: #000; }
+    a { color: #1e40af; }
+    .callout { break-inside: avoid; }
+  }
+
+  /* ── Responsive ── */
+  @media (max-width: 900px) {
+    .sidebar { transform: translateX(-100%); }
+    .sidebar.open { transform: translateX(0); box-shadow: 4px 0 24px rgba(0,0,0,0.5); }
+    .sidebar-toggle { display: block; }
+    .main { margin-left: 0; }
+    .hero { padding: 50px 24px 40px; }
+    .hero h1 { font-size: 1.7rem; }
+    .content { padding: 28px 20px 60px; }
+    table { font-size: 0.82rem; }
+    thead th, tbody td { padding: 8px 10px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Progress bar -->
+<div id="progress-bar"></div>
+
+<!-- Sidebar toggle (mobile) -->
+<button class="sidebar-toggle" onclick="document.querySelector('.sidebar').classList.toggle('open')" aria-label="Toggle navigation">&#9776;</button>
+
+<!-- Sidebar -->
+<aside class="sidebar">
+  <div class="sidebar-header">
+    <h3>Session 1</h3>
+    <p>Foundations of Structured Data Management</p>
+  </div>
+  <nav>
+    <a href="#s1-1">1.1 Introduction to Data Management</a>
+    <a href="#s1-2">1.2 Types of Data</a>
+    <a href="#s1-3">1.3 Evolution: File Systems to DBMS</a>
+    <a href="#s1-4">1.4 Structured Data Mgmt Concepts</a>
+    <a href="#s1-5">1.5 Relational DB Fundamentals</a>
+    <a href="#s1-6">1.6 Data Modelling: ER Model</a>
+    <a href="#s1-7">1.7 COMPANY DB Exercise</a>
+    <a href="#s1-8">1.8 Normalisation (1NF–BCNF)</a>
+    <a href="#s1-9">1.9 DBMS Internal Architecture</a>
+    <a href="#s1-10">1.10 Indexing &amp; File Structures</a>
+    <a href="#s1-11">1.11 Views in SQL</a>
+    <a href="#s1-12">1.12 Stored Procedures, Functions &amp; Triggers</a>
+  </nav>
+</aside>
+
+<!-- Main content -->
+<div class="main">
+
+  <!-- Hero header -->
+  <header class="hero">
+    <h1>Session 1: Foundations of Structured Data Management</h1>
+    <p class="subtitle">BITS Pilani — SSZG507: Modern Database Systems — Prof. Ashish Narang, CSIS</p>
+    <div class="meta">
+      <span>T1: Elmasri &amp; Navathe, 7th Ed.</span>
+      <span>T2: Kleppmann, DDIA</span>
+      <span>R1: Ponniah, Data Warehousing</span>
+      <span>12 Sections</span>
+    </div>
+  </header>
+
+  <div class="content">
+
+    <!-- Reference block -->
+    <div class="ref-block">
+      <strong>References:</strong> T1 Ch.1 (Sec 1.2, 1.3, 1.6) | Ch.3 (Sec 3.3, 3.4, 3.6) | Ch.5 (Sec 5.1, 5.2) | Ch.6<br>
+      <strong>Course Modules:</strong>
+      1. Foundations of Structured Data Management &larr; <em>this session</em> &nbsp;
+      2. Distributed Database Architecture and Consistency Models &nbsp;
+      3. NoSQL Data Stores &nbsp;
+      4. Cloud Databases and NewSQL Systems &nbsp;
+      5. Data Warehouses, Data Lakes and Data Lakehouse &nbsp;
+      6. Specialized Databases for Modern Applications &nbsp;
+      7. Emerging Trends in Data Systems
+    </div>
+
+    <!-- ─────────────────────────────────────────────── -->
+    <!-- SECTION 1.1 -->
+    <!-- ─────────────────────────────────────────────── -->
+    <h2 id="s1-1">1.1 Introduction to Data Management Systems</h2>
+
+    <h3>What is Data? What is Information?</h3>
+    <p>Before discussing data management, it's essential to understand the difference between <strong>data</strong> and <strong>information</strong>. <strong>Data</strong> refers to raw, unprocessed facts — numbers, text, dates — without context. The number <code>42000</code> by itself is just data. <strong>Information</strong> is data that has been processed, organised, and given context so that it becomes meaningful — for example, "Employee John's monthly salary is 42,000 INR." A database stores data; applications and queries transform it into information.</p>
+
+    <h3>What is a Database?</h3>
+    <p>A <strong>database</strong> is an organized collection of logically related data, designed to efficiently store, retrieve, update, and manage information for a specific application or organization. It is not merely a file or a spreadsheet — it is a structured repository governed by rules, accessible by many users, and protected against failure.</p>
+    <p><strong>Examples:</strong> University Database, Banking Database, Hospital Database, E-commerce Database.</p>
+
+    <h3>What is a DBMS?</h3>
+    <p>A <strong>Database Management System (DBMS)</strong> is software that enables users to create, store, organize, manage, and retrieve data efficiently from a database. It sits between applications and the stored data.</p>
+    <p>A DBMS facilitates:</p>
+    <ul>
+      <li><strong>Defining</strong> the database — specify the structure, tables, relationships, and constraints.</li>
+      <li><strong>Constructing</strong> the database — create database objects and populate them with data.</li>
+      <li><strong>Manipulating</strong> the database — insert, update, delete, and retrieve data. Support multiple users and applications simultaneously.</li>
+    </ul>
+    <p><strong>Examples:</strong> MySQL, PostgreSQL, MongoDB, Oracle, SQL Server, CockroachDB.</p>
+
+    <h3>Why Do We Need Formal Data Management?</h3>
+    <p>In any organisation — a university, a bank, a hospital, an e-commerce company — data is generated continuously: student enrolments, financial transactions, patient records, customer orders. Without a systematic way to manage this data, organisations face chaos.</p>
+    <p>Consider a university with 10,000 students. If each department maintains its own Excel files for student records, you'll quickly encounter duplicate entries, contradictory information (one file says a student is in 3rd year, another says 4th year), and no way to answer cross-departmental questions like "How many students are enrolled in both Computer Science and Mathematics courses?"</p>
+    <p>Formal data management addresses five fundamental concerns:</p>
+
+    <div class="table-wrapper">
+      <table>
+        <thead><tr><th>Concern</th><th>Explanation</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Data sharing</strong></td><td>Multiple users and applications need concurrent access to the same data. A bank's ATM system, mobile app, and branch counter all read and write the same account balances simultaneously. Without coordination, these concurrent accesses can corrupt data.</td></tr>
+          <tr><td><strong>Integrity</strong></td><td>Rules (constraints) must keep data correct at all times. A student's age cannot be negative. An account balance cannot drop below the overdraft limit. These business rules must be enforced centrally, not scattered across individual applications.</td></tr>
+          <tr><td><strong>Efficiency</strong></td><td>As data grows, brute-force searching becomes impractical. Searching 100 million records one by one would take minutes. With a proper index (like a B+ tree), the same search takes milliseconds.</td></tr>
+          <tr><td><strong>Security</strong></td><td>Only authorised users should read or modify specific data. A payroll clerk should see salary data but not medical records. A doctor should see medical records but not salary data.</td></tr>
+          <tr><td><strong>Recovery</strong></td><td>After a crash, data must be restored to a consistent state. If a power failure occurs during a bank transfer (money debited from one account but not credited to the other), the system must undo the partial operation.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- ─────────────────────────────────────────────── -->
+    <!-- SECTION 1.2 -->
+    <!-- ─────────────────────────────────────────────── -->
+    <h2 id="s1-2">1.2 Types of Data and Their Characteristics</h2>
+
+    <p><em>(From class slides 15–19)</em></p>
+    <p>Data can be classified based on how it is organised and represented. Different types require different storage and management techniques. Understanding these types is critical because modern database systems must handle all three.</p>
+
+    <h3>Structured Data</h3>
+    <p>Structured data is organised according to a <strong>predefined schema</strong> (fixed format), making it easy to store, retrieve, and process. This is the traditional domain of relational databases.</p>
+    <p><strong>Characteristics:</strong></p>
+    <ul>
+      <li>Organised into rows and columns (tables).</li>
+      <li>Follows a fixed, predefined schema — every row has the same columns.</li>
+      <li>Each attribute has a defined data type (INT, VARCHAR, DATE, etc.).</li>
+      <li>Easily queried using SQL.</li>
+      <li>Ensures consistency and integrity through constraints.</li>
+    </ul>
+    <p><strong>Examples:</strong> Employee records (Emp_ID, Name, Salary, Dept_ID), bank account transactions, student enrolment data, inventory tables.</p>
+    <p><strong>Storage:</strong> Relational databases (MySQL, PostgreSQL, Oracle, SQL Server).</p>
+
+    <h3>Semi-Structured Data</h3>
+    <p>Semi-structured data does <strong>not</strong> follow a rigid tabular schema but contains <strong>tags, keys, or metadata</strong> that provide partial structure and organisation. It sits between structured and unstructured.</p>
+    <p><strong>Characteristics:</strong></p>
+    <ul>
+      <li>Does not follow a fixed schema — different records can have different fields.</li>
+      <li>Self-describing using tags or key-value pairs (the structure is embedded in the data).</li>
+      <li>Flexible and easily extensible — adding a new field doesn't require altering a schema.</li>
+      <li>Suitable for exchanging and integrating data between systems.</li>
+      <li>Commonly stored in <strong>JSON, XML, and YAML</strong> formats.</li>
+    </ul>
+    <p><strong>Examples:</strong> JSON API responses, XML configuration files, email (headers are structured, body is unstructured), web pages (HTML tags provide structure).</p>
+    <p><strong>Storage:</strong> Document databases (MongoDB, CouchDB), XML databases.</p>
+
+    <h3>Unstructured Data</h3>
+    <p>Unstructured data does <strong>not</strong> follow any predefined schema or organised format, making it difficult to store and analyse using traditional relational databases.</p>
+    <p><strong>Characteristics:</strong></p>
+    <ul>
+      <li>No predefined schema or fixed structure.</li>
+      <li>Contains text, images, audio, video, and documents.</li>
+      <li>Difficult to query using traditional SQL.</li>
+      <li>Requires specialised storage and processing techniques (full-text search, image recognition, NLP).</li>
+      <li>Forms the <strong>majority of data generated today</strong> (estimated 80–90% of all data).</li>
+    </ul>
+    <p><strong>Examples:</strong> Word documents, PDFs, images and photographs, audio files (podcasts, music), video files, social media posts, sensor data streams.</p>
+    <p><strong>Storage:</strong> Object storage (Amazon S3), data lakes, NoSQL databases, specialised systems (Elasticsearch for text, media servers for video).</p>
+
+    <h3>Comparison Table</h3>
+    <div class="table-wrapper">
+      <table>
+        <thead><tr><th>Aspect</th><th>Structured</th><th>Semi-Structured</th><th>Unstructured</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Schema</strong></td><td>Fixed, predefined</td><td>Flexible, self-describing</td><td>None</td></tr>
+          <tr><td><strong>Format</strong></td><td>Tables (rows/columns)</td><td>JSON, XML, YAML</td><td>Text, images, audio, video</td></tr>
+          <tr><td><strong>Query language</strong></td><td>SQL</td><td>JSON queries, XPath, XQuery</td><td>Full-text search, AI/ML</td></tr>
+          <tr><td><strong>Storage</strong></td><td>RDBMS</td><td>Document DB, XML DB</td><td>Object storage, data lakes</td></tr>
+          <tr><td><strong>Examples</strong></td><td>Employee table, bank transactions</td><td>API responses, config files</td><td>PDFs, videos, social media</td></tr>
+          <tr><td><strong>% of global data</strong></td><td>~10–20%</td><td>~5–10%</td><td>~80–90%</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- ─────────────────────────────────────────────── -->
+    <!-- SECTION 1.3 -->
+    <!-- ─────────────────────────────────────────────── -->
+    <h2 id="s1-3">1.3 Evolution: File Systems to DBMS</h2>
+
+    <h3>1.3.1 The File System Era</h3>
+    <p>In the 1960s and 1970s, each application managed its own flat files. The payroll application had its files, the HR application had separate files, and the inventory application had yet another set. There was no central coordination. This approach had severe problems:</p>
+
+    <div class="table-wrapper">
+      <table>
+        <thead><tr><th>Problem</th><th>What goes wrong</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Data redundancy</strong></td><td>The same customer name, address, and phone number stored in multiple files across programs. If a customer moves, every file must be updated independently.</td></tr>
+          <tr><td><strong>Inconsistency</strong></td><td>One file is updated with a new address, others still have the old one. Now different applications show different addresses for the same customer. Which is correct?</td></tr>
+          <tr><td><strong>Difficulty in access</strong></td><td>Want a new report? You might need to write an entirely new program. There's no general-purpose query language — every data access path must be programmed individually.</td></tr>
+          <tr><td><strong>Data isolation</strong></td><td>Data scattered across files in different formats (some binary, some text, some fixed-width, some comma-delimited). Combining data from different files requires custom parsing code.</td></tr>
+          <tr><td><strong>Integrity problems</strong></td><td>No central mechanism to enforce business rules. If the rule is "account balance must not go below zero," each application must implement and enforce this independently — and they may do it inconsistently.</td></tr>
+          <tr><td><strong>Atomicity problems</strong></td><td>A crash midway through a multi-step update (debit one account, credit another) leaves the data in a partial, inconsistent state. There's no mechanism to "undo" the partial work.</td></tr>
+          <tr><td><strong>Concurrent-access anomalies</strong></td><td>Two clerks updating the same file simultaneously. One reads a balance of 1000, the other reads 1000. Both write back their modified values — one update is silently lost.</td></tr>
+          <tr><td><strong>Security issues</strong></td><td>File-level permissions (read/write/execute for owner/group/others) are far too coarse. You can't say "user X can see columns A and B but not column C."</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>1.3.2 The DBMS Solution</h3>
+    <p>A <strong>Database Management System (DBMS)</strong> emerged as the solution to all these problems. It is system software that sits between applications and the stored data, providing:</p>
+    <ol>
+      <li><strong>Data definition</strong> — A Data Definition Language (DDL) to specify the schema: what tables exist, what columns they have, what types and constraints apply.</li>
+      <li><strong>Data manipulation</strong> — A Data Manipulation Language (DML) to insert, update, delete, and query data using a high-level language (SQL), without needing to know how data is physically stored.</li>
+      <li><strong>Controlled access</strong> — Concurrency control (so multiple users don't corrupt data), backup and recovery (so crashes don't lose data), authorisation (so only permitted users access data), and integrity enforcement (so business rules are always satisfied).</li>
+    </ol>
+
+    <p><strong>Key advantages over file systems:</strong></p>
+    <ul>
+      <li><strong>Program–data independence:</strong> The schema is stored separately in a <strong>catalog</strong> (data dictionary). If you change the storage structure (add an index, reorganise files on disk), application programs don't need to be rewritten. They query the logical schema, not the physical storage.</li>
+      <li><strong>Data abstraction:</strong> Users interact with a logical view of the data (tables, rows, columns) without needing to understand how data is physically stored on disk (files, blocks, pages, indexes).</li>
+      <li><strong>Multiple views:</strong> Different users can see different subsets of the same underlying data. The HR department sees employee personal details; the finance department sees salary information; neither sees what the other sees — even though it's all in the same database.</li>
+      <li><strong>Reduced redundancy:</strong> Data is stored once in a centralised database. Normalisation techniques (covered in Section 1.8) systematically eliminate duplicate storage.</li>
+      <li><strong>Transaction support:</strong> The ACID properties (Atomicity, Consistency, Isolation, Durability) guarantee that every transaction either completes fully or has no effect at all — even if the system crashes midway.</li>
+    </ul>
+
+    <h3>1.3.3 The Three-Schema Architecture (ANSI/SPARC)</h3>
+    <p>The ANSI/SPARC architecture (proposed in 1975) separates a database system into three levels of abstraction. This is one of the most important concepts in database theory because it enables <strong>data independence</strong> — the ability to change one level without affecting the others.</p>
+
+    <pre><code>┌─────────────────────────────────┐
+│  External Level (User Views)    │  ← Each user/app sees only relevant data
+├─────────────────────────────────┤
+│  Conceptual Level (Logical)     │  ← Complete logical structure of entire DB
+├─────────────────────────────────┤
+│  Internal Level (Physical)      │  ← How data is physically stored on disk
+└─────────────────────────────────┘</code></pre>
+
+    <p><strong>External level:</strong> Individual user perspectives. A student registration system sees student names and course enrolments. A grade reporting system sees student IDs and grades. Both are views of the same underlying data, tailored to each application's needs.</p>
+    <p><strong>Conceptual level:</strong> The complete logical description of the entire database — all entities, relationships, constraints, and security rules. It describes <strong>what</strong> data is stored, not <strong>how</strong> it's stored. This is the schema designed by the DBA.</p>
+    <p><strong>Internal level:</strong> The physical storage structures — which files store which tables, what indexing methods are used (B+ tree, hash), how data is compressed, what buffer management strategy is employed. This level is optimised for performance.</p>
+
+    <p><strong>Data independence</strong> is achieved through mappings between levels:</p>
+    <ul>
+      <li><strong>Logical data independence:</strong> You can change the conceptual schema (e.g. add a new table, split a table) without affecting the external views or applications that use them. The external-to-conceptual mapping absorbs the change.</li>
+      <li><strong>Physical data independence:</strong> You can change the internal schema (e.g. add an index, move data to SSDs, change file organisation) without affecting the conceptual schema. The conceptual-to-internal mapping absorbs the change.</li>
+    </ul>
+
+    <!-- ─────────────────────────────────────────────── -->
+    <!-- SECTION 1.4 -->
+    <!-- ─────────────────────────────────────────────── -->
+    <h2 id="s1-4">1.4 Structured Data Management Concepts</h2>
+
+    <h3>1.4.1 Data Models</h3>
+    <p>A <strong>data model</strong> is a collection of concepts and rules for describing the structure of a database — what the data looks like, how it's organised, what constraints it must obey, and what operations can be performed. Think of a data model as a "blueprint language" for databases.</p>
+
+    <div class="table-wrapper">
+      <table>
+        <thead><tr><th>Category</th><th>Examples</th><th>Purpose</th><th>Audience</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Conceptual (high-level)</strong></td><td>ER model, UML class diagrams</td><td>Describe data as users perceive it. No implementation details.</td><td>Business analysts, end users.</td></tr>
+          <tr><td><strong>Representational (logical)</strong></td><td>Relational, Network, Hierarchical</td><td>Formal structure a DBMS can implement. Understandable by both users and developers.</td><td>Database designers, developers.</td></tr>
+          <tr><td><strong>Physical (low-level)</strong></td><td>Indexes, hashing, file structures</td><td>How data is stored on disk.</td><td>DBAs, DBMS internals developers.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p>The <strong>relational model</strong> dominates today because it combines simplicity (tables are intuitive) with mathematical rigour (relational algebra enables automatic query optimisation).</p>
+
+    <h3>1.4.2 Schema vs. Instance</h3>
+    <p>A <strong>schema</strong> (intension) is the structure of the database — table definitions, column types, constraints. Changes rarely.</p>
+    <p>An <strong>instance</strong> (extension) is the actual data at a point in time. Changes with every INSERT, UPDATE, DELETE.</p>
+    <p><strong>Analogy:</strong> A spreadsheet template with column headers and validation rules is the schema. The rows of data filled in by users are the instance.</p>
+
+    <h3>1.4.3 Database Languages</h3>
+    <div class="table-wrapper">
+      <table>
+        <thead><tr><th>Language</th><th>Purpose</th><th>Examples</th><th>When used</th></tr></thead>
+        <tbody>
+          <tr><td><strong>DDL</strong></td><td>Define/modify schema</td><td><code>CREATE TABLE</code>, <code>ALTER TABLE</code>, <code>DROP TABLE</code></td><td>Database design, schema evolution</td></tr>
+          <tr><td><strong>DML</strong></td><td>Query/update data</td><td><code>SELECT</code>, <code>INSERT</code>, <code>UPDATE</code>, <code>DELETE</code></td><td>Daily, by apps and users</td></tr>
+          <tr><td><strong>DCL</strong></td><td>Access control</td><td><code>GRANT</code>, <code>REVOKE</code></td><td>By DBAs for security</td></tr>
+          <tr><td><strong>TCL</strong></td><td>Transaction control</td><td><code>COMMIT</code>, <code>ROLLBACK</code>, <code>SAVEPOINT</code></td><td>By apps needing atomic operations</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>SQL unifies all four into a single language.</p>
+
+    <!-- ─────────────────────────────────────────────── -->
+    <!-- SECTION 1.5 -->
+    <!-- ─────────────────────────────────────────────── -->
+    <h2 id="s1-5">1.5 Relational Database Fundamentals</h2>
+
+    <h3>1.5.1 The Relational Model (Codd, 1970)</h3>
+    <p>Proposed by <strong>Edgar F. Codd</strong> at IBM, the relational model was revolutionary: instead of navigating pointer structures (hierarchical/network models), represent all data as <strong>tables</strong> and use <strong>mathematical logic</strong> to query them.</p>
+
+    <div class="table-wrapper">
+      <table>
+        <thead><tr><th>Term</th><th>Meaning</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Relation</strong></td><td>A table with rows and columns.</td></tr>
+          <tr><td><strong>Tuple</strong></td><td>A single row.</td></tr>
+          <tr><td><strong>Attribute</strong></td><td>A named column.</td></tr>
+          <tr><td><strong>Domain</strong></td><td>Set of allowed values for an attribute (e.g. positive integers for Age).</td></tr>
+          <tr><td><strong>Degree</strong></td><td>Number of attributes (columns).</td></tr>
+          <tr><td><strong>Cardinality</strong></td><td>Number of tuples (rows).</td></tr>
+          <tr><td><strong>Relation schema</strong></td><td>Name + attribute list: <code>STUDENT(ID, Name, Age)</code>.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>1.5.2 Properties of Relations</h3>
+    <ol>
+      <li><strong>No duplicate tuples</strong> — every row is distinct.</li>
+      <li><strong>Tuple ordering is insignificant</strong> — rows have no inherent order.</li>
+      <li><strong>Attribute ordering is insignificant</strong> — columns are identified by name, not position.</li>
+      <li><strong>All values are atomic</strong> — no multi-valued or composite attributes in a cell (<strong>First Normal Form</strong>).</li>
+    </ol>
+
+    <h3>1.5.3 Keys</h3>
+    <div class="table-wrapper">
+      <table>
+        <thead><tr><th>Key Type</th><th>Definition</th><th>Example (for STUDENT table)</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Superkey</strong></td><td>Any set of attributes that uniquely identifies a tuple.</td><td>{Student_ID}, {Student_ID, Name}, {Email}</td></tr>
+          <tr><td><strong>Candidate key</strong></td><td>A <em>minimal</em> superkey — removing any attribute breaks uniqueness.</td><td>{Student_ID}, {Email}</td></tr>
+          <tr><td><strong>Primary key (PK)</strong></td><td>The candidate key chosen by the designer as the main identifier.</td><td>Student_ID</td></tr>
+          <tr><td><strong>Foreign key (FK)</strong></td><td>Attribute(s) in one relation that reference the PK of another relation.</td><td>Dept_ID &rarr; DEPARTMENT(Dept_ID)</td></tr>
+          <tr><td><strong>Alternate key</strong></td><td>A candidate key that was not chosen as the PK.</td><td>Email (if Student_ID is PK)</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>1.5.4 Integrity Constraints</h3>
+    <p>These are rules the DBMS enforces to keep data correct:</p>
+    <ul>
+      <li><strong>Entity integrity:</strong> No primary key attribute can be NULL. Every row must be uniquely identifiable.</li>
+      <li><strong>Referential integrity:</strong> A foreign key value must either be NULL or match an existing primary key in the referenced relation. You can't reference a department that doesn't exist.</li>
+      <li><strong>Domain constraints:</strong> Every attribute value must belong to its defined domain (e.g. Age must be a positive integer, not a string).</li>
+      <li><strong>Key constraints:</strong> No two tuples can share the same primary key value.</li>
+    </ul>
+
+    <h4>Application-Based (Semantic) Constraints</h4>
+    <p><em>(From class slide 29)</em></p>
+    <p>Beyond schema-based constraints (domain, key, entity integrity, referential integrity), real-world databases often need <strong>business rules</strong> that cannot be expressed purely through the schema:</p>
+    <ul>
+      <li>"Salary of an employee should not exceed the salary of the employee's supervisor."</li>
+      <li>"Maximum number of hours an employee can work on a project per week is 56 hours."</li>
+      <li>"Salary of an employee should only increase (never decrease)."</li>
+    </ul>
+    <p>These <strong>semantic constraints</strong> are enforced through <strong>application programs</strong>, <strong>triggers</strong>, or <strong>stored procedures</strong> rather than through DDL constraints. They require custom logic because they involve cross-row or cross-table conditions that SQL CHECK constraints cannot handle.</p>
+
+    <h3>1.5.5 Relational Algebra</h3>
+    <p>Relational algebra provides the theoretical foundation for SQL. It defines a set of operations that take one or two relations as input and produce a new relation as output.</p>
+
+    <div class="table-wrapper">
+      <table>
+        <thead><tr><th>Operation</th><th>Symbol</th><th>Description</th><th>SQL Equivalent</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Selection</strong></td><td>&sigma;</td><td>Pick rows satisfying a condition</td><td><code>WHERE</code></td></tr>
+          <tr><td><strong>Projection</strong></td><td>&pi;</td><td>Pick specific columns</td><td><code>SELECT col1, col2</code></td></tr>
+          <tr><td><strong>Union</strong></td><td>&cup;</td><td>Combine rows from two compatible relations</td><td><code>UNION</code></td></tr>
+          <tr><td><strong>Intersection</strong></td><td>&cap;</td><td>Rows common to both</td><td><code>INTERSECT</code></td></tr>
+          <tr><td><strong>Difference</strong></td><td>&minus;</td><td>Rows in one but not the other</td><td><code>EXCEPT</code></td></tr>
+          <tr><td><strong>Cartesian product</strong></td><td>&times;</td><td>Every combination of rows from two relations</td><td><code>FROM A, B</code> (no WHERE)</td></tr>
+          <tr><td><strong>Join</strong></td><td>&#8904;</td><td>Combine related rows on a condition</td><td><code>JOIN ... ON</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- ─────────────────────────────────────────────── -->
+    <!-- SECTION 1.6 -->
+    <!-- ─────────────────────────────────────────────── -->
+    <h2 id="s1-6">1.6 Data Modelling: ER Model</h2>
+
+    <h3>1.6.1 The Entity-Relationship Model (Chen, 1976)</h3>
+    <p>The <strong>ER model</strong> is the most widely used conceptual data model. It describes real-world data in terms of:</p>
+    <ul>
+      <li><strong>Entities</strong> — Distinguishable real-world objects (a specific employee, a specific course).</li>
+      <li><strong>Attributes</strong> — Properties that describe entities (Name, Salary, DOB).</li>
+      <li><strong>Relationships</strong> — Associations between entities (an employee "works in" a department).</li>
+    </ul>
+
+    <h3>1.6.2 Entity Types</h3>
+    <ul>
+      <li><strong>Strong entity:</strong> Has its own key attribute that uniquely identifies each entity (e.g. EMPLOYEE with Emp_ID). Exists independently.</li>
+      <li><strong>Weak entity:</strong> Cannot be uniquely identified by its own attributes alone. Depends on an <strong>owner/identifying entity</strong> via an <strong>identifying relationship</strong>. Uses a <strong>partial key</strong> combined with the owner's PK.
+        <ul><li>Example: DEPENDENT (Name, Relationship) depends on EMPLOYEE. A dependent is identified by (Emp_ID, Dependent_Name).</li></ul>
+      </li>
+    </ul>
+
+    <h3>1.6.3 Attribute Types</h3>
+    <div class="table-wrapper">
+      <table>
+        <thead><tr><th>Type</th><th>Description</th><th>Example</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Simple (Atomic)</strong></td><td>Cannot be divided further.</td><td>FirstName</td></tr>
+          <tr><td><strong>Composite</strong></td><td>Can be divided into meaningful sub-parts.</td><td>Address &rarr; {Street, City, State, PIN}</td></tr>
+          <tr><td><strong>Single-valued</strong></td><td>Holds exactly one value per entity.</td><td>DateOfBirth</td></tr>
+          <tr><td><strong>Multi-valued</strong></td><td>Can hold multiple values per entity.</td><td>PhoneNumbers (a person may have 2–3)</td></tr>
+          <tr><td><strong>Derived</strong></td><td>Computed from other stored attributes.</td><td>Age (computed from DOB and current date)</td></tr>
+          <tr><td><strong>Key</strong></td><td>Uniquely identifies the entity.</td><td>EmployeeID</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>1.6.4 Relationships</h3>
+    <p><strong>Degree of a relationship:</strong></p>
+    <ul>
+      <li><strong>Unary (recursive):</strong> Entity relates to itself. EMPLOYEE supervises EMPLOYEE.</li>
+      <li><strong>Binary:</strong> Between two entity types (most common). EMPLOYEE works-in DEPARTMENT.</li>
+      <li><strong>Ternary:</strong> Among three entity types. SUPPLIER supplies PART to PROJECT.</li>
+    </ul>
+
+    <p><strong>Cardinality ratios (binary):</strong></p>
+    <div class="table-wrapper">
+      <table>
+        <thead><tr><th>Ratio</th><th>Meaning</th><th>Example</th></tr></thead>
+        <tbody>
+          <tr><td><strong>1:1</strong></td><td>Each entity on one side relates to at most one on the other.</td><td>One EMPLOYEE manages one DEPARTMENT.</td></tr>
+          <tr><td><strong>1:N</strong></td><td>One entity on the "1" side relates to many on the "N" side.</td><td>One DEPARTMENT has many EMPLOYEEs.</td></tr>
+          <tr><td><strong>M:N</strong></td><td>Many-to-many.</td><td>A STUDENT enrols in many COURSEs; each COURSE has many STUDENTs.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p><strong>Participation constraints:</strong></p>
+    <ul>
+      <li><strong>Total (mandatory):</strong> Every entity must participate in at least one relationship instance. Shown as a <strong>double line</strong> in ER diagrams. Example: Every EMPLOYEE <strong>must</strong> belong to a DEPARTMENT.</li>
+      <li><strong>Partial (optional):</strong> Some entities may not participate. Shown as a <strong>single line</strong>. Example: Not every EMPLOYEE manages a DEPARTMENT.</li>
+    </ul>
+
+    <h3>1.6.5 ER-to-Relational Mapping Rules</h3>
+    <p>This is the standard algorithm for converting an ER diagram into relational tables:</p>
+
+    <div class="table-wrapper">
+      <table>
+        <thead><tr><th>ER Construct</th><th>Mapping Rule</th><th>Rationale</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Strong entity</strong></td><td>Create a table with all simple attributes; key attribute &rarr; PK.</td><td>Each entity type becomes its own table.</td></tr>
+          <tr><td><strong>Weak entity</strong></td><td>Table with partial key + owner's PK (as FK). Composite PK = both.</td><td>Weak entity can't exist without owner, so owner's PK is part of the key.</td></tr>
+          <tr><td><strong>1:1 relationship</strong></td><td>Add PK of one side as FK in the other (prefer total-participation side to avoid NULLs).</td><td>Only one FK needed since each side maps to at most one on the other.</td></tr>
+          <tr><td><strong>1:N relationship</strong></td><td>Add PK of the "1" side as FK in the "N" side table.</td><td>Each entity on the "N" side is related to exactly one on the "1" side.</td></tr>
+          <tr><td><strong>M:N relationship</strong></td><td>Create a new junction/bridge table. PKs of both sides as FKs. Composite PK = both FKs.</td><td>No single table can hold the many-to-many mapping without a separate table.</td></tr>
+          <tr><td><strong>Multi-valued attribute</strong></td><td>Separate table: attribute value + FK to owner entity's PK.</td><td>Each value becomes a separate row, linked back to the owner.</td></tr>
+          <tr><td><strong>Composite attribute</strong></td><td>Include only the simple component sub-attributes (not the composite name).</td><td>The composite name is just a grouping; only leaf-level attributes are stored.</td></tr>
+          <tr><td><strong>Derived attribute</strong></td><td>Usually not stored; computed at query time (or materialised for performance).</td><td>Storing derived values risks inconsistency if the source changes.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- ─────────────────────────────────────────────── -->
+    <!-- SECTION 1.7 -->
+    <!-- ─────────────────────────────────────────────── -->
+    <h2 id="s1-7">1.7 COMPANY Database — Worked ER Exercise</h2>
+
+    <p><em>(From class slides 40–47 — this is the classic textbook exercise from Elmasri &amp; Navathe)</em></p>
+
+    <h3>Problem Statement</h3>
+    <p>The COMPANY database keeps track of a company's employees, departments, and projects.</p>
+    <p><strong>Requirements:</strong></p>
+    <ul>
+      <li>The company is organised into <strong>departments</strong>. Each department has a unique name, a unique number, and a particular employee who manages the department. We track the start date when that employee began managing. A department may have several locations.</li>
+      <li>A department controls a number of <strong>projects</strong>, each with a unique name, a unique number, and a single location.</li>
+      <li>We store each <strong>employee's</strong> name, Social Security number, address, salary, gender, and birth date. An employee is assigned to one department but may work on several projects (not necessarily controlled by the same department). We track hours per week on each project. We also track the direct supervisor of each employee.</li>
+      <li>We want to track the <strong>dependents</strong> of each employee for insurance purposes: first name, gender, birth date, and relationship to the employee.</li>
+    </ul>
+
+    <h3>Step 1: Identify Entities</h3>
+    <div class="table-wrapper">
+      <table>
+        <thead><tr><th>Entity</th><th>Type</th><th>Key Attribute</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Employee</strong></td><td>Strong</td><td>SSN</td></tr>
+          <tr><td><strong>Department</strong></td><td>Strong</td><td>Dnumber</td></tr>
+          <tr><td><strong>Project</strong></td><td>Strong</td><td>Pnumber</td></tr>
+          <tr><td><strong>Dependent</strong></td><td>Weak (depends on Employee)</td><td>Dependent_name (partial key)</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Step 2: Identify Attributes</h3>
+    <p><strong>Employee:</strong> Name (Fname, Minit, Lname — composite), SSN, Address, Salary, Gender (Sex), Bdate</p>
+    <p><strong>Department:</strong> Dname, Dnumber, {Dlocation} (multi-valued)</p>
+    <p><strong>Project:</strong> Pname, Pnumber, Plocation</p>
+    <p><strong>Dependent:</strong> Dependent_name, Sex, Bdate, Relationship</p>
+
+    <h3>Step 3: Identify Relationships</h3>
+    <div class="table-wrapper">
+      <table>
+        <thead><tr><th>Relationship</th><th>Entities</th><th>Cardinality</th><th>Participation</th></tr></thead>
+        <tbody>
+          <tr><td><strong>MANAGES</strong></td><td>Employee manages Department</td><td>1:1</td><td>Employee: partial, Department: total</td></tr>
+          <tr><td><strong>WORKS_FOR</strong></td><td>Employee works for Department</td><td>N:1</td><td>Employee: total, Department: total</td></tr>
+          <tr><td><strong>CONTROLS</strong></td><td>Department controls Project</td><td>1:N</td><td>Department: partial, Project: total</td></tr>
+          <tr><td><strong>SUPERVISION</strong></td><td>Employee supervises Employee</td><td>1:N (recursive)</td><td>Both partial</td></tr>
+          <tr><td><strong>WORKS_ON</strong></td><td>Employee works on Project</td><td>M:N</td><td>Both partial</td></tr>
+          <tr><td><strong>DEPENDENTS_OF</strong></td><td>Employee has Dependents</td><td>1:N (identifying)</td><td>Employee: partial, Dependent: total</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p><strong>Relationship attributes:</strong> MANAGES has Start_date. WORKS_ON has Hours.</p>
+
+    <h3>Step 4: ER-to-Relational Mapping</h3>
+    <pre><code>DEPARTMENT(Dname, Dnumber PK, Mgr_SSN FK→Employee, Mgr_start_date)
+DEPT_LOCATIONS(Dnumber FK, Dlocation)  PK = (Dnumber, Dlocation)
+
+EMPLOYEE(Fname, Minit, Lname, SSN PK, Bdate, Address, Sex, Salary,
+         Super_SSN FK→Employee, Dno FK→Department)
+
+PROJECT(Pname, Pnumber PK, Plocation, Dnum FK→Department)
+
+WORKS_ON(ESSN FK→Employee, Pno FK→Project, Hours)  PK = (ESSN, Pno)
+
+DEPENDENT(ESSN FK→Employee, Dependent_name, Sex, Bdate, Relationship)
+          PK = (ESSN, Dependent_name)</code></pre>
+
+    <!-- ─────────────────────────────────────────────── -->
+    <!-- SECTION 1.8 -->
+    <!-- ─────────────────────────────────────────────── -->
+    <h2 id="s1-8">1.8 Normalisation (1NF to BCNF)</h2>
+
+    <p>Normalisation is the systematic process of decomposing relations to eliminate redundancy and prevent update anomalies (insertion, deletion, and update anomalies). Each normal form imposes additional constraints.</p>
+
+    <h3>1.8.1 Functional Dependencies (FDs)</h3>
+    <p>A functional dependency <strong>X &rarr; Y</strong> means: if two tuples agree on X, they must agree on Y. Knowing X uniquely determines Y.</p>
+
+    <div class="table-wrapper">
+      <table>
+        <thead><tr><th>Type</th><th>Definition</th><th>Example</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Full FD</strong></td><td>Y depends on X entirely, not on any proper subset.</td><td>{Student_ID, Course_ID} &rarr; Grade</td></tr>
+          <tr><td><strong>Partial FD</strong></td><td>Y depends on a proper subset of a composite key.</td><td>{Student_ID, Course_ID} &rarr; Student_Name (Name depends only on Student_ID)</td></tr>
+          <tr><td><strong>Transitive FD</strong></td><td>X &rarr; Y &rarr; Z where Y is not a candidate key.</td><td>Emp_ID &rarr; Dept_ID &rarr; Dept_Name</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>1.8.2 Normal Forms</h3>
+    <div class="table-wrapper">
+      <table>
+        <thead><tr><th>NF</th><th>Rule</th><th>What it eliminates</th><th>Fix</th></tr></thead>
+        <tbody>
+          <tr><td><strong>1NF</strong></td><td>All attribute values must be atomic. No repeating groups.</td><td>Multi-valued cells, nested tables.</td><td>Move multi-valued attributes to a separate table.</td></tr>
+          <tr><td><strong>2NF</strong></td><td>1NF + no partial dependencies on composite PK.</td><td>Non-key attributes depending on part of the key.</td><td>Decompose: move partially-dependent attributes to a new table with the partial key.</td></tr>
+          <tr><td><strong>3NF</strong></td><td>2NF + no transitive dependencies among non-key attributes.</td><td>A &rarr; B &rarr; C where B is not a candidate key.</td><td>Decompose: create a separate table for the transitive chain.</td></tr>
+          <tr><td><strong>BCNF</strong></td><td>For every non-trivial FD X &rarr; Y, X must be a superkey.</td><td>Cases where a non-key determines part of a candidate key (3NF allows this if Y is prime).</td><td>Decompose on the violating FD.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>1.8.3 Update Anomalies (Why Normalise?)</h3>
+    <div class="table-wrapper">
+      <table>
+        <thead><tr><th>Anomaly</th><th>Problem</th><th>Example</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Insertion</strong></td><td>Cannot insert data without unrelated data.</td><td>Can't add a new department unless at least one employee exists in it.</td></tr>
+          <tr><td><strong>Deletion</strong></td><td>Deleting data causes unintended loss.</td><td>Deleting the last employee in a department loses the department info entirely.</td></tr>
+          <tr><td><strong>Update</strong></td><td>Must update the same fact in multiple rows.</td><td>Renaming a department requires updating every employee row in that department.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- ─────────────────────────────────────────────── -->
+    <!-- SECTION 1.9 -->
+    <!-- ─────────────────────────────────────────────── -->
+    <h2 id="s1-9">1.9 DBMS Internal Architecture</h2>
+
+    <p>Understanding what happens inside a DBMS helps reason about performance and troubleshooting.</p>
+
+    <pre><code> User/Application → Query Interface (SQL parser, API)
+                          ↓
+                    Query Processor
+                    ├── Parser (syntax check, parse tree)
+                    ├── Optimizer (choose best execution plan)
+                    └── Executor (run the plan)
+                          ↓
+                    Transaction Manager + Concurrency Control + Recovery Manager
+                          ↓
+                    Storage Engine
+                    ├── Buffer Manager (cache pages in memory)
+                    └── Disk Manager (read/write disk blocks)
+                          ↓
+                    Disk Storage (data files, index files, log files)</code></pre>
+
+    <p><strong>The Catalog (Data Dictionary)</strong> stores metadata: table/column names, data types, constraints, index definitions, view definitions, user privileges, and statistics used by the optimizer.</p>
+
+    <!-- ─────────────────────────────────────────────── -->
+    <!-- SECTION 1.10 -->
+    <!-- ─────────────────────────────────────────────── -->
+    <h2 id="s1-10">1.10 Indexing and File Structures</h2>
+
+    <h3>Why Indexes Matter</h3>
+    <p>Without an index, finding a row requires a <strong>full table scan</strong> — reading every row. With millions of rows, this is extremely slow. An index maps column values to row locations, like a book's index maps topics to page numbers.</p>
+
+    <h3>Types of Indexes</h3>
+    <div class="table-wrapper">
+      <table>
+        <thead><tr><th>Index Type</th><th>How it works</th><th>Best for</th></tr></thead>
+        <tbody>
+          <tr><td><strong>B+ Tree</strong></td><td>Self-balancing tree; leaf nodes linked for range scans. O(log n).</td><td>Equality, range, prefix queries. Used by all major RDBMSs.</td></tr>
+          <tr><td><strong>Hash</strong></td><td>Hash function maps keys to buckets. O(1) average.</td><td>Equality lookups only. Cannot sort or range scan.</td></tr>
+          <tr><td><strong>Bitmap</strong></td><td>Bit vector per distinct value. Bit i = 1 if row i has that value.</td><td>Low-cardinality columns (Gender, Status). Data warehousing.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Clustered vs. Non-Clustered</h3>
+    <div class="table-wrapper">
+      <table>
+        <thead><tr><th>Aspect</th><th>Clustered</th><th>Non-Clustered (Secondary)</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Physical order</strong></td><td>Rows stored in index order.</td><td>Separate structure pointing to row locations.</td></tr>
+          <tr><td><strong>Number per table</strong></td><td>Only one (data sorted one way).</td><td>Many.</td></tr>
+          <tr><td><strong>Speed</strong></td><td>Fastest for range scans.</td><td>Extra lookup unless covering.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p><strong>Covering index:</strong> Includes all columns needed by a query — DBMS answers entirely from the index (index-only scan).</p>
+
+    <h3>File Organisation</h3>
+    <div class="table-wrapper">
+      <table>
+        <thead><tr><th>Method</th><th>Description</th><th>Best for</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Heap file</strong></td><td>Rows in no order.</td><td>Bulk inserts, full scans.</td></tr>
+          <tr><td><strong>Sorted file</strong></td><td>Rows in sort-key order.</td><td>Range queries on sort key.</td></tr>
+          <tr><td><strong>Hash file</strong></td><td>Hash determines bucket.</td><td>Equality lookups.</td></tr>
+          <tr><td><strong>B+ tree file</strong></td><td>Rows in B+ tree leaves.</td><td>General purpose.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- ─────────────────────────────────────────────── -->
+    <!-- SECTION 1.11 -->
+    <!-- ─────────────────────────────────────────────── -->
+    <h2 id="s1-11">1.11 Views in SQL</h2>
+
+    <p>A <strong>view</strong> is a virtual table defined by a SELECT query. It doesn't store data — the underlying query runs each time the view is accessed.</p>
+
+    <pre><code>CREATE VIEW High_Earners AS
+SELECT Emp_ID, First_Name, Last_Name, Salary
+FROM EMPLOYEE
+WHERE Salary &gt; 100000;</code></pre>
+
+    <p><strong>Benefits:</strong> Simplification (wrap complex queries), security (restrict visible columns/rows), logical data independence (change underlying tables, update view instead of all apps), consistency (one business definition reused everywhere).</p>
+
+    <p><strong>Materialised view:</strong> Physically stores the result. Must be <strong>refreshed</strong> when data changes. Faster reads but stale-data risk.</p>
+
+    <!-- ─────────────────────────────────────────────── -->
+    <!-- SECTION 1.12 -->
+    <!-- ─────────────────────────────────────────────── -->
+    <h2 id="s1-12">1.12 Stored Procedures, Functions, and Triggers</h2>
+
+    <h3>Stored Procedures</h3>
+    <p>Named blocks of SQL stored in the database and executed on the server. Reduce network traffic, encapsulate business logic, and enable fine-grained security (EXECUTE permission without table access).</p>
+
+    <pre><code>CREATE PROCEDURE GiveRaise(IN dept INT, IN pct DECIMAL)
+BEGIN
+    UPDATE EMPLOYEE SET Salary = Salary * (1 + pct/100) WHERE Dept_ID = dept;
+END;
+
+CALL GiveRaise(5, 10);  -- 10% raise for department 5</code></pre>
+
+    <h3>Functions</h3>
+    <p>Similar to procedures but <strong>return a value</strong> and can be used inside SQL expressions.</p>
+
+    <h3>Triggers</h3>
+    <p>Automatically fire on INSERT, UPDATE, or DELETE events. Timing: <code>BEFORE</code>, <code>AFTER</code>, or <code>INSTEAD OF</code>.</p>
+
+    <pre><code>CREATE TRIGGER salary_audit
+AFTER UPDATE OF Salary ON EMPLOYEE
+FOR EACH ROW
+BEGIN
+    INSERT INTO SALARY_AUDIT_LOG VALUES (OLD.Emp_ID, OLD.Salary, NEW.Salary, CURRENT_TIMESTAMP);
+END;</code></pre>
+
+    <p><strong>Use cases:</strong> Audit logging, enforcing complex constraints, maintaining derived data.</p>
+
+    <div class="callout callout-warn">
+      <div class="callout-title">Caution</div>
+      <p>Overuse of triggers makes debugging difficult — triggers execute implicitly and can chain.</p>
+    </div>
+
+    <!-- End of content -->
+    <div style="text-align:center; margin-top:50px; padding:20px; border-top:1px solid var(--border); color:var(--text-muted); font-size:0.9rem;">
+      <em>End of Session 1</em>
+    </div>
+
+  </div><!-- .content -->
+</div><!-- .main -->
+
+<!-- Back to top -->
+<button id="back-to-top" onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="Back to top">&uarr;</button>
+
+<script>
+// Progress bar
+window.addEventListener('scroll', () => {
+  const h = document.documentElement;
+  const pct = (h.scrollTop / (h.scrollHeight - h.clientHeight)) * 100;
+  document.getElementById('progress-bar').style.width = pct + '%';
+});
+
+// Back to top visibility
+window.addEventListener('scroll', () => {
+  const btn = document.getElementById('back-to-top');
+  btn.style.display = window.scrollY > 400 ? 'flex' : 'none';
+});
+
+// Active sidebar link tracking
+const sections = document.querySelectorAll('h2[id]');
+const navLinks = document.querySelectorAll('.sidebar nav a');
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      navLinks.forEach(l => l.classList.remove('active'));
+      const id = entry.target.id;
+      const link = document.querySelector(`.sidebar nav a[href="#${id}"]`);
+      if (link) link.classList.add('active');
+    }
+  });
+}, { rootMargin: '-80px 0px -70% 0px' });
+sections.forEach(s => observer.observe(s));
+
+// Close sidebar on mobile when link clicked
+navLinks.forEach(link => {
+  link.addEventListener('click', () => {
+    if (window.innerWidth <= 900) {
+      document.querySelector('.sidebar').classList.remove('open');
+    }
+  });
+});
+</script>
+
+</body>
+</html>

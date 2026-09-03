@@ -1,0 +1,940 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Session 2: SQL Fundamentals and Transaction Concepts</title>
+<style>
+  :root {
+    --bg: #0f172a;
+    --surface: #1e293b;
+    --surface2: #334155;
+    --border: #475569;
+    --text: #e2e8f0;
+    --text-muted: #94a3b8;
+    --code-bg: #0d1117;
+    --accent: #818cf8;
+    --accent-dim: rgba(129, 140, 248, 0.15);
+    --accent-border: rgba(129, 140, 248, 0.4);
+    --tip-green: #22c55e;
+    --warn-orange: #f59e0b;
+    --info-purple: #a78bfa;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  /* Progress Bar */
+  #progress-bar {
+    position: fixed; top: 0; left: 0; height: 3px;
+    background: var(--accent); z-index: 9999;
+    transition: width 0.15s ease-out; width: 0%;
+  }
+
+  body {
+    font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, sans-serif;
+    background: var(--bg); color: var(--text);
+    line-height: 1.7; font-size: 16px;
+    display: flex; min-height: 100vh;
+  }
+
+  /* Sidebar */
+  .sidebar {
+    position: fixed; top: 0; left: 0;
+    width: 280px; height: 100vh;
+    background: var(--surface); border-right: 1px solid var(--border);
+    overflow-y: auto; padding: 20px 0; z-index: 100;
+  }
+  .sidebar-header {
+    padding: 10px 20px 20px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 10px;
+  }
+  .sidebar-header h3 {
+    color: var(--accent); font-size: 14px;
+    text-transform: uppercase; letter-spacing: 1px;
+    margin-bottom: 4px;
+  }
+  .sidebar-header p {
+    color: var(--text-muted); font-size: 12px;
+  }
+  .sidebar nav a {
+    display: block; padding: 8px 20px;
+    color: var(--text-muted); text-decoration: none;
+    font-size: 13.5px; border-left: 3px solid transparent;
+    transition: all 0.2s;
+  }
+  .sidebar nav a:hover, .sidebar nav a.active {
+    color: var(--accent); background: var(--accent-dim);
+    border-left-color: var(--accent);
+  }
+  .sidebar nav a.sub { padding-left: 36px; font-size: 12.5px; }
+
+  /* Main Content */
+  .main {
+    margin-left: 280px; flex: 1;
+    max-width: 900px; padding: 0 40px 80px;
+  }
+
+  /* Hero Header */
+  .hero {
+    background: linear-gradient(135deg, #312e81, #4338ca, #818cf8);
+    margin: 0 -40px; padding: 60px 40px 40px;
+    border-bottom: 3px solid var(--accent);
+    margin-bottom: 40px;
+  }
+  .hero h1 {
+    font-size: 2.2em; color: #fff; margin-bottom: 12px;
+    line-height: 1.2;
+  }
+  .hero .meta {
+    color: rgba(255,255,255,0.8); font-size: 14px; line-height: 1.8;
+  }
+  .hero .meta strong { color: #fff; }
+
+  /* Section headers */
+  h2 {
+    color: var(--accent); font-size: 1.6em;
+    margin: 50px 0 20px; padding-bottom: 10px;
+    border-bottom: 2px solid var(--accent-border);
+  }
+  h3 {
+    color: var(--text); font-size: 1.2em;
+    margin: 30px 0 12px;
+  }
+  h4 { color: var(--text-muted); font-size: 1.05em; margin: 20px 0 10px; }
+
+  p { margin-bottom: 14px; }
+
+  strong { color: var(--accent); }
+
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+
+  /* Tables */
+  table {
+    width: 100%; border-collapse: collapse;
+    margin: 16px 0 24px; font-size: 14px;
+  }
+  thead th {
+    background: var(--accent); color: #0f172a;
+    padding: 10px 14px; text-align: left;
+    font-weight: 600; font-size: 13px;
+    text-transform: uppercase; letter-spacing: 0.5px;
+  }
+  tbody td {
+    padding: 10px 14px; border-bottom: 1px solid var(--border);
+  }
+  tbody tr:nth-child(odd) { background: var(--surface); }
+  tbody tr:nth-child(even) { background: var(--surface2); }
+  tbody tr:hover { background: var(--accent-dim); }
+  td code, th code {
+    background: var(--code-bg); padding: 2px 6px;
+    border-radius: 3px; font-size: 13px;
+  }
+
+  /* Code blocks */
+  pre {
+    background: var(--code-bg); border: 1px solid var(--border);
+    border-radius: 8px; padding: 20px;
+    overflow-x: auto; margin: 16px 0 24px;
+    font-size: 13.5px; line-height: 1.6;
+    border-left: 3px solid var(--accent);
+  }
+  code {
+    font-family: 'Cascadia Code', 'Fira Code', 'JetBrains Mono', 'Consolas', monospace;
+  }
+  p code, li code {
+    background: var(--code-bg); padding: 2px 7px;
+    border-radius: 4px; font-size: 0.9em;
+    border: 1px solid var(--border);
+  }
+
+  /* SQL keyword highlighting */
+  .kw { color: #ff7b72; font-weight: 600; }
+  .fn { color: #d2a8ff; }
+  .str { color: #a5d6ff; }
+  .cm { color: #8b949e; font-style: italic; }
+  .num { color: #79c0ff; }
+  .typ { color: #ffa657; }
+
+  /* Callout boxes */
+  .callout {
+    border-radius: 8px; padding: 16px 20px;
+    margin: 16px 0 24px; border-left: 4px solid;
+    background: var(--surface);
+  }
+  .callout-tip { border-left-color: var(--tip-green); }
+  .callout-tip .callout-title { color: var(--tip-green); }
+  .callout-warn { border-left-color: var(--warn-orange); }
+  .callout-warn .callout-title { color: var(--warn-orange); }
+  .callout-info { border-left-color: var(--info-purple); }
+  .callout-info .callout-title { color: var(--info-purple); }
+  .callout-title {
+    font-weight: 700; font-size: 14px;
+    text-transform: uppercase; letter-spacing: 0.5px;
+    margin-bottom: 6px;
+  }
+  .callout p:last-child { margin-bottom: 0; }
+
+  /* Lists */
+  ul, ol { margin: 10px 0 16px 24px; }
+  li { margin-bottom: 6px; }
+
+  /* Horizontal rule */
+  hr {
+    border: none; border-top: 1px solid var(--border);
+    margin: 40px 0;
+  }
+
+  /* Back to top */
+  #back-to-top {
+    position: fixed; bottom: 30px; right: 30px;
+    width: 44px; height: 44px;
+    background: var(--accent); color: #0f172a;
+    border: none; border-radius: 50%; cursor: pointer;
+    font-size: 20px; display: none;
+    box-shadow: 0 4px 12px rgba(129,140,248,0.4);
+    transition: transform 0.2s, opacity 0.2s;
+    z-index: 999;
+  }
+  #back-to-top:hover { transform: scale(1.1); }
+
+  /* Blockquote */
+  blockquote {
+    border-left: 4px solid var(--accent);
+    background: var(--surface); padding: 16px 20px;
+    margin: 16px 0 24px; border-radius: 0 8px 8px 0;
+    color: var(--text-muted);
+  }
+  blockquote strong { color: var(--accent); }
+
+  /* Print */
+  @media print {
+    .sidebar, #back-to-top, #progress-bar { display: none !important; }
+    .main { margin-left: 0; max-width: 100%; padding: 20px; }
+    body { background: #fff; color: #000; }
+    .hero { background: none; border-bottom: 2px solid #000; padding: 20px 0; }
+    .hero h1 { color: #000; }
+    .hero .meta { color: #333; }
+    h2 { color: #4338ca; border-bottom-color: #4338ca; }
+    h3 { color: #000; }
+    strong { color: #4338ca; }
+    table { font-size: 12px; }
+    thead th { background: #4338ca; color: #fff; }
+    tbody tr:nth-child(odd) { background: #f8f9fa; }
+    tbody tr:nth-child(even) { background: #fff; }
+    pre { background: #f5f5f5; border-color: #ccc; color: #000; border-left-color: #4338ca; }
+    code { color: inherit; }
+    .kw, .fn, .str, .cm, .num, .typ { color: inherit; font-weight: inherit; font-style: inherit; }
+    blockquote { background: #f5f5f5; border-left-color: #4338ca; color: #333; }
+    .callout { background: #f5f5f5; }
+    a { color: #4338ca; }
+  }
+
+  /* Responsive */
+  @media (max-width: 900px) {
+    .sidebar {
+      position: fixed; left: -300px;
+      transition: left 0.3s ease;
+      width: 280px; z-index: 200;
+    }
+    .sidebar.open { left: 0; }
+    .main { margin-left: 0; padding: 0 20px 60px; }
+    .hero { margin: 0 -20px; padding: 40px 20px 30px; }
+    .hero h1 { font-size: 1.6em; }
+    h2 { font-size: 1.3em; }
+    .menu-toggle {
+      display: flex !important;
+      position: fixed; top: 12px; left: 12px; z-index: 300;
+      background: var(--surface); border: 1px solid var(--border);
+      color: var(--accent); width: 40px; height: 40px;
+      border-radius: 8px; align-items: center; justify-content: center;
+      font-size: 22px; cursor: pointer;
+    }
+    .overlay {
+      display: none; position: fixed; inset: 0;
+      background: rgba(0,0,0,0.5); z-index: 150;
+    }
+    .overlay.show { display: block; }
+    pre { font-size: 12px; padding: 14px; }
+    table { font-size: 12px; display: block; overflow-x: auto; }
+  }
+  @media (min-width: 901px) {
+    .menu-toggle { display: none !important; }
+    .overlay { display: none !important; }
+  }
+
+  /* Scroll offset for anchors */
+  section[id] { scroll-margin-top: 20px; }
+</style>
+</head>
+<body>
+
+<div id="progress-bar"></div>
+
+<button class="menu-toggle" id="menuToggle" aria-label="Open navigation">&#9776;</button>
+<div class="overlay" id="overlay"></div>
+
+<!-- Sidebar -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <h3>Session 2</h3>
+    <p>SQL Fundamentals &amp; Transaction Concepts</p>
+  </div>
+  <nav>
+    <a href="#s2-1">2.1 SQL Overview</a>
+    <a href="#s2-2">2.2 DDL Statements</a>
+    <a href="#s2-2-1" class="sub">2.2.1 CREATE TABLE</a>
+    <a href="#s2-2-2" class="sub">2.2.2 ALTER &amp; DROP TABLE</a>
+    <a href="#s2-3">2.3 DML Statements</a>
+    <a href="#s2-4">2.4 Retrieval Queries (SELECT)</a>
+    <a href="#s2-5">2.5 Joins</a>
+    <a href="#s2-6">2.6 Subqueries</a>
+    <a href="#s2-7">2.7 Transactions &amp; ACID</a>
+    <a href="#s2-8">2.8 Concurrency Control</a>
+    <a href="#s2-9">2.9 Database Recovery</a>
+    <a href="#s2-10">2.10 Schema Evolution &amp; Denormalisation</a>
+    <a href="#s2-11">2.11 Limits of Relational Systems</a>
+    <a href="#s2-12">2.12 Advanced SQL</a>
+  </nav>
+</aside>
+
+<!-- Main Content -->
+<main class="main">
+
+<div class="hero">
+  <h1>Session 2: SQL Fundamentals and Transaction Concepts</h1>
+  <div class="meta">
+    BITS Pilani &mdash; Structured Data Management &amp; Distributed Databases<br>
+    <strong>References:</strong> T1 Ch.6 | Ch.7 (Sec 7.1)<br>
+    <strong>Textbook:</strong> Elmasri &amp; Navathe, <em>Fundamentals of Database Systems</em>, 7th Ed., Pearson, 2017.
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- 2.1 SQL Overview -->
+<!-- ============================================================ -->
+<section id="s2-1">
+<h2>2.1 SQL Overview</h2>
+
+<p><strong>SQL (Structured Query Language)</strong> is the standard language for creating, managing, and querying relational databases. It was originally developed at IBM in the early 1970s under the name SEQUEL (Structured English Query Language) and became an ANSI/ISO standard in 1986. Today, every major RDBMS &mdash; Oracle, PostgreSQL, MySQL, SQL Server, SQLite &mdash; supports SQL, though each vendor adds proprietary extensions.</p>
+
+<h3>Why SQL is Declarative</h3>
+<p>SQL's most important characteristic is that it is <strong>declarative</strong>, not procedural. In a procedural language like C or Python, you tell the computer <strong>how</strong> to get the answer step by step: "open file, read line, compare with target, if match add to result." In SQL, you tell the database <strong>what</strong> you want: "give me all employees with salary &gt; 70000." The DBMS's <strong>query optimizer</strong> determines the best execution strategy &mdash; which indexes to use, which join algorithm, what order to process tables.</p>
+
+<p>This declarative nature has a profound practical consequence: the same SQL query can run on a tiny SQLite database on a phone or on a massive distributed PostgreSQL cluster with billions of rows. The optimizer adapts the execution plan to the data size, available indexes, and hardware. You never need to rewrite queries when data grows or storage changes.</p>
+
+<h3>SQL Sub-Languages</h3>
+<p>SQL combines four sub-languages into one:</p>
+
+<table>
+<thead><tr><th>Sub-Language</th><th>Purpose</th><th>Key Statements</th></tr></thead>
+<tbody>
+<tr><td><strong>DDL</strong> (Data Definition)</td><td>Define and modify schema objects.</td><td><code>CREATE TABLE</code>, <code>ALTER TABLE</code>, <code>DROP TABLE</code></td></tr>
+<tr><td><strong>DML</strong> (Data Manipulation)</td><td>Query and modify data.</td><td><code>SELECT</code>, <code>INSERT</code>, <code>UPDATE</code>, <code>DELETE</code></td></tr>
+<tr><td><strong>DCL</strong> (Data Control)</td><td>Manage access permissions.</td><td><code>GRANT</code>, <code>REVOKE</code></td></tr>
+<tr><td><strong>TCL</strong> (Transaction Control)</td><td>Manage transaction boundaries.</td><td><code>BEGIN</code>, <code>COMMIT</code>, <code>ROLLBACK</code>, <code>SAVEPOINT</code></td></tr>
+</tbody>
+</table>
+</section>
+
+<hr>
+
+<!-- ============================================================ -->
+<!-- 2.2 DDL Statements -->
+<!-- ============================================================ -->
+<section id="s2-2">
+<h2>2.2 DDL Statements</h2>
+<p>DDL statements define the <strong>structure</strong> of the database &mdash; tables, columns, data types, and constraints. They modify the schema, not the data.</p>
+
+<section id="s2-2-1">
+<h3>2.2.1 CREATE TABLE</h3>
+<p>The <code>CREATE TABLE</code> statement defines a new table with its columns, data types, and constraints. This is where you declare the "rules" for your data &mdash; what shape it must have.</p>
+
+<pre><code><span class="kw">CREATE TABLE</span> EMPLOYEE (
+    Emp_ID      <span class="typ">INT</span>            <span class="kw">PRIMARY KEY</span>,
+    First_Name  <span class="typ">VARCHAR(50)</span>    <span class="kw">NOT NULL</span>,
+    Last_Name   <span class="typ">VARCHAR(50)</span>    <span class="kw">NOT NULL</span>,
+    Email       <span class="typ">VARCHAR(100)</span>   <span class="kw">UNIQUE</span>,
+    Hire_Date   <span class="typ">DATE</span>           <span class="kw">DEFAULT</span> <span class="fn">CURRENT_DATE</span>,
+    Salary      <span class="typ">DECIMAL(10,2)</span>  <span class="kw">CHECK</span> (Salary &gt; <span class="num">0</span>),
+    Dept_ID     <span class="typ">INT</span>,
+    <span class="kw">FOREIGN KEY</span> (Dept_ID) <span class="kw">REFERENCES</span> DEPARTMENT(Dept_ID)
+        <span class="kw">ON DELETE SET NULL</span>
+        <span class="kw">ON UPDATE CASCADE</span>
+);</code></pre>
+
+<h4>Common Data Types</h4>
+<table>
+<thead><tr><th>Category</th><th>Types</th><th>When to use</th></tr></thead>
+<tbody>
+<tr><td><strong>Numeric</strong></td><td><code>INT</code>, <code>SMALLINT</code>, <code>BIGINT</code>, <code>DECIMAL(p,s)</code>, <code>FLOAT</code>, <code>REAL</code></td><td>Exact numbers (DECIMAL for money), approximate numbers (FLOAT for science).</td></tr>
+<tr><td><strong>Character</strong></td><td><code>CHAR(n)</code>, <code>VARCHAR(n)</code>, <code>TEXT</code></td><td>Fixed-length codes (CHAR), variable-length strings (VARCHAR), large text (TEXT).</td></tr>
+<tr><td><strong>Date/Time</strong></td><td><code>DATE</code>, <code>TIME</code>, <code>TIMESTAMP</code>, <code>INTERVAL</code></td><td>Dates without time, times without date, both, and durations.</td></tr>
+<tr><td><strong>Boolean</strong></td><td><code>BOOLEAN</code></td><td>True/false flags.</td></tr>
+<tr><td><strong>Binary</strong></td><td><code>BLOB</code>, <code>BYTEA</code></td><td>Images, documents, binary data.</td></tr>
+</tbody>
+</table>
+
+<h4>Constraints</h4>
+<p>Constraints are rules that the DBMS enforces automatically on every INSERT, UPDATE, and DELETE. They are the primary mechanism for maintaining data integrity.</p>
+
+<table>
+<thead><tr><th>Constraint</th><th>What it enforces</th><th>Example</th></tr></thead>
+<tbody>
+<tr><td><code>PRIMARY KEY</code></td><td>Uniquely identifies each row. Implies NOT NULL + UNIQUE.</td><td><code>Emp_ID INT PRIMARY KEY</code></td></tr>
+<tr><td><code>FOREIGN KEY ... REFERENCES</code></td><td>Referential integrity &mdash; FK must match an existing PK or be NULL.</td><td><code>FOREIGN KEY (Dept_ID) REFERENCES DEPARTMENT(Dept_ID)</code></td></tr>
+<tr><td><code>NOT NULL</code></td><td>Column must always have a value &mdash; NULL is not allowed.</td><td><code>First_Name VARCHAR(50) NOT NULL</code></td></tr>
+<tr><td><code>UNIQUE</code></td><td>No two rows can have the same value in this column (NULLs may be allowed).</td><td><code>Email VARCHAR(100) UNIQUE</code></td></tr>
+<tr><td><code>CHECK</code></td><td>Value must satisfy a Boolean condition.</td><td><code>CHECK (Salary &gt; 0)</code></td></tr>
+<tr><td><code>DEFAULT</code></td><td>If no value is provided, use this default.</td><td><code>Hire_Date DATE DEFAULT CURRENT_DATE</code></td></tr>
+</tbody>
+</table>
+
+<h4>Referential Triggered Actions</h4>
+<p>When a referenced row (parent) is deleted or updated, what happens to the rows that reference it (children)?</p>
+
+<table>
+<thead><tr><th>Action</th><th>What happens to children</th></tr></thead>
+<tbody>
+<tr><td><code>CASCADE</code></td><td>Children are automatically deleted/updated too. Useful for "if parent goes, children go."</td></tr>
+<tr><td><code>SET NULL</code></td><td>Children's FK is set to NULL. Useful for "child can exist without parent."</td></tr>
+<tr><td><code>SET DEFAULT</code></td><td>Children's FK is set to its default value.</td></tr>
+<tr><td><code>RESTRICT</code> / <code>NO ACTION</code></td><td>The delete/update is rejected if children exist. Safest option &mdash; prevents accidental data loss.</td></tr>
+</tbody>
+</table>
+</section>
+
+<section id="s2-2-2">
+<h3>2.2.2 ALTER TABLE and DROP TABLE</h3>
+
+<pre><code><span class="cm">-- Add a column</span>
+<span class="kw">ALTER TABLE</span> EMPLOYEE <span class="kw">ADD COLUMN</span> Phone <span class="typ">VARCHAR(20)</span>;
+
+<span class="cm">-- Drop a column</span>
+<span class="kw">ALTER TABLE</span> EMPLOYEE <span class="kw">DROP COLUMN</span> Phone;
+
+<span class="cm">-- Add a constraint</span>
+<span class="kw">ALTER TABLE</span> EMPLOYEE <span class="kw">ADD CONSTRAINT</span> chk_sal <span class="kw">CHECK</span> (Salary &gt;= <span class="num">15000</span>);
+
+<span class="cm">-- Drop an entire table</span>
+<span class="kw">DROP TABLE</span> EMPLOYEE;           <span class="cm">-- Fails if other tables reference it</span>
+<span class="kw">DROP TABLE</span> EMPLOYEE <span class="kw">CASCADE</span>;   <span class="cm">-- Drops dependent objects (FKs, views) too</span></code></pre>
+</section>
+</section>
+
+<hr>
+
+<!-- ============================================================ -->
+<!-- 2.3 DML Statements -->
+<!-- ============================================================ -->
+<section id="s2-3">
+<h2>2.3 DML Statements</h2>
+<p>DML statements modify the <strong>data</strong> inside tables, not the table structure.</p>
+
+<h3>INSERT</h3>
+<pre><code><span class="cm">-- Single row</span>
+<span class="kw">INSERT INTO</span> EMPLOYEE (Emp_ID, First_Name, Last_Name, Salary, Dept_ID)
+<span class="kw">VALUES</span> (<span class="num">101</span>, <span class="str">'Alice'</span>, <span class="str">'Johnson'</span>, <span class="num">75000.00</span>, <span class="num">5</span>);
+
+<span class="cm">-- Multiple rows</span>
+<span class="kw">INSERT INTO</span> EMPLOYEE (Emp_ID, First_Name, Last_Name, Salary, Dept_ID)
+<span class="kw">VALUES</span> (<span class="num">102</span>, <span class="str">'Bob'</span>, <span class="str">'Smith'</span>, <span class="num">68000.00</span>, <span class="num">3</span>),
+       (<span class="num">103</span>, <span class="str">'Carol'</span>, <span class="str">'Williams'</span>, <span class="num">82000.00</span>, <span class="num">5</span>);
+
+<span class="cm">-- Insert from a query (copy data between tables)</span>
+<span class="kw">INSERT INTO</span> HIGH_EARNERS (Emp_ID, First_Name, Salary)
+<span class="kw">SELECT</span> Emp_ID, First_Name, Salary <span class="kw">FROM</span> EMPLOYEE <span class="kw">WHERE</span> Salary &gt; <span class="num">100000</span>;</code></pre>
+
+<h3>UPDATE</h3>
+<pre><code><span class="cm">-- Update specific rows</span>
+<span class="kw">UPDATE</span> EMPLOYEE <span class="kw">SET</span> Salary = Salary * <span class="num">1.10</span> <span class="kw">WHERE</span> Dept_ID = <span class="num">5</span>;
+
+<span class="cm">-- Update using a subquery</span>
+<span class="kw">UPDATE</span> EMPLOYEE
+<span class="kw">SET</span> Dept_ID = (<span class="kw">SELECT</span> Dept_ID <span class="kw">FROM</span> DEPARTMENT <span class="kw">WHERE</span> Dept_Name = <span class="str">'Engineering'</span>)
+<span class="kw">WHERE</span> Emp_ID = <span class="num">101</span>;</code></pre>
+
+<h3>DELETE</h3>
+<pre><code><span class="kw">DELETE FROM</span> EMPLOYEE <span class="kw">WHERE</span> Emp_ID = <span class="num">103</span>;    <span class="cm">-- Delete specific row</span>
+<span class="kw">DELETE FROM</span> EMPLOYEE;                        <span class="cm">-- Delete ALL rows (structure remains)</span></code></pre>
+
+<div class="callout callout-info">
+<div class="callout-title">Important</div>
+<p><code>DELETE</code> removes rows but the table still exists. <code>DROP TABLE</code> removes the entire table including its definition.</p>
+</div>
+</section>
+
+<hr>
+
+<!-- ============================================================ -->
+<!-- 2.4 Retrieval Queries (SELECT) -->
+<!-- ============================================================ -->
+<section id="s2-4">
+<h2>2.4 Retrieval Queries (SELECT)</h2>
+<p>The <code>SELECT</code> statement is the most powerful and most-used SQL statement. It retrieves data from one or more tables.</p>
+
+<h3>Syntax and Logical Execution Order</h3>
+<p>The order you write clauses is NOT the order the DBMS executes them:</p>
+
+<pre><code><span class="kw">SELECT</span>   column_list          <span class="cm">-- 5th: Choose which columns to return</span>
+<span class="kw">FROM</span>     table(s)             <span class="cm">-- 1st: Identify source tables, perform joins</span>
+<span class="kw">WHERE</span>    row_condition        <span class="cm">-- 2nd: Filter individual rows</span>
+<span class="kw">GROUP BY</span> column_list          <span class="cm">-- 3rd: Group remaining rows</span>
+<span class="kw">HAVING</span>   group_condition      <span class="cm">-- 4th: Filter groups</span>
+<span class="kw">ORDER BY</span> column_list          <span class="cm">-- 6th: Sort the result</span>
+<span class="kw">LIMIT</span> n  <span class="kw">OFFSET</span> m;            <span class="cm">-- 7th: Restrict rows returned</span></code></pre>
+
+<div class="callout callout-warn">
+<div class="callout-title">Why execution order matters</div>
+<p>You <strong>cannot</strong> use a column alias defined in SELECT inside a WHERE clause &mdash; because WHERE executes before SELECT. This is a common source of confusion.</p>
+</div>
+
+<h3>WHERE Clause Operators</h3>
+<pre><code><span class="cm">-- Comparison: =, &lt;&gt;, &lt;, &gt;, &lt;=, &gt;=</span>
+<span class="kw">SELECT</span> * <span class="kw">FROM</span> EMPLOYEE <span class="kw">WHERE</span> Salary &gt; <span class="num">70000</span>;
+
+<span class="cm">-- Logical: AND, OR, NOT</span>
+<span class="kw">SELECT</span> * <span class="kw">FROM</span> EMPLOYEE <span class="kw">WHERE</span> Dept_ID = <span class="num">5</span> <span class="kw">AND</span> Salary &gt; <span class="num">60000</span>;
+
+<span class="cm">-- Range (inclusive)</span>
+<span class="kw">SELECT</span> * <span class="kw">FROM</span> EMPLOYEE <span class="kw">WHERE</span> Salary <span class="kw">BETWEEN</span> <span class="num">50000</span> <span class="kw">AND</span> <span class="num">80000</span>;
+
+<span class="cm">-- Set membership</span>
+<span class="kw">SELECT</span> * <span class="kw">FROM</span> EMPLOYEE <span class="kw">WHERE</span> Dept_ID <span class="kw">IN</span> (<span class="num">3</span>, <span class="num">5</span>, <span class="num">7</span>);
+
+<span class="cm">-- Pattern matching (% = any chars, _ = one char)</span>
+<span class="kw">SELECT</span> * <span class="kw">FROM</span> EMPLOYEE <span class="kw">WHERE</span> Last_Name <span class="kw">LIKE</span> <span class="str">'J%'</span>;
+
+<span class="cm">-- NULL check (cannot use = with NULL!)</span>
+<span class="kw">SELECT</span> * <span class="kw">FROM</span> EMPLOYEE <span class="kw">WHERE</span> Dept_ID <span class="kw">IS NULL</span>;</code></pre>
+
+<h3>Aggregate Functions</h3>
+<p>Aggregate functions compute a single value from a set of rows:</p>
+
+<table>
+<thead><tr><th>Function</th><th>Returns</th></tr></thead>
+<tbody>
+<tr><td><code>COUNT(*)</code></td><td>Number of rows (including NULLs).</td></tr>
+<tr><td><code>COUNT(col)</code></td><td>Number of non-NULL values in col.</td></tr>
+<tr><td><code>SUM(col)</code></td><td>Sum of numeric values.</td></tr>
+<tr><td><code>AVG(col)</code></td><td>Average of numeric values.</td></tr>
+<tr><td><code>MIN(col)</code> / <code>MAX(col)</code></td><td>Minimum / Maximum value.</td></tr>
+</tbody>
+</table>
+
+<pre><code><span class="kw">SELECT</span> Dept_ID, <span class="fn">COUNT</span>(*) <span class="kw">AS</span> Emp_Count, <span class="fn">AVG</span>(Salary) <span class="kw">AS</span> Avg_Sal
+<span class="kw">FROM</span> EMPLOYEE
+<span class="kw">GROUP BY</span> Dept_ID
+<span class="kw">HAVING</span> <span class="fn">COUNT</span>(*) &gt; <span class="num">5</span>
+<span class="kw">ORDER BY</span> Avg_Sal <span class="kw">DESC</span>;</code></pre>
+
+<h3>DISTINCT and Aliases</h3>
+<pre><code><span class="kw">SELECT DISTINCT</span> Dept_ID <span class="kw">FROM</span> EMPLOYEE;
+
+<span class="kw">SELECT</span> E.First_Name <span class="kw">AS</span> <span class="str">"Name"</span>, D.Dept_Name <span class="kw">AS</span> <span class="str">"Department"</span>
+<span class="kw">FROM</span> EMPLOYEE E
+<span class="kw">JOIN</span> DEPARTMENT D <span class="kw">ON</span> E.Dept_ID = D.Dept_ID;</code></pre>
+</section>
+
+<hr>
+
+<!-- ============================================================ -->
+<!-- 2.5 Joins -->
+<!-- ============================================================ -->
+<section id="s2-5">
+<h2>2.5 Joins</h2>
+<p>In a normalised database, related data lives in separate tables. <strong>Joins</strong> combine rows from multiple tables based on a matching condition (typically FK = PK).</p>
+
+<h3>Why Joins Are Essential</h3>
+<p>Without joins, a normalised database would be useless &mdash; you'd have student IDs in one table and department names in another, with no way to connect them in a single query. Joins are what make normalisation practical: store data without redundancy, then recombine it on the fly when needed.</p>
+
+<h3>Join Types</h3>
+<table>
+<thead><tr><th>Join Type</th><th>What it returns</th><th>When to use</th></tr></thead>
+<tbody>
+<tr><td><strong>INNER JOIN</strong></td><td>Only rows with a match in both tables.</td><td>"Students who have a department assigned."</td></tr>
+<tr><td><strong>LEFT JOIN</strong></td><td>All rows from left + matching right (NULLs where no match).</td><td>"All students, with department name if assigned."</td></tr>
+<tr><td><strong>RIGHT JOIN</strong></td><td>All rows from right + matching left.</td><td>Mirror of LEFT JOIN; rarely used in practice.</td></tr>
+<tr><td><strong>FULL OUTER JOIN</strong></td><td>All rows from both; NULLs where no match on either side.</td><td>"All students and all departments, showing links where they exist."</td></tr>
+<tr><td><strong>CROSS JOIN</strong></td><td>Cartesian product &mdash; every combination.</td><td>Generating all possible pairs (e.g. products &times; colours).</td></tr>
+<tr><td><strong>SELF JOIN</strong></td><td>Table joined with itself using aliases.</td><td>"Employees and their managers" (Manager_ID references Emp_ID).</td></tr>
+<tr><td><strong>NATURAL JOIN</strong></td><td>Auto-join on all same-named columns.</td><td>Convenient but risky &mdash; silent breakage if columns are added.</td></tr>
+</tbody>
+</table>
+
+<h3>Examples</h3>
+<pre><code><span class="cm">-- Inner Join</span>
+<span class="kw">SELECT</span> E.First_Name, D.Dept_Name
+<span class="kw">FROM</span> EMPLOYEE E <span class="kw">INNER JOIN</span> DEPARTMENT D <span class="kw">ON</span> E.Dept_ID = D.Dept_ID;
+
+<span class="cm">-- Left Join (all employees, even those without a department)</span>
+<span class="kw">SELECT</span> E.First_Name, D.Dept_Name
+<span class="kw">FROM</span> EMPLOYEE E <span class="kw">LEFT JOIN</span> DEPARTMENT D <span class="kw">ON</span> E.Dept_ID = D.Dept_ID;
+
+<span class="cm">-- Self Join (employees and their managers)</span>
+<span class="kw">SELECT</span> E.First_Name <span class="kw">AS</span> Employee, M.First_Name <span class="kw">AS</span> Manager
+<span class="kw">FROM</span> EMPLOYEE E <span class="kw">LEFT JOIN</span> EMPLOYEE M <span class="kw">ON</span> E.Manager_ID = M.Emp_ID;</code></pre>
+</section>
+
+<hr>
+
+<!-- ============================================================ -->
+<!-- 2.6 Subqueries -->
+<!-- ============================================================ -->
+<section id="s2-6">
+<h2>2.6 Subqueries</h2>
+<p>A <strong>subquery</strong> is a complete SELECT statement nested inside another SQL statement. It allows multi-step reasoning within a single query.</p>
+
+<h3>Types of Subqueries</h3>
+<table>
+<thead><tr><th>Type</th><th>Returns</th><th>Example</th></tr></thead>
+<tbody>
+<tr><td><strong>Scalar</strong></td><td>Single value</td><td><code>WHERE Salary &gt; (SELECT AVG(Salary) FROM EMPLOYEE)</code></td></tr>
+<tr><td><strong>Row</strong></td><td>Single row</td><td><code>WHERE (Dept_ID, Location) = (SELECT ...)</code></td></tr>
+<tr><td><strong>Table</strong></td><td>Multiple rows/columns</td><td><code>FROM (SELECT ...) AS derived_table</code></td></tr>
+<tr><td><strong>Correlated</strong></td><td>Re-evaluated for each outer row</td><td><code>WHERE EXISTS (SELECT 1 FROM ... WHERE inner.col = outer.col)</code></td></tr>
+</tbody>
+</table>
+
+<div class="callout callout-tip">
+<div class="callout-title">Key Distinction</div>
+<p>A regular subquery executes once and its result is reused. A <strong>correlated subquery</strong> references the outer query and re-executes for every row in the outer query &mdash; potentially much slower.</p>
+</div>
+
+<pre><code><span class="cm">-- Scalar: employees above average salary</span>
+<span class="kw">SELECT</span> First_Name, Salary <span class="kw">FROM</span> EMPLOYEE
+<span class="kw">WHERE</span> Salary &gt; (<span class="kw">SELECT</span> <span class="fn">AVG</span>(Salary) <span class="kw">FROM</span> EMPLOYEE);
+
+<span class="cm">-- IN: employees in London departments</span>
+<span class="kw">SELECT</span> First_Name <span class="kw">FROM</span> EMPLOYEE
+<span class="kw">WHERE</span> Dept_ID <span class="kw">IN</span> (<span class="kw">SELECT</span> Dept_ID <span class="kw">FROM</span> DEPARTMENT <span class="kw">WHERE</span> Location = <span class="str">'London'</span>);
+
+<span class="cm">-- EXISTS (correlated): departments that have employees</span>
+<span class="kw">SELECT</span> D.Dept_Name <span class="kw">FROM</span> DEPARTMENT D
+<span class="kw">WHERE EXISTS</span> (<span class="kw">SELECT</span> <span class="num">1</span> <span class="kw">FROM</span> EMPLOYEE E <span class="kw">WHERE</span> E.Dept_ID = D.Dept_ID);
+
+<span class="cm">-- Derived table: department averages above 70000</span>
+<span class="kw">SELECT</span> Dept_ID, Avg_Sal
+<span class="kw">FROM</span> (<span class="kw">SELECT</span> Dept_ID, <span class="fn">AVG</span>(Salary) <span class="kw">AS</span> Avg_Sal <span class="kw">FROM</span> EMPLOYEE <span class="kw">GROUP BY</span> Dept_ID) <span class="kw">AS</span> DeptAvg
+<span class="kw">WHERE</span> Avg_Sal &gt; <span class="num">70000</span>;</code></pre>
+</section>
+
+<hr>
+
+<!-- ============================================================ -->
+<!-- 2.7 Transactions and ACID Properties -->
+<!-- ============================================================ -->
+<section id="s2-7">
+<h2>2.7 Transactions and ACID Properties</h2>
+
+<h3>What is a Transaction?</h3>
+<p>A <strong>transaction</strong> is a logical unit of work consisting of one or more database operations that must succeed or fail as an <strong>indivisible whole</strong>. The classic example is a bank transfer:</p>
+
+<pre><code><span class="kw">BEGIN TRANSACTION</span>;
+  <span class="kw">UPDATE</span> ACCOUNT <span class="kw">SET</span> Balance = Balance - <span class="num">500</span> <span class="kw">WHERE</span> Acc_ID = <span class="str">'A'</span>;   <span class="cm">-- Debit</span>
+  <span class="kw">UPDATE</span> ACCOUNT <span class="kw">SET</span> Balance = Balance + <span class="num">500</span> <span class="kw">WHERE</span> Acc_ID = <span class="str">'B'</span>;   <span class="cm">-- Credit</span>
+<span class="kw">COMMIT</span>;</code></pre>
+
+<p>If the system crashes between the two UPDATEs, money has left account A but hasn't reached account B. Without transaction support, money would simply vanish. ACID properties prevent this.</p>
+
+<h3>ACID Properties</h3>
+<table>
+<thead><tr><th>Property</th><th>Meaning</th><th>How the DBMS enforces it</th></tr></thead>
+<tbody>
+<tr><td><strong>Atomicity</strong></td><td>All-or-nothing &mdash; either every operation completes, or none do.</td><td>Transaction manager + undo log. If any operation fails, all changes are rolled back using the undo log.</td></tr>
+<tr><td><strong>Consistency</strong></td><td>A transaction takes the database from one valid state to another. All integrity constraints satisfied before and after.</td><td>Constraint checking at commit time. If any constraint is violated, the transaction is aborted.</td></tr>
+<tr><td><strong>Isolation</strong></td><td>Concurrent transactions execute as if they were serial. Intermediate states are invisible to others.</td><td>Concurrency control: locks, MVCC (Multi-Version Concurrency Control), timestamp ordering.</td></tr>
+<tr><td><strong>Durability</strong></td><td>Once committed, changes survive any failure &mdash; power loss, crashes, disk failure.</td><td>Write-Ahead Log (WAL) flushed to stable storage before commit is acknowledged. Even if the server crashes, the log can replay committed changes.</td></tr>
+</tbody>
+</table>
+
+<h3>Transaction States</h3>
+<pre><code>Active &rarr; (all ops succeed) &rarr; Partially Committed &rarr; (flush OK) &rarr; Committed
+  |                                    |
+(op fails)                        (flush fails)
+  &darr;                                    &darr;
+Failed &rarr; Aborted (rollback done) &rarr; [restart or kill]</code></pre>
+
+<table>
+<thead><tr><th>State</th><th>Description</th></tr></thead>
+<tbody>
+<tr><td><strong>Active</strong></td><td>Transaction is executing operations.</td></tr>
+<tr><td><strong>Partially committed</strong></td><td>Final statement executed; awaiting confirmation that changes are durable on disk.</td></tr>
+<tr><td><strong>Committed</strong></td><td>All changes are permanent. Cannot be undone (except by a new compensating transaction).</td></tr>
+<tr><td><strong>Failed</strong></td><td>An error occurred (constraint violation, deadlock, hardware failure). Cannot proceed.</td></tr>
+<tr><td><strong>Aborted</strong></td><td>Rollback complete. Database restored to the state before the transaction started. Transaction may be restarted or abandoned.</td></tr>
+</tbody>
+</table>
+
+<h3>SQL Transaction Control</h3>
+<pre><code><span class="kw">BEGIN TRANSACTION</span>;       <span class="cm">-- Start a transaction</span>
+<span class="cm">-- ... DML operations ...</span>
+<span class="kw">SAVEPOINT</span> sp1;           <span class="cm">-- Named checkpoint within the transaction</span>
+<span class="cm">-- ... more operations ...</span>
+<span class="kw">ROLLBACK TO</span> sp1;         <span class="cm">-- Undo back to the savepoint (not the whole transaction)</span>
+<span class="kw">COMMIT</span>;                  <span class="cm">-- Make ALL changes since BEGIN permanent</span>
+<span class="cm">-- or</span>
+<span class="kw">ROLLBACK</span>;                <span class="cm">-- Undo EVERYTHING since BEGIN</span></code></pre>
+</section>
+
+<hr>
+
+<!-- ============================================================ -->
+<!-- 2.8 Concurrency Control -->
+<!-- ============================================================ -->
+<section id="s2-8">
+<h2>2.8 Concurrency Control</h2>
+
+<h3>Problems of Concurrent Execution</h3>
+<p>When multiple transactions run simultaneously without controls, four anomalies can occur:</p>
+
+<table>
+<thead><tr><th>Problem</th><th>What happens</th><th>Example</th></tr></thead>
+<tbody>
+<tr><td><strong>Lost update</strong></td><td>Two transactions read the same value, both update &mdash; one overwrites the other.</td><td>T1 reads balance=1000, T2 reads 1000. T1 writes 900, T2 writes 800. T1's deduction is lost.</td></tr>
+<tr><td><strong>Dirty read</strong></td><td>Reading data from an uncommitted transaction that might roll back.</td><td>T1 updates salary to 90000 (uncommitted). T2 reads 90000. T1 rolls back. T2 used a phantom value.</td></tr>
+<tr><td><strong>Non-repeatable read</strong></td><td>Reading the same row twice yields different values because another transaction modified it.</td><td>T1 reads salary=70000. T2 updates to 80000 and commits. T1 reads again: salary=80000.</td></tr>
+<tr><td><strong>Phantom read</strong></td><td>Re-executing a query finds new/removed rows because another transaction inserted/deleted.</td><td>T1 counts 10 employees in Dept 5. T2 inserts one. T1 counts again: 11.</td></tr>
+</tbody>
+</table>
+
+<h3>Isolation Levels</h3>
+<p>The SQL standard defines four isolation levels, each preventing more anomalies at the cost of reduced concurrency:</p>
+
+<table>
+<thead><tr><th>Level</th><th>Dirty Read</th><th>Non-Repeatable</th><th>Phantom</th><th>Concurrency</th></tr></thead>
+<tbody>
+<tr><td><strong>READ UNCOMMITTED</strong></td><td>Possible</td><td>Possible</td><td>Possible</td><td>Highest</td></tr>
+<tr><td><strong>READ COMMITTED</strong></td><td>Prevented</td><td>Possible</td><td>Possible</td><td>High</td></tr>
+<tr><td><strong>REPEATABLE READ</strong></td><td>Prevented</td><td>Prevented</td><td>Possible</td><td>Medium</td></tr>
+<tr><td><strong>SERIALIZABLE</strong></td><td>Prevented</td><td>Prevented</td><td>Prevented</td><td>Lowest</td></tr>
+</tbody>
+</table>
+
+<div class="callout callout-info">
+<div class="callout-title">Defaults</div>
+<p>PostgreSQL defaults to READ COMMITTED. MySQL InnoDB defaults to REPEATABLE READ.</p>
+</div>
+
+<h3>Locking and Two-Phase Locking (2PL)</h3>
+<ul>
+<li><strong>Shared lock (S):</strong> Multiple readers can hold simultaneously. No writing allowed.</li>
+<li><strong>Exclusive lock (X):</strong> Only one transaction can hold it. No other reads or writes.</li>
+</ul>
+
+<p><strong>Two-Phase Locking (2PL):</strong> Guarantees serializable schedules.</p>
+<ol>
+<li><strong>Growing phase:</strong> Acquire locks, never release any.</li>
+<li><strong>Shrinking phase:</strong> Release locks, never acquire new ones.</li>
+</ol>
+
+<h3>MVCC (Multi-Version Concurrency Control)</h3>
+<p>Instead of blocking readers, MVCC keeps <strong>multiple versions</strong> of each row. Readers see the version current at their transaction's start time. <strong>Readers never block writers, and writers never block readers.</strong> Used by PostgreSQL, MySQL InnoDB, Oracle.</p>
+
+<h3>Deadlocks</h3>
+<p>Two transactions each wait for a lock held by the other &rarr; neither can proceed. Detected via a <strong>wait-for graph</strong> (cycle = deadlock). Resolved by aborting one transaction (the "victim").</p>
+</section>
+
+<hr>
+
+<!-- ============================================================ -->
+<!-- 2.9 Database Recovery -->
+<!-- ============================================================ -->
+<section id="s2-9">
+<h2>2.9 Database Recovery</h2>
+<p>Recovery ensures <strong>atomicity</strong> (uncommitted changes are undone) and <strong>durability</strong> (committed changes survive crashes).</p>
+
+<h3>Write-Ahead Logging (WAL)</h3>
+<p>Before any change is written to the database on disk, the corresponding <strong>log record</strong> must first be written to the log file on stable storage. Log records contain: transaction ID, data item, old value (for UNDO), new value (for REDO), COMMIT/ABORT markers.</p>
+
+<h3>UNDO and REDO</h3>
+<table>
+<thead><tr><th>Action</th><th>When applied</th><th>What it does</th></tr></thead>
+<tbody>
+<tr><td><strong>UNDO</strong></td><td>Transaction was active (uncommitted) at crash time.</td><td>Roll back its changes using old values from the log.</td></tr>
+<tr><td><strong>REDO</strong></td><td>Transaction committed but changes may not have been flushed to disk.</td><td>Re-apply changes using new values from the log.</td></tr>
+</tbody>
+</table>
+
+<h3>Checkpoints</h3>
+<p>A checkpoint periodically flushes all dirty pages from memory to disk and writes a checkpoint record to the log. This limits how far back recovery must scan &mdash; only from the last checkpoint, not from the beginning of time.</p>
+</section>
+
+<hr>
+
+<!-- ============================================================ -->
+<!-- 2.10 Schema Evolution and Denormalisation -->
+<!-- ============================================================ -->
+<section id="s2-10">
+<h2>2.10 Schema Evolution and Denormalisation</h2>
+
+<h3>Schema Evolution</h3>
+<p>Real-world databases change over time. Schema evolution means modifying the schema after it's in production.</p>
+
+<p><strong>Common changes:</strong> Adding/removing columns, changing data types, adding/dropping constraints, creating indexes.</p>
+
+<p><strong>Challenges:</strong> Existing data may need migration, applications may break, views and procedures may become invalid, large tables may lock during ALTER.</p>
+
+<p><strong>Strategies:</strong></p>
+<ul>
+<li><strong>Expand-and-contract:</strong> Add new column &rarr; migrate data &rarr; update apps &rarr; drop old column.</li>
+<li><strong>Schema versioning:</strong> Tag each schema version; apps specify their target version.</li>
+<li><strong>Backward/forward compatibility:</strong> Design changes so old and new app versions co-exist during rollout.</li>
+</ul>
+
+<h3>Denormalisation</h3>
+<p><strong>Normalisation</strong> removes redundancy (1NF &rarr; 2NF &rarr; 3NF &rarr; BCNF). <strong>Denormalisation</strong> intentionally reintroduces it for read performance.</p>
+
+<table>
+<thead><tr><th>When to denormalise</th><th>Technique</th><th>Trade-off</th></tr></thead>
+<tbody>
+<tr><td>Frequent expensive joins</td><td>Store redundant columns to avoid the join.</td><td>Faster reads; slower writes; inconsistency risk.</td></tr>
+<tr><td>Repeated aggregations</td><td>Materialised views or summary tables.</td><td>Stale data if not refreshed.</td></tr>
+<tr><td>Read-heavy workloads</td><td>Duplicate data for specific read patterns.</td><td>Storage overhead; update anomalies.</td></tr>
+</tbody>
+</table>
+
+<div class="callout callout-tip">
+<div class="callout-title">Rule of Thumb</div>
+<p>Normalise first for correctness. Denormalise selectively for <strong>measured</strong> performance problems.</p>
+</div>
+</section>
+
+<hr>
+
+<!-- ============================================================ -->
+<!-- 2.11 Limits of Relational Systems -->
+<!-- ============================================================ -->
+<section id="s2-11">
+<h2>2.11 Limits of Relational Systems &mdash; Motivation for NoSQL</h2>
+<p>The relational model excels for structured data with stable schemas, but faces challenges at web scale:</p>
+
+<table>
+<thead><tr><th>Limitation</th><th>Explanation</th></tr></thead>
+<tbody>
+<tr><td><strong>Rigid schema</strong></td><td>ALTER TABLE on large tables can lock for hours. Web apps evolve features every sprint.</td></tr>
+<tr><td><strong>Impedance mismatch</strong></td><td>OO application objects don't map cleanly to flat tables; ORM complexity grows.</td></tr>
+<tr><td><strong>Horizontal scaling is hard</strong></td><td>Sharding breaks joins, FK constraints, and distributed transactions.</td></tr>
+<tr><td><strong>Unstructured data</strong></td><td>JSON, graphs, time-series, key-value pairs don't fit rows/columns naturally.</td></tr>
+<tr><td><strong>High write throughput</strong></td><td>WAL + ACID can bottleneck at millions of writes/sec.</td></tr>
+<tr><td><strong>Global distribution</strong></td><td>Strong consistency across continents is expensive (speed-of-light latency).</td></tr>
+</tbody>
+</table>
+
+<p><strong>NoSQL alternatives:</strong> Key-Value (Redis), Document (MongoDB), Column-Family (Cassandra), Graph (Neo4j). They trade ACID for scalability and flexibility (BASE model &mdash; Session 4).</p>
+</section>
+
+<hr>
+
+<!-- ============================================================ -->
+<!-- 2.12 Advanced SQL -->
+<!-- ============================================================ -->
+<section id="s2-12">
+<h2>2.12 Advanced SQL</h2>
+
+<h3>Common Table Expressions (CTEs)</h3>
+<pre><code><span class="kw">WITH</span> DeptStats <span class="kw">AS</span> (
+    <span class="kw">SELECT</span> Dept_ID, <span class="fn">AVG</span>(Salary) <span class="kw">AS</span> Avg_Sal, <span class="fn">COUNT</span>(*) <span class="kw">AS</span> Cnt
+    <span class="kw">FROM</span> EMPLOYEE <span class="kw">GROUP BY</span> Dept_ID
+)
+<span class="kw">SELECT</span> D.Dept_Name, DS.Avg_Sal
+<span class="kw">FROM</span> DeptStats DS <span class="kw">JOIN</span> DEPARTMENT D <span class="kw">ON</span> DS.Dept_ID = D.Dept_ID
+<span class="kw">WHERE</span> DS.Cnt &gt; <span class="num">10</span>;</code></pre>
+
+<h3>Window Functions</h3>
+<p>Perform calculations across a set of rows related to the current row <strong>without collapsing</strong> the result.</p>
+
+<pre><code><span class="kw">SELECT</span> Emp_ID, Dept_ID, Salary,
+       <span class="fn">RANK</span>() <span class="kw">OVER</span> (<span class="kw">PARTITION BY</span> Dept_ID <span class="kw">ORDER BY</span> Salary <span class="kw">DESC</span>) <span class="kw">AS</span> Rank,
+       <span class="fn">AVG</span>(Salary) <span class="kw">OVER</span> (<span class="kw">PARTITION BY</span> Dept_ID) <span class="kw">AS</span> Dept_Avg
+<span class="kw">FROM</span> EMPLOYEE;</code></pre>
+
+<table>
+<thead><tr><th>Function</th><th>Description</th></tr></thead>
+<tbody>
+<tr><td><code>ROW_NUMBER()</code></td><td>Sequential number per partition.</td></tr>
+<tr><td><code>RANK()</code></td><td>Rank with gaps for ties.</td></tr>
+<tr><td><code>DENSE_RANK()</code></td><td>Rank without gaps.</td></tr>
+<tr><td><code>LAG(col, n)</code> / <code>LEAD(col, n)</code></td><td>Value n rows before/after current.</td></tr>
+<tr><td><code>SUM/AVG/COUNT OVER()</code></td><td>Running or partitioned aggregates.</td></tr>
+</tbody>
+</table>
+
+<h3>CASE Expressions</h3>
+<pre><code><span class="kw">SELECT</span> Emp_ID, Salary,
+    <span class="kw">CASE</span>
+        <span class="kw">WHEN</span> Salary &gt;= <span class="num">100000</span> <span class="kw">THEN</span> <span class="str">'Senior'</span>
+        <span class="kw">WHEN</span> Salary &gt;= <span class="num">60000</span>  <span class="kw">THEN</span> <span class="str">'Mid-Level'</span>
+        <span class="kw">ELSE</span> <span class="str">'Junior'</span>
+    <span class="kw">END</span> <span class="kw">AS</span> Band
+<span class="kw">FROM</span> EMPLOYEE;</code></pre>
+
+<h3>GRANT and REVOKE</h3>
+<pre><code><span class="kw">GRANT SELECT</span>, <span class="kw">INSERT</span> <span class="kw">ON</span> EMPLOYEE <span class="kw">TO</span> user_report;
+<span class="kw">GRANT ALL PRIVILEGES</span> <span class="kw">ON</span> DEPARTMENT <span class="kw">TO</span> admin_user <span class="kw">WITH GRANT OPTION</span>;
+<span class="kw">REVOKE INSERT</span> <span class="kw">ON</span> EMPLOYEE <span class="kw">FROM</span> user_report;</code></pre>
+</section>
+
+<hr>
+<p style="text-align:center; color: var(--text-muted); font-size: 14px; margin-top: 40px;"><em>End of Session 2</em></p>
+
+</main>
+
+<button id="back-to-top" aria-label="Back to top">&uarr;</button>
+
+<script>
+// Reading progress bar
+window.addEventListener('scroll', () => {
+  const docH = document.documentElement.scrollHeight - window.innerHeight;
+  const pct = docH > 0 ? (window.scrollY / docH) * 100 : 0;
+  document.getElementById('progress-bar').style.width = pct + '%';
+});
+
+// Back-to-top button
+const btn = document.getElementById('back-to-top');
+window.addEventListener('scroll', () => {
+  btn.style.display = window.scrollY > 400 ? 'block' : 'none';
+});
+btn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+
+// Mobile sidebar toggle
+const toggle = document.getElementById('menuToggle');
+const sidebar = document.getElementById('sidebar');
+const overlay = document.getElementById('overlay');
+if (toggle) {
+  toggle.addEventListener('click', () => {
+    sidebar.classList.toggle('open');
+    overlay.classList.toggle('show');
+  });
+  overlay.addEventListener('click', () => {
+    sidebar.classList.remove('open');
+    overlay.classList.remove('show');
+  });
+  // Close sidebar when a nav link is clicked on mobile
+  sidebar.querySelectorAll('nav a').forEach(a => {
+    a.addEventListener('click', () => {
+      if (window.innerWidth <= 900) {
+        sidebar.classList.remove('open');
+        overlay.classList.remove('show');
+      }
+    });
+  });
+}
+
+// Active sidebar link on scroll
+const sections = document.querySelectorAll('section[id]');
+const navLinks = document.querySelectorAll('.sidebar nav a');
+window.addEventListener('scroll', () => {
+  let current = '';
+  sections.forEach(s => {
+    if (window.scrollY >= s.offsetTop - 80) current = s.id;
+  });
+  navLinks.forEach(a => {
+    a.classList.remove('active');
+    if (a.getAttribute('href') === '#' + current) a.classList.add('active');
+  });
+});
+</script>
+</body>
+</html>

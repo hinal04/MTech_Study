@@ -1,0 +1,885 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 1: Analyzing Algorithms — Study Guide</title>
+<style>
+  :root {
+    --bg: #f8f9fa; --card: #fff; --primary: #1e40af; --primary-light: #dbeafe;
+    --text: #1e293b; --text-light: #64748b; --border: #e2e8f0;
+    --green: #16a34a; --green-bg: #dcfce7; --orange: #ea580c; --orange-bg: #fff7ed;
+    --code-bg: #f1f5f9; --accent: #7c3aed; --accent-bg: #f5f3ff;
+    --teal: #0d9488; --teal-bg: #ccfbf1;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--text); line-height: 1.75; padding-bottom: 80px; }
+
+  /* Header */
+  .header { background: linear-gradient(135deg, #1e3a5f, #1e40af, #7c3aed); color: #fff; padding: 48px 24px 40px; text-align: center; }
+  .header h1 { font-size: 2.2em; margin-bottom: 8px; letter-spacing: -0.5px; }
+  .header p { opacity: .85; font-size: 1.05em; }
+  .header .subtitle { font-size: .88em; opacity: .65; margin-top: 8px; }
+
+  .container { max-width: 920px; margin: 0 auto; padding: 0 20px; }
+
+  /* Navigation sidebar (floating TOC) */
+  .toc-card { background: var(--card); border-radius: 12px; padding: 24px 28px; margin: 24px 0; box-shadow: 0 2px 8px rgba(0,0,0,.06); border: 1px solid var(--border); }
+  .toc-card h2 { color: var(--primary); font-size: 1.15em; margin-bottom: 12px; }
+  .toc-card ul { list-style: none; }
+  .toc-card > ul > li { margin: 6px 0; }
+  .toc-card > ul > li > a { font-weight: 600; color: var(--primary); text-decoration: none; font-size: .95em; }
+  .toc-card ul ul { margin-left: 18px; margin-top: 2px; }
+  .toc-card ul ul li { margin: 2px 0; }
+  .toc-card ul ul a { color: var(--text-light); font-weight: 400; text-decoration: none; font-size: .9em; }
+  .toc-card a:hover { text-decoration: underline; color: var(--accent); }
+
+  /* Textbook reference cards */
+  .ref-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 20px 0; }
+  .ref-card { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 16px 20px; }
+  .ref-card .code { font-weight: 700; color: var(--primary); font-size: .85em; }
+  .ref-card .title { font-weight: 600; font-size: .92em; margin-top: 4px; }
+  .ref-card .author { color: var(--text-light); font-size: .84em; margin-top: 2px; }
+
+  /* Section headers */
+  .sec-h1 { background: linear-gradient(135deg, #1e40af, #2563eb); color: #fff; padding: 18px 28px; border-radius: 12px; margin: 40px 0 4px; font-size: 1.3em; }
+  .sec-h2 { background: var(--accent); color: #fff; padding: 12px 24px; border-radius: 10px; margin: 32px 0 4px; font-size: 1.1em; }
+  .sec-h3 { color: var(--primary); font-size: 1.08em; margin: 24px 0 8px; padding-bottom: 4px; border-bottom: 2px solid var(--primary-light); }
+
+  /* Content cards */
+  .card { background: var(--card); border-radius: 0 0 12px 12px; padding: 24px 28px; margin-bottom: 4px; box-shadow: 0 1px 4px rgba(0,0,0,.05); border: 1px solid var(--border); border-top: none; }
+  .card + .sec-h3 { margin-top: 28px; }
+  .card p { margin: 8px 0; }
+
+  /* Standalone cards */
+  .scard { background: var(--card); border-radius: 12px; padding: 24px 28px; margin: 16px 0; box-shadow: 0 1px 4px rgba(0,0,0,.05); border: 1px solid var(--border); }
+
+  /* Code */
+  pre { background: var(--code-bg); border: 1px solid var(--border); border-radius: 8px; padding: 16px 20px; overflow-x: auto; font-size: .87em; line-height: 1.6; margin: 12px 0; font-family: 'SF Mono','Fira Code','Consolas',monospace; }
+  code { font-family: 'SF Mono','Fira Code','Consolas',monospace; font-size: .9em; background: var(--code-bg); padding: 2px 6px; border-radius: 4px; }
+  pre code { background: none; padding: 0; }
+
+  /* Tables */
+  table { width: 100%; border-collapse: collapse; margin: 14px 0; font-size: .91em; }
+  th { background: var(--primary); color: #fff; padding: 10px 14px; text-align: left; font-weight: 600; font-size: .92em; }
+  td { padding: 10px 14px; border-bottom: 1px solid var(--border); }
+  tr:nth-child(even) td { background: #f8fafc; }
+
+  /* Callout boxes */
+  .tip { background: var(--green-bg); border-left: 4px solid var(--green); padding: 14px 18px; border-radius: 0 8px 8px 0; margin: 14px 0; }
+  .warn { background: var(--orange-bg); border-left: 4px solid var(--orange); padding: 14px 18px; border-radius: 0 8px 8px 0; margin: 14px 0; }
+  .info { background: var(--accent-bg); border-left: 4px solid var(--accent); padding: 14px 18px; border-radius: 0 8px 8px 0; margin: 14px 0; }
+  .def { background: var(--teal-bg); border-left: 4px solid var(--teal); padding: 14px 18px; border-radius: 0 8px 8px 0; margin: 14px 0; }
+
+  /* Visual box for Master Theorem */
+  .master-box { background: linear-gradient(135deg, #eff6ff, #f5f3ff); border: 2px solid var(--primary); border-radius: 12px; padding: 24px; margin: 20px 0; }
+  .master-box h4 { color: var(--primary); margin-bottom: 12px; }
+  .case-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-top: 14px; }
+  .case-card { background: var(--card); border-radius: 10px; padding: 16px; border: 1px solid var(--border); text-align: center; }
+  .case-card .case-num { font-weight: 800; font-size: 1.4em; color: var(--primary); }
+  .case-card .case-cond { font-size: .85em; color: var(--text-light); margin: 6px 0; }
+  .case-card .case-result { font-weight: 700; font-size: .95em; color: var(--green); }
+  .case-card .case-label { font-size: .78em; color: var(--accent); font-weight: 600; margin-top: 4px; }
+
+  strong { color: var(--text); }
+  ul, ol { margin: 8px 0 8px 22px; }
+  li { margin: 4px 0; }
+  h4 { margin: 18px 0 8px; color: var(--primary); font-size: 1em; }
+  hr { border: none; border-top: 1px solid var(--border); margin: 20px 0; }
+  .checkmark { color: var(--green); font-weight: bold; }
+  a { color: var(--primary); }
+
+  /* Reading map badge */
+  .ref-badge { display: inline-block; background: var(--primary-light); color: var(--primary); font-size: .8em; font-weight: 600; padding: 3px 10px; border-radius: 20px; margin-left: 8px; }
+
+  @media (max-width: 700px) {
+    .ref-grid { grid-template-columns: 1fr; }
+    .case-grid { grid-template-columns: 1fr; }
+    .header h1 { font-size: 1.5em; }
+    .card, .scard { padding: 18px 16px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ========== HEADER ========== -->
+<div class="header">
+  <h1>Chapter 1: Analyzing Algorithms</h1>
+  <p>Comprehensive Study Guide</p>
+  <div class="subtitle">BITS Pilani &bull; Department of Computer Science and Information Systems</div>
+</div>
+
+<div class="container">
+
+<!-- ========== TEXTBOOK REFERENCES ========== -->
+<div class="ref-grid">
+  <div class="ref-card">
+    <div class="code">T1 (Textbook)</div>
+    <div class="title">Algorithm Design: Foundations, Analysis and Internet Examples</div>
+    <div class="author">Goodrich &amp; Tamassia, 2006, Wiley</div>
+  </div>
+  <div class="ref-card">
+    <div class="code">R1 (Reference)</div>
+    <div class="title">Introduction to Algorithms (CLRS)</div>
+    <div class="author">Cormen, Leiserson, Rivest, Stein &mdash; 3rd Ed, 2009</div>
+  </div>
+</div>
+
+<!-- ========== TABLE OF CONTENTS ========== -->
+<div class="toc-card">
+  <h2>Table of Contents</h2>
+  <ul>
+    <li><a href="#s11">1.1 Theoretical Foundation</a>
+      <ul>
+        <li><a href="#s111">1.1.1 Algorithms and its Specification</a></li>
+        <li><a href="#s112">1.1.2 Random Access Machine Model</a></li>
+        <li><a href="#s113">1.1.3 Best Case, Average Case, Worst Case</a></li>
+        <li><a href="#s114">1.1.4 Algorithm Correctness</a></li>
+      </ul>
+    </li>
+    <li><a href="#s12">1.2 Characterizing Run Time</a>
+      <ul>
+        <li><a href="#s121">1.2.1 Use of Asymptotic Notation</a></li>
+        <li><a href="#s122">1.2.2 Big-Oh, Omega and Theta Notations</a></li>
+      </ul>
+    </li>
+    <li><a href="#s13">1.3 Analyzing Recursive Algorithms</a>
+      <ul>
+        <li><a href="#s130" style="color:#7c3aed;">Intuitive Guide: Recurrences From Scratch</a></li>
+        <li><a href="#s131">1.3.1 Recurrence Relations</a></li>
+        <li><a href="#s132">1.3.2 Specifying Runtime of Recursive Algorithms</a></li>
+        <li><a href="#s133">1.3.3 Master Theorem</a></li>
+        <li><a href="#s134">1.3.4 Substitution &amp; Recursion Tree Methods</a></li>
+      </ul>
+    </li>
+    <li><a href="#practice">Practice Problems with Solutions</a></li>
+  </ul>
+</div>
+
+<!-- ============================================================ -->
+<!-- 1.1 THEORETICAL FOUNDATION -->
+<!-- ============================================================ -->
+<div class="sec-h1" id="s11">1.1 Theoretical Foundation <span class="ref-badge">T1: Ch 1.1, 1.2</span></div>
+
+<!-- 1.1.1 -->
+<div class="sec-h2" id="s111">1.1.1 Algorithms and its Specification</div>
+<div class="card">
+  <div class="def">
+    <strong>Algorithm:</strong> A well-defined computational procedure that takes input and produces output. It is a finite sequence of steps that transforms the input into the output.
+  </div>
+
+  <h4>Five Essential Properties</h4>
+  <table>
+    <tr><th>Property</th><th>Description</th><th>Example</th></tr>
+    <tr><td><strong>Input</strong></td><td>Zero or more externally supplied values</td><td>Array A, integer n</td></tr>
+    <tr><td><strong>Output</strong></td><td>At least one value is produced</td><td>Sorted array, max value</td></tr>
+    <tr><td><strong>Definiteness</strong></td><td>Each instruction is clear and unambiguous</td><td>&ldquo;Set x to 5&rdquo; is definite</td></tr>
+    <tr><td><strong>Finiteness</strong></td><td>Terminates after a finite number of steps</td><td>Loop must have a termination condition</td></tr>
+    <tr><td><strong>Effectiveness</strong></td><td>Basic enough to be carried out by hand</td><td>Arithmetic, comparisons</td></tr>
+  </table>
+
+  <h4>Experimental Studies vs Theoretical Analysis</h4>
+  <table>
+    <tr><th></th><th>Experimental</th><th>Theoretical (Preferred)</th></tr>
+    <tr><td><strong>Requires</strong></td><td>Full implementation</td><td>Pseudocode only</td></tr>
+    <tr><td><strong>Inputs</strong></td><td>Only tested samples</td><td>All possible inputs</td></tr>
+    <tr><td><strong>Hardware</strong></td><td>Results depend on machine</td><td>Machine-independent</td></tr>
+    <tr><td><strong>Output</strong></td><td>Actual time (ms)</td><td>Function of n: T(n)</td></tr>
+  </table>
+
+  <h4>Counting Primitive Operations</h4>
+  <p>A <strong>primitive operation</strong> is a low-level instruction with constant execution time: assignment, arithmetic, comparison, array index, method call/return.</p>
+
+  <pre><code>Algorithm arrayMax(A, n)
+    currentMax &larr; A[0]              // 2 ops (index + assign)
+    for i &larr; 1 to n-1 do           // 2n ops
+        if A[i] &gt; currentMax then  // 2(n-1) ops
+            currentMax &larr; A[i]     // 2(n-1) ops (worst case)
+    return currentMax              // 1 op
+
+    Worst case total: 6n - 2  &rArr;  &Theta;(n)</code></pre>
+
+  <div class="tip"><strong>Key insight:</strong> The exact count doesn't matter. What matters is that T(n) is a <strong>linear function of n</strong>. Whether it's 6n-2 or 4n, both are &Theta;(n). This motivates asymptotic notation.</div>
+
+  <h4>Seven Important Functions</h4>
+  <table>
+    <tr><th>Function</th><th>Name</th><th>Example Algorithm</th></tr>
+    <tr><td><strong>1</strong></td><td>Constant</td><td>Hash table lookup, array access</td></tr>
+    <tr><td><strong>log n</strong></td><td>Logarithmic</td><td>Binary search</td></tr>
+    <tr><td><strong>n</strong></td><td>Linear</td><td>Linear search, traversal</td></tr>
+    <tr><td><strong>n log n</strong></td><td>Linearithmic</td><td>Merge sort, heap sort</td></tr>
+    <tr><td><strong>n&sup2;</strong></td><td>Quadratic</td><td>Insertion sort, bubble sort</td></tr>
+    <tr><td><strong>n&sup3;</strong></td><td>Cubic</td><td>Naive matrix multiplication</td></tr>
+    <tr><td><strong>2<sup>n</sup></strong></td><td>Exponential</td><td>Subset enumeration, brute-force SAT</td></tr>
+  </table>
+
+  <h4>Essential Mathematical Formulas</h4>
+  <pre><code><strong>Summations:</strong>
+&Sigma;(i=1..n) i   = n(n+1)/2                     (Arithmetic)
+&Sigma;(i=1..n) i&sup2;  = n(n+1)(2n+1)/6               (Squares)
+&Sigma;(i=0..n) a<sup>i</sup>  = (a<sup>n+1</sup>-1)/(a-1)  for a&ne;1   (Geometric)
+&Sigma;(i=0..&infin;) a<sup>i</sup> = 1/(1-a)      for |a|&lt;1    (Infinite Geometric)
+
+<strong>Logarithms:</strong>
+log(xy)  = log x + log y
+log(x/y) = log x - log y
+log(x<sup>a</sup>)  = a &middot; log x
+log<sub>b</sub>(a) = log<sub>c</sub>(a) / log<sub>c</sub>(b)               (Change of base)</code></pre>
+</div>
+
+<!-- 1.1.2 -->
+<div class="sec-h2" id="s112">1.1.2 Random Access Machine (RAM) Model</div>
+<div class="card">
+  <div class="def">The RAM model is a <strong>theoretical model of computation</strong> for machine-independent algorithm analysis.</div>
+
+  <h4>Assumptions</h4>
+  <ol>
+    <li><strong>Single processor</strong> &mdash; sequential execution, no parallelism</li>
+    <li><strong>Constant-time operations</strong> &mdash; arithmetic, comparison, assignment, array indexing, control flow each cost O(1)</li>
+    <li><strong>Flat memory</strong> &mdash; unlimited memory, constant-time access to any cell</li>
+    <li><strong>Fixed word size</strong> &mdash; w = c&middot;log n bits (can hold an index into the input)</li>
+  </ol>
+
+  <h4>Unit-Cost vs Log-Cost Model</h4>
+  <table>
+    <tr><th>Aspect</th><th>Unit-Cost</th><th>Log-Cost</th></tr>
+    <tr><td>Arithmetic cost</td><td>O(1) per operation</td><td>O(log of operand size)</td></tr>
+    <tr><td>When to use</td><td>Most algorithm analysis</td><td>Large numbers (cryptography)</td></tr>
+  </table>
+
+  <div class="warn"><strong>What RAM ignores:</strong> Cache hierarchy (L1 ~1ns vs RAM ~100ns vs disk ~10ms), pipelining, compiler optimizations, multi-core parallelism. Despite this, RAM model predictions are excellent for comparing algorithms.</div>
+</div>
+
+<!-- 1.1.3 -->
+<div class="sec-h2" id="s113">1.1.3 Best Case, Average Case, Worst Case</div>
+<div class="card">
+  <table>
+    <tr><th>Case</th><th>Definition</th><th>Usefulness</th><th>Difficulty</th></tr>
+    <tr><td><strong>Best</strong> T<sub>best</sub>(n)</td><td>min{T(I) : |I| = n}</td><td>Rarely informative</td><td>Easy</td></tr>
+    <tr><td><strong>Worst</strong> T<sub>worst</sub>(n)</td><td>max{T(I) : |I| = n}</td><td>Guarantee &mdash; most commonly used</td><td>Moderate</td></tr>
+    <tr><td><strong>Average</strong> T<sub>avg</sub>(n)</td><td>&Sigma; P(I)&middot;T(I)</td><td>Realistic prediction</td><td>Hard</td></tr>
+  </table>
+
+  <h4>Example: Insertion Sort</h4>
+  <table>
+    <tr><th>Input</th><th>Case</th><th>While-loop behavior</th><th>Time</th></tr>
+    <tr><td>[1, 2, 3, 4, 5] (sorted)</td><td>Best</td><td>Body never executes</td><td><strong>&Theta;(n)</strong></td></tr>
+    <tr><td>[3, 1, 4, 5, 2] (random)</td><td>Average</td><td>Runs ~j/2 times each</td><td><strong>&Theta;(n&sup2;)</strong></td></tr>
+    <tr><td>[5, 4, 3, 2, 1] (reverse)</td><td>Worst</td><td>Runs j times each</td><td><strong>&Theta;(n&sup2;)</strong></td></tr>
+  </table>
+
+  <h4>Example: Linear Search (Successful)</h4>
+  <pre><code>Element equally likely at any position:
+T<sub>avg</sub>(n) = &Sigma;(1/n)(i+1) for i=0..n-1 = (n+1)/2 = &Theta;(n)</code></pre>
+
+  <div class="tip"><strong>Why worst case?</strong> It gives a guarantee (never worse), needs no probability assumptions, and the worst case often occurs in practice (e.g., searching for absent keys in databases).</div>
+</div>
+
+<!-- 1.1.4 -->
+<div class="sec-h2" id="s114">1.1.4 Algorithm Correctness <span class="ref-badge">T1: 1.1.4</span></div>
+<div class="card">
+  <div class="def">
+    An algorithm is <strong>correct</strong> if, for every valid input, it <strong>halts</strong> and produces the <strong>correct output</strong>.
+    <br><br>
+    <strong>Total Correctness = Partial Correctness + Termination</strong>
+  </div>
+
+  <h4>Preconditions &amp; Postconditions</h4>
+  <ul>
+    <li><strong>Precondition:</strong> What must be true <em>before</em> the algorithm runs (valid inputs)</li>
+    <li><strong>Postcondition:</strong> What must be true <em>after</em> the algorithm runs (desired output)</li>
+  </ul>
+
+  <h4>Loop Invariants (3 Properties)</h4>
+  <table>
+    <tr><th>Property</th><th>Analogy</th><th>What to show</th></tr>
+    <tr><td><strong>Initialization</strong></td><td>Base case</td><td>True before first iteration</td></tr>
+    <tr><td><strong>Maintenance</strong></td><td>Inductive step</td><td>If true before iteration, true after</td></tr>
+    <tr><td><strong>Termination</strong></td><td>Extract result</td><td>Invariant + exit condition &rArr; correctness</td></tr>
+  </table>
+
+  <h4>Example: Proving Insertion Sort Correct</h4>
+  <pre><code>InsertionSort(A, n)
+    for j &larr; 1 to n-1 do
+        key &larr; A[j]
+        i &larr; j - 1
+        while i &ge; 0 and A[i] &gt; key do
+            A[i+1] &larr; A[i];  i &larr; i - 1
+        A[i+1] &larr; key</code></pre>
+
+  <p><strong>Invariant:</strong> At start of each for-loop iteration with index j, subarray A[0..j-1] is sorted.</p>
+  <ul>
+    <li><strong>Init (j=1):</strong> A[0..0] is one element &mdash; trivially sorted. <span class="checkmark">&check;</span></li>
+    <li><strong>Maintenance:</strong> The while-loop shifts elements right and places key in its correct position, so A[0..j] becomes sorted. <span class="checkmark">&check;</span></li>
+    <li><strong>Termination (j=n):</strong> A[0..n-1] is the entire array, and it&rsquo;s sorted. <span class="checkmark">&check;</span></li>
+  </ul>
+
+  <h4>Proving Correctness of Recursive Algorithms</h4>
+  <p>Use <strong>strong induction</strong> on input size. Example for MergeSort:</p>
+  <ul>
+    <li><strong>Base (n=1):</strong> Single element is sorted. <span class="checkmark">&check;</span></li>
+    <li><strong>IH:</strong> Assume MergeSort correctly sorts any subarray of size &lt; n.</li>
+    <li><strong>Step:</strong> Both halves (size &lt; n) are sorted by IH. Merge correctly combines them. <span class="checkmark">&check;</span></li>
+  </ul>
+</div>
+
+<!-- ============================================================ -->
+<!-- 1.2 CHARACTERIZING RUN TIME -->
+<!-- ============================================================ -->
+<div class="sec-h1" id="s12">1.2 Characterizing Run Time <span class="ref-badge">T1: Ch 1.1, 1.2</span></div>
+
+<!-- 1.2.1 -->
+<div class="sec-h2" id="s121">1.2.1 Use of Asymptotic Notation</div>
+<div class="card">
+  <p>We care about how running time <strong>grows</strong> as n gets large. We ignore constants and lower-order terms.</p>
+  <pre><code>T(n) = 6n - 2       &rarr; &ldquo;grows like n&rdquo;     &rarr; &Theta;(n)
+T(n) = 3n&sup2; + 5n + 7 &rarr; &ldquo;grows like n&sup2;&rdquo;    &rarr; &Theta;(n&sup2;)
+T(n) = 2<sup>n</sup> + n&sup3;      &rarr; &ldquo;grows like 2<sup>n</sup>&rdquo;   &rarr; &Theta;(2<sup>n</sup>)</code></pre>
+
+  <h4>Growth Rate Hierarchy</h4>
+  <pre><code>1  &lt;  log log n  &lt;  log n  &lt;  &radic;n  &lt;  n  &lt;  n log n  &lt;  n&sup2;  &lt;  n&sup3;  &lt;  2<sup>n</sup>  &lt;  n!  &lt;  n<sup>n</sup></code></pre>
+
+  <h4>Practical Feasibility (10&sup9; ops/sec)</h4>
+  <table>
+    <tr><th>Growth</th><th>n = 10&sup6;</th><th>n = 10&sup9;</th><th>Max n in 1 sec</th></tr>
+    <tr><td>O(log n)</td><td>instant</td><td>instant</td><td>unlimited</td></tr>
+    <tr><td>O(n)</td><td>1 ms</td><td>1 s</td><td>10&sup9;</td></tr>
+    <tr><td>O(n log n)</td><td>20 ms</td><td>30 s</td><td>~4&times;10&sup7;</td></tr>
+    <tr><td>O(n&sup2;)</td><td>17 min</td><td>31 years</td><td>~31,623</td></tr>
+    <tr><td>O(2<sup>n</sup>)</td><td>never</td><td>never</td><td>~30</td></tr>
+  </table>
+
+  <h4>Code Analysis Rules</h4>
+  <table>
+    <tr><th>Pattern</th><th>Complexity</th></tr>
+    <tr><td>Sequential blocks</td><td>O(max(f, g)) &mdash; sum rule</td></tr>
+    <tr><td>if/else</td><td>O(max(if-branch, else-branch))</td></tr>
+    <tr><td><code>for i=1 to n: O(1) body</code></td><td>O(n)</td></tr>
+    <tr><td>Nested loops (n &times; n)</td><td>O(n&sup2;)</td></tr>
+    <tr><td><code>for j=1 to i</code> inside <code>i=1 to n</code></td><td>&Sigma;i = n(n+1)/2 = O(n&sup2;)</td></tr>
+    <tr><td>Loop with halving (<code>i = i/2</code>)</td><td>O(log n)</td></tr>
+    <tr><td>Linear &times; logarithmic</td><td>O(n log n)</td></tr>
+  </table>
+</div>
+
+<!-- 1.2.2 -->
+<div class="sec-h2" id="s122">1.2.2 Big-Oh, Omega and Theta Notations</div>
+<div class="card">
+
+  <h4>Big-Oh: O(g(n)) &mdash; Upper Bound (&le;)</h4>
+  <div class="def">
+    f(n) = O(g(n)) if there exist <strong>c &gt; 0</strong> and <strong>n<sub>0</sub></strong> such that:<br>
+    <code>0 &le; f(n) &le; c &middot; g(n)</code> &nbsp; for all n &ge; n<sub>0</sub>
+  </div>
+  <p><strong>Meaning:</strong> f grows <em>no faster than</em> g. Example: 3n&sup2; + 5n = O(n&sup2;) with c=4, n<sub>0</sub>=6.</p>
+
+  <h4>Big-Omega: &Omega;(g(n)) &mdash; Lower Bound (&ge;)</h4>
+  <div class="def">
+    f(n) = &Omega;(g(n)) if there exist <strong>c &gt; 0</strong> and <strong>n<sub>0</sub></strong> such that:<br>
+    <code>0 &le; c &middot; g(n) &le; f(n)</code> &nbsp; for all n &ge; n<sub>0</sub>
+  </div>
+  <p><strong>Meaning:</strong> f grows <em>at least as fast as</em> g. Example: 3n&sup2; + 5n = &Omega;(n&sup2;) with c=3, n<sub>0</sub>=1.</p>
+
+  <h4>Big-Theta: &Theta;(g(n)) &mdash; Tight Bound (=)</h4>
+  <div class="def">
+    f(n) = &Theta;(g(n)) if there exist <strong>c<sub>1</sub>, c<sub>2</sub> &gt; 0</strong> and <strong>n<sub>0</sub></strong> such that:<br>
+    <code>c<sub>1</sub>&middot;g(n) &le; f(n) &le; c<sub>2</sub>&middot;g(n)</code> &nbsp; for all n &ge; n<sub>0</sub>
+  </div>
+  <p><strong>Meaning:</strong> f grows at the <em>same rate</em> as g. Equivalent to both O and &Omega; holding.</p>
+
+  <h4>Summary of All Five Notations</h4>
+  <table>
+    <tr><th>Notation</th><th>Analogy</th><th>Meaning</th><th>Example</th></tr>
+    <tr><td>O(g)</td><td>f &le; g</td><td>Upper bound</td><td>3n = O(n&sup2;)</td></tr>
+    <tr><td>&Omega;(g)</td><td>f &ge; g</td><td>Lower bound</td><td>n&sup2; = &Omega;(n)</td></tr>
+    <tr><td>&Theta;(g)</td><td>f = g</td><td>Tight bound</td><td>3n&sup2;+n = &Theta;(n&sup2;)</td></tr>
+    <tr><td>o(g)</td><td>f &lt; g</td><td>Strictly slower</td><td>n = o(n&sup2;)</td></tr>
+    <tr><td>&omega;(g)</td><td>f &gt; g</td><td>Strictly faster</td><td>n&sup2; = &omega;(n)</td></tr>
+  </table>
+
+  <h4>Important Properties</h4>
+  <ul>
+    <li><strong>Transitivity:</strong> f = O(g) and g = O(h) &rArr; f = O(h)</li>
+    <li><strong>Reflexivity:</strong> f = O(f), f = &Omega;(f), f = &Theta;(f)</li>
+    <li><strong>Symmetry (&Theta; only):</strong> f = &Theta;(g) &hArr; g = &Theta;(f)</li>
+    <li><strong>Transpose:</strong> f = O(g) &hArr; g = &Omega;(f)</li>
+    <li><strong>Sum rule:</strong> O(f+g) = O(max(f,g))</li>
+    <li><strong>Product rule:</strong> O(f)&middot;O(g) = O(f&middot;g)</li>
+  </ul>
+
+  <h4>Using Limits</h4>
+  <pre><code>             &lfloor; 0      &rArr; f = o(g) and f = O(g)
+lim f(n)     &lfloor;
+n&rarr;&infin; &#x2500;&#x2500;&#x2500;  =  &lfloor; c &gt; 0  &rArr; f = &Theta;(g)
+    g(n)     &lfloor;
+             &lfloor; &infin;      &rArr; f = &omega;(g) and f = &Omega;(g)</code></pre>
+</div>
+
+<!-- ============================================================ -->
+<!-- 1.3 ANALYZING RECURSIVE ALGORITHMS -->
+<!-- ============================================================ -->
+<div class="sec-h1" id="s13">1.3 Analyzing Recursive Algorithms <span class="ref-badge">R1: Ch 4.3, 4.4, 4.5</span></div>
+
+<!-- INTUITIVE GUIDE -->
+<div class="sec-h2" id="s130">Understanding Time Complexity &amp; Recurrences &mdash; From Scratch</div>
+<div class="card">
+  <div class="info">Before diving into the formal methods, let&rsquo;s build intuition for how time complexity actually works using simple, traceable examples.</div>
+
+  <h4>The Core Idea: Count How Many Times the &ldquo;Main Work&rdquo; Happens</h4>
+  <pre><code># Single loop — the print runs n times → O(n)
+for i in range(n):
+    print(i)
+
+# Nested loop — the print runs n &times; n times → O(n&sup2;)
+for i in range(n):
+    for j in range(n):
+        print(i, j)
+
+# Loop that halves — i takes values n, n/2, n/4, ..., 1 → O(log n)
+i = n
+while i &ge; 1:
+    print(i)
+    i = i // 2</code></pre>
+
+  <hr>
+  <h4>What is a Recurrence? (The Simple Version)</h4>
+  <div class="def">A recurrence describes how much work a recursive function does, in terms of smaller versions of itself:
+    <pre><code>Total work for input n = Work I do right now + Work my recursive call does</code></pre>
+  </div>
+
+  <hr>
+  <h4>Traced Example 1: Factorial &mdash; T(n) = T(n-1) + 1</h4>
+  <pre><code>def factorial(n):
+    if n == 0: return 1
+    return n * factorial(n - 1)     # 1 call on n-1, plus 1 multiply</code></pre>
+  <p><strong>Tracing factorial(5):</strong></p>
+  <pre><code>factorial(5) &rarr; 1 multiply + calls factorial(4)
+factorial(4) &rarr; 1 multiply + calls factorial(3)
+factorial(3) &rarr; 1 multiply + calls factorial(2)
+factorial(2) &rarr; 1 multiply + calls factorial(1)
+factorial(1) &rarr; 1 multiply + calls factorial(0)
+factorial(0) &rarr; returns 1 (done!)
+
+Total: 5 multiplications. For input n &rarr; <strong>n multiplications = O(n)</strong></code></pre>
+  <p><strong>Writing the recurrence:</strong></p>
+  <pre><code>T(n) = T(n-1) + 1
+       &uarr;         &uarr;
+       &boxv;         One multiplication (work at THIS level)
+       &boxv;
+       Cost of solving factorial(n-1)
+
+T(0) = 1   &larr; base case</code></pre>
+  <p><strong>Solving by unrolling (just substitute repeatedly):</strong></p>
+  <pre><code>T(n) = T(n-1) + 1
+     = [T(n-2) + 1] + 1 = T(n-2) + 2
+     = [T(n-3) + 1] + 2 = T(n-3) + 3
+     ...after k steps:  T(n-k) + k
+
+Stops when n-k = 0, so k = n:
+T(n) = T(0) + n = 1 + n = <strong>O(n)</strong>  &check;</code></pre>
+
+  <hr>
+  <h4>Traced Example 2: Binary Search &mdash; T(n) = T(n/2) + 1</h4>
+  <pre><code>def binary_search(A, lo, hi, key):
+    if lo &gt; hi: return -1
+    mid = (lo + hi) // 2
+    if A[mid] == key: return mid
+    elif key &lt; A[mid]:
+        return binary_search(A, lo, mid-1, key)   # LEFT half only
+    else:
+        return binary_search(A, mid+1, hi, key)   # RIGHT half only</code></pre>
+  <p><strong>What happens on 16 elements?</strong></p>
+  <pre><code>Call 1: search 16 elements &rarr; 1 comparison &rarr; recurse on 8
+Call 2: search 8 elements  &rarr; 1 comparison &rarr; recurse on 4
+Call 3: search 4 elements  &rarr; 1 comparison &rarr; recurse on 2
+Call 4: search 2 elements  &rarr; 1 comparison &rarr; recurse on 1
+Call 5: search 1 element   &rarr; 1 comparison &rarr; done!
+
+Total: 5 comparisons.  16 &rarr; 8 &rarr; 4 &rarr; 2 &rarr; 1 = log&sub2; 16 = 4 halvings + 1</code></pre>
+  <p><strong>Unrolling:</strong></p>
+  <pre><code>T(n) = T(n/2) + 1
+     = T(n/4) + 2
+     = T(n/8) + 3
+     ...after k steps: T(n/2<sup>k</sup>) + k
+
+Stops when n/2<sup>k</sup> = 1  &rarr;  k = log&sub2; n
+
+T(n) = 1 + log n = <strong>O(log n)</strong>  &check;</code></pre>
+
+  <hr>
+  <h4>Traced Example 3: Merge Sort &mdash; T(n) = 2T(n/2) + n</h4>
+  <pre><code>def merge_sort(A):
+    if len(A) &le; 1: return A
+    mid = len(A) // 2
+    left  = merge_sort(A[:mid])     # Sort first half
+    right = merge_sort(A[mid:])     # Sort second half
+    return merge(left, right)        # Merge: takes n steps</code></pre>
+
+  <p><strong>Tracing [5, 3, 8, 1, 2, 7, 4, 6] (n = 8):</strong></p>
+  <pre><code>                merge_sort([5,3,8,1,2,7,4,6])            &larr; merge costs 8
+               /                                \
+  merge_sort([5,3,8,1])              merge_sort([2,7,4,6])     &larr; 4+4 = 8
+     /          \                       /          \
+ ms([5,3])   ms([8,1])             ms([2,7])    ms([4,6])      &larr; 2+2+2+2 = 8
+  /    \      /    \                /    \       /    \
+[5]   [3]   [8]   [1]            [2]   [7]    [4]   [6]        &larr; base cases</code></pre>
+
+  <p><strong>Count the work at each level:</strong></p>
+  <table>
+    <tr><th>Level</th><th>Merges</th><th>Work</th></tr>
+    <tr><td>0 (top)</td><td>1 merge of 8 items</td><td><strong>8</strong></td></tr>
+    <tr><td>1</td><td>2 merges of 4 items</td><td><strong>8</strong></td></tr>
+    <tr><td>2</td><td>4 merges of 2 items</td><td><strong>8</strong></td></tr>
+    <tr><td>3 (bottom)</td><td>8 base cases</td><td><strong>8</strong></td></tr>
+    <tr><td colspan="2"><strong>Total</strong></td><td><strong>8 &times; 4 = 32</strong></td></tr>
+  </table>
+  <div class="tip"><strong>Every level does n work. There are log&sub2; n + 1 levels.</strong><br>
+  For n = 8: 8 &times; (log&sub2; 8 + 1) = 8 &times; 4 = 32 = <strong>O(n log n)</strong></div>
+
+  <p><strong>Unrolling:</strong></p>
+  <pre><code>T(n) = 2T(n/2) + n
+     = 2[2T(n/4) + n/2] + n = 4T(n/4) + n + n = 4T(n/4) + 2n
+     = 4[2T(n/8) + n/4] + 2n = 8T(n/8) + n + 2n = 8T(n/8) + 3n
+
+Pattern after k steps: T(n) = 2<sup>k</sup> &middot; T(n/2<sup>k</sup>) + k&middot;n
+
+Stops when n/2<sup>k</sup> = 1 &rarr; k = log&sub2; n
+
+T(n) = n &middot; T(1) + n &middot; log n = n + n log n = <strong>O(n log n)</strong>  &check;</code></pre>
+
+  <hr>
+  <h4>How to Read ANY Recurrence &mdash; Cheat Sheet</h4>
+  <pre><code>T(n) = [how many recursive calls] &times; T([size of each call]) + [work at this level]</code></pre>
+  <table>
+    <tr><th>You See</th><th>It Means</th><th>Result</th></tr>
+    <tr><td><code>T(n) = T(n-1) + 1</code></td><td>1 call, shrinks by 1, O(1) work</td><td><strong>O(n)</strong></td></tr>
+    <tr><td><code>T(n) = T(n-1) + n</code></td><td>1 call, shrinks by 1, O(n) work</td><td><strong>O(n&sup2;)</strong> &mdash; n+(n-1)+&hellip;+1</td></tr>
+    <tr><td><code>T(n) = T(n/2) + 1</code></td><td>1 call, halves, O(1) work</td><td><strong>O(log n)</strong></td></tr>
+    <tr><td><code>T(n) = T(n/2) + n</code></td><td>1 call, halves, O(n) work</td><td><strong>O(n)</strong> &mdash; n+n/2+n/4+&hellip;&asymp;2n</td></tr>
+    <tr><td><code>T(n) = 2T(n/2) + 1</code></td><td>2 calls, halves, O(1) work</td><td><strong>O(n)</strong> &mdash; tree has n leaves</td></tr>
+    <tr><td><code>T(n) = 2T(n/2) + n</code></td><td>2 calls, halves, O(n) work</td><td><strong>O(n log n)</strong> &mdash; n &times; log n levels</td></tr>
+    <tr><td><code>T(n) = 2T(n-1) + 1</code></td><td>2 calls, shrinks by 1</td><td><strong>O(2<sup>n</sup>)</strong> &mdash; doubles every level!</td></tr>
+  </table>
+  <div class="info">
+    <strong>The intuition:</strong>
+    <ul>
+      <li><strong>Halving (n/2)</strong> = logarithmic depth &rarr; usually fast</li>
+      <li><strong>Subtracting (n-1)</strong> = linear depth &rarr; can be slow</li>
+      <li><strong>Number of calls</strong> determines if work grows, stays same, or shrinks per level</li>
+    </ul>
+  </div>
+
+  <hr>
+  <h4>Master Theorem &mdash; Just Pattern Matching</h4>
+  <p>For <code>T(n) = aT(n/b) + n<sup>d</sup></code>:</p>
+  <pre><code>Step 1: Identify a, b, d
+   a = number of recursive calls
+   b = how much size shrinks (the divisor)
+   d = exponent of non-recursive work (if work is n&sup2;, then d = 2)
+
+Step 2: Compute log<sub>b</sub>(a)
+
+Step 3: Compare log<sub>b</sub>(a) with d:
+   &bull; log<sub>b</sub>(a) &gt; d  &rarr;  T(n) = O(n<sup>log<sub>b</sub>a</sup>)    &ldquo;recursion wins&rdquo;
+   &bull; log<sub>b</sub>(a) = d  &rarr;  T(n) = O(n<sup>d</sup> &middot; log n) &ldquo;tie &mdash; multiply by log n&rdquo;
+   &bull; log<sub>b</sub>(a) &lt; d  &rarr;  T(n) = O(n<sup>d</sup>)           &ldquo;top-level work wins&rdquo;</code></pre>
+
+  <h4>Three Walkthroughs:</h4>
+  <table>
+    <tr><th>Recurrence</th><th>a</th><th>b</th><th>d</th><th>log<sub>b</sub>a</th><th>Compare</th><th>Result</th></tr>
+    <tr><td>2T(n/2) + n</td><td>2</td><td>2</td><td>1</td><td>1</td><td>1 = 1 &rarr; TIE</td><td><strong>O(n log n)</strong></td></tr>
+    <tr><td>4T(n/2) + n</td><td>4</td><td>2</td><td>1</td><td>2</td><td>2 &gt; 1 &rarr; recursion wins</td><td><strong>O(n&sup2;)</strong></td></tr>
+    <tr><td>T(n/2) + n</td><td>1</td><td>2</td><td>1</td><td>0</td><td>0 &lt; 1 &rarr; top-level wins</td><td><strong>O(n)</strong></td></tr>
+  </table>
+
+  <div class="tip"><strong>Master Theorem in one sentence:</strong> Who does more work &mdash; the recursive calls piling up at the bottom of the tree, or the non-recursive work at the top?</div>
+</div>
+
+<!-- 1.3.1 -->
+<div class="sec-h2" id="s131">1.3.1 Recurrence Relations</div>
+<div class="card">
+  <div class="def">A <strong>recurrence relation</strong> defines T(n) in terms of T at smaller inputs. It arises naturally from recursive / divide-and-conquer algorithms.</div>
+
+  <pre><code>General divide-and-conquer form:
+T(n) = a &middot; T(n/b) + f(n)
+
+a = number of subproblems
+b = factor by which size shrinks
+f(n) = cost of dividing + combining</code></pre>
+
+  <h4>Common Recurrences</h4>
+  <table>
+    <tr><th>Recurrence</th><th>Algorithm</th><th>Solution</th></tr>
+    <tr><td>T(n) = T(n-1) + O(1)</td><td>Factorial</td><td><strong>O(n)</strong></td></tr>
+    <tr><td>T(n) = T(n-1) + O(n)</td><td>Selection sort (recursive)</td><td><strong>O(n&sup2;)</strong></td></tr>
+    <tr><td>T(n) = T(n/2) + O(1)</td><td>Binary search</td><td><strong>O(log n)</strong></td></tr>
+    <tr><td>T(n) = T(n/2) + O(n)</td><td>Randomized selection</td><td><strong>O(n)</strong></td></tr>
+    <tr><td>T(n) = 2T(n/2) + O(1)</td><td>Tree traversal</td><td><strong>O(n)</strong></td></tr>
+    <tr><td>T(n) = 2T(n/2) + O(n)</td><td>Merge sort</td><td><strong>O(n log n)</strong></td></tr>
+    <tr><td>T(n) = 2T(n-1) + O(1)</td><td>Towers of Hanoi</td><td><strong>O(2<sup>n</sup>)</strong></td></tr>
+    <tr><td>T(n) = 7T(n/2) + O(n&sup2;)</td><td>Strassen&rsquo;s</td><td><strong>O(n<sup>2.807</sup>)</strong></td></tr>
+  </table>
+</div>
+
+<!-- 1.3.2 -->
+<div class="sec-h2" id="s132">1.3.2 Specifying Runtime of Recursive Algorithms</div>
+<div class="card">
+  <h4>Step-by-Step Method</h4>
+  <ol>
+    <li>Identify the <strong>base case</strong> and its cost</li>
+    <li>Count the <strong>number of recursive calls</strong></li>
+    <li>Determine the <strong>size of each subproblem</strong></li>
+    <li>Determine the <strong>non-recursive work</strong></li>
+    <li>Write the recurrence</li>
+  </ol>
+
+  <h4>Example: Merge Sort</h4>
+  <pre><code>MergeSort(A, lo, hi)
+    if lo &lt; hi then
+        mid &larr; &lfloor;(lo+hi)/2&rfloor;
+        MergeSort(A, lo, mid)       &larr; T(n/2)
+        MergeSort(A, mid+1, hi)     &larr; T(n/2)
+        Merge(A, lo, mid, hi)       &larr; &Theta;(n)
+
+Recurrence: T(n) = 2T(n/2) + &Theta;(n)  &rArr;  &Theta;(n log n)</code></pre>
+
+  <h4>Example: Binary Search</h4>
+  <pre><code>BinarySearch(A, lo, hi, key)
+    if lo &gt; hi then return -1      &larr; &Theta;(1)
+    mid &larr; &lfloor;(lo+hi)/2&rfloor;
+    if A[mid] = key return mid
+    else if key &lt; A[mid]
+        return BinarySearch(lo, mid-1)   &larr; only ONE call: T(n/2)
+    else
+        return BinarySearch(mid+1, hi)
+
+Recurrence: T(n) = T(n/2) + &Theta;(1)  &rArr;  &Theta;(log n)</code></pre>
+
+  <h4>Example: Quick Sort (Worst vs Average)</h4>
+  <pre><code>Worst case (always 0 : n-1 split):
+T(n) = T(n-1) + &Theta;(n)  &rArr;  &Theta;(n&sup2;)
+
+Average case (balanced split):
+T(n) = 2T(n/2) + &Theta;(n)  &rArr;  &Theta;(n log n)</code></pre>
+</div>
+
+<!-- 1.3.3 MASTER THEOREM -->
+<div class="sec-h2" id="s133">1.3.3 Master Theorem <span class="ref-badge">R1: Section 4.5</span></div>
+<div class="card">
+  <div class="master-box">
+    <h4>Master Theorem: T(n) = a &middot; T(n/b) + f(n)</h4>
+    <p>Compare <strong>f(n)</strong> with <strong>n<sup>log<sub>b</sub> a</sup></strong> (the &ldquo;critical exponent&rdquo;):</p>
+
+    <div class="case-grid">
+      <div class="case-card">
+        <div class="case-num">Case 1</div>
+        <div class="case-cond">f(n) = O(n<sup>log<sub>b</sub>a &minus; &epsilon;</sup>)</div>
+        <div class="case-result">T(n) = &Theta;(n<sup>log<sub>b</sub>a</sup>)</div>
+        <div class="case-label">Leaves dominate</div>
+      </div>
+      <div class="case-card">
+        <div class="case-num">Case 2</div>
+        <div class="case-cond">f(n) = &Theta;(n<sup>log<sub>b</sub>a</sup>)</div>
+        <div class="case-result">T(n) = &Theta;(n<sup>log<sub>b</sub>a</sup> &middot; log n)</div>
+        <div class="case-label">All levels equal</div>
+      </div>
+      <div class="case-card">
+        <div class="case-num">Case 3</div>
+        <div class="case-cond">f(n) = &Omega;(n<sup>log<sub>b</sub>a + &epsilon;</sup>)<br>+ regularity</div>
+        <div class="case-result">T(n) = &Theta;(f(n))</div>
+        <div class="case-label">Root dominates</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="info"><strong>Regularity condition (Case 3):</strong> a&middot;f(n/b) &le; c&middot;f(n) for some c &lt; 1. Most polynomial-type functions satisfy this.</div>
+
+  <h4>Quick Reference Table</h4>
+  <table>
+    <tr><th>Recurrence</th><th>a</th><th>b</th><th>n<sup>log<sub>b</sub>a</sup></th><th>Case</th><th>T(n)</th></tr>
+    <tr><td>2T(n/2) + n</td><td>2</td><td>2</td><td>n</td><td>2</td><td>&Theta;(n log n)</td></tr>
+    <tr><td>T(n/2) + 1</td><td>1</td><td>2</td><td>1</td><td>2</td><td>&Theta;(log n)</td></tr>
+    <tr><td>4T(n/2) + n</td><td>4</td><td>2</td><td>n&sup2;</td><td>1</td><td>&Theta;(n&sup2;)</td></tr>
+    <tr><td>T(n/2) + n</td><td>1</td><td>2</td><td>1</td><td>3</td><td>&Theta;(n)</td></tr>
+    <tr><td>2T(n/2) + 1</td><td>2</td><td>2</td><td>n</td><td>1</td><td>&Theta;(n)</td></tr>
+    <tr><td>9T(n/3) + n</td><td>9</td><td>3</td><td>n&sup2;</td><td>1</td><td>&Theta;(n&sup2;)</td></tr>
+    <tr><td>7T(n/2) + n&sup2;</td><td>7</td><td>2</td><td>n<sup>2.807</sup></td><td>1</td><td>&Theta;(n<sup>2.807</sup>)</td></tr>
+    <tr><td>2T(n/4) + &radic;n</td><td>2</td><td>4</td><td>&radic;n</td><td>2</td><td>&Theta;(&radic;n log n)</td></tr>
+    <tr><td>T(2n/3) + 1</td><td>1</td><td>3/2</td><td>1</td><td>2</td><td>&Theta;(log n)</td></tr>
+    <tr><td>3T(n/4) + n lg n</td><td>3</td><td>4</td><td>n<sup>0.793</sup></td><td>3</td><td>&Theta;(n lg n)</td></tr>
+  </table>
+
+  <h4>When Master Theorem Does NOT Apply</h4>
+  <div class="warn">
+    <ul>
+      <li><strong>Unequal subproblems:</strong> T(n) = T(n/3) + T(2n/3) + n</li>
+      <li><strong>Non-polynomial gap:</strong> T(n) = 2T(n/2) + n/log n &nbsp;(gap between Cases 1&amp;2)</li>
+      <li><strong>Subtraction:</strong> T(n) = T(n-1) + n &nbsp;(not division by constant)</li>
+      <li><strong>Non-constant a:</strong> T(n) = nT(n/2) + n</li>
+    </ul>
+  </div>
+</div>
+
+<!-- 1.3.4 SUBSTITUTION + RECURSION TREE -->
+<div class="sec-h2" id="s134">1.3.4 Solving Recurrences: Substitution &amp; Recursion Tree <span class="ref-badge">R1: 4.3, 4.4</span></div>
+<div class="card">
+
+  <!-- SUBSTITUTION -->
+  <h4>Method 1: Substitution Method (R1: 4.3)</h4>
+  <ol>
+    <li><strong>Guess</strong> the form of the solution</li>
+    <li><strong>Prove</strong> it correct using mathematical induction</li>
+  </ol>
+
+  <p><strong>Example:</strong> Prove T(n) = 2T(n/2) + n is O(n lg n).</p>
+  <pre><code><strong>Guess:</strong> T(n) &le; c&middot;n&middot;lg n
+
+<strong>Inductive step:</strong>
+T(n) = 2T(n/2) + n
+     &le; 2&middot;c&middot;(n/2)&middot;lg(n/2) + n
+     = c&middot;n&middot;(lg n - 1) + n
+     = c&middot;n&middot;lg n - cn + n
+     = c&middot;n&middot;lg n + n(1-c)
+     &le; c&middot;n&middot;lg n         when c &ge; 1  &check;
+
+<strong>Base:</strong> T(2) = 4 &le; 2c &rArr; c &ge; 2.  &check;</code></pre>
+
+  <div class="info">
+    <strong>Key technique &mdash; Subtracting a lower-order term:</strong> If your guess T(n) &le; cn&sup2; fails, try T(n) &le; cn&sup2; - dn. The extra term gives &ldquo;room&rdquo; to absorb leftover terms.
+  </div>
+
+  <p><strong>Example:</strong> T(n) = 4T(n/2) + n &mdash; prove O(n&sup2;).</p>
+  <pre><code><strong>Attempt 1 (fails):</strong> T(n) &le; cn&sup2;
+  &rarr; T(n) &le; cn&sup2; + n  ← stuck!
+
+<strong>Attempt 2 (works):</strong> T(n) &le; cn&sup2; - dn
+  T(n) &le; 4(c(n/2)&sup2; - dn/2) + n
+     = cn&sup2; - 2dn + n
+     = cn&sup2; - dn + n(1-d)
+     &le; cn&sup2; - dn         when d &ge; 1  &check;</code></pre>
+
+  <div class="info">
+    <strong>Changing variables:</strong> For T(n) = 3T(&radic;n) + lg n, let m = lg n to get S(m) = 3S(m/2) + m, then apply Master Theorem.
+  </div>
+
+  <hr>
+
+  <!-- RECURSION TREE -->
+  <h4>Method 2: Recursion Tree Method (R1: 4.4)</h4>
+  <ol>
+    <li>Draw the tree of recursive calls</li>
+    <li>Compute the <strong>cost at each level</strong></li>
+    <li>Count the <strong>number of levels</strong></li>
+    <li><strong>Sum across all levels</strong> (often geometric series)</li>
+  </ol>
+
+  <p><strong>Example 1:</strong> T(n) = 2T(n/2) + cn &nbsp;(Merge Sort)</p>
+  <pre><code>Level 0:   cn           &rarr; Total: cn
+Level 1:   cn/2 + cn/2  &rarr; Total: cn
+Level 2:   4 &times; cn/4    &rarr; Total: cn
+  ...
+Level i:   2<sup>i</sup> &times; cn/2<sup>i</sup>   &rarr; Total: cn     (every level = cn!)
+  ...
+Level lg n: n &times; c      &rarr; Total: cn
+
+Answer: cn &times; (lg n + 1) = <strong>&Theta;(n log n)</strong>
+(Equal work at every level &mdash; Case 2 behavior)</code></pre>
+
+  <p><strong>Example 2:</strong> T(n) = 3T(n/4) + cn&sup2;</p>
+  <pre><code>Level i: 3<sup>i</sup> nodes, each c(n/4<sup>i</sup>)&sup2;  &rarr;  Total: (3/16)<sup>i</sup> &middot; cn&sup2;
+
+Ratio = 3/16 &lt; 1  (DECREASING series)
+
+T(n) &lt; cn&sup2; &middot; 1/(1 - 3/16) = cn&sup2; &middot; 16/13 = <strong>&Theta;(n&sup2;)</strong>
+(Root dominates &mdash; Case 3 behavior)</code></pre>
+
+  <p><strong>Example 3:</strong> T(n) = T(n/3) + T(2n/3) + cn &nbsp;(Unequal split &mdash; Master fails)</p>
+  <pre><code>Every full level sums to cn.
+Shortest path: log&sub3; n levels.  Longest path: log<sub>3/2</sub> n levels.
+Both are &Theta;(log n), so T(n) = <strong>&Theta;(n log n)</strong></code></pre>
+
+  <p><strong>Example 4:</strong> T(n) = 4T(n/2) + cn</p>
+  <pre><code>Level i: 2<sup>i</sup> &middot; cn  (ratio = 2 &gt; 1, INCREASING)
+Leaves: n<sup>log<sub>2</sub>4</sup> = n&sup2; dominate.  T(n) = <strong>&Theta;(n&sup2;)</strong></code></pre>
+
+  <hr>
+  <h4>Choosing the Right Method</h4>
+  <table>
+    <tr><th>Method</th><th>When to Use</th><th>Pros</th><th>Cons</th></tr>
+    <tr><td><strong>Master Theorem</strong></td><td>Standard form T(n)=aT(n/b)+f(n)</td><td>Instant answer</td><td>Limited applicability, gaps</td></tr>
+    <tr><td><strong>Recursion Tree</strong></td><td>Any recurrence; intuition</td><td>Visual, works for unequal splits</td><td>Can be imprecise</td></tr>
+    <tr><td><strong>Substitution</strong></td><td>Any recurrence; rigorous proof</td><td>Mathematically rigorous</td><td>Need a good initial guess</td></tr>
+  </table>
+  <div class="tip"><strong>Recommended workflow:</strong> Try <strong>Master Theorem</strong> first. If it doesn&rsquo;t apply, draw a <strong>Recursion Tree</strong> to get a guess, then verify with <strong>Substitution</strong>.</div>
+</div>
+
+<!-- ============================================================ -->
+<!-- PRACTICE PROBLEMS -->
+<!-- ============================================================ -->
+<div class="sec-h1" id="practice">Practice Problems with Solutions</div>
+
+<div class="scard">
+  <h4>Problem 1: Analyze PrefixAverages</h4>
+  <pre><code>Algorithm PrefixAverages(X, n)
+    for i &larr; 0 to n-1 do
+        s &larr; 0
+        for j &larr; 0 to i do
+            s &larr; s + X[j]
+        A[i] &larr; s / (i+1)</code></pre>
+  <p><strong>Answer:</strong> Inner loop: &Sigma;(i+1) = n(n+1)/2. <strong>T(n) = &Theta;(n&sup2;)</strong></p>
+</div>
+
+<div class="scard">
+  <h4>Problem 2: Growth Rate Ordering</h4>
+  <p>Order: (log n)&sup2;, &radic;(2n), n<sup>2/3</sup>, n, 2<sup>log n</sup>, n log n, n&sup2;, 2<sup>n</sup>, n!</p>
+  <p><strong>Answer:</strong> Note 2<sup>log&sub2; n</sup> = n and &radic;(2n) = &Theta;(n<sup>1/2</sup>).</p>
+  <pre><code>(log n)&sup2; &lt; n<sup>1/2</sup> &lt; n<sup>2/3</sup> &lt; n = 2<sup>log n</sup> &lt; n log n &lt; n&sup2; &lt; 2<sup>n</sup> &lt; n!</code></pre>
+</div>
+
+<div class="scard">
+  <h4>Problem 3: Prove log(n!) = &Theta;(n log n)</h4>
+  <p><strong>Upper:</strong> n! &le; n<sup>n</sup> &rArr; log(n!) &le; n log n = O(n log n)</p>
+  <p><strong>Lower:</strong> n! &ge; (n/2)<sup>n/2</sup> &rArr; log(n!) &ge; (n/2)log(n/2) = &Omega;(n log n)</p>
+  <p><strong>&there4; log(n!) = &Theta;(n log n)</strong></p>
+</div>
+
+<div class="scard">
+  <h4>Problem 4: Master Theorem</h4>
+  <p>T(n) = 7T(n/2) + n&sup2;. a=7, b=2, n<sup>log&sub2; 7</sup> &asymp; n<sup>2.81</sup>. f(n) = n&sup2; = O(n<sup>2.81-&epsilon;</sup>) &rarr; Case 1.</p>
+  <p><strong>T(n) = &Theta;(n<sup>lg 7</sup>) &asymp; &Theta;(n<sup>2.81</sup>)</strong></p>
+</div>
+
+<div class="scard">
+  <h4>Problem 5: Recursion Tree</h4>
+  <p>T(n) = T(n/4) + T(n/2) + n&sup2;. Level cost ratio &asymp; 5/16 &lt; 1 (decreasing).</p>
+  <p>T(n) &le; cn&sup2; &middot; 16/11 = <strong>&Theta;(n&sup2;)</strong>. Root dominates.</p>
+</div>
+
+<div class="scard">
+  <h4>Problem 6: Substitution with Lower-Order Subtraction</h4>
+  <p>Prove T(n) = 4T(n/2) + n is O(n&sup2;).</p>
+  <pre><code>Guess T(n) &le; cn&sup2; - dn:
+T(n) &le; 4(c(n/2)&sup2; - dn/2) + n = cn&sup2; - 2dn + n = cn&sup2; - dn + n(1-d)
+&le; cn&sup2; - dn   when d &ge; 1.  &check;</code></pre>
+</div>
+
+<div class="scard">
+  <h4>Problem 7: Identify Best/Worst/Average Case</h4>
+  <p>Linear search on unsorted array of n elements:</p>
+  <ul>
+    <li><strong>Best:</strong> O(1) &mdash; element at position 0</li>
+    <li><strong>Worst:</strong> O(n) &mdash; element not present</li>
+    <li><strong>Average:</strong> O(n) &mdash; expected (n+1)/2 comparisons</li>
+  </ul>
+</div>
+
+<!-- Footer -->
+<div style="text-align: center; margin-top: 48px; padding: 20px; color: var(--text-light); font-size: .88em;">
+  <p>Study guide for Chapter 1: Analyzing Algorithms &mdash; BITS Pilani</p>
+  <p>References: Goodrich &amp; Tamassia (2006) Ch 1.1, 1.2 &bull; CLRS (2009) Ch 4.3, 4.4, 4.5</p>
+  <p style="margin-top: 10px;"><a href="Chapter-1-Questions-and-Answers.html">Open Q&amp;A Practice (50 Questions) &rarr;</a></p>
+</div>
+
+</div><!-- container -->
+</body>
+</html>

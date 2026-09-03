@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Session 4: Questions &amp; Answers — DBMS</title>
+<style>
+  :root {
+    --bg: #0f172a; --surface: #1e293b; --surface2: #334155; --border: #475569;
+    --text: #e2e8f0; --text-muted: #94a3b8; --code-bg: #0d1117;
+    --accent: #fb923c; --accent-dim: rgba(251,146,60,0.12);
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: var(--bg); color: var(--text); line-height: 1.7;
+    display: flex; min-height: 100vh;
+  }
+  .sidebar {
+    position: fixed; top: 0; left: 0; width: 280px; height: 100vh;
+    background: var(--surface); border-right: 1px solid var(--border);
+    overflow-y: auto; padding: 24px 16px; z-index: 100;
+    transition: transform 0.3s ease;
+  }
+  .sidebar h3 { color: var(--accent); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 16px; }
+  .sidebar a {
+    display: block; padding: 7px 12px; margin-bottom: 2px; border-radius: 6px;
+    color: var(--text-muted); text-decoration: none; font-size: 0.85rem;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis; transition: all 0.2s;
+  }
+  .sidebar a:hover, .sidebar a.active { background: var(--accent-dim); color: var(--accent); }
+  .sidebar-toggle {
+    display: none; position: fixed; top: 14px; left: 14px; z-index: 200;
+    background: var(--surface2); border: 1px solid var(--border); color: var(--text);
+    width: 40px; height: 40px; border-radius: 8px; font-size: 1.3rem; cursor: pointer;
+  }
+  .main { margin-left: 280px; flex: 1; padding: 48px 40px 80px; max-width: 900px; }
+  .header { margin-bottom: 40px; }
+  .header h1 { font-size: 2rem; font-weight: 700; color: var(--text); }
+  .header .subtitle { color: var(--text-muted); font-size: 1rem; margin-top: 4px; }
+  .controls {
+    display: flex; gap: 12px; align-items: center; flex-wrap: wrap;
+    margin-bottom: 32px; padding: 16px 20px; background: var(--surface);
+    border-radius: 10px; border: 1px solid var(--border);
+  }
+  .controls button {
+    padding: 8px 18px; border-radius: 7px; border: 1px solid var(--border);
+    background: var(--surface2); color: var(--text); font-size: 0.88rem; cursor: pointer; transition: all 0.2s;
+  }
+  .controls button:hover { border-color: var(--accent); color: var(--accent); }
+  .score { margin-left: auto; font-size: 0.95rem; color: var(--text-muted); font-weight: 600; }
+  .score span { color: var(--accent); }
+  .qa-card {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+    margin-bottom: 20px; overflow: hidden; transition: border-color 0.2s;
+  }
+  .qa-card:hover { border-color: var(--accent); }
+  .qa-header {
+    display: flex; align-items: center; gap: 14px; padding: 18px 22px; cursor: pointer; user-select: none;
+  }
+  .badge {
+    flex-shrink: 0; width: 36px; height: 36px; border-radius: 8px;
+    background: var(--accent-dim); color: var(--accent); font-weight: 700; font-size: 0.95rem;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .qa-header .question { flex: 1; font-weight: 600; font-size: 1.05rem; }
+  .qa-header .chevron {
+    flex-shrink: 0; font-size: 1.1rem; color: var(--text-muted); transition: transform 0.3s;
+  }
+  .qa-card.open .chevron { transform: rotate(180deg); }
+  .qa-answer { max-height: 0; overflow: hidden; transition: max-height 0.4s ease; }
+  .qa-card.open .qa-answer { max-height: 8000px; }
+  .answer-body { padding: 0 22px 22px 72px; color: var(--text); }
+  .answer-body p { margin-bottom: 12px; }
+  .answer-body strong { color: var(--text); }
+  .answer-body ul, .answer-body ol { margin: 8px 0 12px 20px; }
+  .answer-body li { margin-bottom: 6px; }
+  .review-check { display: flex; align-items: center; gap: 6px; margin-left: auto; flex-shrink: 0; }
+  .review-check input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--accent); cursor: pointer; }
+  .review-check label { font-size: 0.78rem; color: var(--text-muted); cursor: pointer; }
+  .answer-body table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 0.92rem; }
+  .answer-body th {
+    background: var(--surface2); text-align: left; padding: 10px 14px;
+    border: 1px solid var(--border); color: var(--accent); font-weight: 600;
+  }
+  .answer-body td { padding: 10px 14px; border: 1px solid var(--border); }
+  .answer-body tr:hover td { background: rgba(251,146,60,0.04); }
+  .answer-body pre {
+    background: var(--code-bg); border: 1px solid var(--border); border-radius: 8px;
+    padding: 16px 20px; overflow-x: auto; margin: 12px 0; font-size: 0.88rem; line-height: 1.6;
+  }
+  .answer-body code {
+    font-family: 'Cascadia Code', 'Fira Code', 'Consolas', monospace;
+    background: var(--code-bg); padding: 2px 6px; border-radius: 4px; font-size: 0.88rem;
+  }
+  .answer-body pre code { background: none; padding: 0; }
+  .callout {
+    background: var(--accent-dim); border-left: 4px solid var(--accent);
+    padding: 14px 18px; border-radius: 0 8px 8px 0; margin: 12px 0; font-size: 0.93rem;
+  }
+  @media print {
+    .sidebar, .sidebar-toggle, .controls, .review-check, .chevron { display: none !important; }
+    .main { margin-left: 0; padding: 20px; max-width: 100%; }
+    .qa-answer { max-height: none !important; overflow: visible !important; }
+    .qa-card { break-inside: avoid; border: 1px solid #ccc; }
+    body { background: #fff; color: #000; }
+    .answer-body, .answer-body p, .answer-body li, .answer-body td { color: #000; }
+    .answer-body th { background: #eee; color: #000; }
+    .badge { background: #e0e0e0; color: #000; }
+    .header h1 { color: #000; } .header .subtitle { color: #444; }
+  }
+  @media (max-width: 768px) {
+    .sidebar { transform: translateX(-100%); }
+    .sidebar.open { transform: translateX(0); }
+    .sidebar-toggle { display: flex; align-items: center; justify-content: center; }
+    .main { margin-left: 0; padding: 24px 16px 60px; }
+    .answer-body { padding: 0 16px 18px 16px; }
+  }
+</style>
+</head>
+<body>
+
+<button class="sidebar-toggle" onclick="document.querySelector('.sidebar').classList.toggle('open')">☰</button>
+
+<nav class="sidebar" id="sidebar">
+  <h3>Quick Jump</h3>
+  <a href="#q1">Q1. Two-Phase Commit (2PC)</a>
+  <a href="#q2">Q2. Three-Phase Commit (3PC)</a>
+  <a href="#q3">Q3. Distributed query processing</a>
+  <a href="#q4">Q4. CAP theorem</a>
+  <a href="#q5">Q5. PACELC model</a>
+  <a href="#q6">Q6. ACID vs BASE</a>
+  <a href="#q7">Q7. Eventual consistency</a>
+  <a href="#q8">Q8. Tunable consistency &amp; quorum</a>
+  <a href="#q9">Q9. Quorum calculation (N=5)</a>
+  <a href="#q10">Q10. 2PC vs 3PC vs Paxos vs Raft</a>
+  <a href="#q11">Q11. CAP-C vs ACID-C</a>
+  <a href="#q12">Q12. NewSQL</a>
+  <a href="#q13">Q13. OLTP vs OLAP &amp; star schema</a>
+  <a href="#q14">Q14. Choosing consistency level</a>
+  <a href="#q15">Q15. Distributed recovery</a>
+</nav>
+
+<div class="main">
+  <div class="header">
+    <h1>Session 4: Questions &amp; Answers</h1>
+    <div class="subtitle">Distributed Transactions &amp; Consistency — 15 Questions</div>
+  </div>
+
+  <div class="controls">
+    <button onclick="toggleAll(true)">Show All</button>
+    <button onclick="toggleAll(false)">Hide All</button>
+    <div class="score">Reviewed: <span id="reviewed-count">0</span> / 15</div>
+  </div>
+
+  <!-- Q1 -->
+  <div class="qa-card" id="q1">
+    <div class="qa-header" onclick="toggleCard(this)">
+      <div class="badge">1</div>
+      <div class="question">Explain the Two-Phase Commit (2PC) protocol in detail. What is its critical weakness?</div>
+      <div class="review-check" onclick="event.stopPropagation()">
+        <input type="checkbox" id="r1" onchange="updateScore()"><label for="r1">Reviewed</label>
+      </div>
+      <div class="chevron">▼</div>
+    </div>
+    <div class="qa-answer">
+      <div class="answer-body">
+        <p><strong>2PC</strong> ensures atomicity for distributed transactions — all nodes commit together or abort together.</p>
+        <p><strong>Phase 1 — Voting (Prepare):</strong></p>
+        <ol>
+          <li>Coordinator sends <code>PREPARE</code> to all participants.</li>
+          <li>Each participant checks locally: can I commit? If yes &rarr; writes changes to durable log, sends <code>VOTE YES</code>. If no &rarr; sends <code>VOTE NO</code>, aborts locally.</li>
+        </ol>
+        <p><strong>Phase 2 — Decision:</strong></p>
+        <ol>
+          <li>If ALL voted YES &rarr; coordinator sends <code>GLOBAL COMMIT</code> &rarr; all commit and ACK.</li>
+          <li>If ANY voted NO &rarr; coordinator sends <code>GLOBAL ABORT</code> &rarr; all rollback and ACK.</li>
+        </ol>
+        <div class="callout"><strong>Critical weakness — Blocking:</strong> If the coordinator crashes after Phase 1 (after collecting YES votes but before sending the decision), participants are <strong>stuck</strong>. They voted YES and promised to commit — they can't unilaterally abort or commit. They hold locks and wait indefinitely for the coordinator to recover.</div>
+        <p>This makes 2PC unsuitable for wide-area networks where coordinator failure + network partitions can keep participants blocked for extended periods.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Q2 -->
+  <div class="qa-card" id="q2">
+    <div class="qa-header" onclick="toggleCard(this)">
+      <div class="badge">2</div>
+      <div class="question">How does Three-Phase Commit (3PC) improve on 2PC? What limitation remains?</div>
+      <div class="review-check" onclick="event.stopPropagation()">
+        <input type="checkbox" id="r2" onchange="updateScore()"><label for="r2">Reviewed</label>
+      </div>
+      <div class="chevron">▼</div>
+    </div>
+    <div class="qa-answer">
+      <div class="answer-body">
+        <p>3PC adds a <strong>PreCommit</strong> phase between voting and commit:</p>
+        <ol>
+          <li><strong>CanCommit?</strong> — Same as 2PC Phase 1 (collect votes).</li>
+          <li><strong>PreCommit</strong> — If all voted YES, coordinator sends PreCommit (participants prepare but don't commit).</li>
+          <li><strong>DoCommit</strong> — Coordinator sends final commit.</li>
+        </ol>
+        <p><strong>Improvement:</strong> If the coordinator crashes after PreCommit:</p>
+        <ul>
+          <li>Participants who received PreCommit know the decision was to commit &rarr; they can commit.</li>
+          <li>Participants who did NOT receive PreCommit &rarr; safe to abort.</li>
+        </ul>
+        <div class="callout"><strong>Remaining limitation:</strong> 3PC does <strong>not</strong> handle network partitions correctly. A partition can split participants into two groups — one that received PreCommit (commits) and one that didn't (aborts). The database becomes inconsistent.</div>
+        <p>Modern systems use <strong>Paxos/Raft</strong> instead — they handle both crashes and partitions.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Q3 -->
+  <div class="qa-card" id="q3">
+    <div class="qa-header" onclick="toggleCard(this)">
+      <div class="badge">3</div>
+      <div class="question">Describe the key steps and cost factors in distributed query processing.</div>
+      <div class="review-check" onclick="event.stopPropagation()">
+        <input type="checkbox" id="r3" onchange="updateScore()"><label for="r3">Reviewed</label>
+      </div>
+      <div class="chevron">▼</div>
+    </div>
+    <div class="qa-answer">
+      <div class="answer-body">
+        <p><strong>Steps:</strong></p>
+        <ol>
+          <li><strong>Query Parsing</strong> — Syntax check, validate table/column names.</li>
+          <li><strong>Global Optimization</strong> — Consider data locations, fragment placement, network costs.</li>
+          <li><strong>Fragment Localization</strong> — Map global table names to physical fragments at specific sites.</li>
+          <li><strong>Local Optimization</strong> — Each site optimizes its local sub-query.</li>
+          <li><strong>Distributed Execution</strong> — Execute sub-queries at relevant sites; transfer intermediates.</li>
+          <li><strong>Result Assembly</strong> — Combine partial results at the query origination site.</li>
+        </ol>
+        <p><strong>Cost factors (in order of importance):</strong></p>
+        <table>
+          <tr><th>Factor</th><th>Why it matters</th></tr>
+          <tr><td><strong>Network transfer</strong></td><td><strong>Dominant</strong> — moving data between nodes is the most expensive operation. A good optimizer minimises bytes transferred.</td></tr>
+          <tr><td><strong>Local I/O</strong></td><td>Disk reads/writes at each site. Addressed by local indexes and buffer caching.</td></tr>
+          <tr><td><strong>Local CPU</strong></td><td>Filtering, sorting, joining. Usually least significant on modern hardware.</td></tr>
+        </table>
+        <p><strong>Join strategies:</strong> Ship-whole (send small table), Semi-join (send join keys first to pre-filter), Bloom-filter join (send compact filter), Parallel execution (independent sub-queries simultaneously).</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Q4 -->
+  <div class="qa-card" id="q4">
+    <div class="qa-header" onclick="toggleCard(this)">
+      <div class="badge">4</div>
+      <div class="question">State and explain the CAP theorem. Why is "pick 2 of 3" misleading?</div>
+      <div class="review-check" onclick="event.stopPropagation()">
+        <input type="checkbox" id="r4" onchange="updateScore()"><label for="r4">Reviewed</label>
+      </div>
+      <div class="chevron">▼</div>
+    </div>
+    <div class="qa-answer">
+      <div class="answer-body">
+        <p><strong>CAP Theorem</strong> (Brewer 2000, proved Gilbert &amp; Lynch 2002): In a distributed data store, at most 2 of 3 properties can be guaranteed simultaneously:</p>
+        <table>
+          <tr><th>Property</th><th>Definition</th></tr>
+          <tr><td><strong>Consistency (C)</strong></td><td>Every read returns the most recent write (linearisability). All nodes see the same data.</td></tr>
+          <tr><td><strong>Availability (A)</strong></td><td>Every request gets a non-error response. System always responds.</td></tr>
+          <tr><td><strong>Partition Tolerance (P)</strong></td><td>System operates despite network failures between nodes.</td></tr>
+        </table>
+        <div class="callout"><strong>Why "pick 2" is misleading:</strong> Network partitions <strong>will</strong> happen in any real distributed system — cables break, switches fail, cloud regions disconnect. Since <strong>P is mandatory</strong> (not a choice), the real question is: <strong>During a partition, sacrifice C or A?</strong></div>
+        <ul>
+          <li><strong>CP:</strong> Return errors/block rather than stale data. (HBase, Zookeeper, MongoDB default)</li>
+          <li><strong>AP:</strong> Return possibly stale data rather than errors. (Cassandra, DynamoDB, CouchDB)</li>
+          <li><strong>CA:</strong> Only possible without partitions — single-server systems. Not a real distributed option.</li>
+        </ul>
+        <p>Most real systems offer <strong>tunable consistency</strong>, not a binary CP/AP choice.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Q5 -->
+  <div class="qa-card" id="q5">
+    <div class="qa-header" onclick="toggleCard(this)">
+      <div class="badge">5</div>
+      <div class="question">What is the PACELC model? How does it extend CAP?</div>
+      <div class="review-check" onclick="event.stopPropagation()">
+        <input type="checkbox" id="r5" onchange="updateScore()"><label for="r5">Reviewed</label>
+      </div>
+      <div class="chevron">▼</div>
+    </div>
+    <div class="qa-answer">
+      <div class="answer-body">
+        <p><strong>PACELC</strong> (Daniel Abadi) adds a second dimension to CAP:</p>
+        <ul>
+          <li><strong>If Partition (P):</strong> choose <strong>Availability (A)</strong> or <strong>Consistency (C)</strong>.</li>
+          <li><strong>Else (E)</strong> (normal operation, no partition): choose <strong>Latency (L)</strong> or <strong>Consistency (C)</strong>.</li>
+        </ul>
+        <p>CAP only describes behaviour during partitions. PACELC recognises that even during normal operation, there's a trade-off: strong consistency requires inter-node coordination, which adds latency.</p>
+        <table>
+          <tr><th>System</th><th>During Partition</th><th>Normal Operation</th></tr>
+          <tr><td>Cassandra</td><td>PA (availability)</td><td>EL (low latency)</td></tr>
+          <tr><td>HBase</td><td>PC (consistency)</td><td>EC (consistency)</td></tr>
+          <tr><td>DynamoDB</td><td>PA (availability)</td><td>EL (low latency)</td></tr>
+          <tr><td>CockroachDB</td><td>PC (consistency)</td><td>EC (consistency)</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Q6 -->
+  <div class="qa-card" id="q6">
+    <div class="qa-header" onclick="toggleCard(this)">
+      <div class="badge">6</div>
+      <div class="question">Compare ACID and BASE in detail with examples.</div>
+      <div class="review-check" onclick="event.stopPropagation()">
+        <input type="checkbox" id="r6" onchange="updateScore()"><label for="r6">Reviewed</label>
+      </div>
+      <div class="chevron">▼</div>
+    </div>
+    <div class="qa-answer">
+      <div class="answer-body">
+        <table>
+          <tr><th>Aspect</th><th>ACID</th><th>BASE</th></tr>
+          <tr><td><strong>Consistency</strong></td><td>Strong (immediate). All reads return latest write.</td><td>Eventual. Replicas converge over time.</td></tr>
+          <tr><td><strong>Availability</strong></td><td>May sacrifice — reject requests if consistency can't be guaranteed.</td><td>Prioritises — always respond, even with stale data.</td></tr>
+          <tr><td><strong>Scalability</strong></td><td>Harder horizontally (distributed locks, 2PC).</td><td>Built for horizontal scale (no coordination overhead).</td></tr>
+          <tr><td><strong>Use cases</strong></td><td>Bank transfers, inventory, flight bookings.</td><td>Social feeds, product reviews, analytics, IoT.</td></tr>
+          <tr><td><strong>App complexity</strong></td><td>Simpler — DB handles correctness.</td><td>Higher — app handles stale reads, conflicts.</td></tr>
+          <tr><td><strong>Write latency</strong></td><td>Higher (synchronous replication, lock coordination).</td><td>Lower (write locally, replicate async).</td></tr>
+        </table>
+        <p><strong>Real-world mix:</strong> A bank uses ACID for balance updates but BASE for generating monthly statements (analytics). An e-commerce site uses ACID for inventory (prevent overselling) but BASE for product recommendations.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Q7 -->
+  <div class="qa-card" id="q7">
+    <div class="qa-header" onclick="toggleCard(this)">
+      <div class="badge">7</div>
+      <div class="question">Explain eventual consistency and its variants.</div>
+      <div class="review-check" onclick="event.stopPropagation()">
+        <input type="checkbox" id="r7" onchange="updateScore()"><label for="r7">Reviewed</label>
+      </div>
+      <div class="chevron">▼</div>
+    </div>
+    <div class="qa-answer">
+      <div class="answer-body">
+        <p><strong>Eventual consistency:</strong> If no new updates are made, all replicas will eventually converge to the same value. No guarantee about when.</p>
+        <p><strong>Variants (increasingly strong):</strong></p>
+        <table>
+          <tr><th>Variant</th><th>Guarantee</th><th>Example</th></tr>
+          <tr><td><strong>Causal</strong></td><td>If A happened-before B, everyone sees A before B.</td><td>Post before reply is always visible in that order.</td></tr>
+          <tr><td><strong>Read-your-writes</strong></td><td>After writing, the same client always sees its own update.</td><td>You update your bio &rarr; you always see the new bio, not the old one.</td></tr>
+          <tr><td><strong>Monotonic reads</strong></td><td>Once you see a value, you never see an older value.</td><td>If you see 15 likes, next refresh never shows 12.</td></tr>
+          <tr><td><strong>Monotonic writes</strong></td><td>Same client's writes applied in order.</td><td>Setting name to "Alice" then "Alicia" &rarr; never applied in reverse.</td></tr>
+          <tr><td><strong>Session</strong></td><td>Read-your-writes + monotonic reads within a session.</td><td>Most web apps use this — your session is consistent.</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Q8 -->
+  <div class="qa-card" id="q8">
+    <div class="qa-header" onclick="toggleCard(this)">
+      <div class="badge">8</div>
+      <div class="question">What is tunable consistency? Explain the quorum formula R + W &gt; N.</div>
+      <div class="review-check" onclick="event.stopPropagation()">
+        <input type="checkbox" id="r8" onchange="updateScore()"><label for="r8">Reviewed</label>
+      </div>
+      <div class="chevron">▼</div>
+    </div>
+    <div class="qa-answer">
+      <div class="answer-body">
+        <p><strong>Tunable consistency</strong> lets you choose the consistency level per query, trading latency for freshness.</p>
+        <p><strong>Cassandra example:</strong></p>
+        <table>
+          <tr><th>Level</th><th>Replicas that must ACK</th><th>Speed</th><th>Consistency</th></tr>
+          <tr><td><code>ONE</code></td><td>1</td><td>Fastest</td><td>Weakest (may read stale)</td></tr>
+          <tr><td><code>QUORUM</code></td><td>&lfloor;N/2&rfloor; + 1</td><td>Moderate</td><td>Strong if paired with quorum writes</td></tr>
+          <tr><td><code>ALL</code></td><td>N</td><td>Slowest</td><td>Strongest (but fails if any replica down)</td></tr>
+        </table>
+        <p><strong>Quorum formula: R + W &gt; N</strong></p>
+        <p>Where R = replicas read, W = replicas written, N = total replicas. If this holds, at least one replica in every read set has the latest write.</p>
+        <p><strong>N=3 examples:</strong></p>
+        <ul>
+          <li>W=2, R=2: 4 &gt; 3 &rarr; <strong>Strong</strong> &#10003;</li>
+          <li>W=1, R=1: 2 &le; 3 &rarr; <strong>Not strong</strong> &#10007; (read might miss latest write)</li>
+          <li>W=3, R=1: 4 &gt; 3 &rarr; <strong>Strong</strong> &#10003; (but writes are slow)</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- Q9 -->
+  <div class="qa-card" id="q9">
+    <div class="qa-header" onclick="toggleCard(this)">
+      <div class="badge">9</div>
+      <div class="question">A system has N=5 replicas. If W=3, R=3: is strong consistency guaranteed? What about W=3, R=2?</div>
+      <div class="review-check" onclick="event.stopPropagation()">
+        <input type="checkbox" id="r9" onchange="updateScore()"><label for="r9">Reviewed</label>
+      </div>
+      <div class="chevron">▼</div>
+    </div>
+    <div class="qa-answer">
+      <div class="answer-body">
+        <p><strong>Case 1: W=3, R=3, N=5</strong></p>
+        <p>R + W = 6 &gt; 5 &rarr; <strong>Yes, strong consistency guaranteed.</strong> At least one replica in the read set must overlap with the write set.</p>
+        <p><strong>Case 2: W=3, R=2, N=5</strong></p>
+        <p>R + W = 5 = 5 &rarr; <strong>No, NOT guaranteed.</strong> The formula requires R + W <strong>strictly greater than</strong> N. With equality, a scenario exists where the read set and write set have zero overlap (due to timing).</p>
+        <p><strong>Fix:</strong> Increase R to 3 (making R+W=6&gt;5) or increase W to 4 (R+W=6&gt;5).</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Q10 -->
+  <div class="qa-card" id="q10">
+    <div class="qa-header" onclick="toggleCard(this)">
+      <div class="badge">10</div>
+      <div class="question">Compare 2PC, 3PC, Paxos, and Raft. When would you use each?</div>
+      <div class="review-check" onclick="event.stopPropagation()">
+        <input type="checkbox" id="r10" onchange="updateScore()"><label for="r10">Reviewed</label>
+      </div>
+      <div class="chevron">▼</div>
+    </div>
+    <div class="qa-answer">
+      <div class="answer-body">
+        <table>
+          <tr><th>Protocol</th><th>Purpose</th><th>Blocking?</th><th>Partition tolerant?</th><th>Fault tolerance</th><th>When to use</th></tr>
+          <tr><td><strong>2PC</strong></td><td>Atomic distributed commit</td><td>Yes (coordinator crash)</td><td>No</td><td>Coordinator = SPOF</td><td>Traditional distributed transactions within a single data centre.</td></tr>
+          <tr><td><strong>3PC</strong></td><td>Reduce 2PC blocking</td><td>Partially</td><td>Not fully</td><td>Better than 2PC</td><td>Theoretical improvement; rarely used in practice.</td></tr>
+          <tr><td><strong>Paxos</strong></td><td>Distributed consensus</td><td>No (leader election)</td><td>Yes (majority quorum)</td><td>&lt; N/2 failures</td><td>Foundation for distributed systems. Used in Google Spanner (Multi-Paxos).</td></tr>
+          <tr><td><strong>Raft</strong></td><td>Consensus (understandable)</td><td>No (automatic leader election)</td><td>Yes (majority quorum)</td><td>&lt; N/2 failures</td><td>etcd (Kubernetes), CockroachDB, TiKV, Consul. Preferred over Paxos for new implementations due to clarity.</td></tr>
+        </table>
+        <div class="callout"><strong>Modern pattern:</strong> Use Raft/Paxos for replication and leader election, build transaction protocols on top. This eliminates 2PC's coordinator SPOF.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Q11 -->
+  <div class="qa-card" id="q11">
+    <div class="qa-header" onclick="toggleCard(this)">
+      <div class="badge">11</div>
+      <div class="question">Explain the difference between Consistency in CAP vs Consistency in ACID.</div>
+      <div class="review-check" onclick="event.stopPropagation()">
+        <input type="checkbox" id="r11" onchange="updateScore()"><label for="r11">Reviewed</label>
+      </div>
+      <div class="chevron">▼</div>
+    </div>
+    <div class="qa-answer">
+      <div class="answer-body">
+        <p>Despite sharing the same word, these are <strong>completely different concepts:</strong></p>
+        <table>
+          <tr><th>ACID Consistency</th><th>CAP Consistency</th></tr>
+          <tr><td>Database moves from one <strong>valid state</strong> to another. All integrity constraints (PK, FK, CHECK, domain) satisfied before and after a transaction.</td><td>Every read returns the <strong>most recent write</strong> — <strong>linearisability</strong>. All nodes see the same data at the same time.</td></tr>
+          <tr><td>About <strong>correctness of data</strong> (constraint satisfaction).</td><td>About <strong>freshness and agreement</strong> across distributed replicas.</td></tr>
+          <tr><td>Enforced by constraint checking at commit time.</td><td>Enforced by replication and consensus protocols.</td></tr>
+          <tr><td>Relevant even in a <strong>single-node</strong> database.</td><td>Only relevant in <strong>distributed</strong> systems with replicated data.</td></tr>
+        </table>
+        <p>A system can satisfy ACID-C (all constraints valid) while violating CAP-C (replicas temporarily disagree). The terms should never be confused.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Q12 -->
+  <div class="qa-card" id="q12">
+    <div class="qa-header" onclick="toggleCard(this)">
+      <div class="badge">12</div>
+      <div class="question">What is NewSQL? How does it achieve ACID + horizontal scalability?</div>
+      <div class="review-check" onclick="event.stopPropagation()">
+        <input type="checkbox" id="r12" onchange="updateScore()"><label for="r12">Reviewed</label>
+      </div>
+      <div class="chevron">▼</div>
+    </div>
+    <div class="qa-answer">
+      <div class="answer-body">
+        <p><strong>NewSQL</strong> databases combine relational SQL + ACID transactions + horizontal scalability + high availability.</p>
+        <p><strong>How they achieve this:</strong></p>
+        <ul>
+          <li><strong>Consensus protocols (Raft/Paxos)</strong> for leader election and log replication — replaces 2PC, eliminates coordinator SPOF.</li>
+          <li><strong>MVCC + distributed timestamps</strong> for isolation without distributed locking. Spanner uses TrueTime (GPS clocks); CockroachDB uses Hybrid Logical Clocks.</li>
+          <li><strong>Automatic sharding</strong> — data partitioned across nodes, rebalanced automatically as nodes are added/removed.</li>
+        </ul>
+        <table>
+          <tr><th>System</th><th>Key Feature</th></tr>
+          <tr><td>Google Spanner</td><td>Global distribution, TrueTime (GPS + atomic clocks).</td></tr>
+          <tr><td>CockroachDB</td><td>Open-source, Raft, PostgreSQL-compatible.</td></tr>
+          <tr><td>YugabyteDB</td><td>Raft, PostgreSQL + Cassandra APIs.</td></tr>
+          <tr><td>TiDB</td><td>MySQL-compatible, TiKV storage layer.</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Q13 -->
+  <div class="qa-card" id="q13">
+    <div class="qa-header" onclick="toggleCard(this)">
+      <div class="badge">13</div>
+      <div class="question">Compare OLTP and OLAP. What is a star schema?</div>
+      <div class="review-check" onclick="event.stopPropagation()">
+        <input type="checkbox" id="r13" onchange="updateScore()"><label for="r13">Reviewed</label>
+      </div>
+      <div class="chevron">▼</div>
+    </div>
+    <div class="qa-answer">
+      <div class="answer-body">
+        <table>
+          <tr><th>Aspect</th><th>OLTP</th><th>OLAP</th></tr>
+          <tr><td>Purpose</td><td>Day-to-day operations (orders, transfers).</td><td>Business analysis (quarterly reports).</td></tr>
+          <tr><td>Queries</td><td>Short, simple, frequent.</td><td>Complex, long-running aggregations.</td></tr>
+          <tr><td>Data</td><td>Current, detailed, normalised (3NF).</td><td>Historical, summarised, denormalised.</td></tr>
+          <tr><td>Users</td><td>App users, clerks.</td><td>Analysts, managers.</td></tr>
+          <tr><td>Systems</td><td>PostgreSQL, MySQL, Oracle.</td><td>Redshift, BigQuery, Snowflake.</td></tr>
+        </table>
+        <p><strong>Star schema:</strong> A fact table (measures + FKs) at the centre, surrounded by denormalised dimension tables (who/what/when/where). Optimised for analytical queries with fast joins.</p>
+        <p><strong>Snowflake schema:</strong> Same as star but dimension tables are normalised. Saves space, needs more joins.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Q14 -->
+  <div class="qa-card" id="q14">
+    <div class="qa-header" onclick="toggleCard(this)">
+      <div class="badge">14</div>
+      <div class="question">How do you choose between strong and eventual consistency for a system?</div>
+      <div class="review-check" onclick="event.stopPropagation()">
+        <input type="checkbox" id="r14" onchange="updateScore()"><label for="r14">Reviewed</label>
+      </div>
+      <div class="chevron">▼</div>
+    </div>
+    <div class="qa-answer">
+      <div class="answer-body">
+        <p><strong>Decision framework:</strong></p>
+        <ol>
+          <li><strong>Is the data safety-critical?</strong> (money, health records, inventory)
+            <ul><li><strong>Yes &rarr; Strong consistency</strong> (ACID / CP / NewSQL). Incorrect data could cause financial loss, health risk, or overselling.</li></ul>
+          </li>
+          <li><strong>Can the app tolerate temporary stale reads?</strong>
+            <ul><li><strong>Yes &rarr; Eventual consistency</strong> (BASE / AP). Enjoy better scalability and lower latency. Suitable for social feeds, recommendations, analytics.</li></ul>
+          </li>
+          <li><strong>Need a middle ground?</strong>
+            <ul><li><strong>Causal or session consistency</strong> — stronger than basic eventual, cheaper than full linearisability. Good for user profile reads, activity feeds.</li></ul>
+          </li>
+        </ol>
+        <div class="callout"><strong>Best practice: Mix models in the same system.</strong>
+          <ul style="margin-top:8px;">
+            <li>ACID for the payment service (correctness critical).</li>
+            <li>Eventual consistency for the recommendation engine (staleness is fine).</li>
+            <li>Session consistency for user profile reads (user sees own changes immediately).</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Q15 -->
+  <div class="qa-card" id="q15">
+    <div class="qa-header" onclick="toggleCard(this)">
+      <div class="badge">15</div>
+      <div class="question">Explain distributed recovery. How does a system handle 2PC coordinator failure?</div>
+      <div class="review-check" onclick="event.stopPropagation()">
+        <input type="checkbox" id="r15" onchange="updateScore()"><label for="r15">Reviewed</label>
+      </div>
+      <div class="chevron">▼</div>
+    </div>
+    <div class="qa-answer">
+      <div class="answer-body">
+        <p><strong>Types of distributed failure:</strong></p>
+        <ol>
+          <li><strong>Node crash</strong> — Node restarts and recovers local state via its WAL (UNDO/REDO).</li>
+          <li><strong>Network partition</strong> — Nodes can't communicate temporarily. Reconcile when network heals.</li>
+          <li><strong>2PC coordinator crash</strong> — Participants holding YES votes are stuck.</li>
+        </ol>
+        <p><strong>Handling coordinator failure:</strong></p>
+        <ol>
+          <li><strong>Log-based:</strong> Coordinator reads its log on restart. If <code>GLOBAL COMMIT</code> logged &rarr; re-send commit. If <code>GLOBAL ABORT</code> logged &rarr; re-send abort. If neither &rarr; abort (safe default, no promise was made).</li>
+          <li><strong>Participant inquiry:</strong> Blocked participant asks other participants what they voted. If any voted NO &rarr; all can abort. If all voted YES but no decision received &rarr; must wait (blocking case).</li>
+          <li><strong>Cooperative termination:</strong> Participants talk to each other (not just coordinator) to determine outcome. If any participant knows the decision (received it before crash), it shares with others.</li>
+        </ol>
+        <div class="callout"><strong>Modern solution:</strong> Use Raft/Paxos for replication. When a leader (coordinator) crashes, a new leader is elected within seconds. Transaction decisions stored in the replicated log survive node failures. No blocking.</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  function toggleCard(header) { header.closest('.qa-card').classList.toggle('open'); }
+  function toggleAll(show) { document.querySelectorAll('.qa-card').forEach(c => { if (show) c.classList.add('open'); else c.classList.remove('open'); }); }
+  function updateScore() { document.getElementById('reviewed-count').textContent = document.querySelectorAll('.review-check input:checked').length; }
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) { document.querySelectorAll('.sidebar a').forEach(a => a.classList.remove('active')); const link = document.querySelector('.sidebar a[href="#' + e.target.id + '"]'); if (link) link.classList.add('active'); } });
+  }, { rootMargin: '-20% 0px -70% 0px' });
+  document.querySelectorAll('.qa-card').forEach(c => observer.observe(c));
+</script>
+</body>
+</html>

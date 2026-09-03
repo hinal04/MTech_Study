@@ -1,0 +1,1452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DBMS Study Content — Structured Data Management &amp; Distributed Databases</title>
+<style>
+  :root {
+    --bg: #0f172a;
+    --surface: #1e293b;
+    --surface2: #334155;
+    --border: #475569;
+    --text: #e2e8f0;
+    --text-muted: #94a3b8;
+    --accent: #38bdf8;
+    --accent2: #818cf8;
+    --accent3: #34d399;
+    --accent4: #fb923c;
+    --code-bg: #0d1117;
+    --session1: #38bdf8;
+    --session2: #818cf8;
+    --session3: #34d399;
+    --session4: #fb923c;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.7;
+    font-size: 16px;
+  }
+
+  /* Sidebar Navigation */
+  .sidebar {
+    position: fixed;
+    top: 0; left: 0;
+    width: 280px;
+    height: 100vh;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    overflow-y: auto;
+    z-index: 100;
+    padding: 20px 0;
+    transition: transform 0.3s ease;
+  }
+  .sidebar.closed { transform: translateX(-280px); }
+  .sidebar-title {
+    padding: 0 20px 16px;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--accent);
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 12px;
+    letter-spacing: 0.5px;
+  }
+  .nav-section {
+    padding: 8px 20px;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-muted);
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .nav-section::after { content: '▾'; font-size: 10px; }
+  .nav-section.collapsed::after { content: '▸'; }
+  .nav-group { padding: 0; }
+  .nav-group.hidden { display: none; }
+  .nav-group a {
+    display: block;
+    padding: 5px 20px 5px 28px;
+    color: var(--text-muted);
+    text-decoration: none;
+    font-size: 13px;
+    border-left: 3px solid transparent;
+    transition: all 0.2s;
+  }
+  .nav-group a:hover, .nav-group a.active {
+    color: var(--text);
+    background: rgba(56, 189, 248, 0.08);
+    border-left-color: var(--accent);
+  }
+  .nav-s1 a:hover, .nav-s1 a.active { border-left-color: var(--session1); }
+  .nav-s2 a:hover, .nav-s2 a.active { border-left-color: var(--session2); }
+  .nav-s3 a:hover, .nav-s3 a.active { border-left-color: var(--session3); }
+  .nav-s4 a:hover, .nav-s4 a.active { border-left-color: var(--session4); }
+
+  /* Toggle button */
+  .sidebar-toggle {
+    position: fixed;
+    top: 16px; left: 290px;
+    z-index: 101;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    width: 36px; height: 36px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: left 0.3s ease;
+  }
+  .sidebar-toggle.shifted { left: 10px; }
+
+  /* Main content */
+  .main {
+    margin-left: 280px;
+    max-width: 900px;
+    padding: 40px 48px 80px;
+    transition: margin-left 0.3s ease;
+  }
+  .main.expanded { margin-left: 0; max-width: 960px; margin: 0 auto; }
+
+  /* Header */
+  .page-header {
+    text-align: center;
+    padding-bottom: 40px;
+    border-bottom: 2px solid var(--border);
+    margin-bottom: 48px;
+  }
+  .page-header h1 {
+    font-size: 2rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 12px;
+  }
+  .page-header p { color: var(--text-muted); font-size: 14px; }
+  .ref-box {
+    background: var(--surface);
+    border-left: 4px solid var(--accent2);
+    border-radius: 0 8px 8px 0;
+    padding: 16px 20px;
+    margin-top: 20px;
+    text-align: left;
+    font-size: 14px;
+    color: var(--text-muted);
+  }
+  .ref-box strong { color: var(--text); }
+
+  /* Session headers */
+  .session-banner {
+    margin-top: 56px;
+    margin-bottom: 32px;
+    padding: 24px 28px;
+    border-radius: 12px;
+    position: relative;
+    overflow: hidden;
+  }
+  .session-banner::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    opacity: 0.12;
+    border-radius: 12px;
+  }
+  .session-banner h2 {
+    font-size: 1.5rem;
+    font-weight: 800;
+    margin-bottom: 6px;
+  }
+  .session-banner .ref {
+    font-size: 13px;
+    opacity: 0.7;
+    font-style: italic;
+  }
+  .s1-banner { border: 1px solid var(--session1); background: rgba(56,189,248,0.06); }
+  .s1-banner h2 { color: var(--session1); }
+  .s2-banner { border: 1px solid var(--session2); background: rgba(129,140,248,0.06); }
+  .s2-banner h2 { color: var(--session2); }
+  .s3-banner { border: 1px solid var(--session3); background: rgba(52,211,153,0.06); }
+  .s3-banner h2 { color: var(--session3); }
+  .s4-banner { border: 1px solid var(--session4); background: rgba(251,146,60,0.06); }
+  .s4-banner h2 { color: var(--session4); }
+
+  /* Section headings */
+  h3 {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--text);
+    margin: 40px 0 16px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--surface2);
+  }
+  h4 {
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--accent);
+    margin: 28px 0 12px;
+  }
+  h5 {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--accent3);
+    margin: 20px 0 8px;
+  }
+  p { margin-bottom: 14px; }
+
+  /* Tables */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 16px 0 24px;
+    font-size: 14px;
+  }
+  thead th {
+    background: var(--surface2);
+    color: var(--accent);
+    font-weight: 700;
+    text-align: left;
+    padding: 10px 14px;
+    border: 1px solid var(--border);
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+  }
+  tbody td {
+    padding: 10px 14px;
+    border: 1px solid var(--surface2);
+    vertical-align: top;
+  }
+  tbody tr:nth-child(even) { background: rgba(30,41,59,0.5); }
+  tbody tr:hover { background: rgba(56,189,248,0.05); }
+
+  /* Code blocks */
+  pre {
+    background: var(--code-bg);
+    border: 1px solid var(--surface2);
+    border-radius: 8px;
+    padding: 16px 20px;
+    overflow-x: auto;
+    margin: 16px 0 24px;
+    font-size: 13.5px;
+    line-height: 1.6;
+  }
+  code {
+    font-family: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
+    font-size: 0.9em;
+  }
+  p code, li code, td code {
+    background: var(--surface2);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.85em;
+    color: var(--accent3);
+  }
+  pre code {
+    background: none;
+    padding: 0;
+    color: var(--text);
+  }
+
+  /* SQL highlighting */
+  .sql-kw { color: #818cf8; font-weight: 600; }
+  .sql-fn { color: #34d399; }
+  .sql-str { color: #fbbf24; }
+  .sql-comment { color: #6b7280; font-style: italic; }
+
+  /* Lists */
+  ul, ol {
+    margin: 8px 0 16px 24px;
+  }
+  li { margin-bottom: 6px; }
+  li strong { color: var(--accent); }
+
+  /* Diagram / ASCII art boxes */
+  .diagram {
+    background: var(--code-bg);
+    border: 1px solid var(--surface2);
+    border-radius: 8px;
+    padding: 16px 20px;
+    overflow-x: auto;
+    margin: 16px 0 24px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    line-height: 1.5;
+    white-space: pre;
+    color: var(--text-muted);
+  }
+
+  /* Callout / note boxes */
+  .note {
+    background: rgba(56,189,248,0.06);
+    border-left: 4px solid var(--accent);
+    border-radius: 0 8px 8px 0;
+    padding: 14px 18px;
+    margin: 16px 0 24px;
+    font-size: 14px;
+  }
+  .note strong { color: var(--accent); }
+  .note.warn {
+    background: rgba(251,146,60,0.06);
+    border-left-color: var(--accent4);
+  }
+  .note.warn strong { color: var(--accent4); }
+  .note.success {
+    background: rgba(52,211,153,0.06);
+    border-left-color: var(--accent3);
+  }
+  .note.success strong { color: var(--accent3); }
+
+  /* Back to top */
+  .back-top {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    background: var(--accent);
+    color: var(--bg);
+    width: 44px; height: 44px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+    opacity: 0;
+    transition: opacity 0.3s;
+    text-decoration: none;
+    z-index: 100;
+  }
+  .back-top.visible { opacity: 1; }
+
+  /* Progress bar */
+  .progress-bar {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--session1), var(--session2), var(--session3), var(--session4));
+    z-index: 200;
+    transform-origin: left;
+    transform: scaleX(0);
+  }
+
+  /* Responsive */
+  @media (max-width: 900px) {
+    .sidebar { transform: translateX(-280px); }
+    .sidebar.open { transform: translateX(0); }
+    .sidebar-toggle { left: 10px; }
+    .sidebar-toggle.shifted { left: 10px; }
+    .main { margin-left: 0; padding: 24px 20px 60px; }
+  }
+
+  /* Print */
+  @media print {
+    .sidebar, .sidebar-toggle, .back-top, .progress-bar { display: none; }
+    .main { margin-left: 0; max-width: 100%; }
+    body { background: #fff; color: #1a1a1a; }
+    pre, .diagram { background: #f5f5f5; border-color: #ddd; }
+    table { font-size: 12px; }
+    thead th { background: #e5e5e5; color: #333; }
+    .session-banner { border-color: #ccc; background: #f9f9f9; }
+    .session-banner h2 { color: #333; }
+  }
+</style>
+</head>
+<body>
+
+<div class="progress-bar" id="progressBar"></div>
+
+<!-- Sidebar -->
+<nav class="sidebar" id="sidebar" role="navigation" aria-label="Table of contents">
+  <div class="sidebar-title">DBMS Study Content</div>
+
+  <div class="nav-section" onclick="toggleNav(this)">Session 1 &mdash; Foundations</div>
+  <div class="nav-group nav-s1">
+    <a href="#s1">Session Overview</a>
+    <a href="#s1-1">1.1 Introduction</a>
+    <a href="#s1-2">1.2 File Systems &rarr; DBMS</a>
+    <a href="#s1-3">1.3 Data Management Concepts</a>
+    <a href="#s1-4">1.4 Relational Fundamentals</a>
+    <a href="#s1-5">1.5 ER Modelling</a>
+    <a href="#s1-6">1.6 Normalisation</a>
+    <a href="#s1-7">1.7 DBMS Architecture</a>
+    <a href="#s1-8">1.8 Indexing &amp; File Structures</a>
+    <a href="#s1-9">1.9 Views</a>
+    <a href="#s1-10">1.10 Procedures, Functions, Triggers</a>
+  </div>
+
+  <div class="nav-section" onclick="toggleNav(this)">Session 2 &mdash; SQL &amp; Transactions</div>
+  <div class="nav-group nav-s2">
+    <a href="#s2">Session Overview</a>
+    <a href="#s2-1">2.1 SQL Overview</a>
+    <a href="#s2-2">2.2 DDL Statements</a>
+    <a href="#s2-3">2.3 DML Statements</a>
+    <a href="#s2-4">2.4 SELECT Queries</a>
+    <a href="#s2-5">2.5 Joins</a>
+    <a href="#s2-6">2.6 Subqueries</a>
+    <a href="#s2-7">2.7 Transactions &amp; ACID</a>
+    <a href="#s2-8">2.8 Schema Evolution</a>
+    <a href="#s2-9">2.9 Limits of RDBMS</a>
+    <a href="#s2-10">2.10 Concurrency Control</a>
+    <a href="#s2-11">2.11 Recovery Techniques</a>
+    <a href="#s2-12">2.12 Advanced SQL</a>
+  </div>
+
+  <div class="nav-section" onclick="toggleNav(this)">Session 3 &mdash; Distributed Foundations</div>
+  <div class="nav-group nav-s3">
+    <a href="#s3">Session Overview</a>
+    <a href="#s3-1">3.1 Need for Distribution</a>
+    <a href="#s3-2">3.2 Architecture</a>
+    <a href="#s3-3">3.3 Data Partitioning</a>
+    <a href="#s3-4">3.4 Replication</a>
+    <a href="#s3-5">3.5 Distributed Concurrency</a>
+    <a href="#s3-6">3.6 Catalog Management</a>
+    <a href="#s3-7">3.7 Design Considerations</a>
+  </div>
+
+  <div class="nav-section" onclick="toggleNav(this)">Session 4 &mdash; Distributed Txns &amp; Consistency</div>
+  <div class="nav-group nav-s4">
+    <a href="#s4">Session Overview</a>
+    <a href="#s4-1">4.1 Distributed Transactions</a>
+    <a href="#s4-2">4.2 Distributed Query Processing</a>
+    <a href="#s4-3">4.3 CAP Theorem</a>
+    <a href="#s4-4">4.4 ACID vs BASE</a>
+    <a href="#s4-5">4.5 Decision Framework</a>
+    <a href="#s4-6">4.6 Paxos &amp; Raft</a>
+    <a href="#s4-7">4.7 Distributed Recovery</a>
+    <a href="#s4-8">4.8 NewSQL</a>
+    <a href="#s4-9">4.9 Data Warehousing</a>
+  </div>
+</nav>
+
+<button class="sidebar-toggle" id="sidebarToggle" onclick="toggleSidebar()" aria-label="Toggle sidebar">&#9776;</button>
+
+<!-- Main Content -->
+<div class="main" id="mainContent">
+
+<!-- PAGE HEADER -->
+<header class="page-header">
+  <h1>Structured Data Management &amp; Distributed Databases</h1>
+  <p>Complete Study Content &mdash; Sessions 1 through 4</p>
+  <div class="ref-box">
+    <strong>Textbooks:</strong><br>
+    T1: Elmasri &amp; Navathe, <em>Fundamentals of Database Systems</em>, 7th Ed., Pearson, 2017.<br>
+    T2: Kleppmann, <em>Designing Data-Intensive Applications</em>, 1st Ed., O'Reilly, 2017.<br><br>
+    <strong>References:</strong><br>
+    R1: Ponniah, <em>Data Warehousing Fundamentals</em>, 2nd Ed., Wiley, 2010. &nbsp;|&nbsp; R2: Same as T2.
+  </div>
+</header>
+
+<!-- ========================================== -->
+<!-- SESSION 1 -->
+<!-- ========================================== -->
+<div class="session-banner s1-banner" id="s1">
+  <h2>SESSION 1 &mdash; Foundations of Structured Data Management</h2>
+  <div class="ref">T1 Ch.1 (Sec 1.2, 1.3, 1.6) | Ch.3 (Sec 3.3, 3.4, 3.6) | Ch.5 (Sec 5.1, 5.2) | Ch.6</div>
+</div>
+
+<h3 id="s1-1">1.1 Introduction to Data Management Systems</h3>
+<p>A <strong>Data Management System</strong> is software that captures, stores, organises, and retrieves data so that users and applications can work with it efficiently and reliably.</p>
+
+<h4>Why formal data management matters</h4>
+<table>
+  <thead><tr><th>Concern</th><th>Explanation</th></tr></thead>
+  <tbody>
+    <tr><td><strong>Data sharing</strong></td><td>Multiple users and applications need concurrent access to the same data.</td></tr>
+    <tr><td><strong>Integrity</strong></td><td>Rules (constraints) must keep data correct at all times.</td></tr>
+    <tr><td><strong>Efficiency</strong></td><td>As data grows, brute-force searching becomes impractical &mdash; indexed structures are essential.</td></tr>
+    <tr><td><strong>Security</strong></td><td>Only authorised users should read or modify specific data.</td></tr>
+    <tr><td><strong>Recovery</strong></td><td>After a crash, data must be restored to a consistent state.</td></tr>
+  </tbody>
+</table>
+
+<h3 id="s1-2">1.2 Evolution: File Systems &rarr; DBMS</h3>
+<h4>1.2.1 The File System Era</h4>
+<p>In early computing every application managed its own flat files. This caused well-known problems:</p>
+<table>
+  <thead><tr><th>Problem</th><th>What goes wrong</th></tr></thead>
+  <tbody>
+    <tr><td><strong>Data redundancy</strong></td><td>Same data (e.g. customer name) stored in many files across different programs.</td></tr>
+    <tr><td><strong>Inconsistency</strong></td><td>One copy updated, others not &mdash; conflicting versions.</td></tr>
+    <tr><td><strong>Difficulty in access</strong></td><td>Every new query may require writing a new program.</td></tr>
+    <tr><td><strong>Data isolation</strong></td><td>Data scattered across files in different formats.</td></tr>
+    <tr><td><strong>Integrity problems</strong></td><td>No central mechanism to enforce constraints like "balance &ge; 0".</td></tr>
+    <tr><td><strong>Atomicity problems</strong></td><td>A crash midway through a multi-step update leaves data in a partial state.</td></tr>
+    <tr><td><strong>Concurrent-access anomalies</strong></td><td>Two users updating the same file simultaneously can corrupt data.</td></tr>
+    <tr><td><strong>Security issues</strong></td><td>File-level permissions are too coarse for field-level control.</td></tr>
+  </tbody>
+</table>
+
+<h4>1.2.2 The DBMS Solution</h4>
+<p>A <strong>Database Management System (DBMS)</strong> provides:</p>
+<ol>
+  <li><strong>Data definition</strong> &mdash; DDL to specify schema, types, constraints.</li>
+  <li><strong>Data manipulation</strong> &mdash; DML to insert, update, delete, and query.</li>
+  <li><strong>Controlled access</strong> &mdash; Concurrency control, backup/recovery, authorisation, integrity enforcement.</li>
+</ol>
+<p><strong>Key advantages over file systems:</strong></p>
+<ul>
+  <li><strong>Program&ndash;data independence:</strong> Schema stored in a catalog; storage changes don't force application rewrites.</li>
+  <li><strong>Data abstraction:</strong> Users see logical views, not physical storage details.</li>
+  <li><strong>Multiple views:</strong> Different users see different subsets of the same data.</li>
+  <li><strong>Reduced redundancy:</strong> Centralised storage + normalisation.</li>
+  <li><strong>Transaction support:</strong> ACID properties guarantee reliable processing.</li>
+</ul>
+
+<h4>1.2.3 The Three-Schema Architecture (ANSI/SPARC)</h4>
+<div class="diagram">&#9484;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9488;
+&#9474;  External Level (User Views)    &#9474;  &larr; View 1, View 2 &hellip;
+&#9500;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9508;
+&#9474;  Conceptual Level (Logical)     &#9474;  &larr; Entities, relationships, constraints
+&#9500;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9508;
+&#9474;  Internal Level (Physical)      &#9474;  &larr; Files, indexes, blocks on disk
+&#9492;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9496;</div>
+<ul>
+  <li><strong>Logical data independence</strong> &mdash; Change the conceptual schema without affecting external views.</li>
+  <li><strong>Physical data independence</strong> &mdash; Change internal storage without affecting the conceptual schema.</li>
+</ul>
+
+<h3 id="s1-3">1.3 Structured Data Management Concepts</h3>
+<h4>1.3.1 Data Models</h4>
+<table>
+  <thead><tr><th>Category</th><th>Examples</th><th>Purpose</th></tr></thead>
+  <tbody>
+    <tr><td><strong>Conceptual</strong></td><td>ER model, UML class diagrams</td><td>Describe data as users perceive it.</td></tr>
+    <tr><td><strong>Representational</strong></td><td>Relational, Network, Hierarchical</td><td>Close to how DBMS organises data.</td></tr>
+    <tr><td><strong>Physical</strong></td><td>Indexes, hashing, file structures</td><td>How data is stored on disk.</td></tr>
+  </tbody>
+</table>
+
+<h4>1.3.2 Schema vs. Instance</h4>
+<ul>
+  <li><strong>Schema (intension):</strong> Structure/description of the database &mdash; changes rarely.</li>
+  <li><strong>Instance (extension):</strong> The actual data at a point in time &mdash; changes with every insert/update/delete.</li>
+</ul>
+<div class="note"><strong>Analogy:</strong> Schema = table headers + data types. Instance = the rows currently in the table.</div>
+
+<h4>1.3.3 Database Languages</h4>
+<table>
+  <thead><tr><th>Language</th><th>Purpose</th><th>Examples</th></tr></thead>
+  <tbody>
+    <tr><td><strong>DDL</strong></td><td>Define/modify schema</td><td><code>CREATE TABLE</code>, <code>ALTER TABLE</code>, <code>DROP TABLE</code></td></tr>
+    <tr><td><strong>DML</strong></td><td>Query/update data</td><td><code>SELECT</code>, <code>INSERT</code>, <code>UPDATE</code>, <code>DELETE</code></td></tr>
+    <tr><td><strong>DCL</strong></td><td>Access control</td><td><code>GRANT</code>, <code>REVOKE</code></td></tr>
+    <tr><td><strong>TCL</strong></td><td>Transaction control</td><td><code>COMMIT</code>, <code>ROLLBACK</code>, <code>SAVEPOINT</code></td></tr>
+  </tbody>
+</table>
+
+<h3 id="s1-4">1.4 Relational Database Fundamentals</h3>
+<h4>1.4.1 The Relational Model (Codd, 1970)</h4>
+<table>
+  <thead><tr><th>Term</th><th>Meaning</th></tr></thead>
+  <tbody>
+    <tr><td><strong>Relation</strong></td><td>A table with rows and columns.</td></tr>
+    <tr><td><strong>Tuple</strong></td><td>A single row.</td></tr>
+    <tr><td><strong>Attribute</strong></td><td>A named column.</td></tr>
+    <tr><td><strong>Domain</strong></td><td>Set of allowed values for an attribute.</td></tr>
+    <tr><td><strong>Degree</strong></td><td>Number of attributes.</td></tr>
+    <tr><td><strong>Cardinality</strong></td><td>Number of tuples.</td></tr>
+    <tr><td><strong>Relation schema</strong></td><td>Relation name + attribute list, e.g. <code>STUDENT(ID, Name, Age)</code>.</td></tr>
+  </tbody>
+</table>
+
+<h4>1.4.2 Properties of Relations</h4>
+<ol>
+  <li>Each tuple is distinct (no duplicate rows).</li>
+  <li>Tuple ordering is insignificant.</li>
+  <li>Attribute ordering is insignificant (identified by name).</li>
+  <li>Every attribute value is <strong>atomic</strong> (indivisible) &mdash; <strong>First Normal Form (1NF)</strong>.</li>
+</ol>
+
+<h4>1.4.3 Keys</h4>
+<table>
+  <thead><tr><th>Key Type</th><th>Definition</th></tr></thead>
+  <tbody>
+    <tr><td><strong>Superkey</strong></td><td>Any set of attributes that uniquely identifies a tuple.</td></tr>
+    <tr><td><strong>Candidate key</strong></td><td>A <em>minimal</em> superkey (removing any attribute breaks uniqueness).</td></tr>
+    <tr><td><strong>Primary key (PK)</strong></td><td>The candidate key chosen by the designer.</td></tr>
+    <tr><td><strong>Foreign key (FK)</strong></td><td>Attribute(s) referencing the PK of another relation.</td></tr>
+    <tr><td><strong>Alternate key</strong></td><td>A candidate key not chosen as PK.</td></tr>
+  </tbody>
+</table>
+
+<h4>1.4.4 Integrity Constraints</h4>
+<ul>
+  <li><strong>Entity integrity:</strong> No PK attribute can be NULL.</li>
+  <li><strong>Referential integrity:</strong> FK value must be NULL or match an existing PK.</li>
+  <li><strong>Domain constraints:</strong> Every value must belong to its attribute's defined domain.</li>
+  <li><strong>Key constraints:</strong> No two tuples share the same PK value.</li>
+</ul>
+
+<h4>1.4.5 Relational Algebra (Overview)</h4>
+<table>
+  <thead><tr><th>Operation</th><th>Symbol</th><th>Description</th></tr></thead>
+  <tbody>
+    <tr><td><strong>Selection</strong></td><td>&sigma;</td><td>Pick tuples satisfying a condition.</td></tr>
+    <tr><td><strong>Projection</strong></td><td>&pi;</td><td>Pick specific columns.</td></tr>
+    <tr><td><strong>Union</strong></td><td>&cup;</td><td>Combine tuples from two union-compatible relations.</td></tr>
+    <tr><td><strong>Intersection</strong></td><td>&cap;</td><td>Tuples common to both.</td></tr>
+    <tr><td><strong>Difference</strong></td><td>&minus;</td><td>Tuples in one but not the other.</td></tr>
+    <tr><td><strong>Cartesian product</strong></td><td>&times;</td><td>Every tuple of A combined with every tuple of B.</td></tr>
+    <tr><td><strong>Join</strong></td><td>&#x22C8;</td><td>Combine related tuples on a condition.</td></tr>
+  </tbody>
+</table>
+
+<h3 id="s1-5">1.5 Data Modelling: Entities, Attributes, Relationships</h3>
+<h4>1.5.1 The ER Model (Chen, 1976)</h4>
+<ul>
+  <li><strong>Entities</strong> &mdash; Distinguishable real-world objects.</li>
+  <li><strong>Attributes</strong> &mdash; Properties of entities.</li>
+  <li><strong>Relationships</strong> &mdash; Associations among entities.</li>
+</ul>
+
+<h4>1.5.2 Entity Types</h4>
+<ul>
+  <li><strong>Strong entity:</strong> Has its own key attribute (e.g. EMPLOYEE with Emp_ID).</li>
+  <li><strong>Weak entity:</strong> No key of its own; depends on an <strong>identifying (owner) entity</strong> via an <strong>identifying relationship</strong>. Uses a <strong>partial key</strong> + owner's PK.</li>
+</ul>
+
+<h4>1.5.3 Attribute Types</h4>
+<table>
+  <thead><tr><th>Type</th><th>Description</th><th>Example</th></tr></thead>
+  <tbody>
+    <tr><td><strong>Simple</strong></td><td>Atomic, indivisible</td><td>FirstName</td></tr>
+    <tr><td><strong>Composite</strong></td><td>Divisible into sub-parts</td><td>FullName &rarr; {First, Middle, Last}</td></tr>
+    <tr><td><strong>Single-valued</strong></td><td>One value per entity</td><td>DateOfBirth</td></tr>
+    <tr><td><strong>Multi-valued</strong></td><td>Multiple values per entity</td><td>PhoneNumbers</td></tr>
+    <tr><td><strong>Derived</strong></td><td>Computed from other attributes</td><td>Age (from DOB)</td></tr>
+    <tr><td><strong>Key</strong></td><td>Uniquely identifies entity</td><td>EmployeeID</td></tr>
+  </tbody>
+</table>
+
+<h4>1.5.4 Relationships</h4>
+<p><strong>Degree:</strong> Unary (recursive), Binary (most common), Ternary.</p>
+<table>
+  <thead><tr><th>Cardinality Ratio</th><th>Meaning</th><th>Example</th></tr></thead>
+  <tbody>
+    <tr><td><strong>1:1</strong></td><td>Each side relates to at most one on the other.</td><td>EMPLOYEE manages DEPARTMENT</td></tr>
+    <tr><td><strong>1:N</strong></td><td>One on "1" side relates to many on "N" side.</td><td>DEPARTMENT has many EMPLOYEEs</td></tr>
+    <tr><td><strong>M:N</strong></td><td>Many-to-many.</td><td>STUDENT enrols in COURSEs</td></tr>
+  </tbody>
+</table>
+<p><strong>Participation:</strong> Total (mandatory, double line) &mdash; every entity must participate. Partial (optional, single line) &mdash; some may not.</p>
+
+<h4>1.5.5 ER-to-Relational Mapping Rules</h4>
+<table>
+  <thead><tr><th>ER Construct</th><th>Relational Mapping</th></tr></thead>
+  <tbody>
+    <tr><td>Strong entity</td><td>Table with all simple attributes; key &rarr; PK.</td></tr>
+    <tr><td>Weak entity</td><td>Table with partial key + owner's PK as FK; composite PK.</td></tr>
+    <tr><td>1:1 relationship</td><td>Add PK of one side as FK in the other.</td></tr>
+    <tr><td>1:N relationship</td><td>Add PK of "1" side as FK in the "N" side table.</td></tr>
+    <tr><td>M:N relationship</td><td>New junction table; PKs of both as FKs; composite PK.</td></tr>
+    <tr><td>Multi-valued attribute</td><td>Separate table: value + FK to owner's PK.</td></tr>
+  </tbody>
+</table>
+
+<h3 id="s1-6">1.6 Normalisation &mdash; Eliminating Redundancy</h3>
+<h4>1.6.1 Functional Dependencies (FDs)</h4>
+<p>A functional dependency <strong>X &rarr; Y</strong> means: if two tuples have the same value for X, they must have the same value for Y.</p>
+<table>
+  <thead><tr><th>Type</th><th>Definition</th><th>Example</th></tr></thead>
+  <tbody>
+    <tr><td><strong>Full FD</strong></td><td>Y depends on X, not on any proper subset of X.</td><td>{Student_ID, Course_ID} &rarr; Grade</td></tr>
+    <tr><td><strong>Partial FD</strong></td><td>Y depends on a proper subset of a composite key.</td><td>{Student_ID, Course_ID} &rarr; Student_Name (depends only on Student_ID)</td></tr>
+    <tr><td><strong>Transitive FD</strong></td><td>X &rarr; Y &rarr; Z (Y is not a candidate key).</td><td>Emp_ID &rarr; Dept_ID &rarr; Dept_Name</td></tr>
+  </tbody>
+</table>
+
+<h4>1.6.2 First Normal Form (1NF)</h4>
+<p><strong>Rule:</strong> Every attribute value must be atomic. No repeating groups or multi-valued cells.</p>
+<div class="note warn"><strong>Violation:</strong> <code>STUDENT(ID, Name, PhoneNumbers)</code> where PhoneNumbers = {9876543210, 9123456789}. <strong>Fix:</strong> Create a separate STUDENT_PHONE table.</div>
+
+<h4>1.6.3 Second Normal Form (2NF)</h4>
+<p><strong>Rule:</strong> 1NF + no <strong>partial dependencies</strong> (every non-key attribute depends on the entire composite PK).</p>
+<div class="note warn"><strong>Violation:</strong> <code>ENROLMENT(Student_ID, Course_ID, Student_Name, Grade)</code> &mdash; Student_Name depends only on Student_ID. <strong>Fix:</strong> Split into STUDENT(Student_ID, Student_Name) and ENROLMENT(Student_ID, Course_ID, Grade).</div>
+
+<h4>1.6.4 Third Normal Form (3NF)</h4>
+<p><strong>Rule:</strong> 2NF + no <strong>transitive dependencies</strong> (no non-key attribute depends on another non-key).</p>
+<div class="note warn"><strong>Violation:</strong> <code>EMPLOYEE(Emp_ID, Dept_ID, Dept_Name)</code> &mdash; Dept_Name depends on Dept_ID, not directly on Emp_ID. <strong>Fix:</strong> Split into EMPLOYEE(Emp_ID, Dept_ID) and DEPARTMENT(Dept_ID, Dept_Name).</div>
+
+<h4>1.6.5 Boyce-Codd Normal Form (BCNF)</h4>
+<p><strong>Rule:</strong> For every non-trivial FD X &rarr; Y, X must be a <strong>superkey</strong>. Stricter than 3NF.</p>
+
+<h4>1.6.6 Normalisation Summary</h4>
+<table>
+  <thead><tr><th>Normal Form</th><th>Requirement</th><th>Eliminates</th></tr></thead>
+  <tbody>
+    <tr><td><strong>1NF</strong></td><td>Atomic values only</td><td>Repeating groups, multi-valued cells</td></tr>
+    <tr><td><strong>2NF</strong></td><td>1NF + no partial dependencies</td><td>Partial dependencies on composite PK</td></tr>
+    <tr><td><strong>3NF</strong></td><td>2NF + no transitive dependencies</td><td>Transitive dependencies among non-key attrs</td></tr>
+    <tr><td><strong>BCNF</strong></td><td>Every determinant is a superkey</td><td>All remaining FD anomalies</td></tr>
+  </tbody>
+</table>
+
+<h4>1.6.7 Update Anomalies</h4>
+<table>
+  <thead><tr><th>Anomaly</th><th>Problem</th><th>Example</th></tr></thead>
+  <tbody>
+    <tr><td><strong>Insertion</strong></td><td>Cannot insert data without unrelated data.</td><td>Can't add a department unless an employee exists in it.</td></tr>
+    <tr><td><strong>Deletion</strong></td><td>Deleting data causes unintended loss.</td><td>Deleting last employee loses department info.</td></tr>
+    <tr><td><strong>Update</strong></td><td>Must update same fact in multiple rows.</td><td>Renaming a department requires updating every employee row.</td></tr>
+  </tbody>
+</table>
+
+<h3 id="s1-7">1.7 DBMS Architecture &mdash; Internal Components</h3>
+<div class="diagram">                    &#9484;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9488;
+ User/Application &rarr; &#9474;  Query Interface  &#9474;  (SQL parser, API)
+                    &#9492;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9516;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9496;
+                             &#9660;
+                    &#9484;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9488;
+                    &#9474;  Query Processor  &#9474;
+                    &#9474;  Parser &#8594; Optimizer &#8594; Executor
+                    &#9492;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9516;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9496;
+                             &#9660;
+                    &#9484;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9488;
+                    &#9474; Transaction Mgr   &#9474;
+                    &#9474; Concurrency Ctrl  &#9474;
+                    &#9474; Recovery Mgr      &#9474;
+                    &#9492;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9516;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9496;
+                             &#9660;
+                    &#9484;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9488;
+                    &#9474; Storage Engine    &#9474;
+                    &#9474; Buffer + Disk Mgr &#9474;
+                    &#9492;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9516;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9496;
+                             &#9660;
+                    &#9484;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9488;
+                    &#9474;   Disk Storage    &#9474;
+                    &#9492;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9496;</div>
+
+<h4>The Catalog (Data Dictionary)</h4>
+<p>Stores <strong>metadata</strong>: table/column names, data types, constraints, index definitions, view definitions, user privileges, and statistics used by the optimizer.</p>
+
+<h3 id="s1-8">1.8 Indexing &amp; File Structures</h3>
+<h4>Why Indexes Matter</h4>
+<p>Without an index, finding a row requires a <strong>full table scan</strong>. An index maps column values to row locations &mdash; like a book's index.</p>
+
+<h4>Types of Indexes</h4>
+<table>
+  <thead><tr><th>Index Type</th><th>How it works</th><th>Best for</th></tr></thead>
+  <tbody>
+    <tr><td><strong>B+ Tree</strong></td><td>Self-balancing tree; leaf nodes linked for range scans. O(log n).</td><td>Equality, range, prefix queries. Used by all major RDBMSs.</td></tr>
+    <tr><td><strong>Hash</strong></td><td>Hash function maps keys to buckets. O(1) average.</td><td>Equality lookups only. Cannot sort or range scan.</td></tr>
+    <tr><td><strong>Bitmap</strong></td><td>Bit vector per distinct value. Bit i = 1 if row i has that value.</td><td>Low-cardinality columns (Gender, Status). Data warehousing.</td></tr>
+  </tbody>
+</table>
+
+<h4>Clustered vs. Non-Clustered</h4>
+<table>
+  <thead><tr><th>Aspect</th><th>Clustered</th><th>Non-Clustered (Secondary)</th></tr></thead>
+  <tbody>
+    <tr><td>Physical order</td><td>Rows stored in index order.</td><td>Separate structure pointing to row locations.</td></tr>
+    <tr><td>Number per table</td><td>Only one.</td><td>Many can exist.</td></tr>
+    <tr><td>Speed</td><td>Fastest for range scans on indexed column.</td><td>Requires extra lookup (unless covering).</td></tr>
+  </tbody>
+</table>
+
+<div class="note success"><strong>Covering index:</strong> Includes all columns needed by a query. The DBMS answers the query entirely from the index without touching the main table (index-only scan).</div>
+
+<h4>File Organisation Methods</h4>
+<table>
+  <thead><tr><th>Method</th><th>Description</th><th>Best for</th></tr></thead>
+  <tbody>
+    <tr><td><strong>Heap file</strong></td><td>Rows in no particular order.</td><td>Bulk inserts; full table scans.</td></tr>
+    <tr><td><strong>Sorted file</strong></td><td>Rows in order of a sort key.</td><td>Range queries on the sort key.</td></tr>
+    <tr><td><strong>Hash file</strong></td><td>Hash function determines bucket.</td><td>Equality lookups.</td></tr>
+    <tr><td><strong>B+ tree file</strong></td><td>Rows in leaf nodes of a B+ tree.</td><td>General purpose.</td></tr>
+  </tbody>
+</table>
+
+<h3 id="s1-9">1.9 Views in SQL</h3>
+<p>A <strong>view</strong> is a virtual table defined by a SELECT query. It does not store data &mdash; the underlying query executes each time.</p>
+<pre><code><span class="sql-kw">CREATE VIEW</span> High_Earners <span class="sql-kw">AS</span>
+<span class="sql-kw">SELECT</span> Emp_ID, First_Name, Last_Name, Salary
+<span class="sql-kw">FROM</span> EMPLOYEE
+<span class="sql-kw">WHERE</span> Salary &gt; 100000;</code></pre>
+
+<p><strong>Benefits:</strong> Simplification, security (expose only certain columns/rows), logical data independence, consistent business definitions.</p>
+<p><strong>Materialised view:</strong> Physically stores the result. Must be <strong>refreshed</strong> when data changes. Faster reads, risk of stale data.</p>
+
+<h3 id="s1-10">1.10 Stored Procedures, Functions, and Triggers</h3>
+<h4>Stored Procedures</h4>
+<pre><code><span class="sql-kw">CREATE PROCEDURE</span> GiveRaise(<span class="sql-kw">IN</span> dept <span class="sql-kw">INT</span>, <span class="sql-kw">IN</span> pct <span class="sql-kw">DECIMAL</span>)
+<span class="sql-kw">BEGIN</span>
+    <span class="sql-kw">UPDATE</span> EMPLOYEE
+    <span class="sql-kw">SET</span> Salary = Salary * (1 + pct / 100)
+    <span class="sql-kw">WHERE</span> Dept_ID = dept;
+<span class="sql-kw">END</span>;
+
+<span class="sql-comment">-- Call it</span>
+<span class="sql-kw">CALL</span> GiveRaise(5, 10);</code></pre>
+
+<h4>Triggers</h4>
+<p>A trigger automatically fires on INSERT, UPDATE, or DELETE events. Timing: <code>BEFORE</code>, <code>AFTER</code>, or <code>INSTEAD OF</code>.</p>
+<pre><code><span class="sql-kw">CREATE TRIGGER</span> salary_audit
+<span class="sql-kw">AFTER UPDATE OF</span> Salary <span class="sql-kw">ON</span> EMPLOYEE
+<span class="sql-kw">FOR EACH ROW</span>
+<span class="sql-kw">BEGIN</span>
+    <span class="sql-kw">INSERT INTO</span> SALARY_AUDIT_LOG (Emp_ID, Old_Salary, New_Salary, Change_Date)
+    <span class="sql-kw">VALUES</span> (OLD.Emp_ID, OLD.Salary, NEW.Salary, <span class="sql-fn">CURRENT_TIMESTAMP</span>);
+<span class="sql-kw">END</span>;</code></pre>
+<div class="note warn"><strong>Caution:</strong> Overuse of triggers makes debugging difficult &mdash; they execute implicitly and can chain.</div>
+
+
+<!-- ========================================== -->
+<!-- SESSION 2 -->
+<!-- ========================================== -->
+<div class="session-banner s2-banner" id="s2">
+  <h2>SESSION 2 &mdash; SQL Fundamentals and Transaction Concepts</h2>
+  <div class="ref">T1 Ch.6 | Ch.7 (Sec 7.1)</div>
+</div>
+
+<h3 id="s2-1">2.1 SQL Overview</h3>
+<p><strong>SQL (Structured Query Language)</strong> is the standard language for relational databases, combining DDL, DML, DCL, and TCL. It is <strong>declarative</strong> &mdash; specify <em>what</em> you want, the optimizer decides <em>how</em>.</p>
+
+<h3 id="s2-2">2.2 DDL Statements</h3>
+<h4>CREATE TABLE</h4>
+<pre><code><span class="sql-kw">CREATE TABLE</span> EMPLOYEE (
+    Emp_ID      <span class="sql-kw">INT</span>            <span class="sql-kw">PRIMARY KEY</span>,
+    First_Name  <span class="sql-kw">VARCHAR</span>(50)    <span class="sql-kw">NOT NULL</span>,
+    Last_Name   <span class="sql-kw">VARCHAR</span>(50)    <span class="sql-kw">NOT NULL</span>,
+    Email       <span class="sql-kw">VARCHAR</span>(100)   <span class="sql-kw">UNIQUE</span>,
+    Hire_Date   <span class="sql-kw">DATE</span>           <span class="sql-kw">DEFAULT CURRENT_DATE</span>,
+    Salary      <span class="sql-kw">DECIMAL</span>(10,2)  <span class="sql-kw">CHECK</span> (Salary &gt; 0),
+    Dept_ID     <span class="sql-kw">INT</span>,
+    <span class="sql-kw">FOREIGN KEY</span> (Dept_ID) <span class="sql-kw">REFERENCES</span> DEPARTMENT(Dept_ID)
+        <span class="sql-kw">ON DELETE SET NULL</span>
+        <span class="sql-kw">ON UPDATE CASCADE</span>
+);</code></pre>
+
+<h4>Constraints</h4>
+<table>
+  <thead><tr><th>Constraint</th><th>Purpose</th></tr></thead>
+  <tbody>
+    <tr><td><code>PRIMARY KEY</code></td><td>Unique + NOT NULL identifier.</td></tr>
+    <tr><td><code>FOREIGN KEY ... REFERENCES</code></td><td>Referential integrity.</td></tr>
+    <tr><td><code>NOT NULL</code></td><td>Must have a value.</td></tr>
+    <tr><td><code>UNIQUE</code></td><td>No duplicate values.</td></tr>
+    <tr><td><code>CHECK</code></td><td>Boolean validation expression.</td></tr>
+    <tr><td><code>DEFAULT</code></td><td>Value used when none supplied.</td></tr>
+  </tbody>
+</table>
+
+<h4>Referential Triggered Actions</h4>
+<table>
+  <thead><tr><th>Action</th><th>Behaviour</th></tr></thead>
+  <tbody>
+    <tr><td><code>CASCADE</code></td><td>Propagate delete/update to referencing rows.</td></tr>
+    <tr><td><code>SET NULL</code></td><td>Set FK to NULL.</td></tr>
+    <tr><td><code>SET DEFAULT</code></td><td>Set FK to its default value.</td></tr>
+    <tr><td><code>RESTRICT</code> / <code>NO ACTION</code></td><td>Reject if referencing rows exist.</td></tr>
+  </tbody>
+</table>
+
+<h4>ALTER TABLE &amp; DROP TABLE</h4>
+<pre><code><span class="sql-kw">ALTER TABLE</span> EMPLOYEE <span class="sql-kw">ADD COLUMN</span> Phone <span class="sql-kw">VARCHAR</span>(20);
+<span class="sql-kw">ALTER TABLE</span> EMPLOYEE <span class="sql-kw">DROP COLUMN</span> Phone;
+<span class="sql-kw">DROP TABLE</span> EMPLOYEE;          <span class="sql-comment">-- Fails if referenced</span>
+<span class="sql-kw">DROP TABLE</span> EMPLOYEE <span class="sql-kw">CASCADE</span>;  <span class="sql-comment">-- Drops dependent objects too</span></code></pre>
+
+<h3 id="s2-3">2.3 DML Statements</h3>
+<h4>INSERT</h4>
+<pre><code><span class="sql-kw">INSERT INTO</span> EMPLOYEE (Emp_ID, First_Name, Last_Name, Salary, Dept_ID)
+<span class="sql-kw">VALUES</span> (101, <span class="sql-str">'Alice'</span>, <span class="sql-str">'Johnson'</span>, 75000.00, 5);
+
+<span class="sql-comment">-- Insert from query</span>
+<span class="sql-kw">INSERT INTO</span> HIGH_EARNERS (Emp_ID, First_Name, Salary)
+<span class="sql-kw">SELECT</span> Emp_ID, First_Name, Salary <span class="sql-kw">FROM</span> EMPLOYEE <span class="sql-kw">WHERE</span> Salary &gt; 100000;</code></pre>
+
+<h4>UPDATE</h4>
+<pre><code><span class="sql-kw">UPDATE</span> EMPLOYEE <span class="sql-kw">SET</span> Salary = Salary * 1.10 <span class="sql-kw">WHERE</span> Dept_ID = 5;</code></pre>
+
+<h4>DELETE</h4>
+<pre><code><span class="sql-kw">DELETE FROM</span> EMPLOYEE <span class="sql-kw">WHERE</span> Emp_ID = 103;</code></pre>
+
+<h3 id="s2-4">2.4 Retrieval Queries (SELECT)</h3>
+<h4>Execution Order</h4>
+<pre><code><span class="sql-kw">SELECT</span>   column_list          <span class="sql-comment">-- 5th</span>
+<span class="sql-kw">FROM</span>     table(s)             <span class="sql-comment">-- 1st</span>
+<span class="sql-kw">WHERE</span>    row_condition        <span class="sql-comment">-- 2nd</span>
+<span class="sql-kw">GROUP BY</span> column_list          <span class="sql-comment">-- 3rd</span>
+<span class="sql-kw">HAVING</span>   group_condition      <span class="sql-comment">-- 4th</span>
+<span class="sql-kw">ORDER BY</span> column_list          <span class="sql-comment">-- 6th</span>
+<span class="sql-kw">LIMIT</span> n  <span class="sql-kw">OFFSET</span> m;            <span class="sql-comment">-- 7th</span></code></pre>
+
+<h4>Aggregate Functions</h4>
+<table>
+  <thead><tr><th>Function</th><th>Returns</th></tr></thead>
+  <tbody>
+    <tr><td><code>COUNT(*)</code></td><td>Number of rows</td></tr>
+    <tr><td><code>SUM(col)</code></td><td>Sum of numeric column</td></tr>
+    <tr><td><code>AVG(col)</code></td><td>Average</td></tr>
+    <tr><td><code>MIN(col)</code></td><td>Minimum</td></tr>
+    <tr><td><code>MAX(col)</code></td><td>Maximum</td></tr>
+  </tbody>
+</table>
+<pre><code><span class="sql-kw">SELECT</span> Dept_ID, <span class="sql-fn">COUNT</span>(*) <span class="sql-kw">AS</span> Emp_Count, <span class="sql-fn">AVG</span>(Salary) <span class="sql-kw">AS</span> Avg_Sal
+<span class="sql-kw">FROM</span> EMPLOYEE
+<span class="sql-kw">GROUP BY</span> Dept_ID
+<span class="sql-kw">HAVING</span> <span class="sql-fn">COUNT</span>(*) &gt; 5
+<span class="sql-kw">ORDER BY</span> Avg_Sal <span class="sql-kw">DESC</span>;</code></pre>
+
+<h3 id="s2-5">2.5 Joins</h3>
+<table>
+  <thead><tr><th>Join Type</th><th>What it returns</th></tr></thead>
+  <tbody>
+    <tr><td><strong>INNER JOIN</strong></td><td>Only matching rows.</td></tr>
+    <tr><td><strong>LEFT JOIN</strong></td><td>All from left + matching right (NULLs where no match).</td></tr>
+    <tr><td><strong>RIGHT JOIN</strong></td><td>All from right + matching left.</td></tr>
+    <tr><td><strong>FULL OUTER JOIN</strong></td><td>All from both; NULLs where no match.</td></tr>
+    <tr><td><strong>CROSS JOIN</strong></td><td>Cartesian product.</td></tr>
+    <tr><td><strong>SELF JOIN</strong></td><td>A table joined with itself.</td></tr>
+  </tbody>
+</table>
+<pre><code><span class="sql-comment">-- Inner Join</span>
+<span class="sql-kw">SELECT</span> E.First_Name, D.Dept_Name
+<span class="sql-kw">FROM</span> EMPLOYEE E <span class="sql-kw">INNER JOIN</span> DEPARTMENT D <span class="sql-kw">ON</span> E.Dept_ID = D.Dept_ID;
+
+<span class="sql-comment">-- Self Join (employees and managers)</span>
+<span class="sql-kw">SELECT</span> E.First_Name <span class="sql-kw">AS</span> Employee, M.First_Name <span class="sql-kw">AS</span> Manager
+<span class="sql-kw">FROM</span> EMPLOYEE E <span class="sql-kw">LEFT JOIN</span> EMPLOYEE M <span class="sql-kw">ON</span> E.Manager_ID = M.Emp_ID;</code></pre>
+
+<h3 id="s2-6">2.6 Subqueries</h3>
+<table>
+  <thead><tr><th>Type</th><th>Returns</th><th>Example use</th></tr></thead>
+  <tbody>
+    <tr><td><strong>Scalar</strong></td><td>Single value</td><td><code>WHERE Salary &gt; (SELECT AVG(Salary) ...)</code></td></tr>
+    <tr><td><strong>Row</strong></td><td>Single row</td><td>Comparison with a row constructor</td></tr>
+    <tr><td><strong>Table</strong></td><td>Multiple rows/cols</td><td><code>FROM (SELECT ...) AS derived</code></td></tr>
+    <tr><td><strong>Correlated</strong></td><td>Re-evaluated per outer row</td><td><code>WHERE EXISTS (SELECT 1 FROM ...)</code></td></tr>
+  </tbody>
+</table>
+<pre><code><span class="sql-comment">-- Employees above average salary</span>
+<span class="sql-kw">SELECT</span> First_Name, Salary
+<span class="sql-kw">FROM</span> EMPLOYEE
+<span class="sql-kw">WHERE</span> Salary &gt; (<span class="sql-kw">SELECT</span> <span class="sql-fn">AVG</span>(Salary) <span class="sql-kw">FROM</span> EMPLOYEE);
+
+<span class="sql-comment">-- EXISTS (correlated)</span>
+<span class="sql-kw">SELECT</span> D.Dept_Name <span class="sql-kw">FROM</span> DEPARTMENT D
+<span class="sql-kw">WHERE EXISTS</span> (<span class="sql-kw">SELECT</span> 1 <span class="sql-kw">FROM</span> EMPLOYEE E <span class="sql-kw">WHERE</span> E.Dept_ID = D.Dept_ID);</code></pre>
+
+<h3 id="s2-7">2.7 Transaction Basics &amp; ACID Properties</h3>
+<h4>What is a Transaction?</h4>
+<p>A <strong>transaction</strong> is a logical unit of work &mdash; one or more operations executed as an indivisible whole.</p>
+
+<h4>ACID Properties</h4>
+<table>
+  <thead><tr><th>Property</th><th>Meaning</th><th>Enforcement</th></tr></thead>
+  <tbody>
+    <tr><td><strong>Atomicity</strong></td><td>All-or-nothing.</td><td>Transaction mgr + undo log.</td></tr>
+    <tr><td><strong>Consistency</strong></td><td>Valid state &rarr; valid state.</td><td>Constraint checking at commit.</td></tr>
+    <tr><td><strong>Isolation</strong></td><td>Concurrent txns don't interfere.</td><td>Locks, MVCC.</td></tr>
+    <tr><td><strong>Durability</strong></td><td>Committed changes survive crashes.</td><td>WAL flushed to stable storage.</td></tr>
+  </tbody>
+</table>
+
+<h4>Transaction States</h4>
+<div class="diagram">Active &rarr;(success)&rarr; Partially Committed &rarr;(flush OK)&rarr; Committed
+  |                              |
+(op fails)                  (flush fails)
+  &darr;                              &darr;
+Failed &rarr; Aborted (rollback done) &rarr; [restart or kill]</div>
+
+<h4>SQL Transaction Control</h4>
+<pre><code><span class="sql-kw">BEGIN TRANSACTION</span>;
+<span class="sql-comment">-- ... DML operations ...</span>
+<span class="sql-kw">SAVEPOINT</span> sp1;
+<span class="sql-comment">-- ... more operations ...</span>
+<span class="sql-kw">ROLLBACK TO</span> sp1;
+<span class="sql-kw">COMMIT</span>;</code></pre>
+
+<h3 id="s2-8">2.8 Schema Evolution, Versioning &amp; Denormalisation</h3>
+<h4>Schema Evolution</h4>
+<p>Modifying schema in production. Strategies: <strong>expand-and-contract</strong>, schema versioning, backward/forward compatibility.</p>
+
+<h4>Denormalisation</h4>
+<p>Intentionally reintroduce redundancy for read performance. <strong>Rule:</strong> Normalise first, denormalise selectively for measured problems.</p>
+<table>
+  <thead><tr><th>Scenario</th><th>Technique</th><th>Trade-off</th></tr></thead>
+  <tbody>
+    <tr><td>Frequent expensive joins</td><td>Store redundant columns.</td><td>Faster reads; slower writes; inconsistency risk.</td></tr>
+    <tr><td>Repeated aggregations</td><td>Materialised views.</td><td>Stale data if not refreshed.</td></tr>
+    <tr><td>Read-heavy workloads</td><td>Duplicate data for read patterns.</td><td>Storage + update anomalies.</td></tr>
+  </tbody>
+</table>
+
+<h3 id="s2-9">2.9 Limits of Relational Systems &mdash; Motivation for NoSQL</h3>
+<table>
+  <thead><tr><th>Limitation</th><th>Detail</th></tr></thead>
+  <tbody>
+    <tr><td><strong>Rigid schema</strong></td><td>ALTER TABLE can lock large tables for extended periods.</td></tr>
+    <tr><td><strong>Impedance mismatch</strong></td><td>OO app data doesn't map cleanly to flat tables.</td></tr>
+    <tr><td><strong>Horizontal scaling is hard</strong></td><td>Sharding introduces distributed joins and cross-shard txns.</td></tr>
+    <tr><td><strong>Unstructured data</strong></td><td>JSON, graphs, time-series don't fit rows/columns.</td></tr>
+    <tr><td><strong>High write throughput</strong></td><td>WAL + ACID bottleneck at millions of writes/sec.</td></tr>
+    <tr><td><strong>Global distribution</strong></td><td>Strong consistency across continents is expensive.</td></tr>
+  </tbody>
+</table>
+<p><strong>NoSQL types:</strong> Key-Value (Redis), Document (MongoDB), Column-Family (Cassandra), Graph (Neo4j).</p>
+
+<h3 id="s2-10">2.10 Concurrency Control</h3>
+<h4>Problems of Concurrent Execution</h4>
+<table>
+  <thead><tr><th>Problem</th><th>Description</th></tr></thead>
+  <tbody>
+    <tr><td><strong>Lost update</strong></td><td>Two txns read same value, both update &mdash; one overwrite is lost.</td></tr>
+    <tr><td><strong>Dirty read</strong></td><td>Read data from an uncommitted txn that may roll back.</td></tr>
+    <tr><td><strong>Non-repeatable read</strong></td><td>Reading same row twice gives different values.</td></tr>
+    <tr><td><strong>Phantom read</strong></td><td>Re-executing a query finds new rows inserted by another txn.</td></tr>
+  </tbody>
+</table>
+
+<h4>Isolation Levels</h4>
+<table>
+  <thead><tr><th>Level</th><th>Dirty Read</th><th>Non-Repeatable</th><th>Phantom</th><th>Concurrency</th></tr></thead>
+  <tbody>
+    <tr><td><strong>READ UNCOMMITTED</strong></td><td>Possible</td><td>Possible</td><td>Possible</td><td>Highest</td></tr>
+    <tr><td><strong>READ COMMITTED</strong></td><td>Prevented</td><td>Possible</td><td>Possible</td><td>High</td></tr>
+    <tr><td><strong>REPEATABLE READ</strong></td><td>Prevented</td><td>Prevented</td><td>Possible</td><td>Medium</td></tr>
+    <tr><td><strong>SERIALIZABLE</strong></td><td>Prevented</td><td>Prevented</td><td>Prevented</td><td>Lowest</td></tr>
+  </tbody>
+</table>
+
+<h4>Lock-Based Control &amp; Two-Phase Locking</h4>
+<p><strong>Shared lock (S):</strong> Multiple readers. <strong>Exclusive lock (X):</strong> Single writer. <strong>2PL:</strong> Growing phase (acquire locks) &rarr; Shrinking phase (release locks). Guarantees serializability.</p>
+
+<h4>Deadlocks</h4>
+<p>Two txns each wait for a lock held by the other. Detected via <strong>wait-for graph</strong> (cycle = deadlock). Resolved by aborting one txn (victim).</p>
+
+<h4>MVCC (Multi-Version Concurrency Control)</h4>
+<p>Keeps multiple versions of each row. Readers see the version current at txn start &mdash; <strong>readers never block writers</strong>. Used by PostgreSQL, MySQL InnoDB, Oracle.</p>
+
+<h4>Optimistic vs. Pessimistic</h4>
+<table>
+  <thead><tr><th>Approach</th><th>Philosophy</th><th>Best for</th></tr></thead>
+  <tbody>
+    <tr><td><strong>Pessimistic</strong></td><td>Assume conflicts &mdash; lock upfront.</td><td>Write-heavy, high contention.</td></tr>
+    <tr><td><strong>Optimistic</strong></td><td>Assume rare conflicts &mdash; check at commit.</td><td>Read-heavy, low contention.</td></tr>
+  </tbody>
+</table>
+
+<h3 id="s2-11">2.11 Database Recovery Techniques</h3>
+<h4>Write-Ahead Logging (WAL)</h4>
+<p>Before any change is written to disk, the log record must first be written to stable storage. Log contains: txn ID, old value (UNDO), new value (REDO), COMMIT/ABORT markers.</p>
+
+<h4>UNDO and REDO</h4>
+<table>
+  <thead><tr><th>Action</th><th>When</th><th>What</th></tr></thead>
+  <tbody>
+    <tr><td><strong>UNDO</strong></td><td>Txn was active at crash</td><td>Roll back using old values from log.</td></tr>
+    <tr><td><strong>REDO</strong></td><td>Txn committed but not flushed</td><td>Re-apply using new values from log.</td></tr>
+  </tbody>
+</table>
+
+<h4>Checkpoints</h4>
+<p>Periodic flush of dirty pages to disk + checkpoint record in log. Limits log scanning during recovery.</p>
+
+<h3 id="s2-12">2.12 Advanced SQL</h3>
+<h4>Common Table Expressions (CTEs)</h4>
+<pre><code><span class="sql-kw">WITH</span> DeptStats <span class="sql-kw">AS</span> (
+    <span class="sql-kw">SELECT</span> Dept_ID, <span class="sql-fn">AVG</span>(Salary) <span class="sql-kw">AS</span> Avg_Sal, <span class="sql-fn">COUNT</span>(*) <span class="sql-kw">AS</span> Cnt
+    <span class="sql-kw">FROM</span> EMPLOYEE <span class="sql-kw">GROUP BY</span> Dept_ID
+)
+<span class="sql-kw">SELECT</span> D.Dept_Name, DS.Avg_Sal, DS.Cnt
+<span class="sql-kw">FROM</span> DeptStats DS <span class="sql-kw">JOIN</span> DEPARTMENT D <span class="sql-kw">ON</span> DS.Dept_ID = D.Dept_ID
+<span class="sql-kw">WHERE</span> DS.Cnt &gt; 10;</code></pre>
+
+<h4>Window Functions</h4>
+<pre><code><span class="sql-kw">SELECT</span> Emp_ID, First_Name, Dept_ID, Salary,
+       <span class="sql-fn">RANK</span>() <span class="sql-kw">OVER</span> (<span class="sql-kw">PARTITION BY</span> Dept_ID <span class="sql-kw">ORDER BY</span> Salary <span class="sql-kw">DESC</span>) <span class="sql-kw">AS</span> Salary_Rank,
+       <span class="sql-fn">AVG</span>(Salary) <span class="sql-kw">OVER</span> (<span class="sql-kw">PARTITION BY</span> Dept_ID) <span class="sql-kw">AS</span> Dept_Avg
+<span class="sql-kw">FROM</span> EMPLOYEE;</code></pre>
+<table>
+  <thead><tr><th>Function</th><th>Description</th></tr></thead>
+  <tbody>
+    <tr><td><code>ROW_NUMBER()</code></td><td>Sequential number per partition.</td></tr>
+    <tr><td><code>RANK()</code></td><td>Rank with gaps for ties.</td></tr>
+    <tr><td><code>DENSE_RANK()</code></td><td>Rank without gaps.</td></tr>
+    <tr><td><code>LAG(col, n)</code></td><td>Value n rows before current.</td></tr>
+    <tr><td><code>LEAD(col, n)</code></td><td>Value n rows after current.</td></tr>
+    <tr><td><code>NTILE(n)</code></td><td>Divide rows into n groups.</td></tr>
+  </tbody>
+</table>
+
+<h4>CASE Expressions</h4>
+<pre><code><span class="sql-kw">SELECT</span> Emp_ID, Salary,
+    <span class="sql-kw">CASE</span>
+        <span class="sql-kw">WHEN</span> Salary &gt;= 100000 <span class="sql-kw">THEN</span> <span class="sql-str">'Senior'</span>
+        <span class="sql-kw">WHEN</span> Salary &gt;= 60000  <span class="sql-kw">THEN</span> <span class="sql-str">'Mid-Level'</span>
+        <span class="sql-kw">ELSE</span> <span class="sql-str">'Junior'</span>
+    <span class="sql-kw">END AS</span> Band
+<span class="sql-kw">FROM</span> EMPLOYEE;</code></pre>
+
+<h4>GRANT &amp; REVOKE</h4>
+<pre><code><span class="sql-kw">GRANT SELECT, INSERT ON</span> EMPLOYEE <span class="sql-kw">TO</span> user_report;
+<span class="sql-kw">REVOKE INSERT ON</span> EMPLOYEE <span class="sql-kw">FROM</span> user_report;</code></pre>
+
+
+<!-- ========================================== -->
+<!-- SESSION 3 -->
+<!-- ========================================== -->
+<div class="session-banner s3-banner" id="s3">
+  <h2>SESSION 3 &mdash; Distributed Database Foundations</h2>
+  <div class="ref">T1 Ch.23 (Sec 23.1, 23.2, 23.7)</div>
+</div>
+
+<h3 id="s3-1">3.1 Need for Distributed Databases</h3>
+<table>
+  <thead><tr><th>Driver</th><th>Explanation</th></tr></thead>
+  <tbody>
+    <tr><td><strong>Organisational distribution</strong></td><td>Offices in multiple locations generate local data.</td></tr>
+    <tr><td><strong>Improved performance</strong></td><td>Data close to users reduces latency.</td></tr>
+    <tr><td><strong>Scalability</strong></td><td>Horizontal scaling by adding nodes.</td></tr>
+    <tr><td><strong>Availability</strong></td><td>Replicated data survives failures.</td></tr>
+    <tr><td><strong>Autonomy</strong></td><td>Local sites manage own data.</td></tr>
+  </tbody>
+</table>
+
+<h4>Centralised vs. Distributed</h4>
+<table>
+  <thead><tr><th>Aspect</th><th>Centralised</th><th>Distributed</th></tr></thead>
+  <tbody>
+    <tr><td>Data location</td><td>Single site</td><td>Multiple networked sites</td></tr>
+    <tr><td>SPOF</td><td>Yes</td><td>No</td></tr>
+    <tr><td>Scalability</td><td>Vertical</td><td>Horizontal</td></tr>
+    <tr><td>Latency</td><td>High for remote users</td><td>Low (local data)</td></tr>
+    <tr><td>Complexity</td><td>Simpler</td><td>Higher</td></tr>
+  </tbody>
+</table>
+
+<h3 id="s3-2">3.2 Distributed Database Architecture</h3>
+<h4>Transparency Goals</h4>
+<table>
+  <thead><tr><th>Transparency</th><th>User doesn't need to know&hellip;</th></tr></thead>
+  <tbody>
+    <tr><td><strong>Location</strong></td><td>&hellip;where data is stored.</td></tr>
+    <tr><td><strong>Fragmentation</strong></td><td>&hellip;that tables are split into fragments.</td></tr>
+    <tr><td><strong>Replication</strong></td><td>&hellip;that multiple copies exist.</td></tr>
+    <tr><td><strong>Concurrency</strong></td><td>&hellip;that other txns run simultaneously.</td></tr>
+    <tr><td><strong>Failure</strong></td><td>&hellip;that a node has failed.</td></tr>
+  </tbody>
+</table>
+
+<h4>Architecture Types</h4>
+<table>
+  <thead><tr><th>Type</th><th>Description</th><th>Example</th></tr></thead>
+  <tbody>
+    <tr><td><strong>Shared-Nothing</strong></td><td>Each node has own CPU, memory, disk. Communicate via network.</td><td>Cassandra, CockroachDB</td></tr>
+    <tr><td><strong>Shared-Disk</strong></td><td>All nodes access common storage (SAN).</td><td>Oracle RAC</td></tr>
+    <tr><td><strong>Shared-Memory</strong></td><td>All processors share memory &amp; disk. Limited scalability.</td><td>SMP machines</td></tr>
+  </tbody>
+</table>
+
+<h3 id="s3-3">3.3 Data Partitioning (Fragmentation)</h3>
+<h4>Horizontal Fragmentation</h4>
+<p>Splits by <strong>rows</strong>. Each fragment = subset of tuples by condition. Reconstruction = UNION.</p>
+
+<h4>Vertical Fragmentation</h4>
+<p>Splits by <strong>columns</strong> (PK always included). Reconstruction = Natural JOIN on PK.</p>
+
+<h4>Partitioning Strategies</h4>
+<table>
+  <thead><tr><th>Strategy</th><th>How it works</th><th>Pros</th><th>Cons</th></tr></thead>
+  <tbody>
+    <tr><td><strong>Range</strong></td><td>Key ranges (e.g. dates).</td><td>Efficient range queries.</td><td>Hot spots if skewed.</td></tr>
+    <tr><td><strong>Hash</strong></td><td>Hash function on key.</td><td>Even distribution.</td><td>Range queries scan all.</td></tr>
+    <tr><td><strong>List</strong></td><td>Explicit value lists.</td><td>Good for categorical data.</td><td>Imbalanced categories.</td></tr>
+    <tr><td><strong>Consistent hashing</strong></td><td>Hash ring; minimal data movement.</td><td>Elastic scaling.</td><td>More complex.</td></tr>
+  </tbody>
+</table>
+
+<h3 id="s3-4">3.4 Replication Strategies</h3>
+<h4>Replication Approaches</h4>
+<table>
+  <thead><tr><th>Approach</th><th>Description</th><th>Trade-off</th></tr></thead>
+  <tbody>
+    <tr><td><strong>Full</strong></td><td>Every site has complete copy.</td><td>Max read perf; expensive writes.</td></tr>
+    <tr><td><strong>Partial</strong></td><td>Selected fragments at selected sites.</td><td>Balanced.</td></tr>
+    <tr><td><strong>None</strong></td><td>Each fragment at one site only.</td><td>Simplest writes; availability risk.</td></tr>
+  </tbody>
+</table>
+
+<h4>Synchronous vs. Asynchronous</h4>
+<table>
+  <thead><tr><th>Aspect</th><th>Synchronous</th><th>Asynchronous</th></tr></thead>
+  <tbody>
+    <tr><td>Consistency</td><td>Strong</td><td>Eventual</td></tr>
+    <tr><td>Write latency</td><td>Higher</td><td>Lower</td></tr>
+    <tr><td>Risk</td><td>Writes blocked if replica down</td><td>Data loss if primary fails before propagation</td></tr>
+  </tbody>
+</table>
+
+<h4>Replication Topologies</h4>
+<table>
+  <thead><tr><th>Topology</th><th>How</th><th>Pros</th><th>Cons</th></tr></thead>
+  <tbody>
+    <tr><td><strong>Single-leader</strong></td><td>One node writes; replicas read.</td><td>Simple; no write conflicts.</td><td>Leader = bottleneck/SPOF.</td></tr>
+    <tr><td><strong>Multi-leader</strong></td><td>Multiple write nodes.</td><td>Multi-region; low latency.</td><td>Conflict resolution needed.</td></tr>
+    <tr><td><strong>Leaderless</strong></td><td>Any node reads/writes; quorum-based.</td><td>No SPOF; highly available.</td><td>Complex conflict handling.</td></tr>
+  </tbody>
+</table>
+
+<h3 id="s3-5">3.5 Distributed Concurrency Control</h3>
+<table>
+  <thead><tr><th>Approach</th><th>How it works</th></tr></thead>
+  <tbody>
+    <tr><td><strong>Centralised locking</strong></td><td>Single node manages all locks. Simple; bottleneck + SPOF.</td></tr>
+    <tr><td><strong>Primary copy locking</strong></td><td>One replica per data item is "primary"; locks go there.</td></tr>
+    <tr><td><strong>Distributed locking</strong></td><td>Lock at the node storing the data. Requires distributed deadlock detection.</td></tr>
+  </tbody>
+</table>
+
+<h3 id="s3-6">3.6 Distributed Catalog Management</h3>
+<table>
+  <thead><tr><th>Strategy</th><th>Description</th><th>Trade-off</th></tr></thead>
+  <tbody>
+    <tr><td><strong>Centralised</strong></td><td>One site holds all metadata.</td><td>Simple; SPOF.</td></tr>
+    <tr><td><strong>Fully replicated</strong></td><td>Every site has complete copy.</td><td>Fast reads; expensive updates.</td></tr>
+    <tr><td><strong>Partitioned</strong></td><td>Each site stores local metadata only.</td><td>No redundancy; remote calls needed.</td></tr>
+  </tbody>
+</table>
+
+<h3 id="s3-7">3.7 Design Considerations</h3>
+<p><strong>Key decisions:</strong> What to fragment? How to fragment? Where to place fragments? What to replicate?</p>
+<p><strong>Goals:</strong> Locality of reference, load balancing, minimise network traffic, meet availability requirements.</p>
+
+
+<!-- ========================================== -->
+<!-- SESSION 4 -->
+<!-- ========================================== -->
+<div class="session-banner s4-banner" id="s4">
+  <h2>SESSION 4 &mdash; Distributed Transactions and Consistency Models</h2>
+  <div class="ref">T1 Ch.23 (Sec 23.4, 23.5) | Ch.24 (Sec 24.1)</div>
+</div>
+
+<h3 id="s4-1">4.1 Distributed Transactions</h3>
+<h4>Two-Phase Commit (2PC)</h4>
+<p><strong>Phase 1 &mdash; Voting:</strong> Coordinator sends PREPARE. Each participant votes YES (writes to durable log) or NO (aborts locally).</p>
+<p><strong>Phase 2 &mdash; Decision:</strong> All YES &rarr; GLOBAL COMMIT. Any NO &rarr; GLOBAL ABORT.</p>
+<div class="note warn"><strong>Blocking problem:</strong> If coordinator crashes after Phase 1, participants holding YES votes are stuck &mdash; they cannot decide until coordinator recovers.</div>
+
+<h4>Three-Phase Commit (3PC)</h4>
+<p>Adds <strong>PreCommit</strong> phase between voting and commit. Reduces blocking: participants can determine outcome based on whether they received pre-commit. Trade-off: extra latency, doesn't fully handle network partitions.</p>
+
+<h3 id="s4-2">4.2 Distributed Query Processing</h3>
+<div class="diagram">SQL Query &rarr; Parsing &rarr; Optimization (Global + Local) &rarr; Distributed Execution &rarr; Result Assembly</div>
+<h4>Distributed Join Strategies</h4>
+<table>
+  <thead><tr><th>Strategy</th><th>Description</th><th>When to use</th></tr></thead>
+  <tbody>
+    <tr><td><strong>Ship-whole</strong></td><td>Send entire small table.</td><td>One table is small.</td></tr>
+    <tr><td><strong>Semi-join</strong></td><td>Send join column values first to filter.</td><td>Large tables; high selectivity.</td></tr>
+    <tr><td><strong>Bloom-filter join</strong></td><td>Send compact Bloom filter of keys.</td><td>Very large tables.</td></tr>
+    <tr><td><strong>Parallel execution</strong></td><td>Independent sub-queries simultaneously.</td><td>Multiple partitions.</td></tr>
+  </tbody>
+</table>
+<div class="note"><strong>Dominant cost factor:</strong> Network transfer &mdash; moving data between nodes is the most expensive operation.</div>
+
+<h3 id="s4-3">4.3 The CAP Theorem</h3>
+<p>Proposed by <strong>Eric Brewer (2000)</strong>, proved by Gilbert &amp; Lynch (2002). In a distributed store, at most <strong>two out of three</strong>:</p>
+<table>
+  <thead><tr><th>Property</th><th>Definition</th></tr></thead>
+  <tbody>
+    <tr><td><strong>Consistency (C)</strong></td><td>Every read returns the most recent write (linearisability).</td></tr>
+    <tr><td><strong>Availability (A)</strong></td><td>Every request gets a non-error response.</td></tr>
+    <tr><td><strong>Partition Tolerance (P)</strong></td><td>System works despite network partitions.</td></tr>
+  </tbody>
+</table>
+<div class="note success"><strong>Key insight:</strong> Partitions are inevitable, so P is not optional. The real choice during a partition: sacrifice C (AP) or A (CP).</div>
+<table>
+  <thead><tr><th>Choice</th><th>During Partition</th><th>Examples</th></tr></thead>
+  <tbody>
+    <tr><td><strong>CP</strong></td><td>Error/timeout rather than stale data.</td><td>HBase, MongoDB, Zookeeper</td></tr>
+    <tr><td><strong>AP</strong></td><td>Best available (possibly stale) data.</td><td>Cassandra, DynamoDB, CouchDB</td></tr>
+    <tr><td><strong>CA</strong></td><td>Only without partitions (single node).</td><td>Traditional single-server RDBMS</td></tr>
+  </tbody>
+</table>
+
+<h3 id="s4-4">4.4 ACID vs. BASE</h3>
+<table>
+  <thead><tr><th>Aspect</th><th>ACID</th><th>BASE</th></tr></thead>
+  <tbody>
+    <tr><td>Consistency</td><td>Strong (immediate)</td><td>Eventual</td></tr>
+    <tr><td>Availability</td><td>May sacrifice for consistency</td><td>Prioritises availability</td></tr>
+    <tr><td>Scalability</td><td>Hard horizontally</td><td>Built for horizontal scale</td></tr>
+    <tr><td>Use cases</td><td>Financial, inventory, bookings</td><td>Social feeds, analytics, IoT</td></tr>
+    <tr><td>App complexity</td><td>Simpler (DB handles correctness)</td><td>Higher (app handles inconsistency)</td></tr>
+    <tr><td>Write latency</td><td>Higher (coordination)</td><td>Lower</td></tr>
+  </tbody>
+</table>
+
+<h4>Eventual Consistency Variants</h4>
+<table>
+  <thead><tr><th>Variant</th><th>Guarantee</th></tr></thead>
+  <tbody>
+    <tr><td><strong>Causal</strong></td><td>If A causes B, everyone sees A before B.</td></tr>
+    <tr><td><strong>Read-your-writes</strong></td><td>Client always sees its own updates.</td></tr>
+    <tr><td><strong>Monotonic reads</strong></td><td>Never see older value after seeing newer.</td></tr>
+    <tr><td><strong>Monotonic writes</strong></td><td>Writes by same client applied in order.</td></tr>
+    <tr><td><strong>Session</strong></td><td>Read-your-writes + monotonic reads within a session.</td></tr>
+  </tbody>
+</table>
+
+<h4>Tunable Consistency (Quorum Formula)</h4>
+<div class="note success"><strong>Strong consistency:</strong> <code>R + W &gt; N</code> (R = read replicas, W = write replicas, N = total replicas).</div>
+
+<h3 id="s4-5">4.5 Decision Framework</h3>
+<div class="diagram">Is your data safety-critical (money, health, inventory)?
+    YES &rarr; Strong consistency (CP / ACID)
+    NO  &darr;
+Can your app tolerate temporary stale reads?
+    YES &rarr; Eventual consistency (AP / BASE)
+    NO  &rarr; Causal or session consistency (middle ground)</div>
+
+<h3 id="s4-6">4.6 Consensus Protocols &mdash; Paxos &amp; Raft</h3>
+<h4>Paxos (Lamport, 1990)</h4>
+<p>Roles: Proposers, Acceptors, Learners. Two phases: Prepare &rarr; Accept. Tolerates &lt; N/2 failures. Notoriously hard to implement.</p>
+
+<h4>Raft (Ongaro &amp; Ousterhout, 2014)</h4>
+<p>Understandable alternative to Paxos. Three sub-problems: <strong>Leader election</strong>, <strong>Log replication</strong>, <strong>Safety</strong>.</p>
+<p>Node states: Follower &rarr; Candidate (on timeout) &rarr; Leader (on majority vote).</p>
+<p><strong>Used in:</strong> etcd, CockroachDB, TiKV, Consul.</p>
+
+<h4>Comparison: 2PC vs Paxos vs Raft</h4>
+<table>
+  <thead><tr><th>Aspect</th><th>2PC</th><th>Paxos</th><th>Raft</th></tr></thead>
+  <tbody>
+    <tr><td>Purpose</td><td>Atomic commit</td><td>Consensus</td><td>Consensus (leader-based)</td></tr>
+    <tr><td>Blocking</td><td>Yes</td><td>No</td><td>No</td></tr>
+    <tr><td>Partition tolerant</td><td>No</td><td>Yes</td><td>Yes</td></tr>
+    <tr><td>Fault tolerance</td><td>Coordinator = SPOF</td><td>&lt; N/2 failures</td><td>&lt; N/2 failures</td></tr>
+    <tr><td>Complexity</td><td>Simple</td><td>Very high</td><td>Moderate</td></tr>
+  </tbody>
+</table>
+
+<h3 id="s4-7">4.7 Distributed Recovery</h3>
+<p>Each node runs its own WAL-based UNDO/REDO recovery independently. For 2PC coordinator failures:</p>
+<ul>
+  <li>Coordinator reads its log on restart to re-send decision.</li>
+  <li>Participants can ask each other what they voted.</li>
+  <li>Cooperative termination protocol: participants decide without coordinator.</li>
+</ul>
+
+<h3 id="s4-8">4.8 NewSQL &mdash; Best of Both Worlds</h3>
+<p>SQL + ACID + horizontal scalability + high availability.</p>
+<table>
+  <thead><tr><th>System</th><th>Key Feature</th></tr></thead>
+  <tbody>
+    <tr><td><strong>Google Spanner</strong></td><td>Globally distributed; TrueTime (GPS + atomic clocks).</td></tr>
+    <tr><td><strong>CockroachDB</strong></td><td>Open-source; Raft-based; PostgreSQL-compatible.</td></tr>
+    <tr><td><strong>YugabyteDB</strong></td><td>Raft-based; PostgreSQL + Cassandra APIs.</td></tr>
+    <tr><td><strong>TiDB</strong></td><td>MySQL-compatible; TiKV storage.</td></tr>
+    <tr><td><strong>VoltDB</strong></td><td>In-memory; deterministic execution.</td></tr>
+  </tbody>
+</table>
+
+<h3 id="s4-9">4.9 Data Warehousing Concepts</h3>
+<h4>OLTP vs. OLAP</h4>
+<table>
+  <thead><tr><th>Aspect</th><th>OLTP</th><th>OLAP</th></tr></thead>
+  <tbody>
+    <tr><td>Purpose</td><td>Day-to-day operations</td><td>Business analysis</td></tr>
+    <tr><td>Queries</td><td>Short, frequent (INSERT, UPDATE)</td><td>Complex, long (aggregations)</td></tr>
+    <tr><td>Data</td><td>Current, detailed</td><td>Historical, summarised</td></tr>
+    <tr><td>Schema</td><td>Normalised (3NF)</td><td>Denormalised (star/snowflake)</td></tr>
+    <tr><td>Users</td><td>App users, clerks</td><td>Analysts, managers</td></tr>
+  </tbody>
+</table>
+
+<h4>Star Schema</h4>
+<p><strong>Fact table</strong> (centre) contains measures + FKs. <strong>Dimension tables</strong> (points) describe who/what/when/where. Denormalised dimensions &mdash; simple queries, fast joins.</p>
+
+<h4>Snowflake Schema</h4>
+<p>Dimension tables are normalised (e.g. DIM_PRODUCT references DIM_CATEGORY). Saves space; more joins.</p>
+
+<h4>ETL vs. ELT</h4>
+<table>
+  <thead><tr><th>Approach</th><th>Transform location</th><th>When to use</th></tr></thead>
+  <tbody>
+    <tr><td><strong>ETL</strong></td><td>Staging area before loading.</td><td>Traditional on-prem warehouses.</td></tr>
+    <tr><td><strong>ELT</strong></td><td>Inside warehouse after loading.</td><td>Cloud warehouses (BigQuery, Snowflake, Redshift).</td></tr>
+  </tbody>
+</table>
+
+
+<!-- Summary -->
+<div class="session-banner" style="border: 1px solid var(--border); background: var(--surface); margin-top: 56px;">
+  <h2 style="color: var(--text);">Summary of All Sessions</h2>
+</div>
+<table>
+  <thead><tr><th>Session</th><th>Core Concepts</th></tr></thead>
+  <tbody>
+    <tr><td><strong style="color:var(--session1)">1 &mdash; Foundations</strong></td><td>File systems vs. DBMS, three-schema architecture, relational model, keys, constraints, ER modelling, ER-to-relational mapping, normalisation (1NF&ndash;BCNF), DBMS architecture, indexing, views, stored procedures, triggers.</td></tr>
+    <tr><td><strong style="color:var(--session2)">2 &mdash; SQL &amp; Transactions</strong></td><td>DDL, DML, SELECT, joins, subqueries, ACID, transaction states, schema evolution, denormalisation, NoSQL motivation, concurrency control, isolation levels, recovery (WAL, UNDO/REDO), advanced SQL (CTEs, window functions, CASE, GRANT/REVOKE).</td></tr>
+    <tr><td><strong style="color:var(--session3)">3 &mdash; Distributed Foundations</strong></td><td>Centralised vs. distributed, architecture, transparency, fragmentation, partitioning strategies, replication, distributed concurrency, catalog management, data placement design.</td></tr>
+    <tr><td><strong style="color:var(--session4)">4 &mdash; Distributed Txns &amp; Consistency</strong></td><td>2PC/3PC, distributed query processing, CAP theorem, ACID vs. BASE, eventual consistency, tunable consistency, Paxos/Raft, distributed recovery, NewSQL, OLTP vs. OLAP, data warehousing.</td></tr>
+  </tbody>
+</table>
+
+</div><!-- end main -->
+
+<a href="#" class="back-top" id="backTop" aria-label="Back to top">&uarr;</a>
+
+<script>
+  // Sidebar toggle
+  function toggleSidebar() {
+    const sb = document.getElementById('sidebar');
+    const btn = document.getElementById('sidebarToggle');
+    const main = document.getElementById('mainContent');
+    sb.classList.toggle('closed');
+    btn.classList.toggle('shifted');
+    main.classList.toggle('expanded');
+  }
+
+  // Nav section collapse
+  function toggleNav(el) {
+    el.classList.toggle('collapsed');
+    const next = el.nextElementSibling;
+    if (next && next.classList.contains('nav-group')) {
+      next.classList.toggle('hidden');
+    }
+  }
+
+  // Progress bar
+  window.addEventListener('scroll', () => {
+    const winH = document.documentElement.scrollHeight - window.innerHeight;
+    const pct = window.scrollY / winH;
+    document.getElementById('progressBar').style.transform = `scaleX(${pct})`;
+
+    // Back to top
+    const btn = document.getElementById('backTop');
+    btn.classList.toggle('visible', window.scrollY > 400);
+  });
+
+  // Active nav link
+  const sections = document.querySelectorAll('h3[id], .session-banner[id]');
+  const navLinks = document.querySelectorAll('.nav-group a');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        navLinks.forEach(a => a.classList.remove('active'));
+        const link = document.querySelector(`.nav-group a[href="#${entry.target.id}"]`);
+        if (link) link.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-20% 0px -60% 0px' });
+  sections.forEach(s => observer.observe(s));
+</script>
+
+</body>
+</html>
