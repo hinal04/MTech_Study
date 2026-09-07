@@ -224,6 +224,40 @@ An **instance** (extension) is the actual data at a point in time. Changes with 
 
 **Analogy:** A spreadsheet template with column headers and validation rules is the schema. The rows of data filled in by users are the instance.
 
+**Concrete example:**
+
+```
+SCHEMA (defined once, rarely changes):
+──────────────────────────────────────────────────
+STUDENT (
+    Student_ID   INT PRIMARY KEY,
+    Name         VARCHAR(50) NOT NULL,
+    Age          INT CHECK (Age > 0),
+    Programme    VARCHAR(30)
+)
+──────────────────────────────────────────────────
+
+INSTANCE at 10:00 AM (changes constantly):
+┌────────────┬──────────┬─────┬────────────┐
+│ Student_ID │ Name     │ Age │ Programme  │
+├────────────┼──────────┼─────┼────────────┤
+│ 101        │ Alice    │ 21  │ M.Tech CS  │
+│ 102        │ Bob      │ 23  │ M.Tech EE  │
+└────────────┴──────────┴─────┴────────────┘
+
+After INSERT at 10:05 AM (new instance, same schema):
+┌────────────┬──────────┬─────┬────────────┐
+│ Student_ID │ Name     │ Age │ Programme  │
+├────────────┼──────────┼─────┼────────────┤
+│ 101        │ Alice    │ 21  │ M.Tech CS  │
+│ 102        │ Bob      │ 23  │ M.Tech EE  │
+│ 103        │ Carol    │ 20  │ M.Tech ME  │  ← new row
+└────────────┴──────────┴─────┴────────────┘
+
+The schema didn't change — still the same 4 columns with the same types.
+The instance changed — now 3 rows instead of 2.
+```
+
 ### 1.3.3 Database Languages
 
 | Language | Purpose | Examples | When used |
@@ -295,15 +329,42 @@ These **semantic constraints** are enforced through **application programs**, **
 
 Relational algebra provides the theoretical foundation for SQL. It defines a set of operations that take one or two relations as input and produce a new relation as output.
 
-| Operation | Symbol | Description | SQL Equivalent |
-|---|---|---|---|
-| **Selection** | σ | Pick rows satisfying a condition | `WHERE` |
-| **Projection** | π | Pick specific columns | `SELECT col1, col2` |
-| **Union** | ∪ | Combine rows from two compatible relations | `UNION` |
-| **Intersection** | ∩ | Rows common to both | `INTERSECT` |
-| **Difference** | − | Rows in one but not the other | `EXCEPT` |
-| **Cartesian product** | × | Every combination of rows from two relations | `FROM A, B` (no WHERE) |
-| **Join** | ⋈ | Combine related rows on a condition | `JOIN ... ON` |
+**Sample data for examples:**
+
+```
+STUDENT                              DEPARTMENT
+┌────┬───────┬────┬──────┐          ┌─────┬──────────┐
+│ ID │ Name  │Age │Dept_ID│          │D_ID │ D_Name   │
+├────┼───────┼────┼──────┤          ├─────┼──────────┤
+│ 1  │ Alice │ 21 │ CS   │          │ CS  │ CompSci  │
+│ 2  │ Bob   │ 23 │ EE   │          │ EE  │ ElecEng  │
+│ 3  │ Carol │ 20 │ CS   │          │ ME  │ MechEng  │
+│ 4  │ Dave  │ 22 │ ME   │          └─────┴──────────┘
+└────┴───────┴────┴──────┘
+```
+
+| Operation | Symbol | Description | SQL Equivalent | Example on sample data |
+|---|---|---|---|---|
+| **Selection** | σ | Pick rows satisfying a condition | `WHERE` | σ_{Age>21}(STUDENT) → {Bob(23), Dave(22)} |
+| **Projection** | π | Pick specific columns | `SELECT col1, col2` | π_{Name,Dept_ID}(STUDENT) → {(Alice,CS), (Bob,EE), (Carol,CS), (Dave,ME)} |
+| **Union** | ∪ | Combine rows from two compatible relations | `UNION` | π_{Name}(σ_{Dept_ID='CS'}(STUDENT)) ∪ π_{Name}(σ_{Dept_ID='EE'}(STUDENT)) → {Alice, Carol, Bob} |
+| **Intersection** | ∩ | Rows common to both | `INTERSECT` | (students in CS) ∩ (students age>20) → {Alice} |
+| **Difference** | − | Rows in one but not the other | `EXCEPT` | (all students) − (students in CS) → {Bob, Dave} |
+| **Cartesian product** | × | Every combination of rows from two relations | `FROM A, B` (no WHERE) | STUDENT × DEPARTMENT = 4×3 = 12 rows (every student paired with every department) |
+| **Join** | ⋈ | Combine related rows on a condition | `JOIN ... ON` | STUDENT ⋈_{Dept_ID=D_ID} DEPARTMENT → {(Alice,CompSci), (Bob,ElecEng), (Carol,CompSci), (Dave,MechEng)} |
+
+**Composed example:**
+
+"Find the names of CS students older than 20"
+
+```
+π_{Name}(σ_{Dept_ID='CS' AND Age>20}(STUDENT))
+
+Step 1: σ_{Dept_ID='CS' AND Age>20}(STUDENT) → Alice (21, CS)
+Step 2: π_{Name}(...) → {Alice}
+
+SQL equivalent: SELECT Name FROM STUDENT WHERE Dept_ID='CS' AND Age > 20;
+```
 
 ---
 

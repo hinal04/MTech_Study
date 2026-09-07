@@ -73,6 +73,36 @@ If the coordinator crashes **after Phase 1** (after collecting YES votes but bef
 
 This blocking is 2PC's most serious problem. In practice, it means 2PC is only suitable for environments with reliable, low-latency networks (typically within a single data centre).
 
+**Worked example — Complete 2PC trace for a distributed bank transfer:**
+
+```
+Scenario: Transfer 10,000 from Account A (Mumbai node) to Account B (London node)
+
+PHASE 1 — VOTING:
+Time | Coordinator         | Mumbai (Acct A)      | London (Acct B)
+─────┼─────────────────────┼──────────────────────┼──────────────────
+T1   | Send PREPARE        |                      |
+T2   |                     | A has 50K, can debit | B exists, can credit
+     |                     | Write undo log       | Write undo log
+T3   | Collect votes       | VOTE YES -->         | VOTE YES -->
+
+PHASE 2 — ALL voted YES:
+T4   | Decision: COMMIT    |                      |
+     | Log COMMIT to disk  |                      |
+T5   | Send GLOBAL COMMIT  | A = 50K-10K = 40K   | B = 20K+10K = 30K
+T6   | Receive ACKs        | ACK -->              | ACK -->
+     | DONE                |                      |
+
+BLOCKING SCENARIO — Coordinator crashes at T4:
+T4   | *** CRASH ***       | Voted YES, holding   | Voted YES, holding
+     |                     | X-lock on A. STUCK.  | X-lock on B. STUCK.
+     |                     | Cannot commit/abort. | Cannot commit/abort.
+     |                     | Other txns on A      | Other txns on B
+     |                     | also blocked.        | also blocked.
+
+Recovery: Coordinator restarts, reads log, finds COMMIT, re-sends to both.
+```
+
 ### 4.1.2 Three-Phase Commit (3PC)
 
 3PC adds an extra phase to reduce blocking:
@@ -398,9 +428,57 @@ Modern distributed databases (CockroachDB, Spanner, TiDB) use Raft or Paxos for 
 - **Fact table** (centre): Contains quantitative measures (sales_amount, quantity, profit) and foreign keys to dimension tables. One row per transaction/event.
 - **Dimension tables** (points of the star): Describe the who/what/when/where — Product, Time, Customer, Store. Denormalised for fast joins.
 
+**Concrete example — Retail sales star schema:**
+
+```sql
+-- FACT TABLE (centre of the star)
+FACT_SALES (
+    Sale_ID      INT PRIMARY KEY,
+    Product_ID   INT FK → DIM_PRODUCT,
+    Customer_ID  INT FK → DIM_CUSTOMER,
+    Store_ID     INT FK → DIM_STORE,
+    Date_ID      INT FK → DIM_TIME,
+    Quantity     INT,
+    Unit_Price   DECIMAL(10,2),
+    Total_Amount DECIMAL(12,2),
+    Discount     DECIMAL(5,2)
+);
+
+-- DIMENSION TABLES (points of the star)
+DIM_PRODUCT (Product_ID PK, Name, Brand, Category, Subcategory, Price);
+DIM_CUSTOMER (Customer_ID PK, Name, City, State, Country, Segment);
+DIM_STORE (Store_ID PK, Store_Name, City, State, Region, Manager);
+DIM_TIME (Date_ID PK, Date, Day_of_Week, Month, Quarter, Year, Is_Holiday);
+```
+
+**Sample analytical query on the star schema:**
+```sql
+-- "Total sales by product category per quarter in 2025"
+SELECT P.Category, T.Quarter, SUM(F.Total_Amount) AS Revenue
+FROM FACT_SALES F
+JOIN DIM_PRODUCT P ON F.Product_ID = P.Product_ID
+JOIN DIM_TIME T ON F.Date_ID = T.Date_ID
+WHERE T.Year = 2025
+GROUP BY P.Category, T.Quarter
+ORDER BY T.Quarter, Revenue DESC;
+```
+
+This query is fast because: (1) the star schema needs only 2 joins (fact → product, fact → time), (2) dimension tables are small and denormalised, (3) the fact table can be indexed on Date_ID for range filtering.
+
 **Snowflake Schema:**
 - Same as star, but dimension tables are **normalised** (e.g. DIM_PRODUCT references DIM_CATEGORY, which references DIM_DEPARTMENT).
 - Saves storage but requires more joins.
+
+**Snowflake example — Product dimension normalised:**
+```sql
+-- Instead of one DIM_PRODUCT with Category and Subcategory columns:
+DIM_PRODUCT (Product_ID PK, Name, Brand, Price, Subcategory_ID FK);
+DIM_SUBCATEGORY (Subcategory_ID PK, Subcategory_Name, Category_ID FK);
+DIM_CATEGORY (Category_ID PK, Category_Name, Department_ID FK);
+DIM_DEPARTMENT (Department_ID PK, Department_Name);
+
+-- Same query now needs 4 joins instead of 2 — slower but saves storage.
+```
 
 ### 4.9.3 ETL vs. ELT
 

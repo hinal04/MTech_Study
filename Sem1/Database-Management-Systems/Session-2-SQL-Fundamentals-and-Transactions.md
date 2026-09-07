@@ -404,17 +404,93 @@ PostgreSQL defaults to READ COMMITTED. MySQL InnoDB defaults to REPEATABLE READ.
 - **Shared lock (S):** Multiple readers can hold simultaneously. No writing allowed.
 - **Exclusive lock (X):** Only one transaction can hold it. No other reads or writes.
 
+**Lock compatibility matrix:**
+
+| | Request S | Request X |
+|---|---|---|
+| **Hold S** | Granted ✓ | Wait ✗ |
+| **Hold X** | Wait ✗ | Wait ✗ |
+
 **Two-Phase Locking (2PL):** Guarantees serializable schedules.
 1. **Growing phase:** Acquire locks, never release any.
 2. **Shrinking phase:** Release locks, never acquire new ones.
+
+**Worked example — 2PL in action:**
+
+```
+T1: Transfer 500 from Account A to Account B
+T2: Read balance of Account A
+
+Timeline with Strict 2PL:
+─────────────────────────────────────────────────────
+T1: X-lock(A)     ← Growing phase
+T1: Read A = 1000
+T1: Write A = 500
+T1: X-lock(B)     ← Still growing
+T2: S-lock(A)     ← BLOCKED! T1 holds X-lock on A
+T1: Read B = 2000
+T1: Write B = 2500
+T1: COMMIT         ← All locks released (shrinking phase)
+T2: S-lock(A)     ← NOW GRANTED (T1 released locks)
+T2: Read A = 500   ← Sees the committed value
+T2: COMMIT
+─────────────────────────────────────────────────────
+```
+
+T2 never sees the intermediate state (A debited but B not yet credited). 2PL ensures serializability.
 
 ### MVCC (Multi-Version Concurrency Control)
 
 Instead of blocking readers, MVCC keeps **multiple versions** of each row. Readers see the version current at their transaction's start time. **Readers never block writers, and writers never block readers.** Used by PostgreSQL, MySQL InnoDB, Oracle.
 
+**Worked example — MVCC in action:**
+
+```
+Account A has balance = 1000 (version created by Txn #50)
+
+T1 (Txn #100, starts at time 10): UPDATE A SET balance = 500
+  → Creates NEW version: balance=500, created_by=#100
+  → OLD version still exists: balance=1000, created_by=#50
+
+T2 (Txn #101, started at time 9, still running):
+  → SELECT balance FROM A
+  → T2 started BEFORE T1 committed, so T2 sees the OLD version
+  → T2 reads: balance = 1000  ← Not blocked! Reads old version.
+
+T1 commits at time 11.
+
+T3 (Txn #102, starts at time 12):
+  → SELECT balance FROM A
+  → T3 started AFTER T1 committed, so T3 sees the NEW version
+  → T3 reads: balance = 500
+
+Old version (1000) is garbage-collected after T2 finishes.
+```
+
+**Key insight:** T2 was never blocked even though T1 was writing to the same row. Each transaction sees a consistent snapshot as of its start time.
+
 ### Deadlocks
 
 Two transactions each wait for a lock held by the other → neither can proceed. Detected via a **wait-for graph** (cycle = deadlock). Resolved by aborting one transaction (the "victim").
+
+**Worked example — Deadlock:**
+
+```
+T1: X-lock(Row A)        ← T1 holds A
+T2: X-lock(Row B)        ← T2 holds B
+T1: X-lock(Row B)        ← BLOCKED! T2 holds B. T1 waits.
+T2: X-lock(Row A)        ← BLOCKED! T1 holds A. T2 waits.
+
+Wait-for graph:
+  T1 → T2 (T1 waits for T2 to release B)
+  T2 → T1 (T2 waits for T1 to release A)
+  CYCLE detected → DEADLOCK!
+
+Resolution: DBMS aborts T2 (the victim — chose the transaction that did less work).
+  T2's locks on B are released.
+  T1 acquires B, completes, commits.
+  T2 is restarted.
+```
 
 ---
 
@@ -426,6 +502,23 @@ Recovery ensures **atomicity** (uncommitted changes are undone) and **durability
 
 Before any change is written to the database on disk, the corresponding **log record** must first be written to the log file on stable storage. Log records contain: transaction ID, data item, old value (for UNDO), new value (for REDO), COMMIT/ABORT markers.
 
+**Worked example — WAL log for a bank transfer:**
+
+```
+Log Sequence:
+──────────────────────────────────────────────────────────────
+LSN  | Txn  | Operation  | Data Item | Old Val | New Val
+──────────────────────────────────────────────────────────────
+001  | T1   | BEGIN      |           |         |
+002  | T1   | UPDATE     | A.balance | 1000    | 500
+003  | T1   | UPDATE     | B.balance | 2000    | 2500
+004  | T1   | COMMIT     |           |         |
+──────────────────────────────────────────────────────────────
+
+WAL Rule: LSN 002 and 003 must be flushed to the LOG on disk
+BEFORE the actual changes to A and B hit the database files.
+```
+
 ### UNDO and REDO
 
 | Action | When applied | What it does |
@@ -433,9 +526,30 @@ Before any change is written to the database on disk, the corresponding **log re
 | **UNDO** | Transaction was active (uncommitted) at crash time. | Roll back its changes using old values from the log. |
 | **REDO** | Transaction committed but changes may not have been flushed to disk. | Re-apply changes using new values from the log. |
 
+**Worked example — Crash recovery:**
+
+```
+Log at crash time:
+  LSN 001: T1 BEGIN
+  LSN 002: T1 UPDATE A (1000 → 500)
+  LSN 003: T1 COMMIT
+  LSN 004: T2 BEGIN
+  LSN 005: T2 UPDATE B (2000 → 1800)
+  *** CRASH *** (T2 never committed)
+
+Recovery:
+  REDO T1: Committed (LSN 003 exists). Re-apply A = 500.
+  UNDO T2: Active at crash (no COMMIT). Restore B = 2000.
+
+Result: A = 500 ✓ (committed change preserved)
+        B = 2000 ✓ (uncommitted change rolled back)
+```
+
 ### Checkpoints
 
 A checkpoint periodically flushes all dirty pages from memory to disk and writes a checkpoint record to the log. This limits how far back recovery must scan — only from the last checkpoint, not from the beginning of time.
+
+**Example:** If the log has 10 million entries and the last checkpoint was at LSN 9,990,000, recovery scans only the last 10,000 entries — not all 10 million.
 
 ---
 

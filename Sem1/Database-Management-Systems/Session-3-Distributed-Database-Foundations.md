@@ -69,6 +69,38 @@ Transparency is the central design principle of a DDBMS. The system should hide 
 | **Concurrency transparency** | That other transactions are running at the same time. Each user experiences the system as if they have exclusive access. |
 | **Failure transparency** | That a node or network link has failed. The system masks the failure and continues operating (possibly with reduced performance). |
 
+**Concrete example — All five transparencies in action:**
+
+Consider a global bank with data centres in London, Mumbai, and New York:
+
+```
+User in Mumbai runs:
+  SELECT * FROM CUSTOMER WHERE Country = 'India';
+
+Behind the scenes (hidden from user):
+
+1. LOCATION: The DDBMS knows CUSTOMER data for India is on the 
+   Mumbai server, UK data on London server. Routes query to Mumbai.
+   User just wrote "CUSTOMER" — not "mumbai-server.CUSTOMER".
+
+2. FRAGMENTATION: The CUSTOMER table is horizontally fragmented by 
+   country. Mumbai has Indian customers, London has UK customers.
+   User queries the full table — DDBMS returns only relevant fragment.
+
+3. REPLICATION: Mumbai CUSTOMER data is replicated to New York for 
+   disaster recovery. If Mumbai is down, the query is redirected to 
+   the New York replica. User doesn't know which copy was read.
+
+4. CONCURRENCY: Simultaneously, another user in London is updating 
+   a UK customer's address. The two transactions don't interfere —
+   each sees a consistent view. Neither user is aware of the other.
+
+5. FAILURE: The network link between Mumbai and London goes down.
+   The Mumbai user's query still works (data is local). The London 
+   user's query still works (UK data is local). Neither user sees 
+   an error. The DDBMS masks the partition.
+```
+
 Achieving full transparency is extremely difficult in practice. Most real systems provide some transparencies but expose others to the application for performance or correctness reasons.
 
 ### 3.2.3 Architecture Types
