@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Session 5: Questions &amp; Answers</title>
+<style>
+:root{--bg:#0f172a;--surface:#1e293b;--surface2:#334155;--border:#475569;--text:#e2e8f0;--text-muted:#94a3b8;--code-bg:#0d1117;--accent:#ec4899;--accent-dim:rgba(236,72,153,.15);--header-gradient:linear-gradient(135deg,#831843,#db2777,#ec4899)}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);line-height:1.7;display:flex;min-height:100vh}
+#progress-bar{position:fixed;top:0;left:0;height:3px;background:var(--accent);z-index:1000;transition:width .2s}
+.sidebar{position:fixed;top:0;left:0;width:280px;height:100vh;background:var(--surface);border-right:1px solid var(--border);overflow-y:auto;z-index:100;padding:20px 0;transition:transform .3s}
+.sidebar-header{padding:16px 20px;border-bottom:1px solid var(--border);margin-bottom:8px}
+.sidebar-header h2{font-size:14px;color:var(--accent);text-transform:uppercase;letter-spacing:1px}
+.sidebar nav a{display:block;padding:7px 20px;color:var(--text-muted);text-decoration:none;font-size:13px;border-left:3px solid transparent;transition:all .2s}
+.sidebar nav a:hover,.sidebar nav a.active{color:var(--accent);background:var(--accent-dim);border-left-color:var(--accent)}
+.sidebar-toggle{display:none;position:fixed;top:12px;left:12px;z-index:200;background:var(--surface);border:1px solid var(--border);color:var(--text);padding:8px 12px;border-radius:6px;cursor:pointer;font-size:18px}
+.main{margin-left:280px;flex:1;max-width:960px;padding:40px 48px 80px}
+.page-header{background:var(--header-gradient);border-radius:16px;padding:48px 40px;margin-bottom:32px;position:relative;overflow:hidden}
+.page-header::after{content:'';position:absolute;top:0;right:0;width:200px;height:200px;background:rgba(255,255,255,.06);border-radius:50%;transform:translate(40%,-40%)}
+.page-header h1{font-size:2rem;color:#fff;margin-bottom:8px}
+.page-header .subtitle{color:rgba(255,255,255,.85);font-size:1rem}
+.controls{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin-bottom:28px;padding:16px 20px;background:var(--surface);border-radius:12px;border:1px solid var(--border)}
+.controls .counter{font-size:.95rem;color:var(--text-muted);margin-right:auto}
+.controls .counter span{color:var(--accent);font-weight:700}
+.controls button{background:var(--surface2);color:var(--text);border:1px solid var(--border);padding:8px 18px;border-radius:8px;cursor:pointer;font-size:.85rem;transition:all .2s}
+.controls button:hover{background:var(--accent);color:#fff;border-color:var(--accent)}
+.qa-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;margin-bottom:16px;overflow:hidden;transition:border-color .2s}
+.qa-card:hover{border-color:var(--accent)}
+.qa-card.reviewed{border-left:4px solid var(--accent)}
+.qa-question{display:flex;align-items:flex-start;gap:14px;padding:18px 20px;cursor:pointer;user-select:none}
+.qa-question .q-num{flex-shrink:0;width:36px;height:36px;background:var(--accent-dim);color:var(--accent);border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.9rem}
+.qa-question .q-text{flex:1;font-weight:600;color:var(--text);font-size:1rem;padding-top:5px}
+.qa-question .q-toggle{flex-shrink:0;color:var(--text-muted);font-size:1.3rem;padding-top:4px;transition:transform .3s}
+.qa-card.open .q-toggle{transform:rotate(180deg)}
+.qa-checkbox{flex-shrink:0;margin-top:6px}
+.qa-checkbox input{width:18px;height:18px;accent-color:var(--accent);cursor:pointer}
+.qa-answer{display:none;padding:0 20px 20px 70px;animation:fadeIn .3s}
+.qa-card.open .qa-answer{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
+.table-wrap{overflow-x:auto;margin:12px 0 16px;border-radius:10px;border:1px solid var(--border)}
+table{width:100%;border-collapse:collapse;font-size:.85rem}
+thead th{background:var(--accent);color:#fff;padding:10px 12px;text-align:left;font-weight:600;white-space:nowrap}
+tbody tr:nth-child(even){background:var(--surface)}
+tbody tr:nth-child(odd){background:var(--surface2)}
+tbody td{padding:9px 12px;border-top:1px solid var(--border);vertical-align:top}
+pre{background:var(--code-bg);border:1px solid var(--border);border-radius:10px;padding:16px;margin:12px 0 16px;overflow-x:auto;font-size:.83rem;line-height:1.6}
+code{font-family:'Fira Code','Cascadia Code','Consolas',monospace;color:#e6db74}
+p code,li code,td code{background:var(--code-bg);padding:2px 7px;border-radius:4px;font-size:.85em;color:var(--accent)}
+p{margin-bottom:12px}
+ul,ol{margin:0 0 12px 20px}
+li{margin-bottom:4px}
+strong{color:#fff}
+h3{font-size:1rem;color:var(--accent);margin:14px 0 8px}
+.callout{background:var(--accent-dim);border-left:4px solid var(--accent);border-radius:0 10px 10px 0;padding:14px 18px;margin:12px 0 16px;color:var(--text-muted)}
+.back-to-top{position:fixed;bottom:32px;right:32px;width:44px;height:44px;background:var(--accent);color:#fff;border:none;border-radius:50%;font-size:20px;cursor:pointer;opacity:0;transition:opacity .3s;z-index:99;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 12px rgba(0,0,0,.4)}
+.back-to-top.visible{opacity:1}
+@media(max-width:900px){
+.sidebar{transform:translateX(-100%)}
+.sidebar.open{transform:translateX(0)}
+.sidebar-toggle{display:block}
+.main{margin-left:0;padding:24px 16px 80px}
+.page-header{padding:32px 24px}
+.page-header h1{font-size:1.5rem}
+.qa-answer{padding-left:20px}
+}
+@media print{
+.sidebar,.sidebar-toggle,.back-to-top,#progress-bar,.controls{display:none!important}
+.main{margin-left:0;max-width:100%}
+body{background:#fff;color:#000}
+.qa-answer{display:block!important}
+.qa-card{border:1px solid #ccc;break-inside:avoid}
+.page-header{background:#ec4899!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+pre{border:1px solid #ccc;background:#f5f5f5!important}
+code{color:#333}
+thead th{background:#ec4899!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+}
+</style>
+</head>
+<body>
+<div id="progress-bar"></div>
+<button class="sidebar-toggle" onclick="document.querySelector('.sidebar').classList.toggle('open')">&#9776;</button>
+
+<aside class="sidebar">
+<div class="sidebar-header"><h2>Questions</h2></div>
+<nav>
+<a href="#q1">Q1. Structured vs Semi vs Unstructured</a>
+<a href="#q2">Q2. Data vs Model importance</a>
+<a href="#q3">Q3. Internal &amp; External Sources</a>
+<a href="#q4">Q4. Six Data Quality Dimensions</a>
+<a href="#q5">Q5. Data Leakage</a>
+<a href="#q6">Q6. Class Imbalance</a>
+<a href="#q7">Q7. Data Governance</a>
+<a href="#q8">Q8. Governance Lifecycle</a>
+<a href="#q9">Q9. Sampling Bias</a>
+<a href="#q10">Q10. Right to be Forgotten</a>
+<a href="#q11">Q11. Traditional vs AI Data Needs</a>
+<a href="#q12">Q12. Loan Approval Data Issues</a>
+</nav>
+</aside>
+
+<main class="main">
+<div class="page-header">
+<h1>Session 5: Questions &amp; Answers</h1>
+<p class="subtitle">Data &amp; Feature Engineering &mdash; 12 Questions</p>
+</div>
+
+<div class="controls">
+<span class="counter">Reviewed: <span id="reviewed-count">0</span> / 12</span>
+<button onclick="toggleAll(true)">Show All</button>
+<button onclick="toggleAll(false)">Hide All</button>
+</div>
+
+<!-- Q1 -->
+<div class="qa-card" id="q1">
+<div class="qa-question" onclick="toggleCard(this)">
+<div class="qa-checkbox"><input type="checkbox" onclick="event.stopPropagation();updateCount()" title="Mark as reviewed"></div>
+<div class="q-num">1</div>
+<div class="q-text">Compare structured, semi-structured, and unstructured data with examples relevant to AI.</div>
+<div class="q-toggle">&#9662;</div>
+</div>
+<div class="qa-answer">
+<div class="table-wrap"><table>
+<thead><tr><th>Aspect</th><th>Structured</th><th>Semi-Structured</th><th>Unstructured</th></tr></thead>
+<tbody>
+<tr><td><strong>Schema</strong></td><td>Fixed, predefined (rows/columns)</td><td>Flexible, self-describing (tags/keys)</td><td>None</td></tr>
+<tr><td><strong>Storage</strong></td><td>RDBMS, columnar stores</td><td>Document DBs, data lakes</td><td>Object storage, media servers</td></tr>
+<tr><td><strong>Query method</strong></td><td>SQL</td><td>JSON queries, path expressions</td><td>AI models, vector search, full-text search</td></tr>
+<tr><td><strong>Feature engineering</strong></td><td>Straightforward (aggregations, ratios)</td><td>Requires parsing and flattening</td><td>Requires AI to extract features</td></tr>
+<tr><td><strong>% of enterprise data</strong></td><td>~20%</td><td>~10%</td><td>~70%</td></tr>
+<tr><td><strong>AI example</strong></td><td>Customer transactions &rarr; fraud detection (XGBoost)</td><td>JSON event logs &rarr; user behaviour prediction</td><td>Medical images &rarr; tumour detection (CNN)</td></tr>
+</tbody></table></div>
+<p><strong>Key insight:</strong> Modern AI increasingly uses <strong>multimodal data</strong> &mdash; combining structured (patient records) + unstructured (medical images) + semi-structured (doctor&rsquo;s notes in JSON) in a single system.</p>
+</div>
+</div>
+
+<!-- Q2 -->
+<div class="qa-card" id="q2">
+<div class="qa-question" onclick="toggleCard(this)">
+<div class="qa-checkbox"><input type="checkbox" onclick="event.stopPropagation();updateCount()" title="Mark as reviewed"></div>
+<div class="q-num">2</div>
+<div class="q-text">Why is data considered more important than the model in AI systems?</div>
+<div class="q-toggle">&#9662;</div>
+</div>
+<div class="qa-answer">
+<p>&ldquo;Better data almost always beats a better model.&rdquo; Here&rsquo;s why:</p>
+<ol>
+<li><strong>Data defines behaviour:</strong> In ML, the model learns FROM the data. The data IS the logic. A simple logistic regression on clean, relevant data will outperform a complex neural network on noisy, irrelevant data.</li>
+<li><strong>80% rule:</strong> Approximately 80% of a typical ML project&rsquo;s time goes to data collection, cleaning, labelling, and preparation &mdash; not model building.</li>
+<li><strong>Google&rsquo;s finding:</strong> Research at Google showed that fixing data quality issues improved model performance more than switching to more complex architectures.</li>
+<li><strong>Silent failures:</strong> Unlike code bugs (which crash), data bugs cause the model to produce subtly wrong predictions that are hard to detect. A training set with 5% wrong labels doesn&rsquo;t crash &mdash; it silently produces a model that&rsquo;s 5% less accurate.</li>
+<li><strong>Data compounds:</strong> More high-quality data continuously improves the model. A better algorithm with the same bad data hits a ceiling.</li>
+</ol>
+</div>
+</div>
+
+<!-- Q3 -->
+<div class="qa-card" id="q3">
+<div class="qa-question" onclick="toggleCard(this)">
+<div class="qa-checkbox"><input type="checkbox" onclick="event.stopPropagation();updateCount()" title="Mark as reviewed"></div>
+<div class="q-num">3</div>
+<div class="q-text">List 5 internal and 5 external data sources for AI systems.</div>
+<div class="q-toggle">&#9662;</div>
+</div>
+<div class="qa-answer">
+<p><strong>Internal sources (from within the organisation):</strong></p>
+<div class="table-wrap"><table>
+<thead><tr><th>Source</th><th>What it provides</th></tr></thead>
+<tbody>
+<tr><td>Transactional databases</td><td>Orders, payments, customer records, inventory</td></tr>
+<tr><td>Application logs</td><td>User behaviour, errors, performance metrics</td></tr>
+<tr><td>CRM systems</td><td>Customer interactions, support tickets, sales data</td></tr>
+<tr><td>Data warehouse/lake</td><td>Historical, aggregated, transformed analytics data</td></tr>
+<tr><td>IoT/sensor data</td><td>Real-time readings from connected devices</td></tr>
+</tbody></table></div>
+<p><strong>External sources (from outside):</strong></p>
+<div class="table-wrap"><table>
+<thead><tr><th>Source</th><th>What it provides</th></tr></thead>
+<tbody>
+<tr><td>Public datasets</td><td>ImageNet, Common Crawl, Wikipedia, government open data</td></tr>
+<tr><td>Third-party providers</td><td>Demographics (Experian), weather (AccuWeather), location (Foursquare)</td></tr>
+<tr><td>APIs</td><td>Social media (Twitter/X), maps (Google), stock markets</td></tr>
+<tr><td>Web scraping</td><td>Competitor prices, job postings, news (legal/ethical considerations apply)</td></tr>
+<tr><td>Pre-trained model outputs</td><td>Embeddings from CLIP, synthetic data from GPT-4</td></tr>
+</tbody></table></div>
+</div>
+</div>
+
+<!-- Q4 -->
+<div class="qa-card" id="q4">
+<div class="qa-question" onclick="toggleCard(this)">
+<div class="qa-checkbox"><input type="checkbox" onclick="event.stopPropagation();updateCount()" title="Mark as reviewed"></div>
+<div class="q-num">4</div>
+<div class="q-text">Explain the six dimensions of data quality. Give an AI-specific example for each.</div>
+<div class="q-toggle">&#9662;</div>
+</div>
+<div class="qa-answer">
+<div class="table-wrap"><table>
+<thead><tr><th>Dimension</th><th>Definition</th><th>AI-Specific Example</th></tr></thead>
+<tbody>
+<tr><td><strong>Accuracy</strong></td><td>Values correctly represent reality.</td><td>Customer age recorded as 150 &rarr; model learns wrong demographic patterns.</td></tr>
+<tr><td><strong>Completeness</strong></td><td>No missing values where they should exist.</td><td>30% of rows missing &ldquo;income&rdquo; &rarr; model either drops these rows (losing data) or imputes incorrectly.</td></tr>
+<tr><td><strong>Consistency</strong></td><td>Same fact represented the same way everywhere.</td><td>&ldquo;United States&rdquo; in one table, &ldquo;US&rdquo; in another &rarr; join failures, duplicate features.</td></tr>
+<tr><td><strong>Timeliness</strong></td><td>Data reflects current reality.</td><td>Inventory data 24 hours old &rarr; recommendation model suggests out-of-stock items.</td></tr>
+<tr><td><strong>Validity</strong></td><td>Data conforms to defined formats and constraints.</td><td>Phone number field containing email addresses &rarr; feature parsing produces garbage.</td></tr>
+<tr><td><strong>Uniqueness</strong></td><td>No unintended duplicates.</td><td>Same customer appears 3 times &rarr; model over-weights their behaviour, training data inflated.</td></tr>
+</tbody></table></div>
+</div>
+</div>
+
+<!-- Q5 -->
+<div class="qa-card" id="q5">
+<div class="qa-question" onclick="toggleCard(this)">
+<div class="qa-checkbox"><input type="checkbox" onclick="event.stopPropagation();updateCount()" title="Mark as reviewed"></div>
+<div class="q-num">5</div>
+<div class="q-text">What is data leakage? Why is it one of the most dangerous data quality issues in ML?</div>
+<div class="q-toggle">&#9662;</div>
+</div>
+<div class="qa-answer">
+<p><strong>Data leakage</strong> occurs when information from the test set or from the future &ldquo;leaks&rdquo; into the training data, giving the model access to information it wouldn&rsquo;t have at prediction time.</p>
+<p><strong>Why it&rsquo;s dangerous:</strong></p>
+<ul>
+<li>The model appears to perform amazingly during evaluation (high accuracy on test set).</li>
+<li>But it completely fails in production because the leaked feature doesn&rsquo;t exist at prediction time.</li>
+<li>It&rsquo;s hard to detect because metrics look great &mdash; you only discover it when the deployed model underperforms.</li>
+</ul>
+<p><strong>Example:</strong></p>
+<pre><code>Credit scoring model:
+Feature: "credit_bureau_score"
+
+Problem: The credit bureau updates the score AFTER the loan 
+decision is made. During training, this score reflects the 
+outcome, not the input.
+
+Training: Model learns "high bureau score → no default" → 99% accuracy!
+Production: Bureau score not available at decision time → model fails.</code></pre>
+<p><strong>How to prevent:</strong></p>
+<ul>
+<li>Strict temporal ordering &mdash; only use features available at prediction time.</li>
+<li>Careful train/test splitting &mdash; split by time, not randomly, for temporal data.</li>
+<li>Feature audit &mdash; for each feature, ask &ldquo;would this be available when making a real prediction?&rdquo;</li>
+</ul>
+</div>
+</div>
+
+<!-- Q6 -->
+<div class="qa-card" id="q6">
+<div class="qa-question" onclick="toggleCard(this)">
+<div class="qa-checkbox"><input type="checkbox" onclick="event.stopPropagation();updateCount()" title="Mark as reviewed"></div>
+<div class="q-num">6</div>
+<div class="q-text">What is class imbalance? How does it affect ML models and how can it be addressed?</div>
+<div class="q-toggle">&#9662;</div>
+</div>
+<div class="qa-answer">
+<p><strong>Class imbalance</strong> occurs when one class has far more examples than others in the training data.</p>
+<p><strong>Example:</strong> In fraud detection, 98% of transactions are legitimate and only 2% are fraudulent.</p>
+<p><strong>How it affects models:</strong></p>
+<ul>
+<li>The model learns to predict the majority class for everything &mdash; &ldquo;not fraud&rdquo; for every transaction.</li>
+<li>This gives 98% accuracy but catches zero actual fraud &mdash; completely useless.</li>
+<li>Standard metrics (accuracy) are misleading. 98% accuracy sounds great but the model is worthless.</li>
+</ul>
+<p><strong>Solutions:</strong></p>
+<div class="table-wrap"><table>
+<thead><tr><th>Technique</th><th>How it works</th></tr></thead>
+<tbody>
+<tr><td><strong>Oversampling (SMOTE)</strong></td><td>Synthetically generate more examples of the minority class.</td></tr>
+<tr><td><strong>Undersampling</strong></td><td>Randomly remove examples from the majority class.</td></tr>
+<tr><td><strong>Class weights</strong></td><td>Tell the model that misclassifying a fraud case costs 50x more than misclassifying a legitimate one.</td></tr>
+<tr><td><strong>Threshold tuning</strong></td><td>Instead of using 0.5 as the classification threshold, use a lower value (e.g. 0.1) to catch more positives.</td></tr>
+<tr><td><strong>Better metrics</strong></td><td>Use precision, recall, F1, AUC-PR instead of accuracy.</td></tr>
+<tr><td><strong>Ensemble methods</strong></td><td>Train multiple models on balanced subsets.</td></tr>
+</tbody></table></div>
+</div>
+</div>
+
+<!-- Q7 -->
+<div class="qa-card" id="q7">
+<div class="qa-question" onclick="toggleCard(this)">
+<div class="qa-checkbox"><input type="checkbox" onclick="event.stopPropagation();updateCount()" title="Mark as reviewed"></div>
+<div class="q-num">7</div>
+<div class="q-text">What is data governance? Why does it matter specifically for AI systems?</div>
+<div class="q-toggle">&#9662;</div>
+</div>
+<div class="qa-answer">
+<p><strong>Data governance</strong> is the framework of policies, processes, and standards ensuring data is managed securely, consistently, and in compliance with regulations.</p>
+<p><strong>Why it matters specifically for AI:</strong></p>
+<div class="table-wrap"><table>
+<thead><tr><th>AI-Specific Concern</th><th>Why governance is needed</th></tr></thead>
+<tbody>
+<tr><td><strong>Models trained on unauthorized data</strong></td><td>Legal liability. GDPR fines up to 4% of global revenue.</td></tr>
+<tr><td><strong>Models reproducing biases</strong></td><td>Discriminatory predictions (denying loans based on race proxies). Reputational and legal risk.</td></tr>
+<tr><td><strong>No audit trail</strong></td><td>Can&rsquo;t explain or defend model decisions to regulators. Required in finance (Basel) and healthcare (HIPAA).</td></tr>
+<tr><td><strong>Inconsistent data across teams</strong></td><td>Different teams train on different &ldquo;truth,&rdquo; producing contradictory models.</td></tr>
+<tr><td><strong>Model memorises PII</strong></td><td>LLMs can memorise and regurgitate personal data from training. Privacy violation.</td></tr>
+</tbody></table></div>
+<p>In traditional analytics, poor governance means wrong reports. In AI, poor governance means wrong automated decisions affecting real people at scale.</p>
+</div>
+</div>
+
+<!-- Q8 -->
+<div class="qa-card" id="q8">
+<div class="qa-question" onclick="toggleCard(this)">
+<div class="qa-checkbox"><input type="checkbox" onclick="event.stopPropagation();updateCount()" title="Mark as reviewed"></div>
+<div class="q-num">8</div>
+<div class="q-text">Explain the data governance lifecycle for AI systems.</div>
+<div class="q-toggle">&#9662;</div>
+</div>
+<div class="qa-answer">
+<pre><code>1. DISCOVER  → What data exists? Where? Who owns it?        (Data Catalog)
+2. CLASSIFY  → Is it PII? Sensitive? Regulated?              (Classification)
+3. PROTECT   → Encrypt, anonymise, control access.           (Security)
+4. COMPLY    → GDPR, HIPAA, India's DPDP Act. Consent mgmt. (Compliance)
+5. MONITOR   → Quality checks, access audit logs, lineage.   (Observability)
+6. GOVERN    → Policies, standards, ownership, stewardship.  (People + Process)</code></pre>
+<p><strong>Key components:</strong></p>
+<div class="table-wrap"><table>
+<thead><tr><th>Component</th><th>Purpose</th></tr></thead>
+<tbody>
+<tr><td><strong>Data ownership</strong></td><td>Who is responsible for each dataset. Accountability for quality.</td></tr>
+<tr><td><strong>Access control</strong></td><td>Who can access what, for what purpose. Prevent unauthorized ML training.</td></tr>
+<tr><td><strong>Data lineage</strong></td><td>Where data came from, how transformed, where used. Trace bad predictions to root cause.</td></tr>
+<tr><td><strong>Data cataloging</strong></td><td>Central inventory of all data assets. Data scientists discover data without asking 10 people.</td></tr>
+<tr><td><strong>Privacy compliance</strong></td><td>GDPR, HIPAA, CCPA, DPDP Act. Consent, anonymisation, right to deletion.</td></tr>
+<tr><td><strong>Retention policies</strong></td><td>How long data kept. Regulatory requirements. Stale data degrades models.</td></tr>
+<tr><td><strong>Quality standards</strong></td><td>Defined thresholds: &ldquo;Completeness &gt; 95%, Freshness &lt; 1 hour.&rdquo;</td></tr>
+</tbody></table></div>
+</div>
+</div>
+
+<!-- Q9 -->
+<div class="qa-card" id="q9">
+<div class="qa-question" onclick="toggleCard(this)">
+<div class="qa-checkbox"><input type="checkbox" onclick="event.stopPropagation();updateCount()" title="Mark as reviewed"></div>
+<div class="q-num">9</div>
+<div class="q-text">What is sampling bias? Give an example of how it affects AI systems.</div>
+<div class="q-toggle">&#9662;</div>
+</div>
+<div class="qa-answer">
+<p><strong>Sampling bias</strong> occurs when training data is not representative of the real-world population the model will serve.</p>
+<p><strong>Classic example &mdash; Facial recognition:</strong></p>
+<ul>
+<li>Training data contained mostly light-skinned faces (majority from Western internet datasets).</li>
+<li>The model performed well on light-skinned faces (90%+ accuracy) but poorly on dark-skinned faces (65% accuracy).</li>
+<li>When deployed in a diverse population, the model systematically failed for underrepresented groups.</li>
+</ul>
+<p><strong>Why it happens:</strong></p>
+<ul>
+<li>Data collected from convenience sources (internet scraping favours certain demographics).</li>
+<li>Historical biases in data (loan approval data from an era when certain groups were discriminated against).</li>
+<li>Survivorship bias (only successful cases are recorded, failures are lost).</li>
+</ul>
+<p><strong>How to mitigate:</strong></p>
+<ul>
+<li>Audit training data for demographic representation.</li>
+<li>Collect data intentionally from underrepresented groups.</li>
+<li>Evaluate model performance per subgroup (not just overall accuracy).</li>
+<li>Use fairness metrics (equal opportunity, demographic parity).</li>
+</ul>
+</div>
+</div>
+
+<!-- Q10 -->
+<div class="qa-card" id="q10">
+<div class="qa-question" onclick="toggleCard(this)">
+<div class="qa-checkbox"><input type="checkbox" onclick="event.stopPropagation();updateCount()" title="Mark as reviewed"></div>
+<div class="q-num">10</div>
+<div class="q-text">What is the "right to be forgotten" and how does it affect AI systems?</div>
+<div class="q-toggle">&#9662;</div>
+</div>
+<div class="qa-answer">
+<p>Under <strong>GDPR Article 17</strong>, individuals can request that an organisation delete all their personal data. This is the &ldquo;right to be forgotten&rdquo; (right to erasure).</p>
+<p><strong>The AI challenge:</strong> If a user&rsquo;s data was used to train an ML model, the model has already &ldquo;learned&rdquo; from that data. Simply deleting the data from the database doesn&rsquo;t remove its influence from the model&rsquo;s weights.</p>
+<p><strong>Solutions:</strong></p>
+<div class="table-wrap"><table>
+<thead><tr><th>Approach</th><th>How it works</th><th>Trade-off</th></tr></thead>
+<tbody>
+<tr><td><strong>Full retraining</strong></td><td>Delete the data, retrain the model from scratch without it.</td><td>Expensive (days/weeks of GPU compute for large models). But guaranteed.</td></tr>
+<tr><td><strong>Machine unlearning</strong></td><td>Approximate techniques to remove a data point&rsquo;s influence without full retraining.</td><td>Faster but imperfect &mdash; influence may not be fully removed. Active research area.</td></tr>
+<tr><td><strong>Data sharding</strong></td><td>Train on shards. To &ldquo;forget&rdquo; a user, retrain only their shard.</td><td>Faster retraining. But shard boundaries must be designed upfront.</td></tr>
+<tr><td><strong>Differential privacy</strong></td><td>Add noise during training so no individual data point significantly influences the model.</td><td>Prevents memorisation proactively. But reduces model accuracy.</td></tr>
+</tbody></table></div>
+</div>
+</div>
+
+<!-- Q11 -->
+<div class="qa-card" id="q11">
+<div class="qa-question" onclick="toggleCard(this)">
+<div class="qa-checkbox"><input type="checkbox" onclick="event.stopPropagation();updateCount()" title="Mark as reviewed"></div>
+<div class="q-num">11</div>
+<div class="q-text">Compare the data needs of traditional software vs AI/ML systems.</div>
+<div class="q-toggle">&#9662;</div>
+</div>
+<div class="qa-answer">
+<div class="table-wrap"><table>
+<thead><tr><th>Aspect</th><th>Traditional Software</th><th>AI/ML System</th></tr></thead>
+<tbody>
+<tr><td><strong>Role of data</strong></td><td>Data is input to be processed by code.</td><td>Data IS the logic &mdash; model learns from data.</td></tr>
+<tr><td><strong>Data quality impact</strong></td><td>Bad data &rarr; wrong output for that input.</td><td>Bad data &rarr; wrong model &rarr; wrong output for ALL inputs.</td></tr>
+<tr><td><strong>Data volume</strong></td><td>Moderate &mdash; process what&rsquo;s needed.</td><td>Large &mdash; more data generally improves the model.</td></tr>
+<tr><td><strong>Data freshness</strong></td><td>Real-time data needed for current transactions.</td><td>Training data can be historical. Serving data must be fresh.</td></tr>
+<tr><td><strong>Data versioning</strong></td><td>Rarely version data (version code instead).</td><td>Critical &mdash; must version data AND code to reproduce results.</td></tr>
+<tr><td><strong>Testing</strong></td><td>Test with known inputs and expected outputs.</td><td>Test with held-out data, but can&rsquo;t enumerate all edge cases.</td></tr>
+<tr><td><strong>Failure mode</strong></td><td>Crashes, errors, wrong output for specific input.</td><td>Silently degrades &mdash; wrong predictions without obvious errors.</td></tr>
+</tbody></table></div>
+</div>
+</div>
+
+<!-- Q12 -->
+<div class="qa-card" id="q12">
+<div class="qa-question" onclick="toggleCard(this)">
+<div class="qa-checkbox"><input type="checkbox" onclick="event.stopPropagation();updateCount()" title="Mark as reviewed"></div>
+<div class="q-num">12</div>
+<div class="q-text">A bank is building a loan approval AI system. Identify 4 data quality issues that could arise and explain their impact.</div>
+<div class="q-toggle">&#9662;</div>
+</div>
+<div class="qa-answer">
+<div class="table-wrap"><table>
+<thead><tr><th>Issue</th><th>What happens</th><th>Impact on loan model</th></tr></thead>
+<tbody>
+<tr><td><strong>1. Missing values (completeness)</strong></td><td>15% of applicants missing &ldquo;employment_years.&rdquo; Imputed with median (5 years).</td><td>But missing likely means unemployed &rarr; should be 0. Model underestimates risk for unemployed applicants. Approves risky loans.</td></tr>
+<tr><td><strong>2. Data leakage</strong></td><td>&ldquo;credit_bureau_score&rdquo; included as a feature. But it&rsquo;s updated AFTER the loan decision.</td><td>Model uses future information &rarr; looks amazing in testing (99% accuracy) &rarr; completely fails in production (feature unavailable at decision time).</td></tr>
+<tr><td><strong>3. Sampling bias</strong></td><td>Training data from 2018-2023. Bank only served urban professionals until 2022, then expanded to rural areas.</td><td>Rural applicants underrepresented &rarr; model performs poorly for rural customers. Unfair denials or risky approvals for new segment.</td></tr>
+<tr><td><strong>4. Class imbalance</strong></td><td>Only 2% of loans default.</td><td>Model predicts &ldquo;no default&rdquo; for everyone &rarr; 98% accuracy but catches zero actual defaults. Useless for risk management. Need to use class weights, oversampling, or precision/recall metrics.</td></tr>
+</tbody></table></div>
+<p>Each issue silently degrades the model without obvious errors &mdash; the model doesn&rsquo;t crash, it just makes wrong decisions that affect real people&rsquo;s lives.</p>
+</div>
+</div>
+
+</main>
+
+<button class="back-to-top" onclick="window.scrollTo({top:0,behavior:'smooth'})">&#8593;</button>
+
+<script>
+function toggleCard(el){
+el.closest('.qa-card').classList.toggle('open');
+}
+function toggleAll(show){
+document.querySelectorAll('.qa-card').forEach(c=>c.classList.toggle('open',show));
+}
+function updateCount(){
+const checked=document.querySelectorAll('.qa-checkbox input:checked').length;
+document.getElementById('reviewed-count').textContent=checked;
+document.querySelectorAll('.qa-card').forEach(c=>{
+const cb=c.querySelector('.qa-checkbox input');
+c.classList.toggle('reviewed',cb&&cb.checked);
+});
+}
+window.addEventListener('scroll',()=>{
+const h=document.documentElement;
+const pct=(h.scrollTop/(h.scrollHeight-h.clientHeight))*100;
+document.getElementById('progress-bar').style.width=pct+'%';
+document.querySelector('.back-to-top').classList.toggle('visible',h.scrollTop>400);
+});
+const cards=[...document.querySelectorAll('.qa-card[id]')];
+const links=[...document.querySelectorAll('.sidebar nav a')];
+window.addEventListener('scroll',()=>{
+let cur='';
+cards.forEach(c=>{if(window.scrollY>=c.offsetTop-120)cur=c.id});
+links.forEach(a=>a.classList.toggle('active',a.getAttribute('href')==='#'+cur));
+});
+links.forEach(a=>a.addEventListener('click',()=>{
+if(window.innerWidth<=900)document.querySelector('.sidebar').classList.remove('open');
+}));
+</script>
+</body>
+</html>

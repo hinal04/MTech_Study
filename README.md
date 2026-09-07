@@ -35,6 +35,15 @@ Study content, Q&A, and exam-style questions for BITS Pilani MTech (WILP) course
 | Topic-2-Questions-and-Answers.md / .html | Q&A for Topic 2 (18 questions) |
 | Cloud-Computing-Exam-Style-Questions.md | BITS Pilani CSI ZG527 exam patterns (24 questions) |
 
+### Introduction to AI Systems (SS ZG662)
+| File | Description |
+|---|---|
+| Sessions-1-4-Foundations-of-AI-Systems.md / .html | AI vs ML vs DL, lifecycle, categories (predictive/generative/recommender/conversational/CV/autonomous), 5-layer architecture, foundation models, build vs buy |
+| Sessions-1-4-Questions-and-Answers.md / .html | Q&A for Sessions 1-4 (20 questions) |
+| Session-5-Data-and-Feature-Engineering.md / .html | Structured/unstructured data, data sources, data quality (6 dimensions), data governance |
+| Session-5-Questions-and-Answers.md / .html | Q&A for Session 5 (12 questions) |
+| AI-Exam-Style-Questions.md | BITS Pilani SS ZG662 exam patterns (22 questions) |
+
 ## Textbooks
 - **T1:** Elmasri & Navathe, *Fundamentals of Database Systems*, 7th Ed., Pearson, 2017.
 - **T2:** Kleppmann, *Designing Data-Intensive Applications*, O'Reilly, 2017.
