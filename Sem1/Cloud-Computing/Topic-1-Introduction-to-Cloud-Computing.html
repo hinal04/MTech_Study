@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Topic 1: Introduction to Cloud Computing</title>
+<style>
+:root{--bg:#0f172a;--surface:#1e293b;--surface2:#334155;--border:#475569;--text:#e2e8f0;--text-muted:#94a3b8;--code-bg:#0d1117;--accent:#06b6d4;--accent-dim:rgba(6,182,212,.12);--accent-border:rgba(6,182,212,.3);--gradient:linear-gradient(135deg,#164e63,#0891b2,#06b6d4)}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;scroll-padding-top:80px}
+body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);line-height:1.7;font-size:16px}
+
+/* Progress Bar */
+.progress-bar{position:fixed;top:0;left:0;height:4px;background:var(--accent);z-index:1001;transition:width .2s}
+
+/* Header */
+.hero{background:var(--gradient);padding:3rem 2rem;text-align:center;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 30% 50%,rgba(255,255,255,.08),transparent 60%)}
+.hero h1{font-size:2.4rem;font-weight:800;color:#fff;margin-bottom:.5rem;position:relative}
+.hero .subtitle{font-size:1.1rem;color:rgba(255,255,255,.8);position:relative}
+.hero .meta{margin-top:1rem;font-size:.85rem;color:rgba(255,255,255,.65);position:relative}
+
+/* Layout */
+.layout{display:flex;min-height:calc(100vh - 200px)}
+.sidebar{width:280px;background:var(--surface);border-right:1px solid var(--border);padding:1.5rem 0;position:fixed;top:0;bottom:0;overflow-y:auto;z-index:100;transition:transform .3s}
+.sidebar h3{padding:0 1.2rem;margin-bottom:1rem;font-size:.85rem;text-transform:uppercase;letter-spacing:.08em;color:var(--accent)}
+.sidebar a{display:block;padding:.45rem 1.2rem;color:var(--text-muted);text-decoration:none;font-size:.88rem;border-left:3px solid transparent;transition:all .2s}
+.sidebar a:hover,.sidebar a.active{color:var(--accent);background:var(--accent-dim);border-left-color:var(--accent)}
+.main{flex:1;margin-left:280px;padding:2rem 3rem 4rem;max-width:960px}
+
+/* Hamburger */
+.hamburger{display:none;position:fixed;top:1rem;left:1rem;z-index:1002;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:.5rem .65rem;cursor:pointer;color:var(--text)}
+.hamburger span{display:block;width:22px;height:2px;background:var(--text);margin:5px 0;transition:.3s}
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:99}
+
+/* Sections */
+.section{margin-bottom:3rem;animation:fadeUp .5s ease}
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+.section h2{font-size:1.65rem;font-weight:700;color:var(--accent);margin-bottom:1rem;padding-bottom:.5rem;border-bottom:2px solid var(--accent-border)}
+.section h3{font-size:1.25rem;font-weight:600;color:var(--text);margin:1.5rem 0 .75rem}
+.section h4{font-size:1.05rem;font-weight:600;color:var(--text-muted);margin:1.2rem 0 .5rem}
+.section p,.section li{color:var(--text);margin-bottom:.6rem}
+.section ul,.section ol{padding-left:1.5rem;margin-bottom:1rem}
+.section li{margin-bottom:.4rem}
+
+/* Tables */
+.table-wrap{overflow-x:auto;margin:1.2rem 0;border-radius:10px;border:1px solid var(--border)}
+table{width:100%;border-collapse:collapse;font-size:.9rem}
+thead th{background:var(--accent);color:#fff;padding:.75rem 1rem;text-align:left;font-weight:600;white-space:nowrap}
+tbody td{padding:.65rem 1rem;border-bottom:1px solid var(--border);vertical-align:top}
+tbody tr:nth-child(even){background:rgba(255,255,255,.02)}
+tbody tr:nth-child(odd){background:var(--surface)}
+tbody tr:hover{background:var(--accent-dim)}
+
+/* Code */
+pre{background:var(--code-bg);border:1px solid var(--border);border-radius:10px;padding:1.2rem;overflow-x:auto;margin:1rem 0;font-size:.85rem;line-height:1.6}
+code{font-family:'Cascadia Code','Fira Code','Consolas',monospace;color:#7dd3fc}
+p code,li code,td code{background:var(--code-bg);padding:.15rem .45rem;border-radius:4px;font-size:.85em;border:1px solid var(--border)}
+
+/* Callout */
+.callout{background:var(--accent-dim);border-left:4px solid var(--accent);border-radius:0 10px 10px 0;padding:1rem 1.2rem;margin:1.2rem 0;font-size:.95rem}
+.callout strong{color:var(--accent)}
+.callout-warn{background:rgba(251,191,36,.08);border-left-color:#fbbf24}
+.callout-warn strong{color:#fbbf24}
+.callout-info{background:rgba(99,102,241,.08);border-left-color:#818cf8}
+.callout-info strong{color:#818cf8}
+
+/* Back to top */
+.back-top{position:fixed;bottom:2rem;right:2rem;width:44px;height:44px;border-radius:50%;background:var(--accent);color:#fff;border:none;cursor:pointer;font-size:1.3rem;display:none;align-items:center;justify-content:center;box-shadow:0 4px 12px rgba(6,182,212,.3);transition:transform .2s,opacity .2s;z-index:100}
+.back-top:hover{transform:scale(1.1)}
+.back-top.show{display:flex}
+
+/* Responsive */
+@media(max-width:900px){
+.sidebar{transform:translateX(-100%)}
+.sidebar.open{transform:translateX(0)}
+.overlay.open{display:block}
+.hamburger{display:block}
+.main{margin-left:0;padding:1.5rem 1.2rem 3rem}
+.hero h1{font-size:1.8rem}
+}
+@media(max-width:600px){
+table{font-size:.8rem}
+thead th,tbody td{padding:.5rem .6rem}
+.hero{padding:2rem 1rem}
+}
+
+/* Print */
+@media print{
+.sidebar,.hamburger,.back-top,.progress-bar,.overlay{display:none!important}
+.main{margin-left:0;padding:0}
+body{background:#fff;color:#000;font-size:11pt}
+.hero{background:#06b6d4!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+table{font-size:9pt}
+thead th{background:#06b6d4!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+pre{border:1px solid #ccc;background:#f5f5f5!important;color:#000}
+code{color:#000}
+.section{break-inside:avoid}
+}
+
+/* Strong within paragraphs */
+strong{color:#f1f5f9}
+</style>
+</head>
+<body>
+
+<div class="progress-bar" id="progressBar"></div>
+
+<button class="hamburger" id="hamburger" aria-label="Toggle navigation">
+<span></span><span></span><span></span>
+</button>
+<div class="overlay" id="overlay"></div>
+
+<nav class="sidebar" id="sidebar">
+<h3>Topic 1 &mdash; Contents</h3>
+<a href="#s1-1">1.1 Definition &amp; Characteristics</a>
+<a href="#s1-2">1.2 Evolution &amp; Origins</a>
+<a href="#s1-3">1.3 Service Models (IaaS/PaaS/SaaS)</a>
+<a href="#s1-4">1.4 Deployment Models</a>
+<a href="#s1-5">1.5 Infrastructure Overview</a>
+<a href="#s1-6">1.6 Benefits, Limitations &amp; Drivers</a>
+</nav>
+
+<header class="hero">
+<h1>Topic 1: Introduction to Cloud Computing</h1>
+<p class="subtitle">BITS Pilani &mdash; CSI ZG527 / SE ZG527 / SS ZG527: Cloud Computing</p>
+<p class="meta">References: T1 (Buyya, Vecchiola &amp; Selvi) &bull; T2 (Erl, Puttini &amp; Mahmood) &bull; R5 (NIST SP 800-145) &bull; Contact Hours: 4 (Lectures 1-4)</p>
+</header>
+
+<div class="layout">
+<main class="main">
+
+<!-- ============ 1.1 ============ -->
+<section class="section" id="s1-1">
+<h2>1.1 Cloud Computing: Definition, Characteristics, and Motivation</h2>
+
+<h3>What is Cloud Computing?</h3>
+<p>Cloud computing is a model for delivering computing resources &mdash; servers, storage, databases, networking, software, analytics &mdash; over the internet (&ldquo;the cloud&rdquo;) as on-demand, self-service utilities. Instead of owning and maintaining physical data centres and servers, organisations rent access to computing resources from a cloud provider, paying only for what they use.</p>
+
+<h3>The NIST Definition</h3>
+<p>The <strong>US National Institute of Standards and Technology (NIST)</strong> provides the most widely accepted formal definition:</p>
+<div class="callout">
+<strong>NIST Definition:</strong> &ldquo;Cloud computing is a model for enabling ubiquitous, convenient, on-demand network access to a shared pool of configurable computing resources (e.g., networks, servers, storage, applications, and services) that can be rapidly provisioned and released with minimal management effort or service provider interaction.&rdquo;
+</div>
+<p>This definition captures the essence: <strong>shared resources</strong>, <strong>on-demand access</strong>, <strong>rapid provisioning</strong>, and <strong>minimal management</strong>.</p>
+
+<h3>The Two Core Concepts Behind &ldquo;Cloud&rdquo;</h3>
+<p>The word &ldquo;cloud&rdquo; references two fundamental ideas:</p>
+<ol>
+<li><strong>Abstraction:</strong> Cloud abstracts the details of system implementation from users and developers. Applications run on unspecified physical systems, data is stored at unknown locations, and system administration is outsourced. Users don't need to know (or care) which physical server runs their application.</li>
+<li><strong>Virtualization:</strong> Resources are pooled and shared among users, giving each the illusion of being the sole owner. Resources scale up and down in very short time without human intervention, are charged on a metered basis, and support multi-tenancy (multiple customers sharing the same physical infrastructure while remaining isolated from each other).</li>
+</ol>
+
+<h3>The Five Essential Characteristics (NIST)</h3>
+<p>NIST defines five essential characteristics that distinguish cloud computing from traditional IT:</p>
+<div class="table-wrap"><table>
+<thead><tr><th>Characteristic</th><th>Description</th><th>Example</th></tr></thead>
+<tbody>
+<tr><td><strong>On-demand self-service</strong></td><td>A consumer can provision computing resources (servers, storage, network) automatically, without requiring human interaction with the service provider.</td><td>Spinning up a new virtual machine on AWS in 60 seconds via a web console &mdash; no phone call, no ticket, no waiting.</td></tr>
+<tr><td><strong>Broad network access</strong></td><td>Resources are available over the network and accessed through standard mechanisms (HTTP, HTTPS, APIs) from a wide range of devices (laptops, phones, tablets, workstations).</td><td>Accessing Google Drive from your phone, laptop, and office desktop &mdash; same data, any device, anywhere.</td></tr>
+<tr><td><strong>Resource pooling</strong></td><td>The provider's computing resources are pooled to serve multiple consumers using a <strong>multi-tenant model</strong>. Physical and virtual resources are dynamically assigned and reassigned according to demand. The customer generally has no control or knowledge over the exact location of resources.</td><td>AWS runs millions of virtual machines on shared physical servers. You don&rsquo;t know which physical rack your VM is on &mdash; and you don&rsquo;t need to.</td></tr>
+<tr><td><strong>Rapid elasticity</strong></td><td>Resources can be elastically provisioned and released, in some cases automatically, to scale rapidly outward and inward with demand. To the consumer, the resources appear to be <strong>unlimited</strong> and can be appropriated in any quantity at any time.</td><td>Netflix automatically adds hundreds of servers during peak evening hours and releases them at 3 AM when traffic drops.</td></tr>
+<tr><td><strong>Measured service</strong></td><td>Cloud systems automatically control and optimise resource use by leveraging a metering capability. Resource usage is monitored, controlled, and reported, providing transparency for both the provider and consumer (pay-per-use).</td><td>Your AWS bill shows exactly 743 hours of EC2 usage, 50 GB of S3 storage, and 12 GB of data transfer &mdash; you pay only for what you consumed.</td></tr>
+</tbody>
+</table></div>
+
+<h3>Why Cloud Computing? The Motivation</h3>
+<p>Traditional IT infrastructure requires organisations to:</p>
+<ul>
+<li><strong>Buy</strong> expensive servers, storage, and networking equipment upfront (capital expenditure &mdash; CapEx).</li>
+<li><strong>Provision for peak load</strong> &mdash; if your Black Friday traffic is 10x your normal traffic, you need 10x the servers sitting idle 364 days a year.</li>
+<li><strong>Maintain</strong> hardware, software patches, security, cooling, power &mdash; requiring dedicated IT staff.</li>
+<li><strong>Wait</strong> weeks or months for procurement, installation, and configuration of new servers.</li>
+</ul>
+<p>Cloud computing solves all of these:</p>
+<ul>
+<li><strong>No upfront cost</strong> &mdash; pay only for what you use (operational expenditure &mdash; OpEx).</li>
+<li><strong>Elastic scaling</strong> &mdash; scale up for peak, scale down after. No idle hardware.</li>
+<li><strong>No maintenance</strong> &mdash; the cloud provider handles hardware, patching, security, cooling, power.</li>
+<li><strong>Instant provisioning</strong> &mdash; spin up 100 servers in minutes, not months.</li>
+</ul>
+<div class="callout">
+<strong>Key Insight:</strong> The shift from CapEx to OpEx, from owned infrastructure to rented services, is the fundamental economic driver of cloud adoption.
+</div>
+</section>
+
+<!-- ============ 1.2 ============ -->
+<section class="section" id="s1-2">
+<h2>1.2 Evolution and Origins of Cloud Computing</h2>
+
+<h3>The Journey to Cloud</h3>
+<p>Cloud computing didn't appear overnight &mdash; it evolved through decades of computing paradigms, each building on the previous:</p>
+<div class="table-wrap"><table>
+<thead><tr><th>Era</th><th>Paradigm</th><th>Key Idea</th><th>Limitation that Led to the Next</th></tr></thead>
+<tbody>
+<tr><td><strong>1960s</strong></td><td>Mainframe / Time-sharing</td><td>John McCarthy proposed &ldquo;computation as a public utility&rdquo; like electricity. Multiple users shared a single mainframe.</td><td>Expensive, centralised, not scalable.</td></tr>
+<tr><td><strong>1970s-80s</strong></td><td>Personal Computing</td><td>Decentralised computing power on every desk.</td><td>Isolated machines, no resource sharing.</td></tr>
+<tr><td><strong>1990s</strong></td><td>Client-Server &amp; Internet</td><td>Servers in data centres served clients over networks. The World Wide Web made information universally accessible.</td><td>Each application needed its own dedicated server. Massive over-provisioning.</td></tr>
+<tr><td><strong>Late 1990s</strong></td><td>Grid Computing</td><td>Federate geographically distributed resources to solve large problems (e.g. SETI@home). Heterogeneous, loosely coupled.</td><td>Complex setup, no standard APIs, no self-service, no pay-per-use.</td></tr>
+<tr><td><strong>Late 1990s</strong></td><td>Cluster Computing</td><td>Group of homogeneous, tightly coupled machines in one location acting as one system.</td><td>Limited to one location, not elastic.</td></tr>
+<tr><td><strong>2000s</strong></td><td>Utility Computing</td><td>Computing resources offered as metered services (like electricity). Pay for what you use.</td><td>Limited scale, proprietary platforms.</td></tr>
+<tr><td><strong>2006+</strong></td><td>Cloud Computing</td><td>Combines virtualisation + utility pricing + self-service + elasticity + broad network access. AWS launched EC2 in 2006.</td><td>The current paradigm &mdash; still evolving.</td></tr>
+</tbody>
+</table></div>
+
+<h3>Key Predecessors in Detail</h3>
+
+<h4>Grid Computing vs Cloud Computing</h4>
+<p>Grid computing and cloud computing both involve distributed resources, but they differ fundamentally:</p>
+<div class="table-wrap"><table>
+<thead><tr><th>Aspect</th><th>Grid Computing</th><th>Cloud Computing</th></tr></thead>
+<tbody>
+<tr><td><strong>Coupling</strong></td><td>Loosely coupled, heterogeneous systems across administrative domains.</td><td>Tightly managed by a single provider with standard APIs.</td></tr>
+<tr><td><strong>Resource management</strong></td><td>Decentralised &mdash; each node has its own resource manager.</td><td>Centralised &mdash; the cloud provider manages all resources.</td></tr>
+<tr><td><strong>User interface</strong></td><td>Complex setup, requires specialised knowledge.</td><td>Self-service portal, CLI, or API &mdash; usable by anyone.</td></tr>
+<tr><td><strong>Billing</strong></td><td>Typically free (academic/research) or grant-funded.</td><td>Pay-per-use, metered billing.</td></tr>
+<tr><td><strong>Elasticity</strong></td><td>Limited &mdash; resources are pre-allocated.</td><td>Automatic &mdash; scale up/down on demand.</td></tr>
+<tr><td><strong>Virtualisation</strong></td><td>Minimal use.</td><td>Core technology &mdash; everything is virtualised.</td></tr>
+</tbody>
+</table></div>
+
+<h4>Cluster Computing vs Cloud Computing</h4>
+<div class="table-wrap"><table>
+<thead><tr><th>Aspect</th><th>Cluster Computing</th><th>Cloud Computing</th></tr></thead>
+<tbody>
+<tr><td><strong>Location</strong></td><td>Single location (one data centre).</td><td>Globally distributed across regions.</td></tr>
+<tr><td><strong>Homogeneity</strong></td><td>Homogeneous nodes (same hardware/OS).</td><td>Heterogeneous (various instance types, GPUs, ARM, etc.).</td></tr>
+<tr><td><strong>Management</strong></td><td>Single system image, centralised scheduler.</td><td>Provider-managed, API-driven.</td></tr>
+<tr><td><strong>Scaling</strong></td><td>Fixed &mdash; add physical nodes manually.</td><td>Elastic &mdash; add/remove VMs in seconds.</td></tr>
+<tr><td><strong>Access</strong></td><td>Direct network access within the cluster.</td><td>Over the internet, from anywhere.</td></tr>
+</tbody>
+</table></div>
+
+<h4>Utility Computing &mdash; The Direct Ancestor</h4>
+<p>In the 1960s, <strong>John McCarthy</strong> proposed that computing could be organised as a public utility &mdash; just as electricity is generated by power plants and consumed by households, computing power could be generated by data centres and consumed over a network, charged per unit of use.</p>
+<p>This vision took 40+ years to materialise because the required technologies (high-speed internet, virtualisation, distributed systems, automated provisioning) didn't exist yet. Cloud computing is the realisation of McCarthy's vision.</p>
+
+<h3>The Birth of Modern Cloud (2006)</h3>
+<ul>
+<li><strong>2006:</strong> Amazon Web Services (AWS) launches <strong>Elastic Compute Cloud (EC2)</strong> and <strong>Simple Storage Service (S3)</strong> &mdash; the first commercially successful cloud IaaS offerings.</li>
+<li><strong>2008:</strong> Google launches <strong>Google App Engine</strong> (PaaS).</li>
+<li><strong>2010:</strong> Microsoft launches <strong>Azure</strong>.</li>
+<li><strong>2011:</strong> IBM launches <strong>SmartCloud</strong>.</li>
+<li><strong>2014:</strong> AWS becomes a $5B business. Cloud becomes mainstream enterprise IT.</li>
+<li><strong>2020+:</strong> Cloud-native, serverless, edge computing, AI workloads drive the next wave.</li>
+</ul>
+</section>
+
+<!-- ============ 1.3 ============ -->
+<section class="section" id="s1-3">
+<h2>1.3 Cloud Service Models: IaaS, PaaS, SaaS</h2>
+<p>Cloud services are delivered in three fundamental models, each offering a different level of abstraction and control. Think of it as a spectrum from &ldquo;you manage everything&rdquo; to &ldquo;you manage nothing&rdquo;:</p>
+
+<h3>The Cloud Service Model Stack</h3>
+<pre><code>┌─────────────────────────────────────────────┐
+│              SaaS                            │  ← You manage: Nothing (just use the app)
+│   (Gmail, Salesforce, Dropbox, Zoom)        │
+├─────────────────────────────────────────────┤
+│              PaaS                            │  ← You manage: App code + data
+│   (Heroku, Google App Engine, AWS Elastic   │
+│    Beanstalk, Azure App Service)            │
+├─────────────────────────────────────────────┤
+│              IaaS                            │  ← You manage: OS, middleware, runtime, app, data
+│   (AWS EC2, Azure VMs, Google Compute       │
+│    Engine, DigitalOcean)                    │
+├─────────────────────────────────────────────┤
+│        Physical Infrastructure              │  ← Provider manages: Servers, storage, network,
+│   (Data centres, servers, networking)       │     cooling, power, physical security
+└─────────────────────────────────────────────┘</code></pre>
+
+<h3>1.3.1 Infrastructure as a Service (IaaS)</h3>
+<p><strong>IaaS</strong> provides virtualised computing resources over the internet. The cloud provider manages the physical infrastructure (servers, storage, networking, data centres), while the customer manages everything from the operating system upward.</p>
+<p><strong>What you get:</strong> Virtual machines, virtual networks, block storage, object storage &mdash; the raw building blocks of computing infrastructure.</p>
+<p><strong>What you manage:</strong> Operating system, middleware, runtime, applications, data. You have full control over the OS &mdash; you can install any software, configure any service.</p>
+<p><strong>What the provider manages:</strong> Physical servers, storage hardware, networking equipment, data centre facilities (power, cooling, physical security), hypervisor.</p>
+<p><strong>Characteristics:</strong></p>
+<ul>
+<li>Maximum flexibility and control over the computing environment.</li>
+<li>You are responsible for patching the OS, configuring firewalls, managing security.</li>
+<li>Resources are provisioned on demand and billed per use (per hour, per GB, per request).</li>
+<li>You can scale up/down by adding/removing VMs.</li>
+</ul>
+<p><strong>Examples:</strong> AWS EC2, Microsoft Azure Virtual Machines, Google Compute Engine, IBM Cloud Virtual Servers, DigitalOcean Droplets.</p>
+<p><strong>Use cases:</strong> Hosting websites, running custom enterprise applications, development and testing environments, high-performance computing, big data analytics.</p>
+<div class="callout"><strong>Analogy:</strong> Renting an empty apartment. The landlord provides the building (physical infrastructure), but you bring your own furniture, appliances, and decorations (OS, software, data).</div>
+
+<h3>1.3.2 Platform as a Service (PaaS)</h3>
+<p><strong>PaaS</strong> provides a complete development and deployment platform. The cloud provider manages the infrastructure AND the platform (OS, middleware, runtime), while the customer focuses only on writing application code and managing data.</p>
+<p><strong>What you get:</strong> A managed platform with development tools, database services, application hosting &mdash; everything needed to build, test, and deploy applications without worrying about the underlying infrastructure.</p>
+<p><strong>What you manage:</strong> Application code and data. That's it.</p>
+<p><strong>What the provider manages:</strong> Physical infrastructure + OS + middleware + runtime + scaling + load balancing + patching.</p>
+<p><strong>Characteristics:</strong></p>
+<ul>
+<li>Developers focus purely on code &mdash; no server management, no OS patching.</li>
+<li>Built-in scaling, load balancing, and high availability.</li>
+<li>Often includes development tools, database management, business intelligence services.</li>
+<li>Less control than IaaS &mdash; you can't customise the OS or install arbitrary software.</li>
+<li>Potential for <strong>vendor lock-in</strong> &mdash; applications may use provider-specific APIs.</li>
+</ul>
+<p><strong>Examples:</strong> Google App Engine, Heroku, AWS Elastic Beanstalk, Microsoft Azure App Service, Red Hat OpenShift.</p>
+<p><strong>Use cases:</strong> Web application development, API backends, microservices, rapid prototyping, collaborative development.</p>
+<div class="callout"><strong>Analogy:</strong> Renting a furnished apartment. The landlord provides the building AND the furniture/appliances. You just bring your personal belongings (code, data).</div>
+
+<h3>1.3.3 Software as a Service (SaaS)</h3>
+<p><strong>SaaS</strong> delivers complete, ready-to-use software applications over the internet. The cloud provider manages everything &mdash; infrastructure, platform, and the application itself. The user simply accesses the application through a web browser or API.</p>
+<p><strong>What you get:</strong> A fully functional application accessible via the internet.</p>
+<p><strong>What you manage:</strong> Your data and user-level configuration (settings, preferences, permissions).</p>
+<p><strong>What the provider manages:</strong> Everything &mdash; infrastructure, platform, application code, updates, security, availability, scaling.</p>
+<p><strong>Characteristics:</strong></p>
+<ul>
+<li>Zero installation &mdash; access via web browser from any device.</li>
+<li>Automatic updates &mdash; the provider pushes updates without user intervention.</li>
+<li>Subscription-based pricing (monthly/annual).</li>
+<li>Multi-tenant &mdash; one application instance serves many customers (with data isolation).</li>
+<li>Minimal customisation &mdash; you use the application as designed.</li>
+</ul>
+<p><strong>Examples:</strong> Google Workspace (Gmail, Docs, Sheets), Microsoft 365, Salesforce, Dropbox, Zoom, Slack, Shopify.</p>
+<p><strong>Use cases:</strong> Email, collaboration, CRM, HR management, accounting, project management &mdash; any standardised business function.</p>
+<div class="callout"><strong>Analogy:</strong> Staying at a hotel. Everything is provided &mdash; the building, the furniture, the room service. You just show up and use it.</div>
+
+<h3>Responsibility Comparison Table</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>Layer</th><th>On-Premises</th><th>IaaS</th><th>PaaS</th><th>SaaS</th></tr></thead>
+<tbody>
+<tr><td><strong>Applications</strong></td><td>You</td><td>You</td><td>You</td><td>Provider</td></tr>
+<tr><td><strong>Data</strong></td><td>You</td><td>You</td><td>You</td><td>You*</td></tr>
+<tr><td><strong>Runtime</strong></td><td>You</td><td>You</td><td>Provider</td><td>Provider</td></tr>
+<tr><td><strong>Middleware</strong></td><td>You</td><td>You</td><td>Provider</td><td>Provider</td></tr>
+<tr><td><strong>Operating System</strong></td><td>You</td><td>You</td><td>Provider</td><td>Provider</td></tr>
+<tr><td><strong>Virtualisation</strong></td><td>You</td><td>Provider</td><td>Provider</td><td>Provider</td></tr>
+<tr><td><strong>Servers</strong></td><td>You</td><td>Provider</td><td>Provider</td><td>Provider</td></tr>
+<tr><td><strong>Storage</strong></td><td>You</td><td>Provider</td><td>Provider</td><td>Provider</td></tr>
+<tr><td><strong>Networking</strong></td><td>You</td><td>Provider</td><td>Provider</td><td>Provider</td></tr>
+</tbody>
+</table></div>
+<p><em>*In SaaS, the provider stores your data but you own it and are responsible for its content.</em></p>
+
+<h3>Beyond the Big Three: Emerging Service Models</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>Model</th><th>What it provides</th><th>Examples</th></tr></thead>
+<tbody>
+<tr><td><strong>FaaS (Function as a Service)</strong></td><td>Run individual functions in response to events. No server management at all. Pay per invocation.</td><td>AWS Lambda, Azure Functions, Google Cloud Functions</td></tr>
+<tr><td><strong>BaaS (Backend as a Service)</strong></td><td>Pre-built backend services (auth, database, push notifications) for mobile/web apps.</td><td>Firebase, AWS Amplify, Supabase</td></tr>
+<tr><td><strong>CaaS (Container as a Service)</strong></td><td>Managed container orchestration.</td><td>AWS ECS/EKS, Google GKE, Azure AKS</td></tr>
+<tr><td><strong>DBaaS (Database as a Service)</strong></td><td>Managed database instances.</td><td>Amazon RDS, Azure SQL Database, Google Cloud SQL</td></tr>
+</tbody>
+</table></div>
+</section>
+
+<!-- ============ 1.4 ============ -->
+<section class="section" id="s1-4">
+<h2>1.4 Cloud Deployment Models</h2>
+<p>Deployment models describe <strong>who owns and operates the cloud infrastructure</strong> and <strong>who can use it</strong>. The five deployment models address different requirements for control, security, cost, and compliance.</p>
+
+<h3>1.4.1 Public Cloud</h3>
+<p>The cloud infrastructure is owned, managed, and operated by a <strong>third-party cloud provider</strong> and made available to the general public over the internet. Multiple organisations (tenants) share the same physical infrastructure, but their data and applications are logically isolated.</p>
+<p><strong>Characteristics:</strong></p>
+<ul>
+<li>Owned and operated by the cloud provider (AWS, Azure, GCP).</li>
+<li>Available to anyone who wants to use it &mdash; individuals, startups, enterprises.</li>
+<li>Multi-tenant &mdash; physical resources shared across many customers.</li>
+<li>Pay-per-use pricing &mdash; no upfront capital expenditure.</li>
+<li>Provider is responsible for all hardware, maintenance, security of infrastructure.</li>
+<li>Virtually unlimited scalability.</li>
+</ul>
+<p><strong>Advantages:</strong> No upfront cost, elastic scaling, no maintenance burden, global reach.</p>
+<p><strong>Disadvantages:</strong> Less control over infrastructure, potential data sovereignty concerns, shared tenancy (noisy neighbour risk), dependency on provider.</p>
+<p><strong>Examples:</strong> AWS, Microsoft Azure, Google Cloud Platform, IBM Cloud, Oracle Cloud.</p>
+
+<h3>1.4.2 Private Cloud</h3>
+<p>The cloud infrastructure is provisioned for <strong>exclusive use by a single organisation</strong>. It may be owned, managed, and operated by the organisation itself, a third party, or a combination. It may exist on-premises or off-premises.</p>
+<p><strong>Characteristics:</strong></p>
+<ul>
+<li>Dedicated to one organisation &mdash; not shared with others.</li>
+<li>Can be hosted on-premises (in the organisation's own data centre) or off-premises (hosted by a provider but dedicated to one customer).</li>
+<li>Greater control over security, compliance, and customisation.</li>
+<li>Higher cost &mdash; the organisation bears the full infrastructure cost.</li>
+<li>Limited scalability compared to public cloud.</li>
+</ul>
+<p><strong>Advantages:</strong> Maximum control and security, compliance with regulations (HIPAA, GDPR, government), customisation, data sovereignty.</p>
+<p><strong>Disadvantages:</strong> Higher cost (CapEx + OpEx), limited scalability, requires in-house expertise to manage.</p>
+<p><strong>Examples:</strong> VMware vSphere private cloud, OpenStack deployments, AWS Outposts (AWS infrastructure in your data centre).</p>
+<p><strong>Use cases:</strong> Government agencies, financial institutions, healthcare organisations &mdash; where regulatory compliance requires data to stay within controlled boundaries.</p>
+
+<h3>1.4.3 Hybrid Cloud</h3>
+<p>The cloud infrastructure is a <strong>composition of two or more distinct cloud infrastructures</strong> (private, public) that remain unique entities but are bound together by standardised technology that enables data and application portability.</p>
+<p><strong>Characteristics:</strong></p>
+<ul>
+<li>Combines public and private cloud &mdash; workloads can move between them.</li>
+<li>Sensitive data/applications stay on private cloud; less-sensitive workloads use public cloud.</li>
+<li>Enables <strong>cloud bursting</strong> &mdash; when private cloud capacity is exhausted, excess demand overflows to the public cloud.</li>
+<li>Requires careful management of networking, security, and data movement between environments.</li>
+</ul>
+<p><strong>Advantages:</strong> Flexibility, cost optimisation (use public for variable workloads, private for steady), compliance (keep sensitive data private), gradual cloud migration.</p>
+<p><strong>Disadvantages:</strong> Complexity of managing two environments, networking challenges, potential latency between private and public components.</p>
+<p><strong>Examples:</strong> A bank running core banking on private cloud but using AWS for customer-facing mobile app. A hospital keeping patient records on private cloud but using Azure for analytics.</p>
+
+<h3>1.4.4 Community Cloud</h3>
+<p>The cloud infrastructure is provisioned for <strong>exclusive use by a specific community of consumers</strong> from organisations that have shared concerns (mission, security requirements, policy, compliance). It may be owned and operated by one or more of the community organisations, a third party, or a combination.</p>
+<p><strong>Characteristics:</strong></p>
+<ul>
+<li>Shared by organisations with common requirements (same industry, same regulations).</li>
+<li>Cost is shared among community members &mdash; cheaper than individual private clouds.</li>
+<li>Governed by shared policies and compliance standards.</li>
+</ul>
+<p><strong>Examples:</strong> Government agencies sharing a FedRAMP-compliant cloud. Healthcare organisations sharing a HIPAA-compliant cloud. Research institutions sharing a scientific computing cloud.</p>
+
+<h3>1.4.5 Multi-Cloud</h3>
+<p>A <strong>multi-cloud</strong> strategy uses services from <strong>multiple public cloud providers</strong> (e.g. AWS + Azure + GCP) simultaneously. This is not an official NIST deployment model but is increasingly common in practice.</p>
+<p><strong>Motivation:</strong></p>
+<ul>
+<li><strong>Avoid vendor lock-in</strong> &mdash; don't depend on a single provider.</li>
+<li><strong>Best-of-breed</strong> &mdash; use each provider's strongest services (e.g. AWS for compute, GCP for ML, Azure for enterprise integration).</li>
+<li><strong>Regulatory compliance</strong> &mdash; some data must stay in specific geographic regions served by specific providers.</li>
+<li><strong>Resilience</strong> &mdash; if one provider has an outage, workloads can shift to another.</li>
+</ul>
+<p><strong>Challenges:</strong> Increased operational complexity, need for cross-cloud networking, different APIs and tooling for each provider, higher skill requirements.</p>
+
+<h3>Deployment Model Comparison</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>Aspect</th><th>Public</th><th>Private</th><th>Hybrid</th><th>Community</th><th>Multi-Cloud</th></tr></thead>
+<tbody>
+<tr><td><strong>Ownership</strong></td><td>Provider</td><td>Organisation or third party</td><td>Mixed</td><td>Shared by community</td><td>Multiple providers</td></tr>
+<tr><td><strong>Tenancy</strong></td><td>Multi-tenant</td><td>Single-tenant</td><td>Mixed</td><td>Community-tenant</td><td>Multi-tenant per provider</td></tr>
+<tr><td><strong>Cost</strong></td><td>Pay-per-use (lowest)</td><td>Highest (own infra)</td><td>Medium</td><td>Shared cost</td><td>Variable</td></tr>
+<tr><td><strong>Control</strong></td><td>Least</td><td>Most</td><td>Medium</td><td>Shared</td><td>Medium</td></tr>
+<tr><td><strong>Scalability</strong></td><td>Virtually unlimited</td><td>Limited</td><td>High (burst to public)</td><td>Moderate</td><td>Very high</td></tr>
+<tr><td><strong>Security</strong></td><td>Provider-managed</td><td>Fully customisable</td><td>Mixed</td><td>Community-governed</td><td>Per-provider</td></tr>
+<tr><td><strong>Compliance</strong></td><td>Provider certifications</td><td>Full control</td><td>Flexible</td><td>Community standards</td><td>Complex</td></tr>
+</tbody>
+</table></div>
+</section>
+
+<!-- ============ 1.5 ============ -->
+<section class="section" id="s1-5">
+<h2>1.5 Cloud Infrastructure Overview</h2>
+
+<h3>The Four Pillars of Cloud Infrastructure</h3>
+<p>Every cloud provider's infrastructure is built on four fundamental resource categories:</p>
+
+<h3>1.5.1 Compute</h3>
+<p>Compute resources provide the processing power to run applications. In the cloud, compute is delivered primarily through <strong>virtual machines</strong> (VMs) and <strong>containers</strong>.</p>
+<div class="table-wrap"><table>
+<thead><tr><th>Service Type</th><th>Description</th><th>Example</th></tr></thead>
+<tbody>
+<tr><td><strong>Virtual Machines</strong></td><td>Full OS instances running on shared physical servers via hypervisors.</td><td>AWS EC2, Azure VMs, GCE</td></tr>
+<tr><td><strong>Containers</strong></td><td>Lightweight, isolated application packages sharing the host OS kernel.</td><td>AWS ECS/EKS, GKE, Azure AKS</td></tr>
+<tr><td><strong>Serverless / Functions</strong></td><td>Run code in response to events without managing any server.</td><td>AWS Lambda, Azure Functions</td></tr>
+<tr><td><strong>Bare Metal</strong></td><td>Dedicated physical servers with no virtualisation overhead.</td><td>AWS Bare Metal, IBM Bare Metal</td></tr>
+</tbody>
+</table></div>
+
+<h3>1.5.2 Storage</h3>
+<p>Cloud storage provides durable, scalable data storage. Three main types:</p>
+<div class="table-wrap"><table>
+<thead><tr><th>Type</th><th>Description</th><th>Use Case</th><th>Example</th></tr></thead>
+<tbody>
+<tr><td><strong>Object Storage</strong></td><td>Stores data as objects (file + metadata + unique ID). Accessed via HTTP/REST APIs. Massively scalable, eventually consistent.</td><td>Media files, backups, data lakes, static websites.</td><td>AWS S3, Azure Blob, GCS</td></tr>
+<tr><td><strong>Block Storage</strong></td><td>Provides raw storage volumes that attach to VMs like virtual hard drives. Low latency, high IOPS.</td><td>Databases, OS boot volumes, transactional workloads.</td><td>AWS EBS, Azure Managed Disks</td></tr>
+<tr><td><strong>File Storage</strong></td><td>Shared file systems accessible by multiple VMs simultaneously via NFS/SMB protocols.</td><td>Shared application data, home directories, content management.</td><td>AWS EFS, Azure Files, GCP Filestore</td></tr>
+</tbody>
+</table></div>
+
+<h3>1.5.3 Network</h3>
+<p>Cloud networking connects compute and storage resources and provides connectivity to the internet and on-premises networks.</p>
+<div class="table-wrap"><table>
+<thead><tr><th>Concept</th><th>Description</th></tr></thead>
+<tbody>
+<tr><td><strong>Virtual Private Cloud (VPC)</strong></td><td>An isolated virtual network within the cloud where you deploy resources. You define IP ranges, subnets, route tables, and gateways.</td></tr>
+<tr><td><strong>Subnets</strong></td><td>Subdivisions of a VPC. Public subnets have internet access; private subnets do not.</td></tr>
+<tr><td><strong>Load Balancer</strong></td><td>Distributes incoming traffic across multiple instances for scalability and availability.</td></tr>
+<tr><td><strong>CDN (Content Delivery Network)</strong></td><td>Caches content at edge locations worldwide for low-latency delivery.</td></tr>
+<tr><td><strong>VPN / Direct Connect</strong></td><td>Secure, private connection between on-premises network and the cloud VPC.</td></tr>
+<tr><td><strong>Security Groups / Firewalls</strong></td><td>Rules controlling inbound and outbound traffic to instances.</td></tr>
+<tr><td><strong>DNS</strong></td><td>Domain name resolution (e.g. AWS Route 53, Azure DNS).</td></tr>
+</tbody>
+</table></div>
+
+<h3>1.5.4 Data Centres, Regions, and Availability Zones</h3>
+<p>Cloud providers organise their physical infrastructure into a hierarchy:</p>
+<pre><code>Region (e.g. ap-south-1 = Mumbai)
+├── Availability Zone 1 (ap-south-1a) — one or more data centres
+├── Availability Zone 2 (ap-south-1b) — separate power, network, cooling
+└── Availability Zone 3 (ap-south-1c) — physically separated (km apart)</code></pre>
+
+<div class="table-wrap"><table>
+<thead><tr><th>Concept</th><th>Description</th></tr></thead>
+<tbody>
+<tr><td><strong>Region</strong></td><td>A geographic area (e.g. US East, EU West, Asia Pacific Mumbai). Each region is completely independent and isolated from other regions. Data stays within a region unless you explicitly move it (data sovereignty).</td></tr>
+<tr><td><strong>Availability Zone (AZ)</strong></td><td>One or more data centres within a region, with independent power, cooling, and networking. AZs within a region are connected by low-latency links. Deploying across multiple AZs provides <strong>high availability</strong> &mdash; if one AZ goes down, the others keep running.</td></tr>
+<tr><td><strong>Edge Location</strong></td><td>Smaller data centres at the network edge, used by CDNs to cache content close to end users for low latency.</td></tr>
+</tbody>
+</table></div>
+<p><strong>Example:</strong> AWS has 33+ regions, 105+ AZs, and 600+ edge locations globally (as of 2024).</p>
+</section>
+
+<!-- ============ 1.6 ============ -->
+<section class="section" id="s1-6">
+<h2>1.6 Benefits, Limitations, and Adoption Drivers</h2>
+
+<h3>Benefits of Cloud Computing</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>Benefit</th><th>Explanation</th></tr></thead>
+<tbody>
+<tr><td><strong>Cost efficiency</strong></td><td>No upfront CapEx. Pay only for resources consumed (OpEx). No cost for idle hardware. The cloud provider achieves economies of scale and passes savings to customers.</td></tr>
+<tr><td><strong>Elasticity and scalability</strong></td><td>Scale resources up during peak demand and down during lulls &mdash; automatically or with a few clicks. No over-provisioning.</td></tr>
+<tr><td><strong>Speed and agility</strong></td><td>Provision new resources in minutes, not months. Experiment, iterate, and deploy faster. Accelerates time-to-market for new applications.</td></tr>
+<tr><td><strong>Global reach</strong></td><td>Deploy applications in multiple regions worldwide with a few clicks. Serve users from the nearest data centre for low latency.</td></tr>
+<tr><td><strong>Reliability and availability</strong></td><td>Cloud providers offer SLAs of 99.9% to 99.999% uptime. Multi-AZ and multi-region architectures provide fault tolerance.</td></tr>
+<tr><td><strong>Security</strong></td><td>Major cloud providers invest billions in security &mdash; physical security, encryption, identity management, compliance certifications (SOC 2, ISO 27001, HIPAA, PCI DSS). Often better than what individual organisations can afford.</td></tr>
+<tr><td><strong>Automatic updates</strong></td><td>Infrastructure and platform patches handled by the provider. No planned downtime for hardware maintenance.</td></tr>
+<tr><td><strong>Focus on core business</strong></td><td>IT teams spend less time managing infrastructure and more time building applications that create business value.</td></tr>
+<tr><td><strong>Disaster recovery</strong></td><td>Built-in backup, replication, and recovery capabilities across geographically separated regions.</td></tr>
+<tr><td><strong>Environmental sustainability</strong></td><td>Cloud providers optimise data centre energy efficiency (PUE ratios, renewable energy). Shared infrastructure reduces overall carbon footprint vs. every company running its own data centre.</td></tr>
+</tbody>
+</table></div>
+
+<h3>Limitations and Challenges</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>Limitation</th><th>Explanation</th></tr></thead>
+<tbody>
+<tr><td><strong>Vendor lock-in</strong></td><td>Applications built using provider-specific services (AWS Lambda, Azure Cosmos DB) are difficult to migrate to another provider. Proprietary APIs create dependency.</td></tr>
+<tr><td><strong>Security and privacy concerns</strong></td><td>Data stored on shared infrastructure raises concerns about unauthorised access, data breaches, and government surveillance. Multi-tenancy means your data physically coexists with other customers' data.</td></tr>
+<tr><td><strong>Downtime and outages</strong></td><td>Despite high SLAs, cloud providers do experience outages. An AWS US-East-1 outage can take down thousands of websites simultaneously.</td></tr>
+<tr><td><strong>Limited control</strong></td><td>In PaaS/SaaS, you have limited control over the underlying infrastructure. You can't customise the OS, choose specific hardware, or optimise at the system level.</td></tr>
+<tr><td><strong>Data transfer costs</strong></td><td>Moving large amounts of data into the cloud is often free, but moving data OUT (egress) can be expensive. This is sometimes called the &ldquo;data gravity&rdquo; problem.</td></tr>
+<tr><td><strong>Compliance and data sovereignty</strong></td><td>Regulations like GDPR, HIPAA, and data localisation laws require data to be stored in specific geographic regions. Not all providers have data centres in all required locations.</td></tr>
+<tr><td><strong>Network dependency</strong></td><td>Cloud requires reliable internet connectivity. Latency-sensitive applications may suffer if the network is slow or unreliable.</td></tr>
+<tr><td><strong>Cost management complexity</strong></td><td>While cloud eliminates CapEx, OpEx costs can spiral if not carefully monitored. &ldquo;Cloud sprawl&rdquo; &mdash; unused VMs, over-provisioned resources &mdash; can make cloud more expensive than on-premises.</td></tr>
+<tr><td><strong>Skill gap</strong></td><td>Cloud requires new skills &mdash; cloud architecture, DevOps, security, cost management &mdash; that traditional IT teams may not have.</td></tr>
+</tbody>
+</table></div>
+
+<h3>Adoption Drivers</h3>
+<p>What motivates organisations to move to the cloud?</p>
+<div class="table-wrap"><table>
+<thead><tr><th>Driver</th><th>Explanation</th></tr></thead>
+<tbody>
+<tr><td><strong>Digital transformation</strong></td><td>Businesses must modernise IT to remain competitive. Cloud enables agile development, microservices, AI/ML, and data analytics.</td></tr>
+<tr><td><strong>Cost reduction</strong></td><td>Shift from CapEx to OpEx. Eliminate idle hardware costs. Pay only for what you use.</td></tr>
+<tr><td><strong>Scalability needs</strong></td><td>Startups need to scale from 10 to 10 million users. Enterprises need to handle seasonal peaks (Black Friday, tax season).</td></tr>
+<tr><td><strong>Remote workforce</strong></td><td>COVID-19 accelerated cloud adoption as organisations needed to support remote work instantly. SaaS tools (Zoom, Teams, Slack) became essential.</td></tr>
+<tr><td><strong>Innovation velocity</strong></td><td>Cloud provides access to cutting-edge services (AI/ML, IoT, blockchain, quantum computing) without building them from scratch.</td></tr>
+<tr><td><strong>Business continuity</strong></td><td>Cloud provides built-in disaster recovery and geo-redundancy that would be prohibitively expensive to build on-premises.</td></tr>
+<tr><td><strong>Regulatory compliance</strong></td><td>Some cloud providers now offer sovereign cloud and regulated cloud environments specifically designed for compliance (FedRAMP, HIPAA, PCI DSS).</td></tr>
+</tbody>
+</table></div>
+</section>
+
+</main>
+</div>
+
+<button class="back-top" id="backTop" aria-label="Back to top">&uarr;</button>
+
+<script>
+// Progress bar
+window.addEventListener('scroll',()=>{
+const h=document.documentElement;
+const pct=h.scrollTop/(h.scrollHeight-h.clientHeight)*100;
+document.getElementById('progressBar').style.width=pct+'%';
+// Back-to-top
+document.getElementById('backTop').classList.toggle('show',h.scrollTop>400);
+});
+document.getElementById('backTop').addEventListener('click',()=>window.scrollTo({top:0,behavior:'smooth'}));
+
+// Sidebar toggle
+const hamburger=document.getElementById('hamburger');
+const sidebar=document.getElementById('sidebar');
+const overlay=document.getElementById('overlay');
+hamburger.addEventListener('click',()=>{sidebar.classList.toggle('open');overlay.classList.toggle('open')});
+overlay.addEventListener('click',()=>{sidebar.classList.remove('open');overlay.classList.remove('open')});
+
+// Active link tracking
+const sections=document.querySelectorAll('.section');
+const navLinks=document.querySelectorAll('.sidebar a');
+const obs=new IntersectionObserver(entries=>{
+entries.forEach(e=>{
+if(e.isIntersecting){
+navLinks.forEach(l=>l.classList.remove('active'));
+const id=e.target.id;
+const link=document.querySelector('.sidebar a[href="#'+id+'"]');
+if(link)link.classList.add('active');
+}
+});
+},{rootMargin:'-20% 0px -60% 0px'});
+sections.forEach(s=>obs.observe(s));
+
+// Close sidebar on link click (mobile)
+navLinks.forEach(l=>l.addEventListener('click',()=>{sidebar.classList.remove('open');overlay.classList.remove('open')}));
+</script>
+</body>
+</html>

@@ -26,6 +26,15 @@ Study content, Q&A, and exam-style questions for BITS Pilani MTech (WILP) course
 | DBMS-BITS-Pilani-Exam-Style-Questions.md | BITS Pilani CS F212 exam patterns |
 | Class-Notes/ | Original class slides (PDF + PPTX) |
 
+### Cloud Computing (CSI ZG527)
+| File | Description |
+|---|---|
+| Topic-1-Introduction-to-Cloud-Computing.md / .html | NIST definition, 5 characteristics, evolution, IaaS/PaaS/SaaS, deployment models, infrastructure |
+| Topic-1-Questions-and-Answers.md / .html | Q&A for Topic 1 (15 questions) |
+| Topic-2-Virtualization-and-Containers.md / .html | Virtualization types, x86 VT-x, Docker, namespaces/cgroups, Kubernetes, cloud-native |
+| Topic-2-Questions-and-Answers.md / .html | Q&A for Topic 2 (18 questions) |
+| Cloud-Computing-Exam-Style-Questions.md | BITS Pilani CSI ZG527 exam patterns (24 questions) |
+
 ## Textbooks
 - **T1:** Elmasri & Navathe, *Fundamentals of Database Systems*, 7th Ed., Pearson, 2017.
 - **T2:** Kleppmann, *Designing Data-Intensive Applications*, O'Reilly, 2017.

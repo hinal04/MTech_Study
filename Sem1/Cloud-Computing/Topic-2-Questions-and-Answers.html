@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Topic 2: Questions &amp; Answers — Virtualization &amp; Containers</title>
+<style>
+:root{--bg:#0f172a;--surface:#1e293b;--surface2:#334155;--border:#475569;--text:#e2e8f0;--text-muted:#94a3b8;--code-bg:#0d1117;--accent:#8b5cf6;--accent-dim:rgba(139,92,246,.12);--accent-border:rgba(139,92,246,.3);--gradient:linear-gradient(135deg,#4c1d95,#7c3aed,#8b5cf6);--green:#22c55e;--green-dim:rgba(34,197,94,.12)}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;scroll-padding-top:80px}
+body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);line-height:1.7;font-size:16px}
+
+.progress-bar{position:fixed;top:0;left:0;height:4px;background:var(--accent);z-index:1001;transition:width .2s}
+
+.hero{background:var(--gradient);padding:3rem 2rem;text-align:center;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 70% 50%,rgba(255,255,255,.08),transparent 60%)}
+.hero h1{font-size:2.2rem;font-weight:800;color:#fff;margin-bottom:.4rem;position:relative}
+.hero .subtitle{font-size:1.05rem;color:rgba(255,255,255,.8);position:relative}
+.hero .meta{margin-top:.8rem;font-size:.85rem;color:rgba(255,255,255,.6);position:relative}
+
+.layout{display:flex;min-height:calc(100vh - 200px)}
+.sidebar{width:280px;background:var(--surface);border-right:1px solid var(--border);padding:1.5rem 0;position:fixed;top:0;bottom:0;overflow-y:auto;z-index:100;transition:transform .3s}
+.sidebar h3{padding:0 1.2rem;margin-bottom:.8rem;font-size:.8rem;text-transform:uppercase;letter-spacing:.08em;color:var(--accent)}
+.sidebar a{display:block;padding:.35rem 1.2rem;color:var(--text-muted);text-decoration:none;font-size:.8rem;border-left:3px solid transparent;transition:all .2s;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sidebar a:hover,.sidebar a.active{color:var(--accent);background:var(--accent-dim);border-left-color:var(--accent)}
+.main{flex:1;margin-left:280px;padding:2rem 3rem 4rem;max-width:960px}
+
+.hamburger{display:none;position:fixed;top:1rem;left:1rem;z-index:1002;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:.5rem .65rem;cursor:pointer;color:var(--text)}
+.hamburger span{display:block;width:22px;height:2px;background:var(--text);margin:5px 0;transition:.3s}
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:99}
+
+.score-bar{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1rem 1.5rem;margin-bottom:2rem;display:flex;align-items:center;gap:1.5rem;flex-wrap:wrap;position:sticky;top:4px;z-index:50}
+.score-bar .score-text{font-weight:700;color:var(--accent);font-size:1.1rem}
+.score-bar .score-fill-wrap{flex:1;min-width:120px;height:8px;background:var(--surface2);border-radius:99px;overflow:hidden}
+.score-bar .score-fill{height:100%;background:var(--accent);border-radius:99px;transition:width .4s ease}
+.score-bar .btns{display:flex;gap:.5rem}
+.score-bar .btns button{background:var(--surface2);color:var(--text);border:1px solid var(--border);border-radius:8px;padding:.35rem .9rem;font-size:.82rem;cursor:pointer;transition:all .2s}
+.score-bar .btns button:hover{background:var(--accent);color:#fff;border-color:var(--accent)}
+
+.qa-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;margin-bottom:1.2rem;overflow:hidden;transition:border-color .2s}
+.qa-card:hover{border-color:var(--accent-border)}
+.qa-card.reviewed{border-color:var(--green);box-shadow:0 0 0 1px rgba(34,197,94,.15)}
+
+.qa-header{display:flex;align-items:flex-start;gap:.8rem;padding:1rem 1.2rem;cursor:pointer;user-select:none}
+.qa-badge{min-width:36px;height:36px;border-radius:50%;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.85rem;flex-shrink:0}
+.qa-card.reviewed .qa-badge{background:var(--green)}
+.qa-title{flex:1;font-weight:600;font-size:1rem;padding-top:.4rem;color:var(--text)}
+.qa-chevron{font-size:1.3rem;color:var(--text-muted);transition:transform .3s;padding-top:.3rem;flex-shrink:0}
+.qa-card.open .qa-chevron{transform:rotate(180deg)}
+
+.qa-answer{max-height:0;overflow:hidden;transition:max-height .5s ease}
+.qa-card.open .qa-answer{max-height:8000px}
+.qa-answer-inner{padding:0 1.2rem 1.2rem;border-top:1px solid var(--border);margin-top:0;padding-top:1rem}
+.qa-answer-inner p,.qa-answer-inner li{margin-bottom:.5rem}
+.qa-answer-inner ul,.qa-answer-inner ol{padding-left:1.5rem;margin-bottom:.8rem}
+
+.qa-check{display:flex;align-items:center;gap:.5rem;margin-top:1rem;padding-top:.8rem;border-top:1px solid var(--border)}
+.qa-check input[type=checkbox]{width:18px;height:18px;accent-color:var(--green);cursor:pointer}
+.qa-check label{font-size:.88rem;color:var(--text-muted);cursor:pointer}
+.qa-check label.checked{color:var(--green)}
+
+.table-wrap{overflow-x:auto;margin:1rem 0;border-radius:10px;border:1px solid var(--border)}
+table{width:100%;border-collapse:collapse;font-size:.88rem}
+thead th{background:var(--accent);color:#fff;padding:.65rem .9rem;text-align:left;font-weight:600;white-space:nowrap}
+tbody td{padding:.55rem .9rem;border-bottom:1px solid var(--border);vertical-align:top}
+tbody tr:nth-child(even){background:rgba(255,255,255,.02)}
+tbody tr:nth-child(odd){background:var(--surface)}
+tbody tr:hover{background:var(--accent-dim)}
+
+pre{background:var(--code-bg);border:1px solid var(--border);border-radius:10px;padding:1rem;overflow-x:auto;margin:.8rem 0;font-size:.83rem;line-height:1.5}
+code{font-family:'Cascadia Code','Fira Code','Consolas',monospace;color:#c4b5fd}
+p code,li code,td code{background:var(--code-bg);padding:.12rem .4rem;border-radius:4px;font-size:.85em;border:1px solid var(--border)}
+
+.callout{background:var(--accent-dim);border-left:4px solid var(--accent);border-radius:0 10px 10px 0;padding:.9rem 1.1rem;margin:.8rem 0;font-size:.92rem}
+.callout strong{color:var(--accent)}
+
+strong{color:#f1f5f9}
+
+.back-top{position:fixed;bottom:2rem;right:2rem;width:44px;height:44px;border-radius:50%;background:var(--accent);color:#fff;border:none;cursor:pointer;font-size:1.3rem;display:none;align-items:center;justify-content:center;box-shadow:0 4px 12px rgba(139,92,246,.3);transition:transform .2s;z-index:100}
+.back-top:hover{transform:scale(1.1)}
+.back-top.show{display:flex}
+
+@media(max-width:900px){
+.sidebar{transform:translateX(-100%)}
+.sidebar.open{transform:translateX(0)}
+.overlay.open{display:block}
+.hamburger{display:block}
+.main{margin-left:0;padding:1.5rem 1rem 3rem}
+.hero h1{font-size:1.6rem}
+.score-bar{flex-direction:column;align-items:stretch;gap:.8rem}
+}
+@media(max-width:600px){
+table{font-size:.78rem}
+thead th,tbody td{padding:.45rem .5rem}
+.hero{padding:2rem 1rem}
+}
+@media print{
+.sidebar,.hamburger,.back-top,.progress-bar,.overlay,.score-bar,.qa-check,.qa-chevron{display:none!important}
+.main{margin-left:0;padding:0}
+body{background:#fff;color:#000;font-size:11pt}
+.hero{background:#8b5cf6!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.qa-card{break-inside:avoid;border:1px solid #ccc}
+.qa-answer{max-height:none!important}
+table{font-size:9pt}
+thead th{background:#8b5cf6!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+pre{border:1px solid #ccc;background:#f5f5f5!important;color:#000}
+code{color:#000}
+}
+</style>
+</head>
+<body>
+
+<div class="progress-bar" id="progressBar"></div>
+<button class="hamburger" id="hamburger" aria-label="Toggle navigation"><span></span><span></span><span></span></button>
+<div class="overlay" id="overlay"></div>
+
+<nav class="sidebar" id="sidebar">
+<h3>Questions</h3>
+<a href="#q1">Q1. What is Virtualization?</a>
+<a href="#q2">Q2. Type 1 vs Type 2 Hypervisors</a>
+<a href="#q3">Q3. Four Types of Virtualization</a>
+<a href="#q4">Q4. x86 Challenge &amp; VT-x</a>
+<a href="#q5">Q5. Binary Translation</a>
+<a href="#q6">Q6. Benefits &amp; Limitations</a>
+<a href="#q7">Q7. Container vs VM Architecture</a>
+<a href="#q8">Q8. Docker Images &amp; Dockerfiles</a>
+<a href="#q9">Q9. Docker Volumes</a>
+<a href="#q10">Q10. Linux Namespaces</a>
+<a href="#q11">Q11. Linux Cgroups</a>
+<a href="#q12">Q12. System vs Application Containers</a>
+<a href="#q13">Q13. VMs vs Containers (10 dims)</a>
+<a href="#q14">Q14. Kubernetes Concepts</a>
+<a href="#q15">Q15. Cloud-Native Principles</a>
+<a href="#q16">Q16. Noisy Neighbour Problem</a>
+<a href="#q17">Q17. Docker Container Lifecycle</a>
+<a href="#q18">Q18. 12-Factor App</a>
+</nav>
+
+<header class="hero">
+<h1>Topic 2: Questions &amp; Answers</h1>
+<p class="subtitle">Virtualization &amp; Containers &mdash; 18 Questions</p>
+<p class="meta">Virtualization concepts &bull; hypervisors &bull; x86 challenges &bull; Docker &bull; namespaces/cgroups &bull; VMs vs containers &bull; Kubernetes &bull; cloud-native</p>
+</header>
+
+<div class="layout">
+<main class="main">
+
+<div class="score-bar" id="scoreBar">
+<span class="score-text" id="scoreText">Reviewed: 0 / 18</span>
+<div class="score-fill-wrap"><div class="score-fill" id="scoreFill" style="width:0%"></div></div>
+<div class="btns">
+<button onclick="toggleAll(true)">Show All</button>
+<button onclick="toggleAll(false)">Hide All</button>
+</div>
+</div>
+
+<!-- Q1 -->
+<div class="qa-card" id="q1">
+<div class="qa-header" onclick="toggleCard(this)">
+<div class="qa-badge">1</div>
+<div class="qa-title">What is virtualization? Why is it the foundational technology of cloud computing?</div>
+<div class="qa-chevron">&#9662;</div>
+</div>
+<div class="qa-answer"><div class="qa-answer-inner">
+<p><strong>Virtualization</strong> is the creation of software-based (virtual) representations of physical resources &mdash; servers, storage, networks, operating systems. A layer of software called a <strong>hypervisor</strong> (Virtual Machine Monitor) sits between physical hardware and guest operating systems, allowing multiple VMs to share one physical machine.</p>
+<p><strong>Why it's foundational to cloud:</strong></p>
+<ol>
+<li><strong>Server consolidation</strong> &mdash; Run 10-50 VMs on one physical server, achieving 60-80% utilization (vs 10-15% without virtualization). This is how cloud providers achieve economic scale.</li>
+<li><strong>Isolation</strong> &mdash; Each VM is a sandbox; one VM's crash/breach doesn't affect others. Enables safe multi-tenancy.</li>
+<li><strong>Hardware abstraction</strong> &mdash; VMs interact with virtual hardware, not physical. Enables live migration, hardware upgrades without downtime.</li>
+<li><strong>Rapid provisioning</strong> &mdash; Create a VM in seconds (software config), not weeks (physical procurement).</li>
+<li><strong>Measured service</strong> &mdash; Hypervisor tracks each VM's CPU, memory, disk, network consumption for accurate billing.</li>
+</ol>
+<p>Without virtualization, cloud would just be &ldquo;renting physical servers&rdquo; &mdash; no multi-tenancy, no elasticity, no resource pooling.</p>
+<div class="qa-check"><input type="checkbox" id="c1" onchange="updateScore()"><label for="c1">Mark as reviewed</label></div>
+</div></div>
+</div>
+
+<!-- Q2 -->
+<div class="qa-card" id="q2">
+<div class="qa-header" onclick="toggleCard(this)">
+<div class="qa-badge">2</div>
+<div class="qa-title">Compare Type 1 and Type 2 hypervisors. Which is used in cloud computing and why?</div>
+<div class="qa-chevron">&#9662;</div>
+</div>
+<div class="qa-answer"><div class="qa-answer-inner">
+<div class="table-wrap"><table>
+<thead><tr><th>Aspect</th><th>Type 1 (Bare-metal)</th><th>Type 2 (Hosted)</th></tr></thead>
+<tbody>
+<tr><td><strong>Runs on</strong></td><td>Directly on physical hardware (replaces host OS)</td><td>On top of an existing host OS (as an application)</td></tr>
+<tr><td><strong>Hardware access</strong></td><td>Direct &mdash; hypervisor IS the OS</td><td>Indirect &mdash; mediated through host OS</td></tr>
+<tr><td><strong>Performance</strong></td><td>Better &mdash; no host OS overhead</td><td>Worse &mdash; host OS adds overhead</td></tr>
+<tr><td><strong>Security</strong></td><td>More secure &mdash; smaller attack surface</td><td>Less secure &mdash; host OS vulnerabilities exposed</td></tr>
+<tr><td><strong>Examples</strong></td><td>VMware ESXi, KVM, Xen, Microsoft Hyper-V</td><td>VMware Workstation, VirtualBox, Parallels</td></tr>
+<tr><td><strong>Use case</strong></td><td>Production cloud, data centres</td><td>Development, testing on personal machines</td></tr>
+</tbody>
+</table></div>
+<p><strong>Cloud computing uses Type 1 exclusively</strong> because:</p>
+<ul>
+<li>Direct hardware access provides best performance</li>
+<li>Smaller attack surface improves security</li>
+<li>No host OS overhead means more resources available for guest VMs</li>
+<li>Better resource management and scheduling capabilities</li>
+</ul>
+<div class="qa-check"><input type="checkbox" id="c2" onchange="updateScore()"><label for="c2">Mark as reviewed</label></div>
+</div></div>
+</div>
+
+<!-- Q3 -->
+<div class="qa-card" id="q3">
+<div class="qa-header" onclick="toggleCard(this)">
+<div class="qa-badge">3</div>
+<div class="qa-title">Explain the four types of virtualization with their trade-offs.</div>
+<div class="qa-chevron">&#9662;</div>
+</div>
+<div class="qa-answer"><div class="qa-answer-inner">
+<div class="table-wrap"><table>
+<thead><tr><th>Type</th><th>How it works</th><th>Guest OS modified?</th><th>Performance</th><th>Example</th></tr></thead>
+<tbody>
+<tr><td><strong>Full virtualization</strong></td><td>Hypervisor simulates complete hardware. Privileged instructions trapped and emulated via <strong>binary translation</strong>.</td><td>No (unmodified)</td><td>Lower (translation overhead)</td><td>QEMU, early VMware</td></tr>
+<tr><td><strong>Para-virtualization</strong></td><td>Guest OS kernel modified to make <strong>hypercalls</strong> directly to hypervisor instead of privileged instructions.</td><td>Yes (kernel modified)</td><td>Good (no translation)</td><td>Xen (PV mode)</td></tr>
+<tr><td><strong>Hardware-assisted</strong></td><td>CPU provides hardware support (Intel VT-x, AMD-V). New privilege mode below Ring 0. Trapping done in hardware.</td><td>No (unmodified)</td><td>Near-native</td><td>KVM, ESXi, Hyper-V</td></tr>
+<tr><td><strong>OS-level (containers)</strong></td><td>Host kernel isolates multiple user spaces using namespaces and cgroups. No separate kernel per instance.</td><td>N/A (shares host kernel)</td><td>Native</td><td>Docker, LXC</td></tr>
+</tbody>
+</table></div>
+<div class="callout"><strong>In cloud computing today, hardware-assisted virtualization dominates</strong> for VMs (KVM, ESXi) because it combines unmodified guest OS support with near-native performance. OS-level virtualization (containers) is used alongside VMs for lightweight application packaging.</div>
+<div class="qa-check"><input type="checkbox" id="c3" onchange="updateScore()"><label for="c3">Mark as reviewed</label></div>
+</div></div>
+</div>
+
+<!-- Q4 -->
+<div class="qa-card" id="q4">
+<div class="qa-header" onclick="toggleCard(this)">
+<div class="qa-badge">4</div>
+<div class="qa-title">What is the x86 virtualization challenge? How do Intel VT-x and AMD-V solve it?</div>
+<div class="qa-chevron">&#9662;</div>
+</div>
+<div class="qa-answer"><div class="qa-answer-inner">
+<p><strong>The problem:</strong> x86 processors have four privilege levels (Ring 0-3). The OS kernel runs at Ring 0 (highest privilege, direct hardware access). In virtualization, both the hypervisor AND guest OS want Ring 0. If the guest runs at Ring 0, it bypasses the hypervisor. If moved to Ring 1, some privileged instructions silently fail instead of trapping.</p>
+<p><strong>Solutions:</strong></p>
+<p><strong>1. Binary Translation (software):</strong> Hypervisor at Ring 0, guest at Ring 1. Hypervisor scans guest instructions and replaces problematic ones. Works but has overhead.</p>
+<p><strong>2. Intel VT-x / AMD-V (hardware):</strong> CPU adds new modes:</p>
+<ul>
+<li><strong>VMX root mode</strong> &mdash; hypervisor runs here (below Ring 0)</li>
+<li><strong>VMX non-root mode</strong> &mdash; guest OS runs at Ring 0</li>
+</ul>
+<p>When the guest executes a privileged instruction, the CPU hardware automatically traps to the hypervisor (<strong>VM exit</strong>). The hypervisor handles it and returns control (<strong>VM entry</strong>). No binary translation needed.</p>
+<p><strong>3. Extended Page Tables (EPT):</strong> Hardware support for nested page tables (guest virtual &rarr; guest physical &rarr; host physical). Eliminates the need for hypervisor-maintained shadow page tables. Reduces memory virtualization overhead by 20-50%.</p>
+<div class="qa-check"><input type="checkbox" id="c4" onchange="updateScore()"><label for="c4">Mark as reviewed</label></div>
+</div></div>
+</div>
+
+<!-- Q5 -->
+<div class="qa-card" id="q5">
+<div class="qa-header" onclick="toggleCard(this)">
+<div class="qa-badge">5</div>
+<div class="qa-title">What is binary translation? Why was it needed before hardware-assisted virtualization?</div>
+<div class="qa-chevron">&#9662;</div>
+</div>
+<div class="qa-answer"><div class="qa-answer-inner">
+<p><strong>Binary translation</strong> is a technique where the hypervisor scans the guest OS's instruction stream at runtime, identifies privileged instructions (those that would fail or behave incorrectly outside Ring 0), and replaces them with equivalent safe instructions that trap to the hypervisor.</p>
+<p><strong>Why it was needed:</strong> Before Intel VT-x (2005) and AMD-V (2006), x86 CPUs had no hardware support for virtualization. The x86 architecture had 17 &ldquo;sensitive&rdquo; instructions that behaved differently depending on the privilege level but did NOT trap when executed at a lower privilege level. This violated the requirement for safe virtualization (that all sensitive instructions must either trap or behave identically regardless of privilege level).</p>
+<p>Binary translation was the software workaround &mdash; it caught these 17 problematic instructions and replaced them. VMware pioneered this approach in the late 1990s.</p>
+<p><strong>After VT-x/AMD-V:</strong> Hardware handles trapping automatically. Binary translation is no longer needed for x86 virtualization. Modern hypervisors (KVM, ESXi, Hyper-V) all use hardware-assisted virtualization.</p>
+<div class="qa-check"><input type="checkbox" id="c5" onchange="updateScore()"><label for="c5">Mark as reviewed</label></div>
+</div></div>
+</div>
+
+<!-- Q6 -->
+<div class="qa-card" id="q6">
+<div class="qa-header" onclick="toggleCard(this)">
+<div class="qa-badge">6</div>
+<div class="qa-title">What are the benefits and limitations of virtualization?</div>
+<div class="qa-chevron">&#9662;</div>
+</div>
+<div class="qa-answer"><div class="qa-answer-inner">
+<p><strong>Benefits:</strong></p>
+<ol>
+<li><strong>Server consolidation</strong> &mdash; 10-50 VMs per host, 60-80% utilization.</li>
+<li><strong>Cost reduction</strong> &mdash; Fewer servers, less power, cooling, space, staff.</li>
+<li><strong>Isolation</strong> &mdash; Each VM is a complete sandbox.</li>
+<li><strong>Hardware independence</strong> &mdash; VMs are abstracted from physical hardware. Live migration possible.</li>
+<li><strong>Rapid provisioning</strong> &mdash; Create VMs in seconds from templates.</li>
+<li><strong>Snapshot/rollback</strong> &mdash; Capture and restore VM state instantly.</li>
+<li><strong>Disaster recovery</strong> &mdash; Replicate VM images to remote sites.</li>
+<li><strong>Legacy support</strong> &mdash; Run old OS on modern hardware.</li>
+</ol>
+<p><strong>Limitations:</strong></p>
+<ol>
+<li><strong>Performance overhead</strong> &mdash; Hypervisor adds 2-10% CPU overhead, more for I/O.</li>
+<li><strong>Resource contention</strong> &mdash; VMs compete for physical resources (noisy neighbour).</li>
+<li><strong>Single point of failure</strong> &mdash; If host crashes, all VMs on it go down.</li>
+<li><strong>Storage overhead</strong> &mdash; Each VM has full OS copy (several GB).</li>
+<li><strong>Licensing costs</strong> &mdash; Hypervisor and guest OS licenses can be expensive.</li>
+<li><strong>Security surface</strong> &mdash; Hypervisor vulnerabilities (VM escape) can compromise all VMs.</li>
+</ol>
+<div class="qa-check"><input type="checkbox" id="c6" onchange="updateScore()"><label for="c6">Mark as reviewed</label></div>
+</div></div>
+</div>
+
+<!-- Q7 -->
+<div class="qa-card" id="q7">
+<div class="qa-header" onclick="toggleCard(this)">
+<div class="qa-badge">7</div>
+<div class="qa-title">What is a container? How does it differ from a VM at the architecture level?</div>
+<div class="qa-chevron">&#9662;</div>
+</div>
+<div class="qa-answer"><div class="qa-answer-inner">
+<p>A <strong>container</strong> is a lightweight, standalone, executable package containing an application and all its dependencies (code, runtime, libraries, settings). Containers share the host OS kernel but run in isolated user spaces.</p>
+<p><strong>Architecture difference:</strong></p>
+<pre><code>VM Architecture:                    Container Architecture:
+┌──────┐ ┌──────┐ ┌──────┐        ┌──────┐ ┌──────┐ ┌──────┐
+│App A │ │App B │ │App C │        │App A │ │App B │ │App C │
+│Libs  │ │Libs  │ │Libs  │        │Libs  │ │Libs  │ │Libs  │
+│Guest │ │Guest │ │Guest │        ├──────┴─┴──────┴─┴──────┤
+│ OS   │ │ OS   │ │ OS   │        │   Container Runtime     │
+├──────┴─┴──────┴─┴──────┤        ├─────────────────────────┤
+│      Hypervisor         │        │   Host OS Kernel        │
+├─────────────────────────┤        ├─────────────────────────┤
+│   Physical Hardware     │        │   Physical Hardware     │
+└─────────────────────────┘        └─────────────────────────┘</code></pre>
+<p><strong>Key difference:</strong> VMs virtualize the <strong>hardware</strong> (each gets its own kernel). Containers virtualize the <strong>OS</strong> (all share one kernel). This makes containers much lighter (MBs vs GBs), faster to start (milliseconds vs minutes), and higher density (hundreds vs tens per host), but with weaker isolation (shared kernel).</p>
+<div class="qa-check"><input type="checkbox" id="c7" onchange="updateScore()"><label for="c7">Mark as reviewed</label></div>
+</div></div>
+</div>
+
+<!-- Q8 -->
+<div class="qa-card" id="q8">
+<div class="qa-header" onclick="toggleCard(this)">
+<div class="qa-badge">8</div>
+<div class="qa-title">Explain Docker images, layers, and the Dockerfile build process.</div>
+<div class="qa-chevron">&#9662;</div>
+</div>
+<div class="qa-answer"><div class="qa-answer-inner">
+<p><strong>Docker image:</strong> A read-only template containing application code, runtime, libraries, dependencies, and configuration. Images are the blueprint from which containers are created.</p>
+<p><strong>Layers:</strong> Images are built in layers. Each Dockerfile instruction creates a layer. Layers are cached and shared &mdash; if two images use the same base, that base layer is stored once.</p>
+<pre><code>Layer stack:
+┌──────────────────────┐
+│ LAYER 4: COPY app.py │  ← Application code
+├──────────────────────┤
+│ LAYER 3: RUN pip     │  ← Dependencies
+├──────────────────────┤
+│ LAYER 2: RUN apt     │  ← System packages
+├──────────────────────┤
+│ LAYER 1: python:3.11 │  ← Base image
+└──────────────────────┘</code></pre>
+<p><strong>Dockerfile:</strong> A text file with build instructions.</p>
+<pre><code>FROM python:3.11-slim          # Base image
+WORKDIR /app                   # Set working directory
+COPY requirements.txt .        # Copy dependency file
+RUN pip install -r requirements.txt  # Install dependencies
+COPY . .                       # Copy application code
+EXPOSE 8000                    # Document port
+CMD ["python", "app.py"]       # Default run command</code></pre>
+<p><strong>Build process:</strong> <code>docker build -t myapp .</code> reads the Dockerfile, executes each instruction creating a layer, and produces a tagged image. Each layer is cached &mdash; rebuild is fast if only the last layers change.</p>
+<div class="qa-check"><input type="checkbox" id="c8" onchange="updateScore()"><label for="c8">Mark as reviewed</label></div>
+</div></div>
+</div>
+
+<!-- Q9 -->
+<div class="qa-card" id="q9">
+<div class="qa-header" onclick="toggleCard(this)">
+<div class="qa-badge">9</div>
+<div class="qa-title">What are Docker volumes? Why are they needed?</div>
+<div class="qa-chevron">&#9662;</div>
+</div>
+<div class="qa-answer"><div class="qa-answer-inner">
+<p>By default, data inside a container is <strong>ephemeral</strong> &mdash; when the container is deleted, data is lost. <strong>Volumes</strong> provide persistent storage that survives container restarts and deletions.</p>
+<div class="table-wrap"><table>
+<thead><tr><th>Type</th><th>Description</th><th>Use case</th></tr></thead>
+<tbody>
+<tr><td><strong>Volume</strong></td><td>Managed by Docker, stored in Docker-managed area on host.</td><td>Database storage, application state.</td></tr>
+<tr><td><strong>Bind mount</strong></td><td>Maps a specific host directory into the container.</td><td>Development &mdash; mount source code for live editing.</td></tr>
+<tr><td><strong>tmpfs mount</strong></td><td>Stored in host memory only. Lost when container stops.</td><td>Sensitive data that shouldn't be on disk.</td></tr>
+</tbody>
+</table></div>
+<pre><code>docker volume create mydata
+docker run -v mydata:/var/lib/mysql mysql:8      # Named volume
+docker run -v /host/path:/app/data myapp         # Bind mount</code></pre>
+<p><strong>Why needed:</strong> Containers follow the &ldquo;cattle, not pets&rdquo; philosophy &mdash; they're disposable and replaceable. But data (databases, user uploads, logs) must persist across container replacements. Volumes decouple data lifecycle from container lifecycle.</p>
+<div class="qa-check"><input type="checkbox" id="c9" onchange="updateScore()"><label for="c9">Mark as reviewed</label></div>
+</div></div>
+</div>
+
+<!-- Q10 -->
+<div class="qa-card" id="q10">
+<div class="qa-header" onclick="toggleCard(this)">
+<div class="qa-badge">10</div>
+<div class="qa-title">Explain Linux namespaces. List the six types and what each isolates.</div>
+<div class="qa-chevron">&#9662;</div>
+</div>
+<div class="qa-answer"><div class="qa-answer-inner">
+<p><strong>Namespaces</strong> provide <strong>isolation</strong> &mdash; each container gets its own view of system resources, preventing it from seeing or affecting other containers.</p>
+<div class="table-wrap"><table>
+<thead><tr><th>Namespace</th><th>What it isolates</th><th>Effect</th></tr></thead>
+<tbody>
+<tr><td><strong>PID</strong></td><td>Process IDs</td><td>Container sees only its own processes. PID 1 inside container &ne; PID 1 on host.</td></tr>
+<tr><td><strong>NET</strong></td><td>Network stack</td><td>Container has its own IP address, routing table, ports. Port 80 in container A doesn't conflict with port 80 in container B.</td></tr>
+<tr><td><strong>MNT</strong></td><td>File system mounts</td><td>Container has its own root filesystem. Cannot see host or other containers' files.</td></tr>
+<tr><td><strong>UTS</strong></td><td>Hostname and domain</td><td>Container can have its own hostname (e.g. &ldquo;web-server-1&rdquo;).</td></tr>
+<tr><td><strong>IPC</strong></td><td>Inter-process communication</td><td>Container has its own message queues, semaphores, shared memory segments.</td></tr>
+<tr><td><strong>USER</strong></td><td>User/group IDs</td><td>Container's root (UID 0) can map to a non-root user on host. Improves security.</td></tr>
+</tbody>
+</table></div>
+<div class="callout"><strong>Key insight:</strong> Namespaces answer &ldquo;what can you see?&rdquo; &mdash; they create the illusion that each container is an independent system.</div>
+<div class="qa-check"><input type="checkbox" id="c10" onchange="updateScore()"><label for="c10">Mark as reviewed</label></div>
+</div></div>
+</div>
+
+<!-- Q11 -->
+<div class="qa-card" id="q11">
+<div class="qa-header" onclick="toggleCard(this)">
+<div class="qa-badge">11</div>
+<div class="qa-title">Explain Linux cgroups. What resources do they control?</div>
+<div class="qa-chevron">&#9662;</div>
+</div>
+<div class="qa-answer"><div class="qa-answer-inner">
+<p><strong>Cgroups (Control Groups)</strong> limit, account for, and isolate <strong>resource usage</strong> of a group of processes (a container).</p>
+<div class="table-wrap"><table>
+<thead><tr><th>Resource</th><th>What cgroups control</th><th>Example</th></tr></thead>
+<tbody>
+<tr><td><strong>CPU</strong></td><td>CPU time/cores allocated</td><td>Container A: max 2 cores</td></tr>
+<tr><td><strong>Memory</strong></td><td>RAM limit</td><td>Container B: max 512 MB (OOM-killed if exceeded)</td></tr>
+<tr><td><strong>Disk I/O</strong></td><td>Read/write bandwidth</td><td>Container C: max 100 MB/s</td></tr>
+<tr><td><strong>Network</strong></td><td>Network bandwidth</td><td>Container D: max 1 Gbps</td></tr>
+<tr><td><strong>PIDs</strong></td><td>Max number of processes</td><td>Container E: max 100 processes (prevents fork bombs)</td></tr>
+</tbody>
+</table></div>
+<div class="callout"><strong>Key insight:</strong> Cgroups answer &ldquo;how much can you use?&rdquo; &mdash; they prevent one container from consuming all host resources.</div>
+<p><strong>Together:</strong> Namespaces (isolation) + Cgroups (resource limits) = a container. Namespaces ensure container A can't see container B. Cgroups ensure container A can't starve container B of resources.</p>
+<div class="qa-check"><input type="checkbox" id="c11" onchange="updateScore()"><label for="c11">Mark as reviewed</label></div>
+</div></div>
+</div>
+
+<!-- Q12 -->
+<div class="qa-card" id="q12">
+<div class="qa-header" onclick="toggleCard(this)">
+<div class="qa-badge">12</div>
+<div class="qa-title">Compare system containers and application containers.</div>
+<div class="qa-chevron">&#9662;</div>
+</div>
+<div class="qa-answer"><div class="qa-answer-inner">
+<div class="table-wrap"><table>
+<thead><tr><th>Aspect</th><th>System Container</th><th>Application Container</th></tr></thead>
+<tbody>
+<tr><td><strong>Purpose</strong></td><td>Lightweight VM replacement &mdash; run a full OS environment</td><td>Package and run a single application/microservice</td></tr>
+<tr><td><strong>Processes</strong></td><td>Multiple (init system, sshd, cron, apps)</td><td>One main process (the application)</td></tr>
+<tr><td><strong>Init system</strong></td><td>Full init (systemd)</td><td>No init &mdash; app IS the main process</td></tr>
+<tr><td><strong>Lifecycle</strong></td><td>Long-lived (weeks/months, like a server)</td><td>Often short-lived (seconds to hours, replaceable)</td></tr>
+<tr><td><strong>Philosophy</strong></td><td>&ldquo;Pet&rdquo; &mdash; maintain, patch, upgrade</td><td>&ldquo;Cattle&rdquo; &mdash; replace, don't repair</td></tr>
+<tr><td><strong>Examples</strong></td><td>LXC, LXD, systemd-nspawn</td><td>Docker, Podman</td></tr>
+<tr><td><strong>K8s integration</strong></td><td>Less common</td><td>Native (pods run application containers)</td></tr>
+</tbody>
+</table></div>
+<p><strong>In cloud-native:</strong> Application containers (Docker) dominate. System containers are used for specific scenarios needing a full OS-like environment (development, legacy hosting).</p>
+<div class="qa-check"><input type="checkbox" id="c12" onchange="updateScore()"><label for="c12">Mark as reviewed</label></div>
+</div></div>
+</div>
+
+<!-- Q13 -->
+<div class="qa-card" id="q13">
+<div class="qa-header" onclick="toggleCard(this)">
+<div class="qa-badge">13</div>
+<div class="qa-title">Compare VMs and containers across 10 dimensions. When would you use each?</div>
+<div class="qa-chevron">&#9662;</div>
+</div>
+<div class="qa-answer"><div class="qa-answer-inner">
+<div class="table-wrap"><table>
+<thead><tr><th>Aspect</th><th>Virtual Machines</th><th>Containers</th></tr></thead>
+<tbody>
+<tr><td><strong>Virtualizes</strong></td><td>Hardware (CPU, memory, disk)</td><td>OS (process space, filesystem, network)</td></tr>
+<tr><td><strong>Kernel</strong></td><td>Each VM has its own kernel</td><td>All containers share host kernel</td></tr>
+<tr><td><strong>Size</strong></td><td>GBs (full OS + app)</td><td>MBs (app + libraries only)</td></tr>
+<tr><td><strong>Boot time</strong></td><td>Seconds to minutes</td><td>Milliseconds to seconds</td></tr>
+<tr><td><strong>Overhead</strong></td><td>Heavy (full OS per VM)</td><td>Light (no separate OS)</td></tr>
+<tr><td><strong>Density</strong></td><td>10-50 per host</td><td>100-1000+ per host</td></tr>
+<tr><td><strong>Isolation</strong></td><td>Strong (separate kernels, hypervisor boundary)</td><td>Moderate (shared kernel, namespace isolation)</td></tr>
+<tr><td><strong>Security</strong></td><td>More secure (smaller attack surface)</td><td>Less secure (shared kernel vulnerabilities)</td></tr>
+<tr><td><strong>Portability</strong></td><td>Less (large images, hypervisor-specific formats)</td><td>Highly portable (Docker images run anywhere)</td></tr>
+<tr><td><strong>Use case</strong></td><td>Legacy apps, different OS needs, strong isolation</td><td>Microservices, CI/CD, cloud-native apps</td></tr>
+</tbody>
+</table></div>
+<p><strong>Use VMs when:</strong> Different OS needed, strong isolation required, legacy apps, custom kernel.</p>
+<p><strong>Use containers when:</strong> Microservices, CI/CD, high density, fast startup, cloud-native.</p>
+<p><strong>In practice:</strong> Containers run inside VMs &mdash; VMs provide tenant isolation, containers provide lightweight app packaging.</p>
+<div class="qa-check"><input type="checkbox" id="c13" onchange="updateScore()"><label for="c13">Mark as reviewed</label></div>
+</div></div>
+</div>
+
+<!-- Q14 -->
+<div class="qa-card" id="q14">
+<div class="qa-header" onclick="toggleCard(this)">
+<div class="qa-badge">14</div>
+<div class="qa-title">What is Kubernetes? List its key concepts and explain what it does.</div>
+<div class="qa-chevron">&#9662;</div>
+</div>
+<div class="qa-answer"><div class="qa-answer-inner">
+<p><strong>Kubernetes (K8s)</strong> is the de facto standard container orchestration platform, originally developed by Google. It automates deployment, scaling, and management of containerized applications across clusters of machines.</p>
+<p><strong>Key concepts:</strong></p>
+<div class="table-wrap"><table>
+<thead><tr><th>Concept</th><th>What it is</th></tr></thead>
+<tbody>
+<tr><td><strong>Pod</strong></td><td>Smallest deployable unit &mdash; one or more containers sharing network/storage.</td></tr>
+<tr><td><strong>Node</strong></td><td>Physical/virtual machine running pods (has kubelet, kube-proxy, container runtime).</td></tr>
+<tr><td><strong>Cluster</strong></td><td>Set of nodes managed by a control plane.</td></tr>
+<tr><td><strong>Deployment</strong></td><td>Declares desired state (&ldquo;run 3 replicas of myapp:v2&rdquo;). K8s ensures reality matches.</td></tr>
+<tr><td><strong>Service</strong></td><td>Stable network endpoint load-balancing traffic across ephemeral pods.</td></tr>
+<tr><td><strong>Namespace</strong></td><td>Virtual partition within cluster for organisation and access control.</td></tr>
+<tr><td><strong>ConfigMap/Secret</strong></td><td>External configuration and sensitive data injected into pods.</td></tr>
+</tbody>
+</table></div>
+<p><strong>What K8s does:</strong></p>
+<ol>
+<li><strong>Scheduling</strong> &mdash; decides which node runs each pod.</li>
+<li><strong>Self-healing</strong> &mdash; restarts crashed pods, reschedules pods from dead nodes.</li>
+<li><strong>Scaling</strong> &mdash; Horizontal Pod Autoscaler adds/removes replicas based on metrics.</li>
+<li><strong>Load balancing</strong> &mdash; Services distribute traffic across healthy pods.</li>
+<li><strong>Rolling updates</strong> &mdash; update pods incrementally without downtime.</li>
+<li><strong>Rollback</strong> &mdash; revert to previous version if update fails.</li>
+<li><strong>Secret management</strong> &mdash; securely store and inject passwords, API keys.</li>
+<li><strong>Storage orchestration</strong> &mdash; automatically provision persistent storage for pods.</li>
+</ol>
+<div class="qa-check"><input type="checkbox" id="c14" onchange="updateScore()"><label for="c14">Mark as reviewed</label></div>
+</div></div>
+</div>
+
+<!-- Q15 -->
+<div class="qa-card" id="q15">
+<div class="qa-header" onclick="toggleCard(this)">
+<div class="qa-badge">15</div>
+<div class="qa-title">What are cloud-native design principles? Explain microservices, declarative deployment, and portability.</div>
+<div class="qa-chevron">&#9662;</div>
+</div>
+<div class="qa-answer"><div class="qa-answer-inner">
+<p><strong>Cloud-native</strong> = designing applications specifically FOR the cloud &mdash; exploiting elasticity, resilience, scalability, and managed services.</p>
+<p><strong>Microservices:</strong> Break a monolith into small, independent services. Each has its own codebase, deploys independently, communicates via APIs, can scale independently, can use different technologies.</p>
+<ul>
+<li><em>Monolith:</em> Deploy entire app for any change. Scale everything. One bug crashes all.</li>
+<li><em>Microservices:</em> Deploy individual services. Scale what's needed. One failure is contained.</li>
+</ul>
+<p><strong>Declarative deployment:</strong> Instead of step-by-step scripts (&ldquo;install nginx, copy files, start service&rdquo;), declare the desired state and let the system achieve it.</p>
+<pre><code>spec:
+  replicas: 3              # "I want 3 copies"
+  containers:
+  - image: myapp:v2.0      # "Running this version"</code></pre>
+<p>Kubernetes ensures this is always true &mdash; if a pod dies, K8s creates a new one.</p>
+<p><strong>Portability:</strong> Applications run on any cloud without modification.</p>
+<ul>
+<li>Containers = same image runs on AWS/Azure/GCP/laptop.</li>
+<li>Kubernetes = same API on EKS/GKE/AKS.</li>
+<li>IaC (Terraform) = same code provisions on any provider.</li>
+</ul>
+<div class="qa-check"><input type="checkbox" id="c15" onchange="updateScore()"><label for="c15">Mark as reviewed</label></div>
+</div></div>
+</div>
+
+<!-- Q16 -->
+<div class="qa-card" id="q16">
+<div class="qa-header" onclick="toggleCard(this)">
+<div class="qa-badge">16</div>
+<div class="qa-title">What is the &ldquo;noisy neighbour&rdquo; problem? How do VMs and containers address it differently?</div>
+<div class="qa-chevron">&#9662;</div>
+</div>
+<div class="qa-answer"><div class="qa-answer-inner">
+<p>The <strong>noisy neighbour problem</strong> occurs when one tenant's heavy workload on shared physical infrastructure degrades performance for other tenants on the same host.</p>
+<p><strong>In VMs:</strong> The hypervisor allocates dedicated resources (CPU cores, RAM) to each VM. A VM can't exceed its allocation. However, shared resources like disk I/O and network bandwidth can still be contended. Hypervisors use CPU scheduling (fair-share, priority) and I/O throttling to mitigate.</p>
+<p><strong>In containers:</strong> Cgroups limit CPU, memory, and I/O per container. However, containers share the kernel, which means kernel-level resources (kernel threads, network stack, filesystem cache) can still be contended. The shared kernel makes the noisy neighbour problem slightly worse than with VMs.</p>
+<p><strong>Mitigation strategies:</strong></p>
+<ul>
+<li>Set CPU and memory <strong>limits</strong> (not just requests) in Kubernetes.</li>
+<li>Use <strong>resource quotas</strong> per namespace.</li>
+<li>Use <strong>dedicated node pools</strong> for sensitive workloads.</li>
+<li>Use <strong>VM-level isolation</strong> for strong tenant boundaries, containers within VMs for app isolation.</li>
+</ul>
+<div class="qa-check"><input type="checkbox" id="c16" onchange="updateScore()"><label for="c16">Mark as reviewed</label></div>
+</div></div>
+</div>
+
+<!-- Q17 -->
+<div class="qa-card" id="q17">
+<div class="qa-header" onclick="toggleCard(this)">
+<div class="qa-badge">17</div>
+<div class="qa-title">Explain the Docker container lifecycle with commands.</div>
+<div class="qa-chevron">&#9662;</div>
+</div>
+<div class="qa-answer"><div class="qa-answer-inner">
+<pre><code>Image (blueprint) → Container (running instance) → Stopped → Removed
+
+docker build -t myapp .              # Build image from Dockerfile
+docker images                        # List local images
+docker push registry.com/myapp:v1    # Push image to registry
+docker pull registry.com/myapp:v1    # Pull image from registry
+
+docker run -d -p 8000:8000 myapp     # Create + start container
+docker ps                            # List running containers
+docker ps -a                         # List all containers (including stopped)
+docker logs &lt;id&gt;                     # View container stdout/stderr
+docker exec -it &lt;id&gt; /bin/bash       # Open shell inside running container
+
+docker stop &lt;id&gt;                     # Stop container (SIGTERM)
+docker start &lt;id&gt;                    # Restart stopped container
+docker rm &lt;id&gt;                       # Remove stopped container
+docker rmi myapp                     # Remove image</code></pre>
+<p><strong>Key flags:</strong></p>
+<ul>
+<li><code>-d</code> = detached (background)</li>
+<li><code>-p 8000:8000</code> = map host port 8000 to container port 8000</li>
+<li><code>-v mydata:/app/data</code> = mount volume</li>
+<li><code>-e KEY=VALUE</code> = set environment variable</li>
+<li><code>--name mycontainer</code> = assign a name</li>
+<li><code>--rm</code> = auto-remove container when it exits</li>
+</ul>
+<div class="qa-check"><input type="checkbox" id="c17" onchange="updateScore()"><label for="c17">Mark as reviewed</label></div>
+</div></div>
+</div>
+
+<!-- Q18 -->
+<div class="qa-card" id="q18">
+<div class="qa-header" onclick="toggleCard(this)">
+<div class="qa-badge">18</div>
+<div class="qa-title">What is the 12-Factor App methodology? List at least 6 factors.</div>
+<div class="qa-chevron">&#9662;</div>
+</div>
+<div class="qa-answer"><div class="qa-answer-inner">
+<p>The <strong>12-Factor App</strong> is a methodology for building modern, cloud-native SaaS applications that are portable, scalable, and maintainable.</p>
+<div class="table-wrap"><table>
+<thead><tr><th>Factor</th><th>Principle</th><th>Why it matters for cloud</th></tr></thead>
+<tbody>
+<tr><td><strong>1. Codebase</strong></td><td>One codebase in version control, many deploys (dev, staging, prod).</td><td>Consistency across environments.</td></tr>
+<tr><td><strong>2. Dependencies</strong></td><td>Explicitly declare and isolate all dependencies (no system-wide packages).</td><td>Containers bundle all dependencies &mdash; no &ldquo;works on my machine.&rdquo;</td></tr>
+<tr><td><strong>3. Config</strong></td><td>Store config in environment variables, NOT in code.</td><td>Same image deployed to dev/staging/prod with different env vars.</td></tr>
+<tr><td><strong>4. Backing services</strong></td><td>Treat databases, caches, queues as attached resources swappable via config.</td><td>Switch from local PostgreSQL to RDS by changing a URL.</td></tr>
+<tr><td><strong>5. Build, release, run</strong></td><td>Strictly separate build (compile), release (build + config), and run (execute) stages.</td><td>Enables reproducible deployments and rollbacks.</td></tr>
+<tr><td><strong>6. Processes</strong></td><td>Run the app as one or more stateless processes.</td><td>Horizontal scaling &mdash; any instance can handle any request.</td></tr>
+<tr><td><strong>7. Port binding</strong></td><td>Export services via port binding (the app is self-contained).</td><td>Containers expose ports &mdash; no external web server needed.</td></tr>
+<tr><td><strong>8. Concurrency</strong></td><td>Scale out via the process model (more instances, not bigger instances).</td><td>Cloud-native horizontal scaling.</td></tr>
+<tr><td><strong>9. Disposability</strong></td><td>Fast startup, graceful shutdown. Processes are disposable.</td><td>Containers start in milliseconds, can be killed and replaced.</td></tr>
+<tr><td><strong>10. Dev/prod parity</strong></td><td>Keep dev, staging, and production as similar as possible.</td><td>Containers ensure identical environments everywhere.</td></tr>
+<tr><td><strong>11. Logs</strong></td><td>Treat logs as event streams (write to stdout, not files).</td><td>Container runtime captures stdout; shipped to log aggregation (ELK, Splunk).</td></tr>
+<tr><td><strong>12. Admin processes</strong></td><td>Run admin/management tasks as one-off processes.</td><td>Use <code>docker exec</code> or Kubernetes Jobs for migrations, scripts.</td></tr>
+</tbody>
+</table></div>
+<div class="qa-check"><input type="checkbox" id="c18" onchange="updateScore()"><label for="c18">Mark as reviewed</label></div>
+</div></div>
+</div>
+
+</main>
+</div>
+
+<button class="back-top" id="backTop" aria-label="Back to top">&uarr;</button>
+
+<script>
+const TOTAL=18;
+
+function toggleCard(header){
+const card=header.closest('.qa-card');
+card.classList.toggle('open');
+}
+
+function toggleAll(show){
+document.querySelectorAll('.qa-card').forEach(c=>{
+if(show)c.classList.add('open');else c.classList.remove('open');
+});
+}
+
+function updateScore(){
+let count=0;
+for(let i=1;i<=TOTAL;i++){
+const cb=document.getElementById('c'+i);
+const lbl=document.querySelector('label[for="c'+i+'"]');
+const card=document.getElementById('q'+i);
+if(cb&&cb.checked){count++;card.classList.add('reviewed');lbl.classList.add('checked');lbl.textContent='Reviewed \u2713';}
+else{card.classList.remove('reviewed');lbl.classList.remove('checked');lbl.textContent='Mark as reviewed';}
+}
+document.getElementById('scoreText').textContent='Reviewed: '+count+' / '+TOTAL;
+document.getElementById('scoreFill').style.width=(count/TOTAL*100)+'%';
+localStorage.setItem('t2qa-score',JSON.stringify(Array.from({length:TOTAL},(_,i)=>document.getElementById('c'+(i+1)).checked)));
+}
+
+(function(){
+try{
+const saved=JSON.parse(localStorage.getItem('t2qa-score'));
+if(saved&&saved.length===TOTAL){
+saved.forEach((v,i)=>{const cb=document.getElementById('c'+(i+1));if(cb)cb.checked=v;});
+updateScore();
+}
+}catch(e){}
+})();
+
+window.addEventListener('scroll',()=>{
+const h=document.documentElement;
+const pct=h.scrollTop/(h.scrollHeight-h.clientHeight)*100;
+document.getElementById('progressBar').style.width=pct+'%';
+document.getElementById('backTop').classList.toggle('show',h.scrollTop>400);
+});
+document.getElementById('backTop').addEventListener('click',()=>window.scrollTo({top:0,behavior:'smooth'}));
+
+const hamburger=document.getElementById('hamburger');
+const sidebar=document.getElementById('sidebar');
+const overlay=document.getElementById('overlay');
+hamburger.addEventListener('click',()=>{sidebar.classList.toggle('open');overlay.classList.toggle('open')});
+overlay.addEventListener('click',()=>{sidebar.classList.remove('open');overlay.classList.remove('open')});
+
+const navLinks=document.querySelectorAll('.sidebar a');
+const obs=new IntersectionObserver(entries=>{
+entries.forEach(e=>{
+if(e.isIntersecting){
+navLinks.forEach(l=>l.classList.remove('active'));
+const id=e.target.id;
+const link=document.querySelector('.sidebar a[href="#'+id+'"]');
+if(link)link.classList.add('active');
+}
+});
+},{rootMargin:'-20% 0px -60% 0px'});
+document.querySelectorAll('.qa-card').forEach(c=>obs.observe(c));
+navLinks.forEach(l=>l.addEventListener('click',()=>{sidebar.classList.remove('open');overlay.classList.remove('open')}));
+</script>
+</body>
+</html>
