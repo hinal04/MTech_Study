@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CS2-CS3: Virtualization</title>
+<style>
+:root{--bg:#0f172a;--surface:#1e293b;--surface2:#334155;--border:#475569;--text:#e2e8f0;--text-muted:#94a3b8;--code-bg:#0d1117;--accent:#8b5cf6;--accent-dim:rgba(139,92,246,.12);--accent-border:rgba(139,92,246,.3)}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;scroll-padding-top:80px}
+body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);line-height:1.7;min-height:100vh}
+.progress-bar{position:fixed;top:0;left:0;height:3px;background:var(--accent);z-index:1001;transition:width .25s}
+.sidebar{position:fixed;top:0;left:0;width:280px;height:100vh;background:var(--surface);border-right:1px solid var(--border);overflow-y:auto;z-index:100;transition:transform .3s}
+.sidebar-header{padding:20px;border-bottom:1px solid var(--border);text-align:center}
+.sidebar-header h2{font-size:1rem;color:var(--accent);margin-bottom:4px}
+.sidebar-header small{color:var(--text-muted);font-size:.75rem}
+.sidebar nav{padding:12px 0}
+.sidebar nav a{display:block;padding:8px 20px;color:var(--text-muted);text-decoration:none;font-size:.85rem;border-left:3px solid transparent;transition:all .2s}
+.sidebar nav a:hover,.sidebar nav a.active{color:var(--accent);background:var(--accent-dim);border-left-color:var(--accent)}
+.sidebar nav .nav-group{padding:10px 20px 4px;font-size:.7rem;text-transform:uppercase;letter-spacing:1px;color:var(--border);font-weight:700}
+.sidebar-toggle{display:none;position:fixed;top:12px;left:12px;z-index:200;background:var(--surface);border:1px solid var(--border);color:var(--text);padding:8px 12px;border-radius:6px;cursor:pointer;font-size:1.1rem}
+.main{margin-left:280px;max-width:900px;padding:40px 40px 100px}
+.main h1{font-size:2rem;color:var(--accent);margin-bottom:8px;line-height:1.3}
+.main .subtitle{color:var(--text-muted);font-size:.9rem;margin-bottom:32px;line-height:1.6}
+.main .subtitle strong{color:var(--text)}
+.main h2{font-size:1.45rem;color:var(--accent);margin:48px 0 16px;padding-bottom:8px;border-bottom:2px solid var(--accent-border)}
+.main h3{font-size:1.15rem;color:var(--text);margin:32px 0 12px}
+.main h4{font-size:1rem;color:var(--accent);margin:24px 0 8px}
+.main p{margin-bottom:14px}
+.main ul,.main ol{margin:0 0 16px 24px}
+.main li{margin-bottom:6px}
+.main li strong{color:var(--accent)}
+.main em{color:var(--text-muted);font-style:italic}
+.main blockquote{border-left:4px solid var(--accent);background:var(--accent-dim);padding:14px 20px;margin:16px 0;border-radius:0 8px 8px 0;color:var(--text-muted);font-style:italic}
+.main hr{border:none;border-top:1px solid var(--border);margin:40px 0}
+table{width:100%;border-collapse:collapse;margin:16px 0 24px;font-size:.88rem}
+thead th{background:var(--accent);color:#fff;padding:10px 14px;text-align:left;font-weight:600}
+tbody td{padding:10px 14px;border-bottom:1px solid var(--border)}
+tbody tr:nth-child(even){background:var(--surface)}
+tbody tr:nth-child(odd){background:var(--surface2)}
+tbody tr:hover{background:var(--accent-dim)}
+td strong{color:var(--accent)}
+pre{background:var(--code-bg);border:1px solid var(--border);border-radius:8px;padding:18px;overflow-x:auto;margin:16px 0;font-size:.85rem;line-height:1.6}
+code{font-family:'Cascadia Code','Fira Code','Consolas',monospace;font-size:.88em}
+p code,li code,td code{background:var(--code-bg);padding:2px 7px;border-radius:4px;color:var(--accent);border:1px solid var(--border)}
+.back-to-top{position:fixed;bottom:30px;right:30px;width:44px;height:44px;background:var(--accent);color:#fff;border:none;border-radius:50%;font-size:1.3rem;cursor:pointer;display:none;align-items:center;justify-content:center;box-shadow:0 4px 15px rgba(0,0,0,.3);z-index:100;transition:transform .2s}
+.back-to-top:hover{transform:scale(1.1)}
+.back-to-top.visible{display:flex}
+@media(max-width:900px){
+  .sidebar{transform:translateX(-100%)}
+  .sidebar.open{transform:translateX(0)}
+  .sidebar-toggle{display:block}
+  .main{margin-left:0;padding:70px 20px 100px}
+}
+@media print{
+  .sidebar,.sidebar-toggle,.back-to-top,.progress-bar{display:none!important}
+  .main{margin-left:0;max-width:100%}
+  body{background:#fff;color:#000}
+  table{font-size:.75rem}
+  thead th{background:#333;color:#fff;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  tbody tr:nth-child(even){background:#f0f0f0}tbody tr:nth-child(odd){background:#fff}
+  pre{background:#f5f5f5;border:1px solid #ccc}code{color:#333}
+  h1,h2,h3,h4{color:#111}a{color:#111;text-decoration:underline}
+}
+</style>
+</head>
+<body>
+<div class="progress-bar" id="progressBar"></div>
+<button class="sidebar-toggle" id="sidebarToggle">☰</button>
+<aside class="sidebar" id="sidebar">
+<div class="sidebar-header"><h2>CS2-CS3: Virtualization</h2><small>Cloud Computing — BITS Pilani</small></div>
+<nav>
+<div class="nav-group">Study Materials</div>
+<a href="CS1-Introduction-to-Cloud-Computing.html">CS1 — Intro to Cloud</a>
+<a href="CS2-CS3-Virtualization.html" class="active">CS2-CS3 — Virtualization</a>
+<a href="CS4-Hypervisor-and-IaaS.html">CS4 — Hypervisor &amp; IaaS</a>
+<a href="CS5-IaaS-Services.html">CS5 — IaaS Services</a>
+<a href="CS6-Containers-and-Cloud-Native.html">CS6 — Containers</a>
+<div class="nav-group">Questions &amp; Answers</div>
+<a href="CS1-Questions-and-Answers.html">CS1 Q&amp;A (15 Qs)</a>
+<a href="CS2-CS3-Questions-and-Answers.html">CS2-CS3 Q&amp;A (6 Qs)</a>
+<a href="CS4-Questions-and-Answers.html">CS4 Q&amp;A (8 Qs)</a>
+<a href="CS5-Questions-and-Answers.html">CS5 Q&amp;A (10 Qs)</a>
+<a href="CS6-Questions-and-Answers.html">CS6 Q&amp;A (12 Qs)</a>
+<div class="nav-group">Sections</div>
+<a href="#s21">2.1 Introduction to Virtualization</a>
+<a href="#s22">2.2 Benefits &amp; Limitations</a>
+<a href="#s23">2.3 Types of Virtualization</a>
+<a href="#s24">2.4 x86 Hardware Virtualization</a>
+<a href="#s25">2.5 Resource Management</a>
+<a href="#s26">2.6 Containers &amp; Containerization</a>
+</nav>
+</aside>
+
+<main class="main">
+<h1>CS2-CS3: Virtualization</h1>
+<div class="subtitle">
+BITS Pilani — <strong>CSI ZG527 / SE ZG527 / SS ZG527: Cloud Computing</strong><br>
+<strong>References:</strong> T1: Buyya Ch.9 | T2: Erl Ch.5 | R3: VMware Docs | R6: Docker Docs | R7: K8s Docs<br>
+<strong>Contact Hours:</strong> 5-8 (Handout Topics 2.1-2.6)
+</div>
+
+<hr>
+
+<h2 id="s21">2.1 Introduction to Virtualization</h2>
+
+<h3>What is Virtualization?</h3>
+<p><strong>Virtualization</strong> is the creation of a software-based (virtual) representation of something physical — a server, a storage device, a network, or even an entire operating system. Instead of running one OS on one physical machine, virtualization allows multiple virtual machines (VMs) to share a single physical machine, each running its own OS and applications in isolation.</p>
+<p>At its core, virtualization inserts a layer of software called a <strong>hypervisor</strong> (or Virtual Machine Monitor — VMM) between the physical hardware and the operating systems. The hypervisor manages the physical resources (CPU, memory, disk, network) and presents each VM with the illusion that it has its own dedicated hardware.</p>
+
+<h3>Why Virtualization Matters for Cloud Computing</h3>
+<p>Virtualization is the <strong>foundational technology</strong> that makes cloud computing possible. Without it, cloud computing would simply be "renting physical servers" — no multi-tenancy, no elasticity, no resource pooling.</p>
+<p>Specifically, virtualization enables:</p>
+<ol>
+<li><strong>Server consolidation</strong> — Instead of running one application per physical server (with typical utilization of 10-15%), you run 10-50 VMs on one physical server, achieving 60-80% utilization. This is how cloud providers make economics work.</li>
+<li><strong>Isolation</strong> — Each VM is a completely isolated sandbox. One VM's crash, security breach, or resource spike doesn't affect other VMs on the same host. This is what makes safe multi-tenancy possible.</li>
+<li><strong>Hardware abstraction</strong> — VMs interact with virtual hardware, not physical hardware. The hypervisor can migrate a VM from one physical server to another (live migration) without the VM or its users noticing. This enables maintenance without downtime.</li>
+<li><strong>Rapid provisioning</strong> — Creating a new VM takes seconds (it's just creating a software configuration and allocating virtual resources). Creating a physical server takes weeks (procurement, shipping, racking, cabling, OS installation).</li>
+<li><strong>Snapshotting and cloning</strong> — The entire state of a VM (memory, disk, configuration) can be captured as a snapshot and restored later. VMs can be cloned to create identical copies instantly.</li>
+</ol>
+
+<h3>The Hypervisor (Virtual Machine Monitor)</h3>
+<p>The hypervisor is the software layer that creates and manages virtual machines. It sits between the physical hardware and the guest operating systems, mediating all access to hardware resources.</p>
+<p><strong>Two types of hypervisors:</strong></p>
+<table>
+<thead><tr><th>Type</th><th>Where it runs</th><th>How it works</th><th>Examples</th></tr></thead>
+<tbody>
+<tr><td><strong>Type 1 (Bare-metal)</strong></td><td>Directly on the physical hardware, replacing the host OS.</td><td>The hypervisor IS the operating system. It has direct access to hardware, providing the best performance and lowest overhead.</td><td>VMware ESXi, Microsoft Hyper-V, Xen, KVM (Linux)</td></tr>
+<tr><td><strong>Type 2 (Hosted)</strong></td><td>On top of an existing host operating system, as an application.</td><td>The hypervisor runs as a user-level application on a conventional OS. The host OS mediates hardware access, adding overhead.</td><td>VMware Workstation, Oracle VirtualBox, Parallels Desktop</td></tr>
+</tbody>
+</table>
+
+<pre><code>Type 1 (Bare-metal):                Type 2 (Hosted):
+
+┌───────┐ ┌───────┐ ┌───────┐      ┌───────┐ ┌───────┐
+│ VM 1  │ │ VM 2  │ │ VM 3  │      │ VM 1  │ │ VM 2  │
+│(Guest │ │(Guest │ │(Guest │      │(Guest │ │(Guest │
+│  OS)  │ │  OS)  │ │  OS)  │      │  OS)  │ │  OS)  │
+├───────┴─┴───────┴─┴───────┤      ├───────┴─┴───────┤
+│       Hypervisor           │      │    Hypervisor     │
+├────────────────────────────┤      ├───────────────────┤
+│    Physical Hardware       │      │   Host OS (Linux, │
+└────────────────────────────┘      │   Windows, macOS) │
+                                    ├───────────────────┤
+                                    │ Physical Hardware  │
+                                    └───────────────────┘</code></pre>
+<p><strong>In cloud computing, Type 1 hypervisors are used exclusively</strong> because they provide better performance, security, and resource efficiency. Type 2 hypervisors are used primarily for development and testing on personal machines.</p>
+
+<hr>
+
+<h2 id="s22">2.2 Benefits and Limitations of Virtualization</h2>
+
+<h3>Benefits</h3>
+<table>
+<thead><tr><th>Benefit</th><th>Explanation</th></tr></thead>
+<tbody>
+<tr><td><strong>Server consolidation</strong></td><td>Run multiple VMs on one physical server. Reduce the number of physical servers from hundreds to tens. A typical physical server runs at 10-15% utilization; with virtualization, you achieve 60-80%.</td></tr>
+<tr><td><strong>Cost reduction</strong></td><td>Fewer physical servers means less hardware to buy, less power to consume, less cooling, less data centre space, fewer staff to manage.</td></tr>
+<tr><td><strong>Isolation</strong></td><td>Each VM is a fully isolated sandbox with its own OS, kernel, libraries, and applications. A crash, vulnerability, or misconfiguration in one VM does not affect others.</td></tr>
+<tr><td><strong>Hardware independence</strong></td><td>VMs are abstracted from physical hardware. Move a VM from an Intel server to an AMD server — the VM doesn't know or care. This enables live migration and hardware upgrades without downtime.</td></tr>
+<tr><td><strong>Rapid provisioning</strong></td><td>Create a new VM in seconds from a template or snapshot. No physical procurement cycle.</td></tr>
+<tr><td><strong>Snapshot and rollback</strong></td><td>Capture the complete state of a VM at any point. If an update fails, roll back to the snapshot instantly.</td></tr>
+<tr><td><strong>Disaster recovery</strong></td><td>VM images can be replicated to a remote site. In a disaster, VMs are restarted from the replicated images — much faster than rebuilding physical servers.</td></tr>
+<tr><td><strong>Testing and development</strong></td><td>Create isolated test environments that mirror production. Test patches, upgrades, and new software without risk to production systems. Destroy and recreate environments in minutes.</td></tr>
+<tr><td><strong>Legacy support</strong></td><td>Run legacy applications that require old OS versions (Windows XP, RHEL 5) on modern hardware by hosting them in VMs with the required OS.</td></tr>
+</tbody>
+</table>
+
+<h3>Limitations</h3>
+<table>
+<thead><tr><th>Limitation</th><th>Explanation</th></tr></thead>
+<tbody>
+<tr><td><strong>Performance overhead</strong></td><td>The hypervisor layer adds CPU, memory, and I/O overhead. A VM will always be slightly slower than running the same workload directly on physical hardware (bare metal). Typical overhead: 2-10% for CPU, more for I/O-intensive workloads.</td></tr>
+<tr><td><strong>Resource contention</strong></td><td>Multiple VMs sharing one physical host compete for CPU, memory, disk I/O, and network bandwidth. One VM's spike can affect others — the "noisy neighbour" problem.</td></tr>
+<tr><td><strong>Complexity</strong></td><td>Managing a virtualized environment (hypervisor configuration, VM lifecycle, storage management, networking) adds operational complexity.</td></tr>
+<tr><td><strong>Single point of failure</strong></td><td>If the physical host running multiple VMs crashes, ALL VMs on that host go down simultaneously. Mitigation: high availability clusters that automatically restart VMs on other hosts.</td></tr>
+<tr><td><strong>Licensing costs</strong></td><td>Some hypervisors (VMware vSphere) and guest OS licenses (Windows Server) can be expensive. Per-socket, per-VM, or per-core licensing models add cost.</td></tr>
+<tr><td><strong>Security surface</strong></td><td>The hypervisor itself becomes a critical attack surface. A vulnerability in the hypervisor (VM escape) could compromise all VMs on the host. Although rare, this is a serious threat.</td></tr>
+<tr><td><strong>Storage overhead</strong></td><td>Each VM has its own full OS installation (often several GB), consuming storage even for identical OS copies. 50 VMs with the same OS = 50 separate OS copies on disk.</td></tr>
+</tbody>
+</table>
+
+<hr>
+
+<h2 id="s23">2.3 Types of Virtualization</h2>
+<p>Virtualization can be implemented using several techniques, each with different trade-offs between performance, compatibility, and complexity.</p>
+
+<h3>2.3.1 Full Virtualization</h3>
+<p>In full virtualization, the hypervisor creates a <strong>complete simulation</strong> of the underlying hardware. The guest OS runs completely unmodified — it doesn't know it's running in a virtual machine. The hypervisor intercepts all hardware-access instructions from the guest OS and translates them into operations on the actual physical hardware.</p>
+<p><strong>How it works:</strong> The guest OS issues privileged instructions (e.g. accessing hardware registers, managing memory pages). The hypervisor traps these instructions (since the guest doesn't actually have hardware access) and emulates them in software.</p>
+<p><strong>Technique: Binary Translation</strong> — The hypervisor scans the guest OS's instruction stream, identifies privileged instructions, and replaces them with equivalent safe instructions at runtime. This is done transparently — the guest OS doesn't know its instructions are being modified.</p>
+<p><strong>Pros:</strong> Guest OS runs completely unmodified. Any OS that runs on the physical hardware can run as a guest.</p>
+<p><strong>Cons:</strong> Performance overhead from trapping and translating privileged instructions. Binary translation is computationally expensive.</p>
+<p><strong>Examples:</strong> VMware Workstation (early versions), QEMU (without KVM).</p>
+
+<h3>2.3.2 Para-Virtualization</h3>
+<p>In para-virtualization, the guest OS is <strong>modified</strong> to be aware that it's running in a virtual machine. Instead of issuing privileged instructions that must be trapped and emulated, the guest OS makes explicit <strong>hypercalls</strong> — direct calls to the hypervisor's API.</p>
+<p><strong>How it works:</strong> The guest OS kernel is modified to replace privileged instructions with hypercalls. When the guest needs to access hardware (e.g. write to disk), it calls the hypervisor directly through the hypercall interface, bypassing the trap-and-emulate overhead.</p>
+<p><strong>Pros:</strong> Better performance than full virtualization — no binary translation overhead. Hypercalls are more efficient than trap-and-emulate.</p>
+<p><strong>Cons:</strong> Requires modifying the guest OS kernel. Cannot run unmodified proprietary OS (e.g. Windows) unless the vendor provides a para-virtualized version. Tight coupling between guest and hypervisor.</p>
+<p><strong>Examples:</strong> Xen (with para-virtualized guests), early versions of VMware Tools.</p>
+
+<h3>2.3.3 Hardware-Assisted Virtualization</h3>
+<p>Modern CPUs from Intel (<strong>VT-x</strong>) and AMD (<strong>AMD-V</strong>) include hardware extensions specifically designed to support virtualization. These extensions add a new privilege level (root mode) below the OS, allowing the hypervisor to run at this level while the guest OS runs at its normal privilege level.</p>
+<p><strong>How it works:</strong> The CPU provides hardware support for trapping privileged instructions from the guest OS and redirecting them to the hypervisor — without binary translation or guest modification. The guest OS runs unmodified at its normal privilege level, and the CPU hardware handles the privilege boundary.</p>
+<p><strong>Pros:</strong> Best of both worlds — runs unmodified guest OS (like full virtualization) with near-native performance (no binary translation overhead). The hardware does the heavy lifting.</p>
+<p><strong>Cons:</strong> Requires CPU support (virtually all modern CPUs have it since ~2006). Early implementations had performance issues, but modern hardware-assisted virtualization is excellent.</p>
+<p><strong>Examples:</strong> KVM (Linux), VMware ESXi (modern), Microsoft Hyper-V, Xen (with HVM guests). This is <strong>the dominant approach in cloud computing today</strong>.</p>
+
+<h3>2.3.4 OS-Level Virtualization (Containerization)</h3>
+<p>OS-level virtualization creates multiple isolated <strong>user-space instances</strong> (containers) on a single OS kernel. Unlike VMs, containers do <strong>not</strong> run separate kernels — they all share the host's kernel.</p>
+<p><strong>How it works:</strong> The host OS kernel uses isolation mechanisms (namespaces for process/network/filesystem isolation, cgroups for resource limits) to create containers that appear to be independent systems but are actually processes running on the same kernel.</p>
+<p><strong>Pros:</strong> Extremely lightweight — no separate kernel per container. Start in milliseconds (vs. seconds/minutes for VMs). Much less resource overhead. Higher density (hundreds of containers per host vs. tens of VMs).</p>
+<p><strong>Cons:</strong> All containers share the same kernel — a kernel vulnerability affects all containers. Less isolation than VMs. Can only run the same OS family as the host (Linux containers on Linux host).</p>
+<p><strong>Examples:</strong> Docker, LXC, Podman, containerd.</p>
+
+<h3>Comparison of Virtualization Types</h3>
+<table>
+<thead><tr><th>Aspect</th><th>Full Virtualization</th><th>Para-Virtualization</th><th>Hardware-Assisted</th><th>OS-Level (Containers)</th></tr></thead>
+<tbody>
+<tr><td><strong>Guest OS modification</strong></td><td>None</td><td>Required</td><td>None</td><td>N/A (shares host kernel)</td></tr>
+<tr><td><strong>Performance</strong></td><td>Lower (binary translation)</td><td>Good (hypercalls)</td><td>Near-native</td><td>Native</td></tr>
+<tr><td><strong>Isolation</strong></td><td>Strong (separate kernels)</td><td>Strong</td><td>Strong</td><td>Moderate (shared kernel)</td></tr>
+<tr><td><strong>Boot time</strong></td><td>Seconds to minutes</td><td>Seconds to minutes</td><td>Seconds to minutes</td><td>Milliseconds</td></tr>
+<tr><td><strong>Resource overhead</strong></td><td>High (full OS per VM)</td><td>Medium</td><td>Medium</td><td>Very low</td></tr>
+<tr><td><strong>Density</strong></td><td>10-50 per host</td><td>10-50 per host</td><td>10-50 per host</td><td>100-1000+ per host</td></tr>
+<tr><td><strong>Example</strong></td><td>QEMU</td><td>Xen (PV)</td><td>KVM, ESXi, Hyper-V</td><td>Docker, LXC</td></tr>
+</tbody>
+</table>
+
+<hr>
+
+<h2 id="s24">2.4 x86 Hardware Virtualization</h2>
+
+<h3>The x86 Virtualization Challenge</h3>
+<p>The x86 processor architecture (used in virtually all servers and PCs) was not originally designed for virtualization. The x86 has four privilege levels called <strong>rings</strong> (Ring 0 to Ring 3):</p>
+<ul>
+<li><strong>Ring 0:</strong> Highest privilege — the OS kernel runs here. Direct access to hardware.</li>
+<li><strong>Ring 1-2:</strong> Rarely used.</li>
+<li><strong>Ring 3:</strong> Lowest privilege — user applications run here. No direct hardware access.</li>
+</ul>
+<p><strong>The problem:</strong> In a virtualized environment, both the hypervisor and the guest OS kernel want to run at Ring 0. But only one entity can have Ring 0 privileges on a physical CPU. If the guest OS runs at Ring 0, it has direct hardware access and can bypass the hypervisor — breaking isolation. If the guest runs at a lower ring, some of its privileged instructions silently fail instead of trapping to the hypervisor.</p>
+
+<h3>Solutions</h3>
+<p><strong>1. Binary Translation (Software Solution):</strong></p>
+<p>The hypervisor runs at Ring 0. The guest OS kernel is moved to Ring 1. The hypervisor scans the guest's instruction stream and replaces problematic privileged instructions with safe equivalents that trap to the hypervisor. This works but is complex and has overhead.</p>
+
+<p><strong>2. Intel VT-x / AMD-V (Hardware Solution):</strong></p>
+<p>Intel and AMD added new CPU modes:</p>
+<ul>
+<li><strong>VMX root mode</strong> — the hypervisor runs here (below Ring 0).</li>
+<li><strong>VMX non-root mode</strong> — the guest OS runs here at Ring 0.</li>
+</ul>
+<p>When the guest executes a privileged instruction in non-root mode, the CPU automatically traps to the hypervisor in root mode (a <strong>VM exit</strong>). The hypervisor handles the operation and returns control to the guest (a <strong>VM entry</strong>). This is all done in hardware — no binary translation needed.</p>
+
+<pre><code>Traditional x86:                  With VT-x:
+
+Ring 3: User Apps                 Non-root Ring 3: Guest Apps
+Ring 0: OS Kernel                 Non-root Ring 0: Guest OS Kernel
+                                  ─── VM Exit / VM Entry ───
+                                  Root Ring 0: Hypervisor
+                                  
+Hardware                          Hardware (with VT-x extensions)</code></pre>
+
+<p><strong>3. Extended Page Tables (EPT) / Nested Paging:</strong></p>
+<p>VT-x also includes hardware support for <strong>nested page tables</strong> (Intel EPT, AMD RVI). In a virtualized environment, there are two levels of memory address translation: guest virtual → guest physical → host physical. Without hardware support, the hypervisor must maintain complex shadow page tables. With EPT, the CPU handles both levels of translation in hardware, significantly improving memory-intensive workload performance.</p>
+
+<h3>Second Level Address Translation (SLAT)</h3>
+<p>SLAT is the general term for hardware-assisted nested page tables. It eliminates the overhead of shadow page tables maintained by the hypervisor in software.</p>
+<ul>
+<li><strong>Intel:</strong> Extended Page Tables (EPT)</li>
+<li><strong>AMD:</strong> Rapid Virtualization Indexing (RVI) / Nested Page Tables (NPT)</li>
+</ul>
+<p><strong>Impact:</strong> SLAT reduces memory virtualization overhead by 20-50%, making hardware-assisted virtualization practical for memory-intensive workloads like databases and big data applications.</p>
+
+<hr>
+
+<h2 id="s25">2.5 Resource Management for SaaS, PaaS, and IaaS Models</h2>
+<p>Each cloud service model requires different levels of resource management. The underlying virtualization layer provides the isolation and control needed for each.</p>
+
+<h3>IaaS Resource Management</h3>
+<p>In IaaS, the customer gets <strong>virtual machines</strong> with allocated CPU, memory, storage, and network. The cloud provider must:</p>
+<ul>
+<li><strong>Allocate physical resources</strong> to VMs efficiently (CPU scheduling, memory management).</li>
+<li><strong>Isolate tenants</strong> — one tenant's VM must not access another's resources or data.</li>
+<li><strong>Handle overcommitment</strong> — providers often allocate more virtual resources than physical capacity exists (e.g. 20 vCPUs on a 16-core host), relying on the statistical likelihood that not all VMs peak simultaneously.</li>
+<li><strong>Enable live migration</strong> — move VMs between physical hosts for load balancing and maintenance.</li>
+<li><strong>Enforce SLAs</strong> — guarantee minimum CPU, IOPS, and network bandwidth.</li>
+</ul>
+<p><strong>Resource types managed:</strong> vCPUs, RAM, disk (IOPS + capacity), network bandwidth.</p>
+
+<h3>PaaS Resource Management</h3>
+<p>In PaaS, the provider manages the infrastructure AND the platform. Resource management is more abstracted:</p>
+<ul>
+<li><strong>Auto-scaling</strong> — the platform automatically adds/removes instances based on load.</li>
+<li><strong>Container orchestration</strong> — PaaS often uses containers internally (managed by Kubernetes or similar).</li>
+<li><strong>Resource quotas</strong> — each application is assigned a resource budget (CPU, memory limits).</li>
+<li><strong>Multi-tenancy at the application level</strong> — multiple customers' applications share the same platform runtime.</li>
+</ul>
+<p><strong>Resource types managed:</strong> Application instances, request concurrency, memory per instance, execution time.</p>
+
+<h3>SaaS Resource Management</h3>
+<p>In SaaS, the provider manages everything. Resource management is completely invisible to the user:</p>
+<ul>
+<li><strong>Database-level multi-tenancy</strong> — one database serves all tenants (with row-level isolation) or one database per tenant (with dedicated isolation).</li>
+<li><strong>Application-level scaling</strong> — the SaaS provider scales the application tier (web servers, API servers) to handle user load.</li>
+<li><strong>Feature-based quotas</strong> — users are limited by subscription tier (free: 5GB storage, pro: 100GB, enterprise: unlimited).</li>
+</ul>
+
+<hr>
+
+<h2 id="s26">2.6 Containers and Containerization Concepts</h2>
+
+<h3>What is a Container?</h3>
+<p>A <strong>container</strong> is a lightweight, standalone, executable package that includes everything needed to run a piece of software: the application code, runtime, system tools, libraries, and settings. Containers share the host operating system's kernel but run in isolated user spaces.</p>
+<p>Think of a container as a <strong>lightweight, portable box</strong> containing your application and all its dependencies. The box runs the same way on any machine — your laptop, a test server, or a production cloud instance — because it carries everything it needs inside.</p>
+
+<h3>How Containers Differ from VMs</h3>
+<p>The fundamental difference is <strong>what is virtualized</strong>:</p>
+<ul>
+<li><strong>VMs</strong> virtualize the <strong>hardware</strong> — each VM gets a virtual CPU, virtual memory, virtual disk, and runs its own full operating system kernel. This provides strong isolation but heavy overhead.</li>
+<li><strong>Containers</strong> virtualize the <strong>operating system</strong> — each container gets its own isolated process space, file system, and network stack, but they all share the host's OS kernel. This provides lighter isolation but much less overhead.</li>
+</ul>
+
+<h3>Why Containers?</h3>
+<p>The motivation for containers comes from the problems of traditional deployment:</p>
+<p><strong>The "Works on My Machine" Problem:</strong> A developer builds an application on their laptop (macOS, Python 3.9, specific library versions). When deployed to a production server (Ubuntu, Python 3.8, different library versions), it breaks. Containers solve this by packaging the application WITH its exact environment.</p>
+<p><strong>The VM Overhead Problem:</strong> If you have 100 microservices and run each in its own VM, that's 100 separate OS kernels consuming memory and disk. Containers run 100 services sharing one kernel — dramatically less overhead.</p>
+
+<h3>Container Architecture</h3>
+<pre><code>┌────────┐ ┌────────┐ ┌────────┐ ┌────────┐
+│ App A  │ │ App B  │ │ App C  │ │ App D  │
+│ + Libs │ │ + Libs │ │ + Libs │ │ + Libs │
+├────────┴─┴────────┴─┴────────┴─┴────────┤
+│           Container Runtime               │  (Docker, containerd)
+├───────────────────────────────────────────┤
+│           Host OS Kernel (Linux)          │  (shared by ALL containers)
+├───────────────────────────────────────────┤
+│           Physical / Virtual Hardware      │
+└───────────────────────────────────────────┘</code></pre>
+<p>Each container is a <strong>process</strong> (or group of processes) running on the host OS, isolated using kernel features (namespaces and cgroups).</p>
+
+<hr>
+<p><em>End of CS2-CS3</em></p>
+</main>
+
+<button class="back-to-top" id="backToTop" onclick="window.scrollTo({top:0})">&#8593;</button>
+<script>
+window.addEventListener('scroll',()=>{const s=document.documentElement,p=(s.scrollTop/(s.scrollHeight-s.clientHeight))*100;document.getElementById('progressBar').style.width=p+'%'});
+window.addEventListener('scroll',()=>{document.getElementById('backToTop').classList.toggle('visible',window.scrollY>400)});
+document.getElementById('sidebarToggle').addEventListener('click',()=>{document.getElementById('sidebar').classList.toggle('open')});
+document.querySelectorAll('.sidebar nav a').forEach(a=>a.addEventListener('click',()=>{if(window.innerWidth<=900)document.getElementById('sidebar').classList.remove('open')}));
+const observer=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting){document.querySelectorAll('.sidebar nav a').forEach(a=>a.classList.remove('active'));const link=document.querySelector(`.sidebar nav a[href="#${e.target.id}"]`);if(link)link.classList.add('active')}})},{threshold:0.2,rootMargin:'-80px 0px -60% 0px'});
+document.querySelectorAll('h2[id]').forEach(h=>observer.observe(h));
+</script>
+</body>
+</html>

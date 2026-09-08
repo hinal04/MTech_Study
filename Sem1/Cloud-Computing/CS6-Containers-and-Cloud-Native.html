@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CS6: Containers and Cloud-Native</title>
+<style>
+:root{--bg:#0f172a;--surface:#1e293b;--surface2:#334155;--border:#475569;--text:#e2e8f0;--text-muted:#94a3b8;--code-bg:#0d1117;--accent:#ec4899;--accent-dim:rgba(236,72,153,.12);--accent-border:rgba(236,72,153,.3)}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}html{scroll-behavior:smooth;scroll-padding-top:80px}body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);line-height:1.7;min-height:100vh}
+.progress-bar{position:fixed;top:0;left:0;height:3px;background:var(--accent);z-index:1001;transition:width .25s}
+.sidebar{position:fixed;top:0;left:0;width:280px;height:100vh;background:var(--surface);border-right:1px solid var(--border);overflow-y:auto;z-index:100;transition:transform .3s}.sidebar-header{padding:20px;border-bottom:1px solid var(--border);text-align:center}.sidebar-header h2{font-size:1rem;color:var(--accent);margin-bottom:4px}.sidebar-header small{color:var(--text-muted);font-size:.75rem}.sidebar nav{padding:12px 0}.sidebar nav a{display:block;padding:8px 20px;color:var(--text-muted);text-decoration:none;font-size:.85rem;border-left:3px solid transparent;transition:all .2s}.sidebar nav a:hover,.sidebar nav a.active{color:var(--accent);background:var(--accent-dim);border-left-color:var(--accent)}.sidebar nav .nav-group{padding:10px 20px 4px;font-size:.7rem;text-transform:uppercase;letter-spacing:1px;color:var(--border);font-weight:700}
+.sidebar-toggle{display:none;position:fixed;top:12px;left:12px;z-index:200;background:var(--surface);border:1px solid var(--border);color:var(--text);padding:8px 12px;border-radius:6px;cursor:pointer;font-size:1.1rem}
+.main{margin-left:280px;max-width:900px;padding:40px 40px 100px}.main h1{font-size:2rem;color:var(--accent);margin-bottom:8px;line-height:1.3}.main .subtitle{color:var(--text-muted);font-size:.9rem;margin-bottom:32px;line-height:1.6}.main .subtitle strong{color:var(--text)}.main h2{font-size:1.45rem;color:var(--accent);margin:48px 0 16px;padding-bottom:8px;border-bottom:2px solid var(--accent-border)}.main h3{font-size:1.15rem;color:var(--text);margin:32px 0 12px}.main h4{font-size:1rem;color:var(--accent);margin:24px 0 8px}.main p{margin-bottom:14px}.main ul,.main ol{margin:0 0 16px 24px}.main li{margin-bottom:6px}.main li strong{color:var(--accent)}.main em{color:var(--text-muted);font-style:italic}.main blockquote{border-left:4px solid var(--accent);background:var(--accent-dim);padding:14px 20px;margin:16px 0;border-radius:0 8px 8px 0;color:var(--text-muted);font-style:italic}.main hr{border:none;border-top:1px solid var(--border);margin:40px 0}
+table{width:100%;border-collapse:collapse;margin:16px 0 24px;font-size:.88rem}thead th{background:var(--accent);color:#fff;padding:10px 14px;text-align:left;font-weight:600}tbody td{padding:10px 14px;border-bottom:1px solid var(--border)}tbody tr:nth-child(even){background:var(--surface)}tbody tr:nth-child(odd){background:var(--surface2)}tbody tr:hover{background:var(--accent-dim)}td strong{color:var(--accent)}
+pre{background:var(--code-bg);border:1px solid var(--border);border-radius:8px;padding:18px;overflow-x:auto;margin:16px 0;font-size:.85rem;line-height:1.6}code{font-family:'Cascadia Code','Fira Code','Consolas',monospace;font-size:.88em}p code,li code,td code{background:var(--code-bg);padding:2px 7px;border-radius:4px;color:var(--accent);border:1px solid var(--border)}
+.back-to-top{position:fixed;bottom:30px;right:30px;width:44px;height:44px;background:var(--accent);color:#fff;border:none;border-radius:50%;font-size:1.3rem;cursor:pointer;display:none;align-items:center;justify-content:center;box-shadow:0 4px 15px rgba(0,0,0,.3);z-index:100;transition:transform .2s}.back-to-top:hover{transform:scale(1.1)}.back-to-top.visible{display:flex}
+@media(max-width:900px){.sidebar{transform:translateX(-100%)}.sidebar.open{transform:translateX(0)}.sidebar-toggle{display:block}.main{margin-left:0;padding:70px 20px 100px}}
+@media print{.sidebar,.sidebar-toggle,.back-to-top,.progress-bar{display:none!important}.main{margin-left:0;max-width:100%}body{background:#fff;color:#000}table{font-size:.75rem}thead th{background:#333;color:#fff;-webkit-print-color-adjust:exact;print-color-adjust:exact}tbody tr:nth-child(even){background:#f0f0f0}tbody tr:nth-child(odd){background:#fff}pre{background:#f5f5f5;border:1px solid #ccc}code{color:#333}h1,h2,h3,h4{color:#111}a{color:#111;text-decoration:underline}}
+</style>
+</head>
+<body>
+<div class="progress-bar" id="progressBar"></div>
+<button class="sidebar-toggle" id="sidebarToggle">☰</button>
+<aside class="sidebar" id="sidebar">
+<div class="sidebar-header"><h2>CS6: Containers</h2><small>Cloud Computing — BITS Pilani</small></div>
+<nav>
+<div class="nav-group">Study Materials</div>
+<a href="CS1-Introduction-to-Cloud-Computing.html">CS1 — Intro to Cloud</a>
+<a href="CS2-CS3-Virtualization.html">CS2-CS3 — Virtualization</a>
+<a href="CS4-Hypervisor-and-IaaS.html">CS4 — Hypervisor &amp; IaaS</a>
+<a href="CS5-IaaS-Services.html">CS5 — IaaS Services</a>
+<a href="CS6-Containers-and-Cloud-Native.html" class="active">CS6 — Containers</a>
+<div class="nav-group">Questions &amp; Answers</div>
+<a href="CS1-Questions-and-Answers.html">CS1 Q&amp;A (15 Qs)</a>
+<a href="CS2-CS3-Questions-and-Answers.html">CS2-CS3 Q&amp;A (6 Qs)</a>
+<a href="CS4-Questions-and-Answers.html">CS4 Q&amp;A (8 Qs)</a>
+<a href="CS5-Questions-and-Answers.html">CS5 Q&amp;A (10 Qs)</a>
+<a href="CS6-Questions-and-Answers.html">CS6 Q&amp;A (12 Qs)</a>
+<div class="nav-group">Sections</div>
+<a href="#s27">2.7 Docker</a>
+<a href="#s28">2.8 Namespaces &amp; Cgroups</a>
+<a href="#s29">2.9 System vs App Containers</a>
+<a href="#s210">2.10 VMs vs Containers</a>
+<a href="#s211">2.11 Kubernetes Overview</a>
+<a href="#s212">2.12 Cloud-Native Principles</a>
+</nav>
+</aside>
+
+<main class="main">
+<h1>CS6: Containers and Cloud-Native</h1>
+<div class="subtitle">
+BITS Pilani — <strong>CSI ZG527 / SE ZG527 / SS ZG527: Cloud Computing</strong><br>
+<strong>References:</strong> R6 (Docker Docs), R7 (K8s Docs), Kubernetes Documentation<br>
+<strong>Contact Hours:</strong> 9-12 (Handout Topics 2.7-2.12)<br>
+<strong>Class Slide:</strong> CS6 - Containers
+</div>
+<hr>
+
+<h2 id="s27">2.7 Docker</h2>
+<p><strong>Docker</strong> is the most widely used containerization platform. It provides the tools to build, ship, and run containers.</p>
+
+<h3>2.7.1 Docker Images</h3>
+<p>A <strong>Docker image</strong> is a read-only template containing the application code, runtime, libraries, dependencies, and configuration. It's the "blueprint" from which containers are created.</p>
+<p>Images are built in <strong>layers</strong>. Each layer represents a change (install a package, copy a file, set an environment variable). Layers are cached and shared — if two images both use Ubuntu 22.04 as the base, that base layer is stored only once on disk.</p>
+<pre><code>Image Layer Stack:
+┌─────────────────────────┐
+│ LAYER 4: COPY app.py    │  ← Your application code
+├─────────────────────────┤
+│ LAYER 3: RUN pip install│  ← Install dependencies
+├─────────────────────────┤
+│ LAYER 2: RUN apt update │  ← Update package manager
+├─────────────────────────┤
+│ LAYER 1: Ubuntu 22.04   │  ← Base OS layer
+└─────────────────────────┘</code></pre>
+
+<h3>2.7.2 Dockerfiles</h3>
+<p>A <strong>Dockerfile</strong> is a text file containing instructions to build a Docker image. Each instruction creates a layer.</p>
+<pre><code># Start from a base image
+FROM python:3.11-slim
+
+# Set working directory
+WORKDIR /app
+
+# Copy requirements and install dependencies
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy application code
+COPY . .
+
+# Expose the port the app runs on
+EXPOSE 8000
+
+# Command to run the application
+CMD ["python", "app.py"]</code></pre>
+<p><strong>Key Dockerfile instructions:</strong></p>
+<table>
+<thead><tr><th>Instruction</th><th>Purpose</th></tr></thead>
+<tbody>
+<tr><td><code>FROM</code></td><td>Base image to build upon (every Dockerfile starts with this).</td></tr>
+<tr><td><code>WORKDIR</code></td><td>Set the working directory inside the container.</td></tr>
+<tr><td><code>COPY</code> / <code>ADD</code></td><td>Copy files from host into the image.</td></tr>
+<tr><td><code>RUN</code></td><td>Execute a command during build (install packages, compile code).</td></tr>
+<tr><td><code>EXPOSE</code></td><td>Document which port the container listens on.</td></tr>
+<tr><td><code>ENV</code></td><td>Set environment variables.</td></tr>
+<tr><td><code>CMD</code></td><td>Default command to run when the container starts.</td></tr>
+<tr><td><code>ENTRYPOINT</code></td><td>Configure the container to run as an executable.</td></tr>
+</tbody>
+</table>
+
+<h3>2.7.3 Docker Containers</h3>
+<p>A <strong>container</strong> is a running instance of an image. When you <code>docker run</code> an image, Docker creates a container by adding a <strong>writable layer</strong> on top of the read-only image layers. This writable layer is where runtime changes (new files, log output, database writes) are stored.</p>
+<p><strong>Container lifecycle:</strong></p>
+<pre><code>docker build -t myapp .        → Build an image from a Dockerfile
+docker run -d -p 8000:8000 myapp → Create and start a container
+docker ps                       → List running containers
+docker stop &lt;container_id&gt;      → Stop a container
+docker rm &lt;container_id&gt;        → Remove a stopped container
+docker logs &lt;container_id&gt;      → View container logs
+docker exec -it &lt;id&gt; /bin/bash  → Open a shell inside a running container</code></pre>
+
+<h3>2.7.4 Docker Registries</h3>
+<p>A <strong>registry</strong> is a repository for storing and distributing Docker images. It's like GitHub for container images.</p>
+<table>
+<thead><tr><th>Registry</th><th>Description</th></tr></thead>
+<tbody>
+<tr><td><strong>Docker Hub</strong></td><td>The default public registry. Millions of pre-built images (nginx, postgres, python, node).</td></tr>
+<tr><td><strong>Amazon ECR</strong></td><td>AWS's private container registry.</td></tr>
+<tr><td><strong>Google GCR / Artifact Registry</strong></td><td>GCP's container registry.</td></tr>
+<tr><td><strong>Azure ACR</strong></td><td>Azure's container registry.</td></tr>
+<tr><td><strong>GitHub Container Registry</strong></td><td>GitHub's registry, integrated with GitHub Actions.</td></tr>
+<tr><td><strong>Private registry</strong></td><td>Self-hosted registry for organisations that need full control.</td></tr>
+</tbody>
+</table>
+<pre><code>docker push myregistry.com/myapp:v1.0    # Push image to registry
+docker pull myregistry.com/myapp:v1.0    # Pull image from registry</code></pre>
+
+<h3>2.7.5 Docker Volumes</h3>
+<p>By default, data inside a container is <strong>ephemeral</strong> — when the container is deleted, the data is lost. <strong>Volumes</strong> provide persistent storage that survives container restarts and deletions.</p>
+<p><strong>Types of storage in Docker:</strong></p>
+<table>
+<thead><tr><th>Type</th><th>Description</th><th>Use case</th></tr></thead>
+<tbody>
+<tr><td><strong>Volume</strong></td><td>Managed by Docker, stored in a Docker-managed area on the host. Best for persistent data.</td><td>Database storage, application state.</td></tr>
+<tr><td><strong>Bind mount</strong></td><td>Maps a specific host directory into the container.</td><td>Development (mount source code for live editing).</td></tr>
+<tr><td><strong>tmpfs mount</strong></td><td>Stored in the host's memory only (not on disk). Lost when container stops.</td><td>Sensitive data that shouldn't be written to disk.</td></tr>
+</tbody>
+</table>
+<pre><code>docker volume create mydata                              # Create a volume
+docker run -v mydata:/var/lib/mysql mysql:8              # Mount volume into container
+docker run -v /host/path:/container/path myapp           # Bind mount</code></pre>
+
+<hr>
+
+<h2 id="s28">2.8 Namespaces and Cgroups</h2>
+<p>Containers are not a first-class OS concept — they're built from two Linux kernel features: <strong>namespaces</strong> (for isolation) and <strong>cgroups</strong> (for resource limits).</p>
+
+<h3>Namespaces — Isolation</h3>
+<p><strong>Namespaces</strong> provide isolation by giving each container its own view of system resources. A process inside a container cannot see or affect processes in other containers or on the host.</p>
+<table>
+<thead><tr><th>Namespace</th><th>What it isolates</th><th>Effect</th></tr></thead>
+<tbody>
+<tr><td><strong>PID</strong></td><td>Process IDs</td><td>Container sees only its own processes. PID 1 inside the container is not PID 1 on the host.</td></tr>
+<tr><td><strong>NET</strong></td><td>Network stack</td><td>Container has its own IP address, routing table, ports. Port 80 in container A doesn't conflict with port 80 in container B.</td></tr>
+<tr><td><strong>MNT</strong></td><td>File system mounts</td><td>Container has its own root filesystem. Cannot see the host's files or other containers' files.</td></tr>
+<tr><td><strong>UTS</strong></td><td>Hostname and domain name</td><td>Container can have its own hostname.</td></tr>
+<tr><td><strong>IPC</strong></td><td>Inter-process communication</td><td>Container has its own message queues, semaphores, shared memory.</td></tr>
+<tr><td><strong>USER</strong></td><td>User and group IDs</td><td>Container can have its own root user (UID 0) that maps to a non-root user on the host. Improves security.</td></tr>
+</tbody>
+</table>
+
+<h3>Cgroups (Control Groups) — Resource Limits</h3>
+<p><strong>Cgroups</strong> limit, account for, and isolate the resource usage (CPU, memory, disk I/O, network) of a group of processes (a container).</p>
+<table>
+<thead><tr><th>Resource</th><th>What cgroups control</th><th>Example</th></tr></thead>
+<tbody>
+<tr><td><strong>CPU</strong></td><td>Limit CPU time a container can use.</td><td>Container A gets max 2 CPU cores.</td></tr>
+<tr><td><strong>Memory</strong></td><td>Limit RAM a container can consume.</td><td>Container B gets max 512 MB. If it exceeds, it's killed (OOM).</td></tr>
+<tr><td><strong>Disk I/O</strong></td><td>Limit read/write bandwidth to disk.</td><td>Container C gets max 100 MB/s disk I/O.</td></tr>
+<tr><td><strong>Network</strong></td><td>Limit network bandwidth.</td><td>Container D gets max 1 Gbps.</td></tr>
+<tr><td><strong>PIDs</strong></td><td>Limit number of processes.</td><td>Container E can create max 100 processes (prevents fork bombs).</td></tr>
+</tbody>
+</table>
+
+<h3>How Namespaces and Cgroups Work Together</h3>
+<pre><code>Namespaces → "What can you see?"   (Isolation)
+Cgroups    → "How much can you use?" (Resource limits)
+
+Together, they create a container:
+- Namespaces ensure Container A can't see Container B's processes, files, or network.
+- Cgroups ensure Container A can't consume all the host's CPU or memory.</code></pre>
+
+<hr>
+
+<h2 id="s29">2.9 System Containers and Application Containers</h2>
+<p>Not all containers serve the same purpose. There are two broad categories:</p>
+
+<h3>System Containers</h3>
+<p>A <strong>system container</strong> behaves like a lightweight virtual machine. It runs a full init system (systemd, upstart), can host multiple processes, and provides a complete OS-like environment.</p>
+<table>
+<thead><tr><th>Characteristic</th><th>Detail</th></tr></thead>
+<tbody>
+<tr><td><strong>Purpose</strong></td><td>Replace lightweight VMs. Run a full Linux environment.</td></tr>
+<tr><td><strong>Processes</strong></td><td>Multiple processes (init system, sshd, cron, applications).</td></tr>
+<tr><td><strong>Lifecycle</strong></td><td>Long-lived — runs for weeks/months like a server.</td></tr>
+<tr><td><strong>Init system</strong></td><td>Has a full init system (systemd).</td></tr>
+<tr><td><strong>Use case</strong></td><td>Development environments, legacy application hosting, testing.</td></tr>
+<tr><td><strong>Examples</strong></td><td>LXC, LXD, systemd-nspawn.</td></tr>
+</tbody>
+</table>
+
+<h3>Application Containers</h3>
+<p>An <strong>application container</strong> runs a <strong>single process</strong> (or a small group of related processes) that constitutes one application or microservice.</p>
+<table>
+<thead><tr><th>Characteristic</th><th>Detail</th></tr></thead>
+<tbody>
+<tr><td><strong>Purpose</strong></td><td>Package and run a single application/microservice.</td></tr>
+<tr><td><strong>Processes</strong></td><td>One main process (the application).</td></tr>
+<tr><td><strong>Lifecycle</strong></td><td>Often short-lived — may run for seconds to hours. Easily replaced.</td></tr>
+<tr><td><strong>Init system</strong></td><td>No init system. The application IS the container's main process.</td></tr>
+<tr><td><strong>Use case</strong></td><td>Microservices, CI/CD pipelines, serverless functions, API services.</td></tr>
+<tr><td><strong>Examples</strong></td><td>Docker containers, Podman containers.</td></tr>
+</tbody>
+</table>
+
+<h3>Comparison</h3>
+<table>
+<thead><tr><th>Aspect</th><th>System Container</th><th>Application Container</th></tr></thead>
+<tbody>
+<tr><td><strong>Analogy</strong></td><td>A lightweight VM</td><td>A single application in a box</td></tr>
+<tr><td><strong>Processes</strong></td><td>Many</td><td>One (or few)</td></tr>
+<tr><td><strong>Overhead</strong></td><td>More (full init system)</td><td>Less (just the app)</td></tr>
+<tr><td><strong>Isolation</strong></td><td>VM-like experience</td><td>Process-level</td></tr>
+<tr><td><strong>Orchestration</strong></td><td>Less common with K8s</td><td>Native with K8s</td></tr>
+<tr><td><strong>Philosophy</strong></td><td>"Pet" (maintain, patch, upgrade)</td><td>"Cattle" (replace, don't repair)</td></tr>
+</tbody>
+</table>
+<p><strong>In cloud-native development, application containers (Docker) dominate.</strong> System containers are used for specific scenarios requiring a full OS-like environment.</p>
+
+<hr>
+
+<h2 id="s210">2.10 Virtual Machines vs Containers</h2>
+<p>This is one of the most important comparisons in cloud computing. VMs and containers are not competitors — they're complementary tools for different use cases.</p>
+
+<h3>Detailed Comparison</h3>
+<table>
+<thead><tr><th>Aspect</th><th>Virtual Machines</th><th>Containers</th></tr></thead>
+<tbody>
+<tr><td><strong>What is virtualized</strong></td><td>Hardware (CPU, memory, disk, NIC)</td><td>Operating system (process space, filesystem, network)</td></tr>
+<tr><td><strong>Kernel</strong></td><td>Each VM has its own OS kernel</td><td>All containers share the host's kernel</td></tr>
+<tr><td><strong>Size</strong></td><td>GBs (full OS + app)</td><td>MBs (just app + libraries)</td></tr>
+<tr><td><strong>Boot time</strong></td><td>Seconds to minutes</td><td>Milliseconds to seconds</td></tr>
+<tr><td><strong>Resource overhead</strong></td><td>Heavy (full OS per VM)</td><td>Light (no separate OS)</td></tr>
+<tr><td><strong>Density</strong></td><td>10-50 per host</td><td>100-1000+ per host</td></tr>
+<tr><td><strong>Isolation</strong></td><td>Strong (separate kernels, hypervisor boundary)</td><td>Moderate (shared kernel, namespace isolation)</td></tr>
+<tr><td><strong>Security</strong></td><td>More secure (hypervisor is a smaller attack surface)</td><td>Less secure (shared kernel = shared vulnerabilities)</td></tr>
+<tr><td><strong>Portability</strong></td><td>Less (VM images are large, tied to hypervisor format)</td><td>Highly portable (Docker images run anywhere Docker runs)</td></tr>
+<tr><td><strong>Persistence</strong></td><td>Persistent by default (VM disk survives reboots)</td><td>Ephemeral by default (data lost when container removed)</td></tr>
+<tr><td><strong>Use case</strong></td><td>Monolithic apps, legacy software, different OS needs</td><td>Microservices, CI/CD, cloud-native apps</td></tr>
+<tr><td><strong>Management</strong></td><td>VM lifecycle (create, start, stop, snapshot, migrate)</td><td>Container orchestration (Kubernetes, Docker Compose)</td></tr>
+</tbody>
+</table>
+
+<h3>When to Use VMs</h3>
+<ul>
+<li>Running <strong>different operating systems</strong> on the same host (Linux + Windows).</li>
+<li>Applications requiring <strong>strong isolation</strong> and security boundaries (multi-tenant hosting).</li>
+<li><strong>Legacy applications</strong> that can't be containerized.</li>
+<li>Workloads requiring <strong>dedicated kernel</strong> configurations or custom kernel modules.</li>
+</ul>
+
+<h3>When to Use Containers</h3>
+<ul>
+<li><strong>Microservices architecture</strong> — each service in its own container.</li>
+<li><strong>CI/CD pipelines</strong> — build, test, deploy in containers for consistency.</li>
+<li><strong>Cloud-native applications</strong> — designed for horizontal scaling and portability.</li>
+<li><strong>Development environments</strong> — identical environment on every developer's machine.</li>
+<li>Workloads requiring <strong>high density</strong> and <strong>fast startup</strong>.</li>
+</ul>
+
+<h3>Using Both Together</h3>
+<p>In practice, most cloud environments use <strong>containers running inside VMs</strong>:</p>
+<pre><code>┌────────────────────────────────────┐
+│           Physical Server           │
+├────────────────────────────────────┤
+│           Hypervisor (KVM)          │
+├──────────────┬─────────────────────┤
+│    VM 1      │      VM 2           │
+│ ┌──────────┐ │ ┌──────────────────┐│
+│ │Container1│ │ │ Container 3      ││
+│ │Container2│ │ │ Container 4      ││
+│ └──────────┘ │ │ Container 5      ││
+│   Docker     │ │   Docker          ││
+│   Linux      │ │   Linux           ││
+└──────────────┴─┴───────────────────┘</code></pre>
+<p>VMs provide the strong isolation boundary between tenants. Containers within each VM provide lightweight, fast application packaging.</p>
+
+<hr>
+
+<h2 id="s211">2.11 Container Orchestration: Kubernetes Overview</h2>
+
+<h3>Why Orchestration?</h3>
+<p>Running a single container is easy. Running <strong>hundreds or thousands of containers</strong> across multiple hosts, ensuring they communicate, scale, recover from failures, and update without downtime — that's container orchestration.</p>
+<p><strong>Kubernetes</strong> (K8s), originally developed by Google and now maintained by the Cloud Native Computing Foundation (CNCF), is the de facto standard for container orchestration.</p>
+
+<h3>Key Kubernetes Concepts</h3>
+<table>
+<thead><tr><th>Concept</th><th>What it is</th><th>Analogy</th></tr></thead>
+<tbody>
+<tr><td><strong>Pod</strong></td><td>The smallest deployable unit. A group of one or more containers that share network and storage. Most pods contain one container.</td><td>A single apartment in a building.</td></tr>
+<tr><td><strong>Node</strong></td><td>A physical or virtual machine that runs pods. Each node has a container runtime (Docker/containerd), kubelet, and kube-proxy.</td><td>A building that contains apartments.</td></tr>
+<tr><td><strong>Cluster</strong></td><td>A set of nodes managed by a control plane. The control plane makes scheduling decisions and manages the cluster state.</td><td>The entire apartment complex.</td></tr>
+<tr><td><strong>Deployment</strong></td><td>Declares the desired state (e.g. "run 3 replicas of my web app"). Kubernetes ensures reality matches the desired state.</td><td>A property manager ensuring 3 apartments are always occupied.</td></tr>
+<tr><td><strong>Service</strong></td><td>A stable network endpoint that load-balances traffic across pods. Pods are ephemeral (come and go); Services provide a stable address.</td><td>The building's front door — it stays the same even if tenants change.</td></tr>
+<tr><td><strong>Namespace</strong></td><td>A virtual partition within a cluster for organising resources and enforcing access control.</td><td>Floors in a building — separate but in the same structure.</td></tr>
+<tr><td><strong>ConfigMap / Secret</strong></td><td>External configuration and sensitive data injected into pods without baking them into the image.</td><td>Mailbox for each apartment — configuration delivered separately.</td></tr>
+</tbody>
+</table>
+
+<h3>Kubernetes Architecture</h3>
+<pre><code>┌──────────────────────────────────────────────────┐
+│                  Control Plane                     │
+│  ┌──────────┐ ┌──────────┐ ┌──────────┐          │
+│  │ API      │ │Scheduler │ │Controller│          │
+│  │ Server   │ │          │ │ Manager  │          │
+│  └────┬─────┘ └──────────┘ └──────────┘          │
+│       │       ┌──────────┐                        │
+│       │       │  etcd    │ (cluster state store)  │
+│       │       └──────────┘                        │
+└───────┼──────────────────────────────────────────┘
+        │ (API calls)
+┌───────┼──────────────────────────────────────────┐
+│  Worker Nodes                                      │
+│  ┌──────────────────┐  ┌──────────────────┐       │
+│  │  Node 1          │  │  Node 2          │       │
+│  │ ┌─────┐ ┌─────┐ │  │ ┌─────┐ ┌─────┐ │       │
+│  │ │Pod A│ │Pod B│ │  │ │Pod C│ │Pod D│ │       │
+│  │ └─────┘ └─────┘ │  │ └─────┘ └─────┘ │       │
+│  │ kubelet          │  │ kubelet          │       │
+│  │ kube-proxy       │  │ kube-proxy       │       │
+│  │ container runtime│  │ container runtime│       │
+│  └──────────────────┘  └──────────────────┘       │
+└───────────────────────────────────────────────────┘</code></pre>
+
+<h3>What Kubernetes Does</h3>
+<table>
+<thead><tr><th>Function</th><th>How</th></tr></thead>
+<tbody>
+<tr><td><strong>Scheduling</strong></td><td>Decides which node runs each pod based on resource requirements and constraints.</td></tr>
+<tr><td><strong>Self-healing</strong></td><td>If a pod crashes, K8s automatically restarts it. If a node dies, K8s reschedules its pods to other nodes.</td></tr>
+<tr><td><strong>Scaling</strong></td><td>Horizontal Pod Autoscaler adds/removes pod replicas based on CPU/memory utilization or custom metrics.</td></tr>
+<tr><td><strong>Load balancing</strong></td><td>Services distribute traffic across healthy pods.</td></tr>
+<tr><td><strong>Rolling updates</strong></td><td>Update pods incrementally without downtime — replace old pods with new ones gradually.</td></tr>
+<tr><td><strong>Rollback</strong></td><td>If an update fails, roll back to the previous version automatically.</td></tr>
+<tr><td><strong>Secret management</strong></td><td>Securely store and inject passwords, API keys, certificates.</td></tr>
+<tr><td><strong>Storage orchestration</strong></td><td>Automatically provision and attach persistent storage to pods.</td></tr>
+</tbody>
+</table>
+
+<hr>
+
+<h2 id="s212">2.12 Cloud-Native Design Principles</h2>
+<p><strong>Cloud-native</strong> is a design philosophy for building applications that fully exploit cloud capabilities — elasticity, resilience, scalability, and managed services. It's not just "running in the cloud" — it's building specifically FOR the cloud.</p>
+
+<h3>2.12.1 Microservices Architecture</h3>
+<p>Instead of building one large application (monolith), break it into <strong>small, independent services</strong> that each do one thing well. Each microservice:</p>
+<ul>
+<li>Has its own codebase and can be developed/deployed independently.</li>
+<li>Communicates with other services via well-defined APIs (REST, gRPC, message queues).</li>
+<li>Can be scaled independently (scale the payment service without scaling the user service).</li>
+<li>Can be written in different languages (Python service + Go service + Java service).</li>
+</ul>
+<p><strong>Monolith vs Microservices:</strong></p>
+<table>
+<thead><tr><th>Aspect</th><th>Monolith</th><th>Microservices</th></tr></thead>
+<tbody>
+<tr><td><strong>Deployment</strong></td><td>Deploy entire app for any change</td><td>Deploy individual services independently</td></tr>
+<tr><td><strong>Scaling</strong></td><td>Scale entire app (even if only one component is overloaded)</td><td>Scale individual services based on demand</td></tr>
+<tr><td><strong>Technology</strong></td><td>Single tech stack</td><td>Each service can use best-fit technology</td></tr>
+<tr><td><strong>Failure</strong></td><td>One bug can crash entire app</td><td>One service failure doesn't crash others</td></tr>
+<tr><td><strong>Complexity</strong></td><td>Simpler initially</td><td>More complex (distributed systems challenges)</td></tr>
+</tbody>
+</table>
+
+<h3>2.12.2 Declarative Deployment</h3>
+<p>Instead of writing step-by-step scripts to deploy your application (imperative: "install nginx, then copy files, then start service"), you <strong>declare the desired state</strong> and let the system figure out how to achieve it.</p>
+<pre><code># Kubernetes Deployment (declarative)
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web-app
+spec:
+  replicas: 3                    # "I want 3 copies running"
+  selector:
+    matchLabels:
+      app: web-app
+  template:
+    spec:
+      containers:
+      - name: web-app
+        image: myapp:v2.0
+        resources:
+          limits:
+            cpu: "500m"
+            memory: "256Mi"</code></pre>
+<p>You declare "I want 3 replicas of myapp:v2.0." Kubernetes ensures this is always true — if a pod dies, K8s creates a new one. If you change the image to v2.1, K8s performs a rolling update.</p>
+
+<h3>2.12.3 Portability</h3>
+<p>Cloud-native applications are designed to run on <strong>any cloud provider</strong> or even on-premises — without modification. This is achieved through:</p>
+<ul>
+<li><strong>Containers</strong> — package the app with its dependencies. Runs the same on AWS, Azure, GCP, or a laptop.</li>
+<li><strong>Kubernetes</strong> — same orchestration API across all providers (EKS, GKE, AKS all run standard Kubernetes).</li>
+<li><strong>Infrastructure as Code (IaC)</strong> — define infrastructure in code (Terraform, Pulumi) that can target any provider.</li>
+<li><strong>Avoid provider-specific services</strong> where portability matters (use PostgreSQL instead of DynamoDB).</li>
+</ul>
+
+<h3>2.12.4 Additional Cloud-Native Principles</h3>
+<table>
+<thead><tr><th>Principle</th><th>Description</th></tr></thead>
+<tbody>
+<tr><td><strong>12-Factor App</strong></td><td>A methodology for building SaaS apps: codebase in version control, explicit dependencies, config in environment, stateless processes, etc.</td></tr>
+<tr><td><strong>Immutable infrastructure</strong></td><td>Don't patch running servers — instead, build a new image with the patch and replace the old instances. Containers are naturally immutable.</td></tr>
+<tr><td><strong>Design for failure</strong></td><td>Assume any component can fail at any time. Build resilience with retries, circuit breakers, health checks, redundancy.</td></tr>
+<tr><td><strong>Observability</strong></td><td>Build in logging, metrics, and tracing from the start. Use tools like Prometheus, Grafana, Jaeger. You can't fix what you can't see.</td></tr>
+<tr><td><strong>CI/CD</strong></td><td>Continuous Integration (automated builds and tests) + Continuous Deployment (automated deployment to production).</td></tr>
+<tr><td><strong>API-first</strong></td><td>Design services around well-defined APIs. Services communicate through APIs, not direct database access.</td></tr>
+</tbody>
+</table>
+
+<hr>
+<p><em>End of Topic 2</em></p>
+</main>
+
+<button class="back-to-top" id="backToTop" onclick="window.scrollTo({top:0})">&#8593;</button>
+<script>
+window.addEventListener('scroll',()=>{const s=document.documentElement,p=(s.scrollTop/(s.scrollHeight-s.clientHeight))*100;document.getElementById('progressBar').style.width=p+'%'});
+window.addEventListener('scroll',()=>{document.getElementById('backToTop').classList.toggle('visible',window.scrollY>400)});
+document.getElementById('sidebarToggle').addEventListener('click',()=>{document.getElementById('sidebar').classList.toggle('open')});
+document.querySelectorAll('.sidebar nav a').forEach(a=>a.addEventListener('click',()=>{if(window.innerWidth<=900)document.getElementById('sidebar').classList.remove('open')}));
+const observer=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting){document.querySelectorAll('.sidebar nav a').forEach(a=>a.classList.remove('active'));const link=document.querySelector(`.sidebar nav a[href="#${e.target.id}"]`);if(link)link.classList.add('active')}})},{threshold:0.2,rootMargin:'-80px 0px -60% 0px'});
+document.querySelectorAll('h2[id]').forEach(h=>observer.observe(h));
+</script>
+</body>
+</html>

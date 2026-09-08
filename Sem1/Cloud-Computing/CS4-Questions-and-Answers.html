@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CS4: Hypervisors &amp; IaaS — Questions &amp; Answers</title>
+<style>
+:root{--bg:#0f172a;--surface:#1e293b;--surface2:#334155;--border:#475569;--text:#e2e8f0;--text-muted:#94a3b8;--code-bg:#0d1117;--accent:#f59e0b;--accent-dim:rgba(245,158,11,.12);--accent-border:rgba(245,158,11,.3);--green:#22c55e;--green-dim:rgba(34,197,94,.15)}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}html{scroll-behavior:smooth;scroll-padding-top:80px}body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);line-height:1.7;min-height:100vh}
+.progress-bar{position:fixed;top:0;left:0;height:3px;background:var(--accent);z-index:1001;transition:width .25s}
+.sidebar{position:fixed;top:0;left:0;width:280px;height:100vh;background:var(--surface);border-right:1px solid var(--border);overflow-y:auto;z-index:100;transition:transform .3s}.sidebar-header{padding:20px;border-bottom:1px solid var(--border);text-align:center}.sidebar-header h2{font-size:1rem;color:var(--accent);margin-bottom:4px}.sidebar-header small{color:var(--text-muted);font-size:.75rem}.sidebar nav{padding:12px 0}.sidebar nav a{display:block;padding:8px 20px;color:var(--text-muted);text-decoration:none;font-size:.85rem;border-left:3px solid transparent;transition:all .2s}.sidebar nav a:hover,.sidebar nav a.active{color:var(--accent);background:var(--accent-dim);border-left-color:var(--accent)}.sidebar nav .nav-group{padding:10px 20px 4px;font-size:.7rem;text-transform:uppercase;letter-spacing:1px;color:var(--border);font-weight:700}
+.sidebar-toggle{display:none;position:fixed;top:12px;left:12px;z-index:200;background:var(--surface);border:1px solid var(--border);color:var(--text);padding:8px 12px;border-radius:6px;cursor:pointer;font-size:1.1rem}
+.main{margin-left:280px;max-width:900px;padding:40px 40px 100px}.main h1{font-size:2rem;color:var(--accent);margin-bottom:8px;line-height:1.3}.main .subtitle{color:var(--text-muted);font-size:.9rem;margin-bottom:24px}
+.score-bar{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px 24px;margin-bottom:32px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;position:sticky;top:0;z-index:50}.score-bar .score-text{font-size:1.1rem;font-weight:700;color:var(--accent)}.score-bar .score-text span{color:var(--green)}.score-bar .btn-group{display:flex;gap:8px}.score-bar button{padding:6px 16px;border-radius:6px;border:1px solid var(--border);background:var(--surface2);color:var(--text);cursor:pointer;font-size:.82rem;transition:all .2s}.score-bar button:hover{background:var(--accent);color:#000;border-color:var(--accent)}
+.qa-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;margin-bottom:16px;overflow:hidden;transition:border-color .2s}.qa-card:hover{border-color:var(--accent-border)}.qa-card.checked-off{border-color:var(--green);background:var(--green-dim)}
+.qa-question{padding:16px 20px;cursor:pointer;display:flex;align-items:flex-start;gap:14px;user-select:none}.qa-question input[type=checkbox]{width:20px;height:20px;margin-top:3px;accent-color:var(--green);cursor:pointer;flex-shrink:0}.qa-question .q-text{flex:1;font-weight:600;color:var(--text);font-size:.95rem}.qa-question .expand-icon{color:var(--accent);font-size:1.2rem;transition:transform .3s;flex-shrink:0;margin-top:2px}.qa-card.open .expand-icon{transform:rotate(180deg)}
+.qa-answer{max-height:0;overflow:hidden;transition:max-height .4s ease}.qa-card.open .qa-answer{max-height:5000px}.qa-answer-inner{padding:0 20px 20px 54px;color:var(--text)}.qa-answer-inner p{margin-bottom:12px}.qa-answer-inner ul,.qa-answer-inner ol{margin:0 0 12px 20px}.qa-answer-inner li{margin-bottom:4px}.qa-answer-inner strong{color:var(--accent)}.qa-answer-inner em{color:var(--text-muted)}
+table{width:100%;border-collapse:collapse;margin:12px 0 16px;font-size:.85rem}thead th{background:var(--accent);color:#000;padding:8px 12px;text-align:left;font-weight:600}tbody td{padding:8px 12px;border-bottom:1px solid var(--border)}tbody tr:nth-child(even){background:var(--surface)}tbody tr:nth-child(odd){background:var(--surface2)}tbody tr:hover{background:var(--accent-dim)}td strong{color:var(--accent)}
+pre{background:var(--code-bg);border:1px solid var(--border);border-radius:8px;padding:14px;overflow-x:auto;margin:12px 0;font-size:.83rem;line-height:1.5}code{font-family:'Cascadia Code','Fira Code','Consolas',monospace;font-size:.86em}p code,li code,td code{background:var(--code-bg);padding:2px 6px;border-radius:4px;color:var(--accent);border:1px solid var(--border)}
+.back-to-top{position:fixed;bottom:30px;right:30px;width:44px;height:44px;background:var(--accent);color:#000;border:none;border-radius:50%;font-size:1.3rem;cursor:pointer;display:none;align-items:center;justify-content:center;box-shadow:0 4px 15px rgba(0,0,0,.3);z-index:100;transition:transform .2s}.back-to-top:hover{transform:scale(1.1)}.back-to-top.visible{display:flex}
+@media(max-width:900px){.sidebar{transform:translateX(-100%)}.sidebar.open{transform:translateX(0)}.sidebar-toggle{display:block}.main{margin-left:0;padding:70px 20px 100px}.score-bar{flex-direction:column;align-items:stretch;text-align:center}}
+@media print{.sidebar,.sidebar-toggle,.back-to-top,.progress-bar,.score-bar{display:none!important}.main{margin-left:0;max-width:100%}body{background:#fff;color:#000}.qa-card{border:1px solid #ccc;break-inside:avoid}.qa-answer{max-height:none!important}.qa-question .expand-icon{display:none}table{font-size:.75rem}thead th{background:#333;color:#fff;-webkit-print-color-adjust:exact;print-color-adjust:exact}tbody tr:nth-child(even){background:#f0f0f0}tbody tr:nth-child(odd){background:#fff}pre{background:#f5f5f5;border:1px solid #ccc}code{color:#333}h1{color:#111}}
+</style>
+</head>
+<body>
+<div class="progress-bar" id="progressBar"></div>
+<button class="sidebar-toggle" id="sidebarToggle">☰</button>
+<aside class="sidebar" id="sidebar">
+<div class="sidebar-header"><h2>CS4 Q&amp;A</h2><small>8 Questions</small></div>
+<nav>
+<div class="nav-group">Study Materials</div>
+<a href="CS1-Introduction-to-Cloud-Computing.html">CS1 — Intro to Cloud</a><a href="CS2-CS3-Virtualization.html">CS2-CS3 — Virtualization</a><a href="CS4-Hypervisor-and-IaaS.html">CS4 — Hypervisor &amp; IaaS</a><a href="CS5-IaaS-Services.html">CS5 — IaaS Services</a><a href="CS6-Containers-and-Cloud-Native.html">CS6 — Containers</a>
+<div class="nav-group">Questions &amp; Answers</div>
+<a href="CS1-Questions-and-Answers.html">CS1 Q&amp;A (15 Qs)</a><a href="CS2-CS3-Questions-and-Answers.html">CS2-CS3 Q&amp;A (6 Qs)</a><a href="CS4-Questions-and-Answers.html" class="active">CS4 Q&amp;A (8 Qs)</a><a href="CS5-Questions-and-Answers.html">CS5 Q&amp;A (10 Qs)</a><a href="CS6-Questions-and-Answers.html">CS6 Q&amp;A (12 Qs)</a>
+</nav>
+</aside>
+<main class="main">
+<h1>CS4: Hypervisors and Introduction to IaaS — Questions &amp; Answers</h1>
+<p class="subtitle">8 questions covering: Hypervisor deep-dive, IaaS definition, IaaS architecture, AWS as reference platform, Regions/AZs, VM lifecycle, VM migration, cloud provisioning platforms.</p>
+<div class="score-bar"><div class="score-text">Score: <span id="scoreCount">0</span> / 8</div><div class="btn-group"><button onclick="toggleAll(true)">Show All</button><button onclick="toggleAll(false)">Hide All</button><button onclick="resetAll()">Reset</button></div></div>
+<div id="qaContainer">
+
+<div class="qa-card"><div class="qa-question" onclick="toggleAnswer(this)"><input type="checkbox" onclick="event.stopPropagation();updateScore()"><div class="q-text">Q1. Compare Type 1 and Type 2 hypervisors. Name 4 production Type 1 hypervisors and their users.</div><div class="expand-icon">&#9660;</div></div><div class="qa-answer"><div class="qa-answer-inner">
+<table><thead><tr><th>Aspect</th><th>Type 1 (Bare-metal)</th><th>Type 2 (Hosted)</th></tr></thead><tbody>
+<tr><td>Runs on</td><td>Directly on hardware</td><td>On top of host OS</td></tr>
+<tr><td>Performance</td><td>Better (direct access)</td><td>Worse (host OS overhead)</td></tr>
+<tr><td>Security</td><td>More secure (smaller surface)</td><td>Less secure</td></tr>
+<tr><td>Use case</td><td>Production cloud</td><td>Development/testing</td></tr>
+</tbody></table>
+<p><strong>4 Type 1 hypervisors:</strong></p>
+<table><thead><tr><th>Hypervisor</th><th>Developer</th><th>Used by</th></tr></thead><tbody>
+<tr><td><strong>KVM</strong></td><td>Open-source (Linux)</td><td>AWS (Nitro), Google Cloud, DigitalOcean</td></tr>
+<tr><td><strong>VMware ESXi</strong></td><td>VMware/Broadcom</td><td>Enterprise private clouds</td></tr>
+<tr><td><strong>Microsoft Hyper-V</strong></td><td>Microsoft</td><td>Azure, Windows enterprise</td></tr>
+<tr><td><strong>Xen</strong></td><td>Linux Foundation</td><td>Citrix, early AWS</td></tr>
+</tbody></table>
+</div></div></div>
+
+<div class="qa-card"><div class="qa-question" onclick="toggleAnswer(this)"><input type="checkbox" onclick="event.stopPropagation();updateScore()"><div class="q-text">Q2. What is the AWS Nitro System? Why is it significant?</div><div class="expand-icon">&#9660;</div></div><div class="qa-answer"><div class="qa-answer-inner">
+<p><strong>Nitro</strong> is AWS's custom hypervisor architecture that evolved from Xen:</p>
+<ul><li><strong>Nitro Hypervisor:</strong> Lightweight KVM-based. Offloads networking, storage, and security to dedicated hardware cards.</li><li><strong>Nitro Cards:</strong> Custom ASICs handling VPC networking, EBS storage I/O, and monitoring — removing this from the host CPU.</li><li><strong>Nitro Security Chip:</strong> Hardware-based security preventing unauthorized access to instance memory/storage.</li></ul>
+<p><strong>Significance:</strong> Near-bare-metal performance because hypervisor overhead is offloaded to hardware. The CPU is almost entirely available to the customer's workload instead of being consumed by virtualization overhead.</p>
+</div></div></div>
+
+<div class="qa-card"><div class="qa-question" onclick="toggleAnswer(this)"><input type="checkbox" onclick="event.stopPropagation();updateScore()"><div class="q-text">Q3. Define IaaS. Compare public and private IaaS.</div><div class="expand-icon">&#9660;</div></div><div class="qa-answer"><div class="qa-answer-inner">
+<p><strong>IaaS</strong> delivers computing infrastructure (servers, storage, networking) as on-demand, pay-per-use services over the internet. The provider manages physical infrastructure; the customer manages OS upward.</p>
+<table><thead><tr><th>Aspect</th><th>Public IaaS</th><th>Private IaaS</th></tr></thead><tbody>
+<tr><td><strong>Provider</strong></td><td>Third-party (AWS, Azure, GCP)</td><td>Organisation's own IT or dedicated third party</td></tr>
+<tr><td><strong>Users</strong></td><td>Anyone with a credit card</td><td>Internal users and partners</td></tr>
+<tr><td><strong>Infrastructure</strong></td><td>Shared across thousands of customers</td><td>Dedicated to one organisation</td></tr>
+<tr><td><strong>Examples</strong></td><td>AWS EC2, Azure VMs, GCE</td><td>OpenStack, VMware vSphere, AWS Outposts</td></tr>
+</tbody></table>
+</div></div></div>
+
+<div class="qa-card"><div class="qa-question" onclick="toggleAnswer(this)"><input type="checkbox" onclick="event.stopPropagation();updateScore()"><div class="q-text">Q4. Explain the IaaS architecture stack. What does the customer manage vs the provider?</div><div class="expand-icon">&#9660;</div></div><div class="qa-answer"><div class="qa-answer-inner">
+<pre><code>Customer manages:  Applications, Data, Runtime, Middleware, OS
+Provider manages:  Virtualization, Servers, Storage, Network, Data Centre</code></pre>
+<p><strong>IaaS stack layers:</strong></p>
+<table><thead><tr><th>Layer</th><th>What it includes</th></tr></thead><tbody>
+<tr><td><strong>Customer-managed</strong></td><td>Applications, data, runtime, middleware, OS (install, patch, configure)</td></tr>
+<tr><td><strong>Virtualization</strong></td><td>VMs, containers, virtual networks, virtual disks</td></tr>
+<tr><td><strong>Physical infrastructure</strong></td><td>Compute servers, SAN/SSD storage, switches/routers, data centres</td></tr>
+<tr><td><strong>Management &amp; orchestration</strong></td><td>Provisioning APIs, monitoring, billing, IAM, auto-scaling, load balancing</td></tr>
+</tbody></table>
+</div></div></div>
+
+<div class="qa-card"><div class="qa-question" onclick="toggleAnswer(this)"><input type="checkbox" onclick="event.stopPropagation();updateScore()"><div class="q-text">Q5. Explain Regions, Availability Zones, and Edge Locations. Why deploy across multiple AZs?</div><div class="expand-icon">&#9660;</div></div><div class="qa-answer"><div class="qa-answer-inner">
+<table><thead><tr><th>Concept</th><th>What it is</th><th>Purpose</th></tr></thead><tbody>
+<tr><td><strong>Region</strong></td><td>Geographic area with multiple AZs. Completely independent.</td><td>Data sovereignty (keep data in specific country). Low latency (deploy near users).</td></tr>
+<tr><td><strong>Availability Zone</strong></td><td>1+ data centres within a region with independent power/cooling/network.</td><td><strong>High availability</strong> — if one AZ fails, others keep running.</td></tr>
+<tr><td><strong>Edge Location</strong></td><td>Small data centres worldwide for CDN caching.</td><td>Low-latency content delivery to end users.</td></tr>
+</tbody></table>
+<p><strong>Why multi-AZ:</strong> Single-AZ = single point of failure. If that AZ has a power outage, your app is down. Multi-AZ = load balancer routes traffic to healthy AZs. AWS SLAs require multi-AZ for production workloads.</p>
+</div></div></div>
+
+<div class="qa-card"><div class="qa-question" onclick="toggleAnswer(this)"><input type="checkbox" onclick="event.stopPropagation();updateScore()"><div class="q-text">Q6. Describe the VM lifecycle stages and the VM provisioning process.</div><div class="expand-icon">&#9660;</div></div><div class="qa-answer"><div class="qa-answer-inner">
+<p><strong>VM lifecycle:</strong></p>
+<ol><li><strong>IT Service Request</strong> → Analyse resource pool, match requirements.</li><li><strong>VM Provisioning</strong> → Load OS + apps, customise/configure, start server.</li><li><strong>VM in Operation</strong> → Serve requests, support migration, scale on demand.</li><li><strong>Release VM</strong> → End of service, resources reallocated.</li></ol>
+<p><strong>Provisioning process:</strong></p>
+<ol><li>Select server from pool with appropriate OS template.</li><li>Load software (drivers, middleware).</li><li>Customise (IP address, network, storage).</li><li>Server ready to serve requests.</li></ol>
+<p>In cloud (EC2): takes <strong>minutes</strong>. In traditional IT: takes <strong>weeks</strong>.</p>
+</div></div></div>
+
+<div class="qa-card"><div class="qa-question" onclick="toggleAnswer(this)"><input type="checkbox" onclick="event.stopPropagation();updateScore()"><div class="q-text">Q7. Compare hot migration, cold migration, and live storage migration.</div><div class="expand-icon">&#9660;</div></div><div class="qa-answer"><div class="qa-answer-inner">
+<table><thead><tr><th>Technique</th><th>VM state</th><th>What moves</th><th>Shared storage?</th><th>Downtime</th></tr></thead><tbody>
+<tr><td><strong>Hot/Live</strong></td><td>Running</td><td>VM from host A to host B while powered on</td><td>Yes</td><td>Milliseconds</td></tr>
+<tr><td><strong>Cold/Regular</strong></td><td>Powered off</td><td>VM files from host A to host B</td><td>No</td><td>Minutes</td></tr>
+<tr><td><strong>Live Storage</strong></td><td>Running</td><td>VM disks from one datastore to another</td><td>No</td><td>None</td></tr>
+</tbody></table>
+<p><strong>Live migration works because:</strong> Most memory is copied during pre-copy (while VM runs). Only the last few dirty pages require stop-and-copy — resulting in milliseconds of actual downtime.</p>
+</div></div></div>
+
+<div class="qa-card"><div class="qa-question" onclick="toggleAnswer(this)"><input type="checkbox" onclick="event.stopPropagation();updateScore()"><div class="q-text">Q8. Explain the Xen live migration algorithm (6 stages).</div><div class="expand-icon">&#9660;</div></div><div class="qa-answer"><div class="qa-answer-inner">
+<table><thead><tr><th>Stage</th><th>What happens</th></tr></thead><tbody>
+<tr><td><strong>0: Pre-Migration</strong></td><td>Active VM on Host A.</td></tr>
+<tr><td><strong>1: Reservation</strong></td><td>Migration request sent. Resources reserved on Host B.</td></tr>
+<tr><td><strong>2: Iterative Pre-Copy</strong></td><td>All memory pages copied A→B. Subsequent iterations copy only dirtied pages. Each iteration copies fewer pages.</td></tr>
+<tr><td><strong>3: Stop-and-Copy</strong></td><td>VM suspended on A. Remaining dirty pages + CPU state copied to B. Network traffic routed to B.</td></tr>
+<tr><td><strong>4: Commitment</strong></td><td>B confirms complete image received. A discards original VM. B becomes primary.</td></tr>
+<tr><td><strong>5: Activation</strong></td><td>VM on B activated. Device drivers reattached. IP addresses advertised on new network.</td></tr>
+</tbody></table>
+<p><strong>Key insight:</strong> Stage 2 (pre-copy) does most of the work while the VM is still running. The actual downtime (stage 3) is only milliseconds.</p>
+</div></div></div>
+
+</div>
+</main>
+<button class="back-to-top" id="backToTop" onclick="window.scrollTo({top:0})">&#8593;</button>
+<script>
+function toggleAnswer(el){el.closest('.qa-card').classList.toggle('open')}
+function updateScore(){const checks=document.querySelectorAll('.qa-card input[type=checkbox]');let c=0;checks.forEach(ch=>{const card=ch.closest('.qa-card');if(ch.checked){c++;card.classList.add('checked-off')}else{card.classList.remove('checked-off')}});document.getElementById('scoreCount').textContent=c}
+function toggleAll(show){document.querySelectorAll('.qa-card').forEach(c=>{show?c.classList.add('open'):c.classList.remove('open')})}
+function resetAll(){document.querySelectorAll('.qa-card input[type=checkbox]').forEach(ch=>{ch.checked=false});document.querySelectorAll('.qa-card').forEach(c=>{c.classList.remove('checked-off','open')});document.getElementById('scoreCount').textContent='0'}
+window.addEventListener('scroll',()=>{const s=document.documentElement,p=(s.scrollTop/(s.scrollHeight-s.clientHeight))*100;document.getElementById('progressBar').style.width=p+'%'});
+window.addEventListener('scroll',()=>{document.getElementById('backToTop').classList.toggle('visible',window.scrollY>400)});
+document.getElementById('sidebarToggle').addEventListener('click',()=>{document.getElementById('sidebar').classList.toggle('open')});
+document.querySelectorAll('.sidebar nav a').forEach(a=>a.addEventListener('click',()=>{if(window.innerWidth<=900)document.getElementById('sidebar').classList.remove('open')}));
+</script>
+</body>
+</html>
