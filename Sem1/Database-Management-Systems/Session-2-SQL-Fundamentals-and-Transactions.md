@@ -105,7 +105,7 @@ When a referenced row (parent) is deleted or updated, what happens to the rows t
 | `SET DEFAULT` | Children's FK is set to its default value. |
 | `RESTRICT` / `NO ACTION` | The delete/update is rejected if children exist. Safest option — prevents accidental data loss. |
 
-### 2.2.2 ALTER TABLE and DROP TABLE
+### 2.2.2 ALTER TABLE, DROP TABLE, and TRUNCATE TABLE
 
 ```sql
 -- Add a column
@@ -117,10 +117,24 @@ ALTER TABLE EMPLOYEE DROP COLUMN Phone;
 -- Add a constraint
 ALTER TABLE EMPLOYEE ADD CONSTRAINT chk_sal CHECK (Salary >= 15000);
 
--- Drop an entire table
+-- Drop an entire table (structure + data)
 DROP TABLE EMPLOYEE;           -- Fails if other tables reference it
 DROP TABLE EMPLOYEE CASCADE;   -- Drops dependent objects (FKs, views) too
+
+-- Truncate a table (remove ALL rows but keep structure)
+TRUNCATE TABLE EMPLOYEE;
+-- Faster than DELETE FROM EMPLOYEE because it doesn't log individual row deletions.
+-- Cannot be rolled back in most DBMSs. Resets auto-increment counters.
+-- Does NOT fire DELETE triggers.
 ```
+
+**DELETE vs TRUNCATE vs DROP:**
+
+| Command | What it removes | Structure remains? | Can rollback? | Fires triggers? |
+|---|---|---|---|---|
+| `DELETE FROM table` | Specified rows (or all if no WHERE) | Yes | Yes | Yes |
+| `TRUNCATE TABLE table` | All rows (faster, no row-level logging) | Yes | No (most DBMSs) | No |
+| `DROP TABLE table` | Entire table (structure + data + indexes) | No | No | N/A |
 
 ---
 
@@ -561,12 +575,33 @@ Real-world databases change over time. Schema evolution means modifying the sche
 
 **Common changes:** Adding/removing columns, changing data types, adding/dropping constraints, creating indexes.
 
+**Why schema evolution is required** (from class slide 26):
+- New business requirements introduce additional data attributes.
+- Existing attributes may need to be modified or removed.
+- Relationships between entities may change over time.
+- Performance and scalability requirements may require schema redesign.
+
 **Challenges:** Existing data may need migration, applications may break, views and procedures may become invalid, large tables may lock during ALTER.
 
 **Strategies:**
 - **Expand-and-contract:** Add new column → migrate data → update apps → drop old column.
-- **Schema versioning:** Tag each schema version; apps specify their target version.
+- **Schema versioning:** Maintain version numbers for the schema (see below).
 - **Backward/forward compatibility:** Design changes so old and new app versions co-exist during rollout.
+
+### Schema Versioning
+
+*(From class slide 27)*
+
+**Schema versioning** is the practice of maintaining and tracking different versions of a database schema as it evolves. It enables databases and applications to evolve in a controlled manner while preserving compatibility.
+
+**Why schema versioning is important:**
+- **Tracks changes** made to the database schema over time (who changed what, when, why).
+- **Ensures environment consistency** — development, testing, and production all use the correct schema version.
+- **Supports controlled deployment** of database updates (migrate one environment at a time).
+- **Enables rollback** if a schema change introduces issues (revert to previous version).
+- **Facilitates collaboration** among multiple developers working on the same database.
+
+**Tools for schema versioning:** Flyway, Liquibase, Alembic (Python/SQLAlchemy), Django migrations, Rails migrations. These tools track schema changes as numbered migration files in version control (Git), ensuring every environment applies the same changes in the same order.
 
 ### Denormalisation
 

@@ -57,6 +57,33 @@ As organisations grow, their computing needs inevitably outgrow a single databas
 
 A **Distributed Database System (DDBS)** is a collection of multiple, logically interrelated databases distributed over a computer network, managed by a **Distributed DBMS (DDBMS)** that makes the distribution **transparent** to users. From the user's perspective, the data appears to be in one place — the complexity of distribution is hidden.
 
+### 3.2.1a Characteristics of a DDBS
+
+*(From class slide 6)*
+
+A Distributed Database System typically has the following characteristics:
+
+| Characteristic | Description |
+|---|---|
+| **Data Distribution** | Data is physically stored across multiple sites connected through a network. |
+| **Logical Integration** | Distributed data forms a logically related and integrated database — it's not just random data at random sites. |
+| **Local Autonomy** | Individual sites may have some control over their local data and operations. |
+| **Network Communication** | Sites communicate and exchange data through a communication network. |
+| **Distributed Processing** | Queries and transactions may involve data stored at multiple sites. |
+| **Distribution Transparency** | Users should ideally access data without needing to know its physical location. |
+| **Reliability & Availability** | Distribution can allow continued operation even when some sites or communication links fail. |
+
+### 3.2.1b Local vs Global Transactions
+
+*(From class slide 9)*
+
+| Transaction Type | Description | Example |
+|---|---|---|
+| **Local Transaction** | Accesses data stored at a **single site** only. Managed entirely by the local DBMS. No inter-site coordination needed. | A Mumbai branch querying only Mumbai customer data. |
+| **Global Transaction** | Accesses data stored at **more than one site**. Requires coordination between multiple sites (distributed concurrency control, 2PC for commit). | Transferring money from a Mumbai account to a London account — both sites must participate. |
+
+The DDBMS must handle both types. Local transactions are straightforward (same as centralised). Global transactions introduce all the complexity of distributed systems (network latency, partial failures, distributed locking).
+
 ### 3.2.2 Transparency Goals
 
 Transparency is the central design principle of a DDBMS. The system should hide the complexities of distribution so that users and applications interact with it as if it were a single, centralised database.
@@ -125,12 +152,21 @@ All processors share the **same memory** and the **same disk**. This is the arch
 
 Limited scalability — adding processors increases contention for shared memory and bus bandwidth. Not truly "distributed" since everything is on one machine, but the concepts of shared memory parallelism apply.
 
-### 3.2.4 Homogeneous vs. Heterogeneous DDBS
+### 3.2.4 Homogeneous vs. Heterogeneous vs. Multidatabase DDBS
 
-| Type | Characteristics | Example |
-|---|---|---|
-| **Homogeneous** | All sites run the same DBMS software, same data model, same query language. Easier to manage and optimise. | All sites run PostgreSQL 15. |
-| **Heterogeneous** | Different sites run different DBMSs with potentially different data models. Requires middleware or translation layers to bridge the differences. | London runs Oracle, Mumbai runs PostgreSQL, Tokyo runs MySQL. A federated query engine translates between them. |
+*(From class slide 10)*
+
+Distributed database systems can be classified based on the similarity of DBMSs, data models, and degree of site autonomy:
+
+| Type | Characteristics | Integration complexity | Example |
+|---|---|---|---|
+| **Homogeneous DDBS** | All sites use the **same DBMS software** and the same data model. Appears naturally as a single distributed database. Integration and communication are relatively easier. | Low | All sites run PostgreSQL 15. |
+| **Heterogeneous DDBS** | Sites may use **different DBMS products** with different data models or schemas. Requires mechanisms for data-model and query transformation. Integration is more complex. | High | London runs Oracle, Mumbai runs PostgreSQL, Tokyo runs MySQL. A middleware layer translates between them. |
+| **Multidatabase System** | Integrates **multiple pre-existing autonomous databases** that were not originally designed to work together. Individual databases retain significant local autonomy. A global layer provides access across participating databases without requiring them to give up independence. | Highest | A company acquires another company. Each has its own database. A multidatabase system provides a unified query interface across both without migrating data. |
+
+**Key distinction between Heterogeneous DDBS and Multidatabase:**
+- In a heterogeneous DDBS, there is a single global schema — the DDBMS manages everything centrally despite different underlying software.
+- In a multidatabase system, each database retains its own local schema and autonomy — the global layer is a **federation** that provides cross-database access without full centralised control.
 
 ---
 
