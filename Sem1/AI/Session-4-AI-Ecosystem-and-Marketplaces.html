@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Session 4: AI Ecosystem and Model Marketplaces</title>
+<style>
+:root{--bg:#0f172a;--surface:#1e293b;--surface2:#334155;--border:#475569;--text:#e2e8f0;--text-muted:#94a3b8;--code-bg:#0d1117;--accent:#06b6d4;--accent-dim:rgba(6,182,212,.15);--accent-border:rgba(6,182,212,.3);--header-gradient:linear-gradient(135deg,#164e63,#0891b2,#06b6d4)}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);line-height:1.7;display:flex;min-height:100vh}
+.progress-bar{position:fixed;top:0;left:0;height:4px;background:var(--accent);z-index:1000;transition:width .2s}
+.sidebar{position:fixed;top:0;left:0;width:280px;height:100vh;background:var(--surface);border-right:1px solid var(--border);overflow-y:auto;padding:1.5rem 0;z-index:100;transition:transform .3s}
+.sidebar-header{padding:0 1.5rem 1.5rem;border-bottom:1px solid var(--border);margin-bottom:1rem}
+.sidebar-header h2{font-size:1rem;color:var(--accent);margin-bottom:.25rem}
+.sidebar-header p{font-size:.75rem;color:var(--text-muted)}
+.sidebar nav a{display:block;padding:.55rem 1.5rem;color:var(--text-muted);text-decoration:none;font-size:.85rem;border-left:3px solid transparent;transition:all .2s}
+.sidebar nav a:hover,.sidebar nav a.active{color:var(--accent);background:var(--accent-dim);border-left-color:var(--accent)}
+.sidebar-toggle{display:none;position:fixed;top:1rem;left:1rem;z-index:200;background:var(--surface);border:1px solid var(--border);color:var(--text);width:40px;height:40px;border-radius:8px;cursor:pointer;font-size:1.2rem}
+.main{margin-left:280px;flex:1;max-width:900px;padding:2rem 3rem 4rem}
+.page-header{background:var(--header-gradient);border-radius:16px;padding:2.5rem;margin-bottom:2.5rem;position:relative;overflow:hidden}
+.page-header::after{content:'';position:absolute;top:0;right:0;width:200px;height:100%;background:radial-gradient(circle at 80% 50%,rgba(255,255,255,.1),transparent);pointer-events:none}
+.page-header .badge{display:inline-block;background:rgba(0,0,0,.3);color:#fff;padding:.25rem .75rem;border-radius:20px;font-size:.75rem;margin-bottom:.75rem}
+.page-header h1{font-size:2rem;color:#fff;margin-bottom:.5rem}
+.page-header .meta{color:rgba(255,255,255,.8);font-size:.85rem}
+h2{font-size:1.5rem;color:var(--accent);margin:2.5rem 0 1rem;padding-bottom:.5rem;border-bottom:2px solid var(--accent-border)}
+h3{font-size:1.15rem;color:var(--text);margin:1.8rem 0 .8rem}
+p{margin-bottom:1rem}
+.table-wrap{overflow-x:auto;margin:1.2rem 0;border-radius:10px;border:1px solid var(--border)}
+table{width:100%;border-collapse:collapse;font-size:.88rem}
+thead th{background:var(--accent);color:#000;padding:.75rem 1rem;text-align:left;font-weight:600;white-space:nowrap}
+tbody tr:nth-child(even){background:var(--surface)}
+tbody tr:nth-child(odd){background:var(--surface2)}
+tbody tr:hover{background:var(--accent-dim)}
+td{padding:.7rem 1rem;border-top:1px solid var(--border)}
+pre{background:var(--code-bg);border:1px solid var(--border);border-radius:10px;padding:1.2rem;overflow-x:auto;margin:1.2rem 0;font-size:.85rem;line-height:1.6}
+code{font-family:'Cascadia Code','Fira Code','Consolas',monospace;color:#e6edf3}
+p code,li code,td code{background:var(--code-bg);padding:.15rem .4rem;border-radius:4px;font-size:.85em;color:var(--accent)}
+.callout{background:var(--accent-dim);border-left:4px solid var(--accent);border-radius:0 10px 10px 0;padding:1rem 1.2rem;margin:1.2rem 0;font-size:.92rem}
+.callout p{margin:0}
+ul,ol{margin:0 0 1rem 1.5rem}
+li{margin-bottom:.4rem}
+li strong{color:var(--accent)}
+.back-top{position:fixed;bottom:2rem;right:2rem;width:44px;height:44px;background:var(--accent);color:#000;border:none;border-radius:50%;cursor:pointer;font-size:1.3rem;display:none;align-items:center;justify-content:center;box-shadow:0 4px 15px rgba(6,182,212,.3);transition:transform .2s;z-index:100}
+.back-top:hover{transform:scale(1.1)}
+.back-top.show{display:flex}
+@media(max-width:900px){
+  .sidebar{transform:translateX(-100%)}
+  .sidebar.open{transform:translateX(0)}
+  .sidebar-toggle{display:flex;align-items:center;justify-content:center}
+  .main{margin-left:0;padding:2rem 1.2rem 4rem}
+}
+@media print{
+  .sidebar,.sidebar-toggle,.back-top,.progress-bar{display:none!important}
+  .main{margin-left:0;max-width:100%}
+  body{background:#fff;color:#000}
+  h2{color:#164e63}
+  thead th{background:#06b6d4;color:#000;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  tbody tr:nth-child(even){background:#f8f8f8}
+  tbody tr:nth-child(odd){background:#fff}
+  pre{border:1px solid #ccc;background:#f5f5f5}
+  code{color:#333}
+  .callout{background:#e0f7fa;border-left-color:#06b6d4}
+  .page-header{background:#06b6d4!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+}
+</style>
+</head>
+<body>
+
+<div class="progress-bar" id="progressBar"></div>
+<button class="sidebar-toggle" id="sidebarToggle" aria-label="Toggle sidebar">☰</button>
+
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <h2>Session 4</h2>
+    <p>AI Ecosystem & Marketplaces</p>
+  </div>
+  <nav>
+    <a href="#section-4-1">4.1 Foundation Models</a>
+    <a href="#section-4-2">4.2 Open-Source Models</a>
+    <a href="#section-4-3">4.3 APIs and Cloud AI Services</a>
+    <a href="#section-4-4">4.4 Model Hubs</a>
+    <a href="#section-4-5">4.5 Build vs Buy Decisions</a>
+    <a href="Session-4-Questions-and-Answers.html" style="margin-top:1rem;color:var(--accent);">📝 Session 4 Q&A →</a>
+    <a href="Session-3-AI-System-Architecture.html">← Session 3</a>
+    <a href="Session-5-Data-and-Feature-Engineering.html">→ Session 5</a>
+  </nav>
+</aside>
+
+<main class="main">
+  <div class="page-header">
+    <span class="badge">Module 1: Foundations of AI Systems</span>
+    <h1>Session 4: AI Ecosystem and Model Marketplaces</h1>
+    <p class="meta">BITS Pilani — SS ZG662: Introduction to AI Systems — Instructor: Chandrasekhar Anantrama<br>References: Hugging Face, OpenAI APIs, Cloud AI Services</p>
+  </div>
+
+  <!-- 4.1 -->
+  <h2 id="section-4-1">4.1 Foundation Models</h2>
+  <p>A <strong>foundation model</strong> is a large AI model trained on broad, diverse data at scale, designed to be adapted (fine-tuned) for a wide range of downstream tasks. The term was coined by Stanford's HAI in 2021.</p>
+
+  <h3>Key Characteristics</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Characteristic</th><th>Explanation</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Trained on massive data</strong></td><td>Hundreds of billions of tokens (text), millions of images. Internet-scale data.</td></tr>
+      <tr><td><strong>General-purpose</strong></td><td>Not trained for a specific task — can be adapted to many tasks (translation, summarisation, coding, Q&A, image generation).</td></tr>
+      <tr><td><strong>Transfer learning</strong></td><td>Knowledge learned during pre-training transfers to downstream tasks, even with limited task-specific data.</td></tr>
+      <tr><td><strong>Emergent abilities</strong></td><td>Large models exhibit capabilities that weren't explicitly trained for — e.g. chain-of-thought reasoning, code generation in GPT-4.</td></tr>
+      <tr><td><strong>Expensive to train</strong></td><td>Training GPT-4 estimated at $100M+. Only a few organisations can train foundation models from scratch.</td></tr>
+      <tr><td><strong>Accessible via APIs or fine-tuning</strong></td><td>Most users access foundation models via APIs (OpenAI, Anthropic) or fine-tune open-source versions (LLaMA, Mistral).</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Notable Foundation Models</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Model</th><th>Organisation</th><th>Type</th><th>Key feature</th></tr></thead>
+    <tbody>
+      <tr><td><strong>GPT-4 / GPT-4o</strong></td><td>OpenAI</td><td>Text + multimodal</td><td>Most capable general-purpose LLM (as of 2024).</td></tr>
+      <tr><td><strong>Claude 3.5</strong></td><td>Anthropic</td><td>Text + vision</td><td>Focus on safety and helpfulness. Long context (200K tokens).</td></tr>
+      <tr><td><strong>Gemini</strong></td><td>Google DeepMind</td><td>Multimodal</td><td>Natively multimodal (text, image, audio, video).</td></tr>
+      <tr><td><strong>LLaMA 3</strong></td><td>Meta</td><td>Text (open-source)</td><td>Open-weights model enabling community fine-tuning.</td></tr>
+      <tr><td><strong>Mistral</strong></td><td>Mistral AI</td><td>Text (open-source)</td><td>Efficient, strong performance for its size.</td></tr>
+      <tr><td><strong>Stable Diffusion</strong></td><td>Stability AI</td><td>Image generation (open-source)</td><td>Open-source image generation.</td></tr>
+      <tr><td><strong>DALL-E 3</strong></td><td>OpenAI</td><td>Image generation</td><td>Text-to-image with high fidelity and prompt following.</td></tr>
+      <tr><td><strong>Whisper</strong></td><td>OpenAI</td><td>Speech-to-text (open-source)</td><td>Multilingual speech recognition.</td></tr>
+    </tbody>
+  </table></div>
+
+  <!-- 4.2 -->
+  <h2 id="section-4-2">4.2 Open-Source Models</h2>
+  <p>Open-source models provide model weights (and sometimes training code/data) that anyone can download, inspect, modify, and deploy.</p>
+
+  <h3>Why Open-Source Matters for AI</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Benefit</th><th>Explanation</th></tr></thead>
+    <tbody>
+      <tr><td><strong>No API costs</strong></td><td>Run on your own infrastructure — no per-request charges.</td></tr>
+      <tr><td><strong>Data privacy</strong></td><td>Your data never leaves your servers. Critical for healthcare, finance, government.</td></tr>
+      <tr><td><strong>Customisation</strong></td><td>Fine-tune on your domain data. Modify architecture. Full control.</td></tr>
+      <tr><td><strong>No vendor lock-in</strong></td><td>Switch between models freely. Not dependent on one provider.</td></tr>
+      <tr><td><strong>Community innovation</strong></td><td>Community creates fine-tuned variants, tools, optimisations (quantisation, distillation).</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Key Open-Source Hubs</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Hub</th><th>What it offers</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Hugging Face</strong></td><td>The "GitHub of ML." 500K+ models, 100K+ datasets, transformers library, inference API, Spaces for demos. The central hub for open-source AI.</td></tr>
+      <tr><td><strong>GitHub</strong></td><td>Model code, training scripts, tools.</td></tr>
+      <tr><td><strong>Kaggle</strong></td><td>Datasets, competitions, notebooks, some pre-trained models.</td></tr>
+      <tr><td><strong>TensorFlow Hub / PyTorch Hub</strong></td><td>Pre-trained models for specific frameworks.</td></tr>
+    </tbody>
+  </table></div>
+
+  <!-- 4.3 -->
+  <h2 id="section-4-3">4.3 APIs and Cloud AI Services</h2>
+  <p>For organisations that don't want to manage models themselves, cloud providers and AI companies offer <strong>AI-as-a-Service</strong> via APIs.</p>
+
+  <h3>Types of AI APIs</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Category</th><th>What it provides</th><th>Examples</th></tr></thead>
+    <tbody>
+      <tr><td><strong>General-purpose LLM APIs</strong></td><td>Text generation, summarisation, translation, Q&A, code generation.</td><td>OpenAI API (GPT-4), Anthropic API (Claude), Google Gemini API.</td></tr>
+      <tr><td><strong>Embedding APIs</strong></td><td>Convert text/images into numerical vectors for search, similarity, clustering.</td><td>OpenAI Embeddings, Cohere Embed, Sentence Transformers.</td></tr>
+      <tr><td><strong>Image APIs</strong></td><td>Image generation, editing, analysis.</td><td>DALL-E, Stability AI, Google Vision AI.</td></tr>
+      <tr><td><strong>Speech APIs</strong></td><td>Speech-to-text, text-to-speech.</td><td>OpenAI Whisper, Google Cloud Speech, AWS Transcribe.</td></tr>
+      <tr><td><strong>Cloud ML Platforms</strong></td><td>End-to-end ML lifecycle — training, serving, monitoring.</td><td>AWS SageMaker, Google Vertex AI, Azure ML.</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>API Pricing Models</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Model</th><th>How you pay</th><th>Example</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Per token</strong></td><td>Pay per input + output token (text APIs).</td><td>OpenAI: $0.01/1K input tokens for GPT-4o.</td></tr>
+      <tr><td><strong>Per image</strong></td><td>Pay per image generated or analysed.</td><td>DALL-E: $0.04/image (standard).</td></tr>
+      <tr><td><strong>Per minute</strong></td><td>Pay per minute of audio processed.</td><td>Whisper API: $0.006/minute.</td></tr>
+      <tr><td><strong>Subscription</strong></td><td>Flat monthly fee for usage tiers.</td><td>ChatGPT Plus: $20/month.</td></tr>
+    </tbody>
+  </table></div>
+
+  <!-- 4.4 -->
+  <h2 id="section-4-4">4.4 Model Hubs</h2>
+  <p>A <strong>model hub</strong> is a centralised platform where models are shared, discovered, documented, and versioned.</p>
+
+  <h3>Hugging Face Hub — The Standard</h3>
+  <p>Hugging Face has become the de facto hub for AI models. Key features:</p>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Feature</th><th>What it provides</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Model Cards</strong></td><td>Documentation for each model: what it does, how it was trained, limitations, intended uses, performance benchmarks.</td></tr>
+      <tr><td><strong>Datasets</strong></td><td>100K+ datasets ready to use, with preview and streaming capabilities.</td></tr>
+      <tr><td><strong>Spaces</strong></td><td>Host interactive demos of models (Gradio, Streamlit apps).</td></tr>
+      <tr><td><strong>Inference API</strong></td><td>Run models directly via API without deploying your own infrastructure.</td></tr>
+      <tr><td><strong>Transformers Library</strong></td><td>Python library to load and use any model from the hub in a few lines of code.</td></tr>
+      <tr><td><strong>PEFT / LoRA</strong></td><td>Tools for parameter-efficient fine-tuning of large models.</td></tr>
+    </tbody>
+  </table></div>
+
+  <p><strong>Example — Using Hugging Face in 3 lines of Python:</strong></p>
+  <pre><code>from transformers import pipeline
+classifier = pipeline("sentiment-analysis")
+result = classifier("I love this product! It's amazing.")
+# Output: [{'label': 'POSITIVE', 'score': 0.9998}]</code></pre>
+
+  <!-- 4.5 -->
+  <h2 id="section-4-5">4.5 Build vs Buy Decisions</h2>
+  <p>One of the most important strategic decisions in AI: should you build your own model or use an existing one?</p>
+
+  <h3>Decision Framework</h3>
+  <pre><code>┌─────────────────────────────────────────────────┐
+│    Is the task generic (translation, summary)?   │
+│         YES → Use API (OpenAI, Claude)           │
+│         NO  ↓                                    │
+│    Is there an open-source model close enough?   │
+│         YES → Fine-tune open-source model        │
+│         NO  ↓                                    │
+│    Is the task critical and differentiated?       │
+│         YES → Build custom model from scratch     │
+│         NO  → Re-evaluate if you need ML at all  │
+└─────────────────────────────────────────────────┘</code></pre>
+
+  <h3>Comparison Table</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Aspect</th><th>Use API</th><th>Fine-Tune Open-Source</th><th>Build from Scratch</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Time to deploy</strong></td><td>Hours to days</td><td>Days to weeks</td><td>Months</td></tr>
+      <tr><td><strong>Cost (upfront)</strong></td><td>Zero</td><td>Moderate (compute for fine-tuning)</td><td>High (team + compute + data)</td></tr>
+      <tr><td><strong>Cost (ongoing)</strong></td><td>Per-request API fees</td><td>Infrastructure hosting costs</td><td>Team + infrastructure</td></tr>
+      <tr><td><strong>Data privacy</strong></td><td>Data sent to third party</td><td>Data stays on your servers</td><td>Full control</td></tr>
+      <tr><td><strong>Customisation</strong></td><td>Limited (prompt engineering)</td><td>High (adapt to your domain)</td><td>Maximum</td></tr>
+      <tr><td><strong>Maintenance</strong></td><td>Provider handles updates</td><td>You handle updates, retraining</td><td>You handle everything</td></tr>
+      <tr><td><strong>Vendor dependency</strong></td><td>High (API may change, price may increase)</td><td>Low (model is yours)</td><td>None</td></tr>
+      <tr><td><strong>Best for</strong></td><td>Prototyping, generic tasks, low volume</td><td>Domain-specific tasks, privacy-sensitive</td><td>Core competitive advantage</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Real-World Examples</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Scenario</th><th>Recommended approach</th><th>Why</th></tr></thead>
+    <tbody>
+      <tr><td>Startup building a customer support chatbot</td><td><strong>API (GPT-4)</strong></td><td>Fast to market, low upfront cost, generic task.</td></tr>
+      <tr><td>Bank building a fraud detection model</td><td><strong>Build from scratch</strong></td><td>Proprietary data, regulatory requirements, core business differentiator.</td></tr>
+      <tr><td>Hospital building a radiology AI assistant</td><td><strong>Fine-tune open-source</strong></td><td>Need domain adaptation (medical images), data privacy (patient data can't leave servers).</td></tr>
+      <tr><td>Marketing team generating ad copy</td><td><strong>API (Claude/GPT-4)</strong></td><td>Generic creative task, low volume, quality is "good enough."</td></tr>
+      <tr><td>Self-driving car company</td><td><strong>Build from scratch</strong></td><td>Safety-critical, massive proprietary data, core technology.</td></tr>
+    </tbody>
+  </table></div>
+
+  <p style="text-align:center;color:var(--text-muted);margin-top:3rem;font-size:.85rem"><em>End of Session 4</em></p>
+</main>
+
+<button class="back-top" id="backTop" aria-label="Back to top">↑</button>
+
+<script>
+window.addEventListener('scroll',()=>{
+  const h=document.documentElement;
+  const pct=h.scrollTop/(h.scrollHeight-h.clientHeight)*100;
+  document.getElementById('progressBar').style.width=pct+'%';
+  document.getElementById('backTop').classList.toggle('show',h.scrollTop>400);
+});
+document.getElementById('backTop').addEventListener('click',()=>window.scrollTo({top:0,behavior:'smooth'}));
+document.getElementById('sidebarToggle').addEventListener('click',()=>document.getElementById('sidebar').classList.toggle('open'));
+const sections=document.querySelectorAll('h2[id]');
+const navLinks=document.querySelectorAll('.sidebar nav a[href^="#"]');
+window.addEventListener('scroll',()=>{
+  let current='';
+  sections.forEach(s=>{if(window.scrollY>=s.offsetTop-100)current=s.id});
+  navLinks.forEach(a=>{a.classList.toggle('active',a.getAttribute('href')==='#'+current)});
+});
+</script>
+</body>
+</html>

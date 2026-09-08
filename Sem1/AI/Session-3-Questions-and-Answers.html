@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Session 3: Q&A — AI System Architecture</title>
+<style>
+:root{--bg:#0f172a;--surface:#1e293b;--surface2:#334155;--border:#475569;--text:#e2e8f0;--text-muted:#94a3b8;--code-bg:#0d1117;--accent:#8b5cf6;--accent-dim:rgba(139,92,246,.15);--accent-border:rgba(139,92,246,.3);--header-gradient:linear-gradient(135deg,#4c1d95,#7c3aed,#8b5cf6)}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);line-height:1.7;display:flex;min-height:100vh}
+.progress-bar{position:fixed;top:0;left:0;height:4px;background:var(--accent);z-index:1000;transition:width .2s}
+.sidebar{position:fixed;top:0;left:0;width:280px;height:100vh;background:var(--surface);border-right:1px solid var(--border);overflow-y:auto;padding:1.5rem 0;z-index:100;transition:transform .3s}
+.sidebar-header{padding:0 1.5rem 1.5rem;border-bottom:1px solid var(--border);margin-bottom:1rem}
+.sidebar-header h2{font-size:1rem;color:var(--accent);margin-bottom:.25rem}
+.sidebar-header p{font-size:.75rem;color:var(--text-muted)}
+.sidebar nav a{display:block;padding:.55rem 1.5rem;color:var(--text-muted);text-decoration:none;font-size:.85rem;border-left:3px solid transparent;transition:all .2s}
+.sidebar nav a:hover,.sidebar nav a.active{color:var(--accent);background:var(--accent-dim);border-left-color:var(--accent)}
+.sidebar-toggle{display:none;position:fixed;top:1rem;left:1rem;z-index:200;background:var(--surface);border:1px solid var(--border);color:var(--text);width:40px;height:40px;border-radius:8px;cursor:pointer;font-size:1.2rem}
+.main{margin-left:280px;flex:1;max-width:900px;padding:2rem 3rem 4rem}
+.page-header{background:var(--header-gradient);border-radius:16px;padding:2.5rem;margin-bottom:2rem;position:relative;overflow:hidden}
+.page-header::after{content:'';position:absolute;top:0;right:0;width:200px;height:100%;background:radial-gradient(circle at 80% 50%,rgba(255,255,255,.1),transparent);pointer-events:none}
+.page-header .badge{display:inline-block;background:rgba(0,0,0,.3);color:#fff;padding:.25rem .75rem;border-radius:20px;font-size:.75rem;margin-bottom:.75rem}
+.page-header h1{font-size:2rem;color:#fff;margin-bottom:.5rem}
+.page-header .meta{color:rgba(255,255,255,.8);font-size:.85rem}
+.controls{display:flex;flex-wrap:wrap;gap:.75rem;align-items:center;margin-bottom:2rem;padding:1rem 1.2rem;background:var(--surface);border:1px solid var(--border);border-radius:12px}
+.score-display{font-size:.95rem;color:var(--text);margin-right:auto}
+.score-display span{color:var(--accent);font-weight:700;font-size:1.1rem}
+.btn{padding:.5rem 1rem;border:1px solid var(--accent);background:transparent;color:var(--accent);border-radius:8px;cursor:pointer;font-size:.85rem;transition:all .2s}
+.btn:hover{background:var(--accent);color:#fff}
+.qa-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;margin-bottom:1.2rem;overflow:hidden;transition:border-color .3s}
+.qa-card:hover{border-color:var(--accent-border)}
+.qa-question{display:flex;align-items:flex-start;gap:.75rem;padding:1.2rem;cursor:pointer;user-select:none}
+.qa-question input[type="checkbox"]{margin-top:.35rem;width:18px;height:18px;accent-color:var(--accent);flex-shrink:0;cursor:pointer}
+.qa-question .q-text{flex:1;font-weight:600;font-size:1rem}
+.qa-question .q-num{color:var(--accent);font-weight:700;flex-shrink:0;min-width:28px}
+.qa-toggle{color:var(--accent);font-size:1.2rem;flex-shrink:0;transition:transform .3s;margin-top:.1rem}
+.qa-card.open .qa-toggle{transform:rotate(180deg)}
+.qa-answer{max-height:0;overflow:hidden;transition:max-height .4s ease}
+.qa-card.open .qa-answer{max-height:5000px}
+.qa-answer-inner{padding:0 1.2rem 1.2rem;border-top:1px solid var(--border);padding-top:1rem}
+.qa-answer-inner p{margin-bottom:.8rem}
+.table-wrap{overflow-x:auto;margin:1rem 0;border-radius:10px;border:1px solid var(--border)}
+table{width:100%;border-collapse:collapse;font-size:.85rem}
+thead th{background:var(--accent);color:#fff;padding:.6rem .8rem;text-align:left;font-weight:600;white-space:nowrap}
+tbody tr:nth-child(even){background:var(--surface)}
+tbody tr:nth-child(odd){background:var(--surface2)}
+tbody tr:hover{background:var(--accent-dim)}
+td{padding:.55rem .8rem;border-top:1px solid var(--border)}
+pre{background:var(--code-bg);border:1px solid var(--border);border-radius:10px;padding:1rem;overflow-x:auto;margin:1rem 0;font-size:.83rem;line-height:1.5}
+code{font-family:'Cascadia Code','Fira Code','Consolas',monospace;color:#e6edf3}
+p code,li code,td code{background:var(--code-bg);padding:.15rem .4rem;border-radius:4px;font-size:.85em;color:var(--accent)}
+ul,ol{margin:0 0 .8rem 1.5rem}
+li{margin-bottom:.3rem}
+li strong{color:var(--accent)}
+.back-top{position:fixed;bottom:2rem;right:2rem;width:44px;height:44px;background:var(--accent);color:#fff;border:none;border-radius:50%;cursor:pointer;font-size:1.3rem;display:none;align-items:center;justify-content:center;box-shadow:0 4px 15px rgba(139,92,246,.3);transition:transform .2s;z-index:100}
+.back-top:hover{transform:scale(1.1)}
+.back-top.show{display:flex}
+@media(max-width:900px){.sidebar{transform:translateX(-100%)}.sidebar.open{transform:translateX(0)}.sidebar-toggle{display:flex;align-items:center;justify-content:center}.main{margin-left:0;padding:2rem 1.2rem 4rem}}
+@media print{.sidebar,.sidebar-toggle,.back-top,.progress-bar,.controls{display:none!important}.main{margin-left:0;max-width:100%}body{background:#fff;color:#000}.qa-answer{max-height:none!important}.qa-card{border:1px solid #ccc;break-inside:avoid}thead th{background:#8b5cf6;color:#fff;-webkit-print-color-adjust:exact;print-color-adjust:exact}tbody tr:nth-child(even){background:#f8f8f8}tbody tr:nth-child(odd){background:#fff}pre{background:#f5f5f5;border:1px solid #ccc}code{color:#333}.page-header{background:#8b5cf6!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}}
+</style>
+</head>
+<body>
+
+<div class="progress-bar" id="progressBar"></div>
+<button class="sidebar-toggle" id="sidebarToggle" aria-label="Toggle sidebar">☰</button>
+
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <h2>Session 3 Q&A</h2>
+    <p>AI System Architecture</p>
+  </div>
+  <nav>
+    <a href="#q1">Q1. Five-layer architecture</a>
+    <a href="#q2">Q2. Recommendation flow</a>
+    <a href="#q3">Q3. Data drift & monitoring</a>
+    <a href="#q4">Q4. Model cards</a>
+    <a href="Session-3-AI-System-Architecture.html" style="margin-top:1rem;color:var(--accent);">📖 Session 3 Notes →</a>
+  </nav>
+</aside>
+
+<main class="main">
+  <div class="page-header">
+    <span class="badge">Session 3 — 4 Questions</span>
+    <h1>Questions & Answers</h1>
+    <p class="meta">AI System Architecture — Self-Assessment</p>
+  </div>
+
+  <div class="controls">
+    <div class="score-display">Score: <span id="score">0</span> / <span id="total">4</span></div>
+    <button class="btn" onclick="toggleAll(true)">Show All</button>
+    <button class="btn" onclick="toggleAll(false)">Hide All</button>
+  </div>
+
+  <!-- Q1 -->
+  <div class="qa-card" id="q1">
+    <div class="qa-question" onclick="toggleCard(this)">
+      <input type="checkbox" onclick="event.stopPropagation();updateScore()">
+      <span class="q-num">Q1.</span>
+      <span class="q-text">Describe the five-layer AI system architecture. What does each layer do?</span>
+      <span class="qa-toggle">▼</span>
+    </div>
+    <div class="qa-answer"><div class="qa-answer-inner">
+      <div class="table-wrap"><table>
+        <thead><tr><th>Layer</th><th>Responsibility</th><th>Key components</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Data Layer</strong></td><td>Collect, store, process, serve data. Foundation of everything.</td><td>Data ingestion, data lake/warehouse, ETL pipelines, feature store, data quality checks.</td></tr>
+          <tr><td><strong>Model Layer</strong></td><td>Train, evaluate, version, serve models.</td><td>Experiment tracking (MLflow), training pipelines, model registry, model serving (TorchServe).</td></tr>
+          <tr><td><strong>Application Layer</strong></td><td>Integrate predictions into user experience.</td><td>API gateway, business logic, A/B testing, UI, feedback collection.</td></tr>
+          <tr><td><strong>Infrastructure Layer</strong></td><td>Compute and networking resources.</td><td>GPUs/TPUs, Kubernetes, storage, CI/CD, IaC.</td></tr>
+          <tr><td><strong>Monitoring Layer</strong></td><td>Observe everything, alert when things go wrong.</td><td>Model performance tracking, data drift detection, system health (latency, errors), business metrics.</td></tr>
+        </tbody>
+      </table></div>
+      <p>These layers enable independent team work, component replacement, and per-layer scaling.</p>
+    </div></div>
+  </div>
+
+  <!-- Q2 -->
+  <div class="qa-card" id="q2">
+    <div class="qa-question" onclick="toggleCard(this)">
+      <input type="checkbox" onclick="event.stopPropagation();updateScore()">
+      <span class="q-num">Q2.</span>
+      <span class="q-text">Walk through how a recommendation request flows through the AI system architecture.</span>
+      <span class="qa-toggle">▼</span>
+    </div>
+    <div class="qa-answer"><div class="qa-answer-inner">
+      <pre><code>1. USER opens app homepage
+2. APPLICATION LAYER: API gateway receives request (user_id, context)
+3. DATA LAYER: Feature store serves user features (past purchases, browse 
+   history) and item features (category, price) — pre-computed, &lt;10ms
+4. MODEL LAYER: Model scores candidate items using features → returns top 20
+5. APPLICATION LAYER: Business logic filters (remove out-of-stock), applies 
+   diversity rules, A/B testing assigns model version → renders top 10
+6. USER sees recommendations, clicks Item #3
+7. MONITORING: Click logged, CTR tracked, recommendation distribution checked
+8. FEEDBACK LOOP: Click data flows to data lake → included in next retrain</code></pre>
+      <p>The model itself is one step. The surrounding system (feature serving, filtering, A/B testing, monitoring, feedback loop) is the majority of the work.</p>
+    </div></div>
+  </div>
+
+  <!-- Q3 -->
+  <div class="qa-card" id="q3">
+    <div class="qa-question" onclick="toggleCard(this)">
+      <input type="checkbox" onclick="event.stopPropagation();updateScore()">
+      <span class="q-num">Q3.</span>
+      <span class="q-text">What is data drift? Why is monitoring essential for AI systems?</span>
+      <span class="qa-toggle">▼</span>
+    </div>
+    <div class="qa-answer"><div class="qa-answer-inner">
+      <p><strong>Data drift</strong> occurs when the distribution of incoming production data changes compared to the training data. The model was trained on one distribution but is now seeing a different one — its predictions degrade.</p>
+      <p><strong>Types of drift:</strong></p>
+      <ul>
+        <li><strong>Data drift (covariate shift):</strong> Input feature distributions change. Example: A fraud model trained on weekday transactions starts seeing weekend patterns.</li>
+        <li><strong>Concept drift:</strong> The relationship between features and target changes. Example: What constitutes "fraud" changes as fraudsters develop new techniques.</li>
+        <li><strong>Prediction drift:</strong> Model output distribution shifts. Example: A spam filter suddenly classifies 50% of emails as spam (previously 5%).</li>
+      </ul>
+      <p><strong>Why monitoring is essential:</strong> Unlike traditional software bugs (which crash visibly), ML drift causes the model to <strong>silently serve wrong predictions</strong>. Without monitoring, you won't know until business metrics drop — which could be weeks later.</p>
+    </div></div>
+  </div>
+
+  <!-- Q4 -->
+  <div class="qa-card" id="q4">
+    <div class="qa-question" onclick="toggleCard(this)">
+      <input type="checkbox" onclick="event.stopPropagation();updateScore()">
+      <span class="q-num">Q4.</span>
+      <span class="q-text">What is a model card? Why is documentation important in the AI ecosystem?</span>
+      <span class="qa-toggle">▼</span>
+    </div>
+    <div class="qa-answer"><div class="qa-answer-inner">
+      <p>A <strong>model card</strong> is standardised documentation for an ML model, typically including:</p>
+      <ul>
+        <li><strong>Model description:</strong> What it does, architecture, size.</li>
+        <li><strong>Training data:</strong> What data was used, how it was collected.</li>
+        <li><strong>Intended uses:</strong> What the model is designed for.</li>
+        <li><strong>Limitations:</strong> What it's NOT good at, known failure modes.</li>
+        <li><strong>Performance:</strong> Benchmarks, metrics on standard datasets.</li>
+        <li><strong>Ethical considerations:</strong> Bias analysis, fairness metrics.</li>
+        <li><strong>Environmental impact:</strong> Training compute, carbon footprint.</li>
+      </ul>
+      <p><strong>Why documentation matters:</strong></p>
+      <ol>
+        <li><strong>Responsible use:</strong> Users understand what the model can and can't do.</li>
+        <li><strong>Reproducibility:</strong> Others can replicate results.</li>
+        <li><strong>Accountability:</strong> Clear record for auditing and compliance.</li>
+        <li><strong>Trust:</strong> Transparent documentation builds trust in AI systems.</li>
+      </ol>
+      <p>Hugging Face requires model cards for all models on its hub — it's becoming an industry standard.</p>
+    </div></div>
+  </div>
+
+  <p style="text-align:center;color:var(--text-muted);margin-top:3rem;font-size:.85rem"><em>End of Session 3 Questions & Answers</em></p>
+</main>
+
+<button class="back-top" id="backTop" aria-label="Back to top">↑</button>
+
+<script>
+function toggleCard(el){const card=el.closest('.qa-card');card.classList.toggle('open')}
+function toggleAll(show){document.querySelectorAll('.qa-card').forEach(c=>{show?c.classList.add('open'):c.classList.remove('open')})}
+function updateScore(){const checks=document.querySelectorAll('.qa-question input[type="checkbox"]');let s=0;checks.forEach(c=>{if(c.checked)s++});document.getElementById('score').textContent=s}
+window.addEventListener('scroll',()=>{const h=document.documentElement;const pct=h.scrollTop/(h.scrollHeight-h.clientHeight)*100;document.getElementById('progressBar').style.width=pct+'%';document.getElementById('backTop').classList.toggle('show',h.scrollTop>400)});
+document.getElementById('backTop').addEventListener('click',()=>window.scrollTo({top:0,behavior:'smooth'}));
+document.getElementById('sidebarToggle').addEventListener('click',()=>document.getElementById('sidebar').classList.toggle('open'));
+</script>
+</body>
+</html>

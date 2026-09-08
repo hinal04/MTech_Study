@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Session 2: Categories of AI Systems</title>
+<style>
+:root{--bg:#0f172a;--surface:#1e293b;--surface2:#334155;--border:#475569;--text:#e2e8f0;--text-muted:#94a3b8;--code-bg:#0d1117;--accent:#ef4444;--accent-dim:rgba(239,68,68,.15);--accent-border:rgba(239,68,68,.3);--header-gradient:linear-gradient(135deg,#7f1d1d,#dc2626,#ef4444)}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);line-height:1.7;display:flex;min-height:100vh}
+.progress-bar{position:fixed;top:0;left:0;height:4px;background:var(--accent);z-index:1000;transition:width .2s}
+.sidebar{position:fixed;top:0;left:0;width:280px;height:100vh;background:var(--surface);border-right:1px solid var(--border);overflow-y:auto;padding:1.5rem 0;z-index:100;transition:transform .3s}
+.sidebar-header{padding:0 1.5rem 1.5rem;border-bottom:1px solid var(--border);margin-bottom:1rem}
+.sidebar-header h2{font-size:1rem;color:var(--accent);margin-bottom:.25rem}
+.sidebar-header p{font-size:.75rem;color:var(--text-muted)}
+.sidebar nav a{display:block;padding:.55rem 1.5rem;color:var(--text-muted);text-decoration:none;font-size:.85rem;border-left:3px solid transparent;transition:all .2s}
+.sidebar nav a:hover,.sidebar nav a.active{color:var(--accent);background:var(--accent-dim);border-left-color:var(--accent)}
+.sidebar-toggle{display:none;position:fixed;top:1rem;left:1rem;z-index:200;background:var(--surface);border:1px solid var(--border);color:var(--text);width:40px;height:40px;border-radius:8px;cursor:pointer;font-size:1.2rem}
+.main{margin-left:280px;flex:1;max-width:900px;padding:2rem 3rem 4rem}
+.page-header{background:var(--header-gradient);border-radius:16px;padding:2.5rem;margin-bottom:2.5rem;position:relative;overflow:hidden}
+.page-header::after{content:'';position:absolute;top:0;right:0;width:200px;height:100%;background:radial-gradient(circle at 80% 50%,rgba(255,255,255,.1),transparent);pointer-events:none}
+.page-header .badge{display:inline-block;background:rgba(0,0,0,.3);color:#fff;padding:.25rem .75rem;border-radius:20px;font-size:.75rem;margin-bottom:.75rem}
+.page-header h1{font-size:2rem;color:#fff;margin-bottom:.5rem}
+.page-header .meta{color:rgba(255,255,255,.8);font-size:.85rem}
+h2{font-size:1.5rem;color:var(--accent);margin:2.5rem 0 1rem;padding-bottom:.5rem;border-bottom:2px solid var(--accent-border)}
+h3{font-size:1.15rem;color:var(--text);margin:1.8rem 0 .8rem}
+h4{font-size:1rem;color:var(--accent);margin:1.2rem 0 .6rem}
+p{margin-bottom:1rem}
+.table-wrap{overflow-x:auto;margin:1.2rem 0;border-radius:10px;border:1px solid var(--border)}
+table{width:100%;border-collapse:collapse;font-size:.88rem}
+thead th{background:var(--accent);color:#fff;padding:.75rem 1rem;text-align:left;font-weight:600;white-space:nowrap}
+tbody tr:nth-child(even){background:var(--surface)}
+tbody tr:nth-child(odd){background:var(--surface2)}
+tbody tr:hover{background:var(--accent-dim)}
+td{padding:.7rem 1rem;border-top:1px solid var(--border)}
+pre{background:var(--code-bg);border:1px solid var(--border);border-radius:10px;padding:1.2rem;overflow-x:auto;margin:1.2rem 0;font-size:.85rem;line-height:1.6}
+code{font-family:'Cascadia Code','Fira Code','Consolas',monospace;color:#e6edf3}
+p code,li code,td code{background:var(--code-bg);padding:.15rem .4rem;border-radius:4px;font-size:.85em;color:var(--accent)}
+.callout{background:var(--accent-dim);border-left:4px solid var(--accent);border-radius:0 10px 10px 0;padding:1rem 1.2rem;margin:1.2rem 0;font-size:.92rem}
+.callout p{margin:0}
+ul,ol{margin:0 0 1rem 1.5rem}
+li{margin-bottom:.4rem}
+li strong{color:var(--accent)}
+.back-top{position:fixed;bottom:2rem;right:2rem;width:44px;height:44px;background:var(--accent);color:#fff;border:none;border-radius:50%;cursor:pointer;font-size:1.3rem;display:none;align-items:center;justify-content:center;box-shadow:0 4px 15px rgba(239,68,68,.3);transition:transform .2s;z-index:100}
+.back-top:hover{transform:scale(1.1)}
+.back-top.show{display:flex}
+@media(max-width:900px){
+  .sidebar{transform:translateX(-100%)}
+  .sidebar.open{transform:translateX(0)}
+  .sidebar-toggle{display:flex;align-items:center;justify-content:center}
+  .main{margin-left:0;padding:2rem 1.2rem 4rem}
+}
+@media print{
+  .sidebar,.sidebar-toggle,.back-top,.progress-bar{display:none!important}
+  .main{margin-left:0;max-width:100%}
+  body{background:#fff;color:#000}
+  h2{color:#7f1d1d}
+  thead th{background:#ef4444;color:#fff;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  tbody tr:nth-child(even){background:#f8f8f8}
+  tbody tr:nth-child(odd){background:#fff}
+  pre{border:1px solid #ccc;background:#f5f5f5}
+  code{color:#333}
+  .callout{background:#fee2e2;border-left-color:#ef4444}
+  .page-header{background:#ef4444!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+}
+</style>
+</head>
+<body>
+
+<div class="progress-bar" id="progressBar"></div>
+<button class="sidebar-toggle" id="sidebarToggle" aria-label="Toggle sidebar">☰</button>
+
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <h2>Session 2</h2>
+    <p>Categories of AI Systems</p>
+  </div>
+  <nav>
+    <a href="#section-2-1">2.1 Predictive AI</a>
+    <a href="#section-2-2">2.2 Generative AI</a>
+    <a href="#section-2-3">2.3 Recommender Systems</a>
+    <a href="#section-2-4">2.4 Conversational AI</a>
+    <a href="#section-2-5">2.5 Computer Vision</a>
+    <a href="#section-2-6">2.6 Autonomous Systems</a>
+    <a href="Session-2-Questions-and-Answers.html" style="margin-top:1rem;color:var(--accent);">📝 Session 2 Q&A →</a>
+    <a href="Session-1-Introduction-to-AI.html">← Session 1</a>
+    <a href="Session-3-AI-System-Architecture.html">→ Session 3</a>
+  </nav>
+</aside>
+
+<main class="main">
+  <div class="page-header">
+    <span class="badge">Module 1: Foundations of AI Systems</span>
+    <h1>Session 2: Categories of AI Systems</h1>
+    <p class="meta">BITS Pilani — SS ZG662: Introduction to AI Systems — Instructor: Chandrasekhar Anantrama<br>References: T1 Chapter 1-2, T2 Chapter 1-2, Class Notes<br>Case Studies: ChatGPT, Netflix Recommendations, Autonomous Vehicles</p>
+  </div>
+
+  <!-- 2.1 -->
+  <h2 id="section-2-1">2.1 Predictive AI</h2>
+  <p><strong>Predictive AI</strong> systems analyse historical data to make predictions about future events or outcomes. They answer the question: "Given what has happened before, what is likely to happen next?"</p>
+
+  <h3>How it works</h3>
+  <p>A predictive model is trained on historical data (features + known outcomes). Once trained, it takes new data (features without the outcome) and predicts the likely outcome.</p>
+  <pre><code>Training:   Historical Data (features + labels) → Model learns patterns
+Inference:  New Data (features only) → Model predicts label</code></pre>
+
+  <h3>Types of Predictive Tasks</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Task</th><th>What it predicts</th><th>Output</th><th>Example</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Classification</strong></td><td>Which category does an input belong to?</td><td>Discrete label (spam/not-spam, cat/dog, fraud/legitimate)</td><td>Email spam detection: input = email features, output = spam or not.</td></tr>
+      <tr><td><strong>Regression</strong></td><td>What is the numerical value?</td><td>Continuous number (price, temperature, revenue)</td><td>House price prediction: input = house features, output = predicted price.</td></tr>
+      <tr><td><strong>Time-series forecasting</strong></td><td>What will happen next in a sequence?</td><td>Future values</td><td>Stock price prediction, demand forecasting, weather prediction.</td></tr>
+      <tr><td><strong>Anomaly detection</strong></td><td>Is this data point unusual?</td><td>Normal / anomalous</td><td>Credit card fraud: flag transactions that deviate from normal patterns.</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Real-World Examples</h3>
+  <ul>
+    <li><strong>Netflix:</strong> Predicts which shows you'll enjoy (classification: will user watch? + regression: predicted rating).</li>
+    <li><strong>Uber:</strong> Predicts ride demand in each area for the next 15 minutes to pre-position drivers.</li>
+    <li><strong>Healthcare:</strong> Predicts patient readmission risk within 30 days based on medical history.</li>
+  </ul>
+
+  <!-- 2.2 -->
+  <h2 id="section-2-2">2.2 Generative AI</h2>
+  <p><strong>Generative AI</strong> creates new content — text, images, music, code, video — that didn't exist before. Instead of predicting a label, it generates entirely new data that resembles the training data.</p>
+
+  <h3>How it works</h3>
+  <p>Generative models learn the underlying distribution of the training data, then sample from that distribution to create new, original content.</p>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Approach</th><th>How it generates</th><th>Example</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Large Language Models (LLMs)</strong></td><td>Predict the next token in a sequence, one at a time, producing coherent text.</td><td>GPT-4, Claude, Gemini, LLaMA.</td></tr>
+      <tr><td><strong>Diffusion Models</strong></td><td>Start with noise, iteratively denoise to produce an image.</td><td>DALL-E, Stable Diffusion, Midjourney.</td></tr>
+      <tr><td><strong>GANs (Generative Adversarial Networks)</strong></td><td>Two networks compete: Generator creates fake data, Discriminator tries to tell real from fake. They improve each other.</td><td>StyleGAN (face generation), DeepFake.</td></tr>
+      <tr><td><strong>VAEs (Variational Autoencoders)</strong></td><td>Encode data into a compressed latent space, then decode to generate new data.</td><td>Drug molecule generation, image synthesis.</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Key Concepts in Generative AI</h3>
+  <ul>
+    <li><strong>Prompt engineering:</strong> Crafting the input (prompt) to get the desired output from an LLM.</li>
+    <li><strong>Hallucinations:</strong> When a generative model produces confident but factually incorrect content. This is a fundamental challenge — the model generates plausible text, not necessarily true text.</li>
+    <li><strong>Temperature:</strong> A parameter that controls randomness in generation. Low temperature = more deterministic/safe. High temperature = more creative/risky.</li>
+    <li><strong>Fine-tuning:</strong> Adapting a pre-trained generative model to a specific domain or task using domain-specific data.</li>
+  </ul>
+
+  <h3>Case Study: ChatGPT</h3>
+  <p><strong>What it is:</strong> A conversational AI system built on GPT (Generative Pre-trained Transformer) architecture.</p>
+  <p><strong>How it works (simplified):</strong></p>
+  <ol>
+    <li><strong>Pre-training:</strong> GPT is trained on massive internet text to predict the next word. It learns grammar, facts, reasoning patterns — essentially compressing the internet's knowledge.</li>
+    <li><strong>Fine-tuning with RLHF (Reinforcement Learning from Human Feedback):</strong> Human evaluators rate model responses. A reward model is trained on these ratings. The GPT model is then fine-tuned to maximise the reward model's score — making it more helpful, harmless, and honest.</li>
+    <li><strong>Serving:</strong> User sends a prompt → the model generates a response token by token → the response is returned.</li>
+  </ol>
+  <p><strong>System components beyond the model:</strong> Content filtering, rate limiting, user session management, safety guardrails, monitoring for misuse, feedback collection, A/B testing of model versions.</p>
+
+  <!-- 2.3 -->
+  <h2 id="section-2-3">2.3 Recommender Systems</h2>
+  <p><strong>Recommender systems</strong> predict what items (products, movies, songs, articles) a user would prefer, based on their past behaviour and the behaviour of similar users.</p>
+
+  <h3>Three Main Approaches</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Approach</th><th>How it works</th><th>Pros</th><th>Cons</th><th>Example</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Collaborative filtering</strong></td><td>"Users who liked what you liked also liked X." Find similar users and recommend what they enjoyed.</td><td>No need to understand the items themselves. Discovers unexpected recommendations.</td><td>Cold-start problem (new users/items have no history). Popularity bias.</td><td>Netflix: "Because users similar to you watched..."</td></tr>
+      <tr><td><strong>Content-based filtering</strong></td><td>"You liked items with features X, Y, Z. Here are other items with similar features."</td><td>No cold-start for items (can recommend new items with known features). Transparent recommendations.</td><td>Limited diversity — recommends more of the same. Needs good feature descriptions.</td><td>Spotify: "Based on the genre and tempo of songs you listen to..."</td></tr>
+      <tr><td><strong>Hybrid</strong></td><td>Combines collaborative + content-based approaches.</td><td>Best accuracy. Overcomes individual approach weaknesses.</td><td>More complex to build and maintain.</td><td>Amazon, YouTube, Netflix all use hybrid approaches.</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Case Study: Netflix Recommendation System</h3>
+  <p>Netflix estimates that 80% of what users watch comes from recommendations, not search. Their system:</p>
+  <ol>
+    <li><strong>Data signals:</strong> Viewing history, ratings, time of day, device, browse/scroll behaviour, what was started but abandoned.</li>
+    <li><strong>Multiple models:</strong> Different models for different parts of the UI — "Top Picks," "Because You Watched," "Trending Now," homepage row ordering.</li>
+    <li><strong>Personalised thumbnails:</strong> Even the movie thumbnail image is selected by an ML model based on what visuals appeal to each user.</li>
+    <li><strong>Offline + Online:</strong> Heavy model training happens offline (batch). Real-time personalisation (reranking based on current session context) happens online.</li>
+  </ol>
+
+  <!-- 2.4 -->
+  <h2 id="section-2-4">2.4 Conversational AI</h2>
+  <p><strong>Conversational AI</strong> systems interact with users through natural language — understanding questions, maintaining context across a conversation, and generating appropriate responses.</p>
+
+  <h3>Types</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Type</th><th>Complexity</th><th>How it works</th><th>Example</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Rule-based chatbot</strong></td><td>Simple</td><td>Follows pre-defined decision trees and keyword matching.</td><td>"Press 1 for billing, 2 for support." IVR systems.</td></tr>
+      <tr><td><strong>Intent-based NLU bot</strong></td><td>Medium</td><td>Classifies user intent (e.g. "check balance," "transfer money") and extracts entities (amount, account). Routes to appropriate handler.</td><td>Bank chatbots, customer service bots (Dialogflow, Rasa).</td></tr>
+      <tr><td><strong>LLM-based assistant</strong></td><td>High</td><td>Uses a large language model to understand and generate responses. Can handle open-ended conversations.</td><td>ChatGPT, Claude, Google Bard, enterprise copilots.</td></tr>
+      <tr><td><strong>RAG-based assistant</strong></td><td>High</td><td>LLM + Retrieval: fetches relevant documents from a knowledge base, feeds them to the LLM as context for grounded answers.</td><td>Enterprise Q&A systems (answer questions from company documentation).</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Key Concept: RAG (Retrieval-Augmented Generation)</h3>
+  <p>RAG addresses the hallucination problem by giving the LLM access to a curated knowledge base:</p>
+  <pre><code>User Query → Search Knowledge Base → Retrieve relevant documents
+                                           ↓
+                           LLM generates answer GROUNDED in retrieved documents
+                                           ↓
+                                    Response to user</code></pre>
+  <p>This makes the AI's answers more factual and verifiable — it can cite its sources.</p>
+
+  <!-- 2.5 -->
+  <h2 id="section-2-5">2.5 Computer Vision</h2>
+  <p><strong>Computer vision</strong> enables machines to interpret and understand visual information from the world — images, videos, live camera feeds.</p>
+
+  <h3>Key Tasks</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Task</th><th>What it does</th><th>Example</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Image classification</strong></td><td>Assign a label to an entire image.</td><td>"This is a cat." Google Photos auto-tagging.</td></tr>
+      <tr><td><strong>Object detection</strong></td><td>Identify and locate multiple objects within an image (bounding boxes).</td><td>Self-driving cars detecting pedestrians, cars, traffic signs.</td></tr>
+      <tr><td><strong>Semantic segmentation</strong></td><td>Classify every pixel in an image.</td><td>Medical imaging: segment tumour vs healthy tissue at pixel level.</td></tr>
+      <tr><td><strong>Image generation</strong></td><td>Create new images from text descriptions or other images.</td><td>DALL-E: "A cat riding a bicycle on Mars, oil painting style."</td></tr>
+      <tr><td><strong>Facial recognition</strong></td><td>Identify or verify a person from their face.</td><td>Phone unlock (Face ID), airport security.</td></tr>
+      <tr><td><strong>OCR (Optical Character Recognition)</strong></td><td>Extract text from images.</td><td>Scanning documents, reading license plates.</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Underlying Technology: Convolutional Neural Networks (CNNs)</h3>
+  <p>CNNs are the backbone of modern computer vision. They work by applying learnable filters (convolutions) across an image to detect features at increasing levels of abstraction:</p>
+  <pre><code>Raw Pixels → Edges & Textures → Shapes & Patterns → Object Parts → Whole Objects
+  (Layer 1)      (Layer 2)         (Layer 3)          (Layer 4)      (Layer 5)</code></pre>
+
+  <!-- 2.6 -->
+  <h2 id="section-2-6">2.6 Autonomous Systems</h2>
+  <p><strong>Autonomous systems</strong> operate in the physical world with minimal or no human intervention, making real-time decisions based on sensor input.</p>
+
+  <h3>Key Characteristics</h3>
+  <ul>
+    <li><strong>Perception:</strong> Sense the environment using cameras, LiDAR, radar, GPS, IMU sensors.</li>
+    <li><strong>Decision-making:</strong> Plan actions based on perceived environment and goals.</li>
+    <li><strong>Action:</strong> Execute physical actions (steer, accelerate, brake, pick up object).</li>
+    <li><strong>Learning:</strong> Improve performance over time from experience and feedback.</li>
+  </ul>
+
+  <h3>Levels of Autonomy (SAE Levels for Vehicles)</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Level</th><th>Name</th><th>Description</th><th>Example</th></tr></thead>
+    <tbody>
+      <tr><td>0</td><td>No Automation</td><td>Human does everything.</td><td>Standard car, no assistance.</td></tr>
+      <tr><td>1</td><td>Driver Assistance</td><td>System controls ONE function (steering OR speed).</td><td>Adaptive cruise control, lane-keeping assist.</td></tr>
+      <tr><td>2</td><td>Partial Automation</td><td>System controls steering AND speed. Human must monitor.</td><td>Tesla Autopilot, GM Super Cruise.</td></tr>
+      <tr><td>3</td><td>Conditional Automation</td><td>System handles driving in specific conditions. Human takes over when requested.</td><td>Mercedes Drive Pilot (highway only).</td></tr>
+      <tr><td>4</td><td>High Automation</td><td>System handles all driving in specific areas. No human needed in those areas.</td><td>Waymo robotaxis (geofenced areas).</td></tr>
+      <tr><td>5</td><td>Full Automation</td><td>System handles all driving everywhere. No steering wheel needed.</td><td>Doesn't exist yet.</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Case Study: Autonomous Vehicles</h3>
+  <p>An autonomous vehicle is one of the most complex AI systems ever built. It combines:</p>
+  <ul>
+    <li><strong>Computer vision</strong> (cameras) — detect lanes, traffic lights, pedestrians, other vehicles.</li>
+    <li><strong>LiDAR</strong> — create 3D point cloud map of surroundings (distance to objects).</li>
+    <li><strong>Sensor fusion</strong> — combine camera, LiDAR, radar, GPS, IMU data into a unified world model.</li>
+    <li><strong>Path planning</strong> — decide where to go (route) and how to get there (trajectory).</li>
+    <li><strong>Control</strong> — execute the planned trajectory (steering, throttle, braking).</li>
+    <li><strong>Prediction</strong> — predict what other road users will do next (will that pedestrian step onto the road?).</li>
+  </ul>
+  <p>All of this must happen in <strong>real-time</strong> (&lt;100ms response), with <strong>extreme reliability</strong> (one failure = potential fatality), in <strong>unpredictable environments</strong> (weather, construction, erratic drivers).</p>
+
+  <p style="text-align:center;color:var(--text-muted);margin-top:3rem;font-size:.85rem"><em>End of Session 2</em></p>
+</main>
+
+<button class="back-top" id="backTop" aria-label="Back to top">↑</button>
+
+<script>
+window.addEventListener('scroll',()=>{
+  const h=document.documentElement;
+  const pct=h.scrollTop/(h.scrollHeight-h.clientHeight)*100;
+  document.getElementById('progressBar').style.width=pct+'%';
+  document.getElementById('backTop').classList.toggle('show',h.scrollTop>400);
+});
+document.getElementById('backTop').addEventListener('click',()=>window.scrollTo({top:0,behavior:'smooth'}));
+document.getElementById('sidebarToggle').addEventListener('click',()=>document.getElementById('sidebar').classList.toggle('open'));
+const sections=document.querySelectorAll('h2[id]');
+const navLinks=document.querySelectorAll('.sidebar nav a[href^="#"]');
+window.addEventListener('scroll',()=>{
+  let current='';
+  sections.forEach(s=>{if(window.scrollY>=s.offsetTop-100)current=s.id});
+  navLinks.forEach(a=>{a.classList.toggle('active',a.getAttribute('href')==='#'+current)});
+});
+</script>
+</body>
+</html>

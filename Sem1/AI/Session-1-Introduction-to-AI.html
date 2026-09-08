@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Session 1: Introduction to AI</title>
+<style>
+:root{--bg:#0f172a;--surface:#1e293b;--surface2:#334155;--border:#475569;--text:#e2e8f0;--text-muted:#94a3b8;--code-bg:#0d1117;--accent:#f59e0b;--accent-dim:rgba(245,158,11,.15);--accent-border:rgba(245,158,11,.3);--header-gradient:linear-gradient(135deg,#78350f,#d97706,#f59e0b)}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);line-height:1.7;display:flex;min-height:100vh}
+/* Progress Bar */
+.progress-bar{position:fixed;top:0;left:0;height:4px;background:var(--accent);z-index:1000;transition:width .2s}
+/* Sidebar */
+.sidebar{position:fixed;top:0;left:0;width:280px;height:100vh;background:var(--surface);border-right:1px solid var(--border);overflow-y:auto;padding:1.5rem 0;z-index:100;transition:transform .3s}
+.sidebar-header{padding:0 1.5rem 1.5rem;border-bottom:1px solid var(--border);margin-bottom:1rem}
+.sidebar-header h2{font-size:1rem;color:var(--accent);margin-bottom:.25rem}
+.sidebar-header p{font-size:.75rem;color:var(--text-muted)}
+.sidebar nav a{display:block;padding:.55rem 1.5rem;color:var(--text-muted);text-decoration:none;font-size:.85rem;border-left:3px solid transparent;transition:all .2s}
+.sidebar nav a:hover,.sidebar nav a.active{color:var(--accent);background:var(--accent-dim);border-left-color:var(--accent)}
+.sidebar nav a.sub{padding-left:2.5rem;font-size:.8rem}
+.sidebar-toggle{display:none;position:fixed;top:1rem;left:1rem;z-index:200;background:var(--surface);border:1px solid var(--border);color:var(--text);width:40px;height:40px;border-radius:8px;cursor:pointer;font-size:1.2rem}
+/* Main */
+.main{margin-left:280px;flex:1;max-width:900px;padding:2rem 3rem 4rem}
+/* Header */
+.page-header{background:var(--header-gradient);border-radius:16px;padding:2.5rem;margin-bottom:2.5rem;position:relative;overflow:hidden}
+.page-header::after{content:'';position:absolute;top:0;right:0;width:200px;height:100%;background:radial-gradient(circle at 80% 50%,rgba(255,255,255,.1),transparent);pointer-events:none}
+.page-header .badge{display:inline-block;background:rgba(0,0,0,.3);color:#fff;padding:.25rem .75rem;border-radius:20px;font-size:.75rem;margin-bottom:.75rem}
+.page-header h1{font-size:2rem;color:#fff;margin-bottom:.5rem}
+.page-header .meta{color:rgba(255,255,255,.8);font-size:.85rem}
+/* Sections */
+h2{font-size:1.5rem;color:var(--accent);margin:2.5rem 0 1rem;padding-bottom:.5rem;border-bottom:2px solid var(--accent-border)}
+h3{font-size:1.15rem;color:var(--text);margin:1.8rem 0 .8rem}
+h4{font-size:1rem;color:var(--accent);margin:1.2rem 0 .6rem}
+p{margin-bottom:1rem;color:var(--text)}
+strong{color:var(--text)}
+/* Tables */
+.table-wrap{overflow-x:auto;margin:1.2rem 0;border-radius:10px;border:1px solid var(--border)}
+table{width:100%;border-collapse:collapse;font-size:.88rem}
+thead th{background:var(--accent);color:#000;padding:.75rem 1rem;text-align:left;font-weight:600;white-space:nowrap}
+tbody tr:nth-child(even){background:var(--surface)}
+tbody tr:nth-child(odd){background:var(--surface2)}
+tbody tr:hover{background:var(--accent-dim)}
+td{padding:.7rem 1rem;border-top:1px solid var(--border);color:var(--text)}
+/* Code */
+pre{background:var(--code-bg);border:1px solid var(--border);border-radius:10px;padding:1.2rem;overflow-x:auto;margin:1.2rem 0;font-size:.85rem;line-height:1.6}
+code{font-family:'Cascadia Code','Fira Code','Consolas',monospace;color:#e6edf3}
+p code,li code,td code{background:var(--code-bg);padding:.15rem .4rem;border-radius:4px;font-size:.85em;color:var(--accent)}
+/* Callout */
+.callout{background:var(--accent-dim);border-left:4px solid var(--accent);border-radius:0 10px 10px 0;padding:1rem 1.2rem;margin:1.2rem 0;font-size:.92rem}
+.callout p{margin:0;color:var(--text)}
+.callout em{color:var(--text-muted)}
+/* Lists */
+ul,ol{margin:0 0 1rem 1.5rem;color:var(--text)}
+li{margin-bottom:.4rem}
+li strong{color:var(--accent)}
+/* Back to top */
+.back-top{position:fixed;bottom:2rem;right:2rem;width:44px;height:44px;background:var(--accent);color:#000;border:none;border-radius:50%;cursor:pointer;font-size:1.3rem;display:none;align-items:center;justify-content:center;box-shadow:0 4px 15px rgba(245,158,11,.3);transition:transform .2s,opacity .2s;z-index:100}
+.back-top:hover{transform:scale(1.1)}
+.back-top.show{display:flex}
+/* Responsive */
+@media(max-width:900px){
+  .sidebar{transform:translateX(-100%)}
+  .sidebar.open{transform:translateX(0)}
+  .sidebar-toggle{display:flex;align-items:center;justify-content:center}
+  .main{margin-left:0;padding:2rem 1.2rem 4rem}
+}
+/* Print */
+@media print{
+  .sidebar,.sidebar-toggle,.back-top,.progress-bar{display:none!important}
+  .main{margin-left:0;max-width:100%}
+  body{background:#fff;color:#000}
+  h2{color:#78350f}
+  thead th{background:#f59e0b;color:#000;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  tbody tr:nth-child(even){background:#f8f8f8}
+  tbody tr:nth-child(odd){background:#fff}
+  pre{border:1px solid #ccc;background:#f5f5f5}
+  code{color:#333}
+  .callout{background:#fff8e1;border-left-color:#f59e0b}
+  .page-header{background:#f59e0b!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+}
+</style>
+</head>
+<body>
+
+<div class="progress-bar" id="progressBar"></div>
+
+<button class="sidebar-toggle" id="sidebarToggle" aria-label="Toggle sidebar">☰</button>
+
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <h2>Session 1</h2>
+    <p>Introduction to AI</p>
+  </div>
+  <nav>
+    <a href="#section-1-1">1.1 What is Artificial Intelligence?</a>
+    <a href="#section-1-2">1.2 AI vs ML vs Deep Learning</a>
+    <a href="#section-1-3">1.3 The AI System Lifecycle</a>
+    <a href="#section-1-4">1.4 Components of an AI System</a>
+    <a href="#section-1-5">1.5 AI Applications Across Industries</a>
+    <a href="Session-1-Questions-and-Answers.html" style="margin-top:1rem;color:var(--accent);">📝 Session 1 Q&A →</a>
+    <a href="Session-2-Categories-of-AI-Systems.html">→ Session 2</a>
+  </nav>
+</aside>
+
+<main class="main">
+  <div class="page-header">
+    <span class="badge">Module 1: Foundations of AI Systems</span>
+    <h1>Session 1: Introduction to AI</h1>
+    <p class="meta">BITS Pilani — SS ZG662: Introduction to AI Systems — Instructor: Chandrasekhar Anantrama<br>References: T1 Chapter 1, T2 Chapter 1, Class Notes</p>
+  </div>
+
+  <!-- 1.1 -->
+  <h2 id="section-1-1">1.1 What is Artificial Intelligence?</h2>
+  <p><strong>Artificial Intelligence (AI)</strong> is the broad field of computer science focused on creating systems that can perform tasks that normally require human intelligence — understanding language, recognising images, making decisions, learning from experience, and solving complex problems.</p>
+  <p>AI is not a single technology but an <strong>umbrella term</strong> covering many techniques, from simple rule-based systems ("if temperature > 100, raise alarm") to complex deep neural networks that generate human-like text and images.</p>
+
+  <h3>A Practical Definition for This Course</h3>
+  <p>In the context of this course (AI <em>Systems</em>), we focus not on the algorithms alone but on the <strong>end-to-end systems</strong> that deliver AI capabilities to users. An AI system includes data pipelines, model training infrastructure, serving infrastructure, monitoring, and the application layer — not just the model.</p>
+  <div class="callout">
+    <p><em>"A machine learning model is only a small part of an ML system. The system also includes the data pipeline, the serving infrastructure, the monitoring, and the business logic."</em> — Chip Huyen (paraphrased)</p>
+  </div>
+
+  <!-- 1.2 -->
+  <h2 id="section-1-2">1.2 AI vs Machine Learning vs Deep Learning</h2>
+  <p>These three terms are often confused. They are <strong>nested concepts</strong> — each is a subset of the previous:</p>
+  <pre><code>┌─────────────────────────────────────────────────┐
+│            Artificial Intelligence (AI)          │
+│   Systems that mimic human intelligence          │
+│                                                   │
+│   ┌─────────────────────────────────────────┐   │
+│   │         Machine Learning (ML)            │   │
+│   │   Systems that learn from data           │   │
+│   │                                           │   │
+│   │   ┌─────────────────────────────────┐   │   │
+│   │   │       Deep Learning (DL)         │   │   │
+│   │   │   ML using deep neural networks  │   │   │
+│   │   └─────────────────────────────────┘   │   │
+│   └─────────────────────────────────────────┘   │
+└─────────────────────────────────────────────────┘</code></pre>
+
+  <h3>Detailed Comparison</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Aspect</th><th>AI</th><th>Machine Learning</th><th>Deep Learning</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Definition</strong></td><td>Any system that exhibits intelligent behaviour — reasoning, learning, perception, language.</td><td>A subset of AI where systems learn patterns from data without being explicitly programmed.</td><td>A subset of ML using multi-layered neural networks to learn hierarchical representations.</td></tr>
+      <tr><td><strong>How it works</strong></td><td>Rules, heuristics, search, logic, or learning algorithms.</td><td>Algorithms learn a function f(x) → y from training data (examples of input-output pairs).</td><td>Deep neural networks with many hidden layers automatically extract features from raw data.</td></tr>
+      <tr><td><strong>Feature engineering</strong></td><td>Manual rules or manual features.</td><td>Requires manual feature engineering (human selects what features to extract from data).</td><td><strong>Automatic feature learning</strong> — the network discovers useful features from raw data.</td></tr>
+      <tr><td><strong>Data requirements</strong></td><td>Varies — rule-based systems need little data.</td><td>Moderate — thousands to millions of labelled examples.</td><td>Large — millions to billions of data points. Benefits enormously from scale.</td></tr>
+      <tr><td><strong>Compute requirements</strong></td><td>Low to moderate.</td><td>Moderate.</td><td>High — requires GPUs/TPUs for training.</td></tr>
+      <tr><td><strong>Examples</strong></td><td>Chess engines (Minimax), expert systems, chatbots.</td><td>Spam filters, recommendation engines, fraud detection.</td><td>Image recognition (CNNs), language models (GPT, BERT), speech recognition.</td></tr>
+      <tr><td><strong>When to use</strong></td><td>When rules are known and data is scarce.</td><td>When data is available and patterns can be learned.</td><td>When data is abundant and features are complex (images, text, audio).</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Key Insight: Traditional AI vs ML</h3>
+  <p><strong>Traditional AI (rule-based):</strong> A human expert writes rules. Example: "If email contains 'lottery' AND sender not in contacts → spam." The rules are explicit and handcrafted.</p>
+  <p><strong>Machine Learning:</strong> The system learns rules from data. Example: Show 100,000 emails labelled "spam" or "not spam." The ML algorithm discovers patterns (certain words, sender patterns, link structures) that distinguish spam. No human explicitly writes the rules.</p>
+  <p><strong>Deep Learning:</strong> Same as ML but the system also learns what features to extract. Example: Show 1 million images labelled "cat" or "dog." A deep neural network learns to detect edges, then shapes, then ears/tails, then whole animals — all automatically from raw pixels. No human tells it "look for pointy ears."</p>
+
+  <!-- 1.3 -->
+  <h2 id="section-1-3">1.3 The AI System Lifecycle</h2>
+  <p>Building an AI system is not a one-time process — it's an iterative lifecycle. Understanding this lifecycle is critical because most real-world AI projects fail not due to bad models but due to poor execution of the surrounding system.</p>
+
+  <h3>The Lifecycle Stages</h3>
+  <pre><code>┌──────────┐   ┌──────────────┐   ┌──────────────┐   ┌──────────────┐
+│ 1. Define│──→│ 2. Data      │──→│ 3. Model     │──→│ 4. Deploy    │
+│ Problem  │   │ Collection & │   │ Development  │   │ & Serve      │
+│          │   │ Preparation  │   │ & Training   │   │              │
+└──────────┘   └──────────────┘   └──────────────┘   └──────┬───────┘
+      ↑                                                       │
+      │         ┌──────────────┐   ┌──────────────┐          │
+      └─────────│ 6. Iterate   │←──│ 5. Monitor   │←─────────┘
+                │ & Improve    │   │ & Evaluate   │
+                └──────────────┘   └──────────────┘</code></pre>
+
+  <div class="table-wrap"><table>
+    <thead><tr><th>Stage</th><th>What happens</th><th>Key activities</th><th>Common pitfalls</th></tr></thead>
+    <tbody>
+      <tr><td><strong>1. Problem Definition</strong></td><td>Translate a business problem into an ML problem. Define success metrics.</td><td>Identify stakeholders, define the task (classification? regression? generation?), set baselines, define what "good enough" means.</td><td>Solving the wrong problem. No clear success metric. Trying ML when a simple rule-based solution would suffice.</td></tr>
+      <tr><td><strong>2. Data Collection & Preparation</strong></td><td>Gather, clean, label, and prepare the data.</td><td>Source data, handle missing values, remove duplicates, label data (if supervised), split into train/validation/test sets.</td><td>Poor data quality, insufficient labels, biased data, data leakage (test data seen during training).</td></tr>
+      <tr><td><strong>3. Model Development & Training</strong></td><td>Select algorithms, engineer features, train models, tune hyperparameters.</td><td>Feature engineering, model selection, training, hyperparameter tuning, cross-validation.</td><td>Overfitting, underfitting, choosing overly complex models, not establishing a baseline first.</td></tr>
+      <tr><td><strong>4. Deployment & Serving</strong></td><td>Put the model into production to serve real users.</td><td>Package model, create serving API, configure infrastructure, set up load balancing.</td><td>Model works in notebook but fails in production. Latency too high. Memory/cost constraints.</td></tr>
+      <tr><td><strong>5. Monitoring & Evaluation</strong></td><td>Track model performance in production over time.</td><td>Monitor accuracy, latency, data drift, model drift, error rates, user feedback.</td><td>Assuming the model stays accurate forever. Not detecting when data distribution changes.</td></tr>
+      <tr><td><strong>6. Iteration & Improvement</strong></td><td>Improve the model based on production feedback.</td><td>Retrain with new data, fix discovered bugs, update features, handle edge cases.</td><td>Not closing the feedback loop. Not versioning data and models.</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Why the Lifecycle is Circular</h3>
+  <p>In traditional software, once you deploy, the code doesn't degrade over time (a function that adds two numbers will always add correctly). In ML systems, <strong>the world changes</strong>:</p>
+  <ul>
+    <li>User behaviour evolves (what people search for changes over seasons).</li>
+    <li>Data distribution shifts (new types of fraud appear, new diseases emerge).</li>
+    <li>Business requirements change (new product categories, new markets).</li>
+  </ul>
+  <p>This means ML systems need <strong>continuous retraining and monitoring</strong> — the lifecycle is an infinite loop, not a one-time waterfall.</p>
+
+  <!-- 1.4 -->
+  <h2 id="section-1-4">1.4 Components of an AI System</h2>
+  <p>An AI system is much more than just a model. The model is typically less than 5% of the total code and effort in a production AI system. The remaining 95% includes:</p>
+  <pre><code>┌─────────────────────────────────────────────────────────────┐
+│                    AI System Components                       │
+├────────────┬──────────────┬───────────────┬─────────────────┤
+│ Data       │ Model        │ Application   │ Infrastructure  │
+│ Pipeline   │ Pipeline     │ Layer         │ & Operations    │
+├────────────┼──────────────┼───────────────┼─────────────────┤
+│ Collection │ Feature Eng  │ User Interface│ Compute (GPU)   │
+│ Cleaning   │ Training     │ API/Serving   │ Storage         │
+│ Labelling  │ Evaluation   │ Business Logic│ Networking      │
+│ Storage    │ Selection    │ A/B Testing   │ CI/CD Pipeline  │
+│ Versioning │ Registry     │ Feedback Loop │ Monitoring      │
+│ Governance │ Fine-tuning  │ Orchestration │ Logging         │
+└────────────┴──────────────┴───────────────┴─────────────────┘</code></pre>
+
+  <div class="table-wrap"><table>
+    <thead><tr><th>Component</th><th>What it does</th><th>Why it matters</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Data Pipeline</strong></td><td>Collects, cleans, transforms, and stores data. Ensures data quality and consistency.</td><td>"Garbage in, garbage out." The model is only as good as the data it's trained on.</td></tr>
+      <tr><td><strong>Feature Pipeline</strong></td><td>Transforms raw data into features the model can consume. Manages feature store.</td><td>Feature quality directly impacts model accuracy. Feature computation must be consistent between training and serving.</td></tr>
+      <tr><td><strong>Model Pipeline</strong></td><td>Trains, evaluates, selects, and registers models. Manages model versions.</td><td>Reproducibility, experiment tracking, model comparison.</td></tr>
+      <tr><td><strong>Serving Infrastructure</strong></td><td>Hosts the model and serves predictions via APIs. Handles load balancing and scaling.</td><td>Must meet latency SLAs (e.g. &lt;100ms for real-time recommendations).</td></tr>
+      <tr><td><strong>Monitoring</strong></td><td>Tracks model performance, data drift, prediction distribution, latency, errors.</td><td>Without monitoring, you won't know when your model degrades — it silently serves wrong predictions.</td></tr>
+      <tr><td><strong>Application Layer</strong></td><td>Integrates model predictions into the user experience. Implements business logic.</td><td>The model's output must be transformed into something useful for the user (ranked recommendations, yes/no decisions, generated text).</td></tr>
+    </tbody>
+  </table></div>
+
+  <!-- 1.5 -->
+  <h2 id="section-1-5">1.5 AI Applications Across Industries</h2>
+  <p>AI is no longer confined to tech companies. It's transforming every industry:</p>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Industry</th><th>Application</th><th>How AI is used</th><th>Example</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Healthcare</strong></td><td>Medical imaging</td><td>Deep learning analyses X-rays, MRIs, CT scans to detect tumours, fractures, diseases.</td><td>Google's DeepMind detected eye diseases from retinal scans with ophthalmologist-level accuracy.</td></tr>
+      <tr><td><strong>Finance</strong></td><td>Fraud detection</td><td>ML models detect unusual transaction patterns in real-time, flagging potential fraud.</td><td>PayPal uses ML to detect fraud among 10+ million transactions daily.</td></tr>
+      <tr><td><strong>Retail / E-commerce</strong></td><td>Recommendation engines</td><td>Predict what products a user might want based on browsing/purchase history and similar users.</td><td>Amazon's "Customers who bought this also bought..." drives 35% of its revenue.</td></tr>
+      <tr><td><strong>Manufacturing</strong></td><td>Predictive maintenance</td><td>Sensor data from machines is analysed to predict failures before they occur.</td><td>Siemens uses AI to predict turbine failures 20 hours in advance.</td></tr>
+      <tr><td><strong>Transportation</strong></td><td>Autonomous vehicles</td><td>Computer vision, sensor fusion, and reinforcement learning enable self-driving.</td><td>Tesla Autopilot, Waymo robotaxis.</td></tr>
+      <tr><td><strong>Customer Service</strong></td><td>Conversational AI</td><td>Chatbots and virtual assistants handle customer queries 24/7.</td><td>Bank of America's "Erica" handles 10+ million customer interactions monthly.</td></tr>
+      <tr><td><strong>Education</strong></td><td>Adaptive learning</td><td>AI personalises curriculum difficulty based on student performance.</td><td>Khan Academy's AI tutor adapts explanations to each student's level.</td></tr>
+      <tr><td><strong>Agriculture</strong></td><td>Crop monitoring</td><td>Drones + computer vision detect crop diseases, assess yield, and optimise irrigation.</td><td>John Deere's AI-powered tractors identify and spray weeds individually.</td></tr>
+      <tr><td><strong>Legal</strong></td><td>Document analysis</td><td>NLP analyses contracts, discovers relevant case law, predicts litigation outcomes.</td><td>ROSS Intelligence analyses millions of legal documents in seconds.</td></tr>
+      <tr><td><strong>Entertainment</strong></td><td>Content generation</td><td>Generative AI creates music, art, scripts, and personalised content.</td><td>Netflix uses AI for content recommendations, thumbnail personalisation, and script analysis.</td></tr>
+    </tbody>
+  </table></div>
+
+  <p style="text-align:center;color:var(--text-muted);margin-top:3rem;font-size:.85rem"><em>End of Session 1</em></p>
+</main>
+
+<button class="back-top" id="backTop" aria-label="Back to top">↑</button>
+
+<script>
+// Progress bar
+window.addEventListener('scroll',()=>{
+  const h=document.documentElement;
+  const pct=h.scrollTop/(h.scrollHeight-h.clientHeight)*100;
+  document.getElementById('progressBar').style.width=pct+'%';
+  document.getElementById('backTop').classList.toggle('show',h.scrollTop>400);
+});
+// Back to top
+document.getElementById('backTop').addEventListener('click',()=>window.scrollTo({top:0,behavior:'smooth'}));
+// Sidebar toggle
+document.getElementById('sidebarToggle').addEventListener('click',()=>document.getElementById('sidebar').classList.toggle('open'));
+// Active nav highlight
+const sections=document.querySelectorAll('h2[id]');
+const navLinks=document.querySelectorAll('.sidebar nav a[href^="#"]');
+window.addEventListener('scroll',()=>{
+  let current='';
+  sections.forEach(s=>{if(window.scrollY>=s.offsetTop-100)current=s.id});
+  navLinks.forEach(a=>{a.classList.toggle('active',a.getAttribute('href')==='#'+current)});
+});
+</script>
+</body>
+</html>

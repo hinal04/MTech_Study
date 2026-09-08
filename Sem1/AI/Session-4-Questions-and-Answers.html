@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Session 4: Q&A — AI Ecosystem and Marketplaces</title>
+<style>
+:root{--bg:#0f172a;--surface:#1e293b;--surface2:#334155;--border:#475569;--text:#e2e8f0;--text-muted:#94a3b8;--code-bg:#0d1117;--accent:#06b6d4;--accent-dim:rgba(6,182,212,.15);--accent-border:rgba(6,182,212,.3);--header-gradient:linear-gradient(135deg,#164e63,#0891b2,#06b6d4)}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);line-height:1.7;display:flex;min-height:100vh}
+.progress-bar{position:fixed;top:0;left:0;height:4px;background:var(--accent);z-index:1000;transition:width .2s}
+.sidebar{position:fixed;top:0;left:0;width:280px;height:100vh;background:var(--surface);border-right:1px solid var(--border);overflow-y:auto;padding:1.5rem 0;z-index:100;transition:transform .3s}
+.sidebar-header{padding:0 1.5rem 1.5rem;border-bottom:1px solid var(--border);margin-bottom:1rem}
+.sidebar-header h2{font-size:1rem;color:var(--accent);margin-bottom:.25rem}
+.sidebar-header p{font-size:.75rem;color:var(--text-muted)}
+.sidebar nav a{display:block;padding:.55rem 1.5rem;color:var(--text-muted);text-decoration:none;font-size:.85rem;border-left:3px solid transparent;transition:all .2s}
+.sidebar nav a:hover,.sidebar nav a.active{color:var(--accent);background:var(--accent-dim);border-left-color:var(--accent)}
+.sidebar-toggle{display:none;position:fixed;top:1rem;left:1rem;z-index:200;background:var(--surface);border:1px solid var(--border);color:var(--text);width:40px;height:40px;border-radius:8px;cursor:pointer;font-size:1.2rem}
+.main{margin-left:280px;flex:1;max-width:900px;padding:2rem 3rem 4rem}
+.page-header{background:var(--header-gradient);border-radius:16px;padding:2.5rem;margin-bottom:2rem;position:relative;overflow:hidden}
+.page-header::after{content:'';position:absolute;top:0;right:0;width:200px;height:100%;background:radial-gradient(circle at 80% 50%,rgba(255,255,255,.1),transparent);pointer-events:none}
+.page-header .badge{display:inline-block;background:rgba(0,0,0,.3);color:#fff;padding:.25rem .75rem;border-radius:20px;font-size:.75rem;margin-bottom:.75rem}
+.page-header h1{font-size:2rem;color:#fff;margin-bottom:.5rem}
+.page-header .meta{color:rgba(255,255,255,.8);font-size:.85rem}
+.controls{display:flex;flex-wrap:wrap;gap:.75rem;align-items:center;margin-bottom:2rem;padding:1rem 1.2rem;background:var(--surface);border:1px solid var(--border);border-radius:12px}
+.score-display{font-size:.95rem;color:var(--text);margin-right:auto}
+.score-display span{color:var(--accent);font-weight:700;font-size:1.1rem}
+.btn{padding:.5rem 1rem;border:1px solid var(--accent);background:transparent;color:var(--accent);border-radius:8px;cursor:pointer;font-size:.85rem;transition:all .2s}
+.btn:hover{background:var(--accent);color:#000}
+.qa-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;margin-bottom:1.2rem;overflow:hidden;transition:border-color .3s}
+.qa-card:hover{border-color:var(--accent-border)}
+.qa-question{display:flex;align-items:flex-start;gap:.75rem;padding:1.2rem;cursor:pointer;user-select:none}
+.qa-question input[type="checkbox"]{margin-top:.35rem;width:18px;height:18px;accent-color:var(--accent);flex-shrink:0;cursor:pointer}
+.qa-question .q-text{flex:1;font-weight:600;font-size:1rem}
+.qa-question .q-num{color:var(--accent);font-weight:700;flex-shrink:0;min-width:28px}
+.qa-toggle{color:var(--accent);font-size:1.2rem;flex-shrink:0;transition:transform .3s;margin-top:.1rem}
+.qa-card.open .qa-toggle{transform:rotate(180deg)}
+.qa-answer{max-height:0;overflow:hidden;transition:max-height .4s ease}
+.qa-card.open .qa-answer{max-height:5000px}
+.qa-answer-inner{padding:0 1.2rem 1.2rem;border-top:1px solid var(--border);padding-top:1rem}
+.qa-answer-inner p{margin-bottom:.8rem}
+.table-wrap{overflow-x:auto;margin:1rem 0;border-radius:10px;border:1px solid var(--border)}
+table{width:100%;border-collapse:collapse;font-size:.85rem}
+thead th{background:var(--accent);color:#000;padding:.6rem .8rem;text-align:left;font-weight:600;white-space:nowrap}
+tbody tr:nth-child(even){background:var(--surface)}
+tbody tr:nth-child(odd){background:var(--surface2)}
+tbody tr:hover{background:var(--accent-dim)}
+td{padding:.55rem .8rem;border-top:1px solid var(--border)}
+pre{background:var(--code-bg);border:1px solid var(--border);border-radius:10px;padding:1rem;overflow-x:auto;margin:1rem 0;font-size:.83rem;line-height:1.5}
+code{font-family:'Cascadia Code','Fira Code','Consolas',monospace;color:#e6edf3}
+p code,li code,td code{background:var(--code-bg);padding:.15rem .4rem;border-radius:4px;font-size:.85em;color:var(--accent)}
+ul,ol{margin:0 0 .8rem 1.5rem}
+li{margin-bottom:.3rem}
+li strong{color:var(--accent)}
+.back-top{position:fixed;bottom:2rem;right:2rem;width:44px;height:44px;background:var(--accent);color:#000;border:none;border-radius:50%;cursor:pointer;font-size:1.3rem;display:none;align-items:center;justify-content:center;box-shadow:0 4px 15px rgba(6,182,212,.3);transition:transform .2s;z-index:100}
+.back-top:hover{transform:scale(1.1)}
+.back-top.show{display:flex}
+@media(max-width:900px){.sidebar{transform:translateX(-100%)}.sidebar.open{transform:translateX(0)}.sidebar-toggle{display:flex;align-items:center;justify-content:center}.main{margin-left:0;padding:2rem 1.2rem 4rem}}
+@media print{.sidebar,.sidebar-toggle,.back-top,.progress-bar,.controls{display:none!important}.main{margin-left:0;max-width:100%}body{background:#fff;color:#000}.qa-answer{max-height:none!important}.qa-card{border:1px solid #ccc;break-inside:avoid}thead th{background:#06b6d4;color:#000;-webkit-print-color-adjust:exact;print-color-adjust:exact}tbody tr:nth-child(even){background:#f8f8f8}tbody tr:nth-child(odd){background:#fff}pre{background:#f5f5f5;border:1px solid #ccc}code{color:#333}.page-header{background:#06b6d4!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}}
+</style>
+</head>
+<body>
+
+<div class="progress-bar" id="progressBar"></div>
+<button class="sidebar-toggle" id="sidebarToggle" aria-label="Toggle sidebar">☰</button>
+
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <h2>Session 4 Q&A</h2>
+    <p>AI Ecosystem & Marketplaces</p>
+  </div>
+  <nav>
+    <a href="#q1">Q1. Foundation models</a>
+    <a href="#q2">Q2. Open-source vs API models</a>
+    <a href="#q3">Q3. Build vs Buy framework</a>
+    <a href="#q4">Q4. Hugging Face</a>
+    <a href="Session-4-AI-Ecosystem-and-Marketplaces.html" style="margin-top:1rem;color:var(--accent);">📖 Session 4 Notes →</a>
+  </nav>
+</aside>
+
+<main class="main">
+  <div class="page-header">
+    <span class="badge">Session 4 — 4 Questions</span>
+    <h1>Questions & Answers</h1>
+    <p class="meta">AI Ecosystem and Model Marketplaces — Self-Assessment</p>
+  </div>
+
+  <div class="controls">
+    <div class="score-display">Score: <span id="score">0</span> / <span id="total">4</span></div>
+    <button class="btn" onclick="toggleAll(true)">Show All</button>
+    <button class="btn" onclick="toggleAll(false)">Hide All</button>
+  </div>
+
+  <!-- Q1 -->
+  <div class="qa-card" id="q1">
+    <div class="qa-question" onclick="toggleCard(this)">
+      <input type="checkbox" onclick="event.stopPropagation();updateScore()">
+      <span class="q-num">Q1.</span>
+      <span class="q-text">What is a foundation model? List 4 key characteristics.</span>
+      <span class="qa-toggle">▼</span>
+    </div>
+    <div class="qa-answer"><div class="qa-answer-inner">
+      <p>A <strong>foundation model</strong> is a large AI model trained on broad, diverse data at scale, designed to be adapted for many downstream tasks.</p>
+      <p><strong>4 key characteristics:</strong></p>
+      <ol>
+        <li><strong>Massive scale:</strong> Trained on billions of data points (text, images). Internet-scale data.</li>
+        <li><strong>General-purpose:</strong> Not task-specific. Can be adapted to translation, summarisation, coding, Q&A, image generation.</li>
+        <li><strong>Transfer learning:</strong> Knowledge transfers to downstream tasks even with limited task-specific data.</li>
+        <li><strong>Emergent abilities:</strong> Larger models exhibit capabilities not explicitly trained for (chain-of-thought reasoning, in-context learning).</li>
+      </ol>
+      <p><strong>Examples:</strong> GPT-4 (OpenAI), Claude (Anthropic), LLaMA 3 (Meta), Gemini (Google), Stable Diffusion (Stability AI).</p>
+    </div></div>
+  </div>
+
+  <!-- Q2 -->
+  <div class="qa-card" id="q2">
+    <div class="qa-question" onclick="toggleCard(this)">
+      <input type="checkbox" onclick="event.stopPropagation();updateScore()">
+      <span class="q-num">Q2.</span>
+      <span class="q-text">Compare open-source models vs API-based models. When would you use each?</span>
+      <span class="qa-toggle">▼</span>
+    </div>
+    <div class="qa-answer"><div class="qa-answer-inner">
+      <div class="table-wrap"><table>
+        <thead><tr><th>Aspect</th><th>Open-Source Models</th><th>API-Based Models</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Cost model</strong></td><td>Infrastructure hosting (your GPUs)</td><td>Per-request fees (pay per token)</td></tr>
+          <tr><td><strong>Data privacy</strong></td><td>Data stays on your servers</td><td>Data sent to third party</td></tr>
+          <tr><td><strong>Customisation</strong></td><td>Full — fine-tune, modify architecture</td><td>Limited — prompt engineering only</td></tr>
+          <tr><td><strong>Vendor lock-in</strong></td><td>None</td><td>High (provider can change API/pricing)</td></tr>
+          <tr><td><strong>Setup effort</strong></td><td>High (deploy, scale, manage)</td><td>Low (API call in minutes)</td></tr>
+          <tr><td><strong>Maintenance</strong></td><td>You handle updates, scaling</td><td>Provider handles everything</td></tr>
+        </tbody>
+      </table></div>
+      <p><strong>Use open-source when:</strong> Data privacy is critical (healthcare, finance), need deep customisation, high-volume usage (API costs add up), want full control.</p>
+      <p><strong>Use API when:</strong> Prototyping quickly, generic tasks (summarisation, translation), low volume, no ML infrastructure team.</p>
+    </div></div>
+  </div>
+
+  <!-- Q3 -->
+  <div class="qa-card" id="q3">
+    <div class="qa-question" onclick="toggleCard(this)">
+      <input type="checkbox" onclick="event.stopPropagation();updateScore()">
+      <span class="q-num">Q3.</span>
+      <span class="q-text">Explain the Build vs Buy decision framework for AI. Give 3 real-world examples.</span>
+      <span class="qa-toggle">▼</span>
+    </div>
+    <div class="qa-answer"><div class="qa-answer-inner">
+      <pre><code>Is the task generic? → YES → Use API (GPT-4, Claude)
+                     → NO  ↓
+Is there a close open-source model? → YES → Fine-tune it
+                                    → NO  ↓
+Is it a core business differentiator? → YES → Build from scratch
+                                      → NO  → Reconsider if you need ML</code></pre>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Scenario</th><th>Decision</th><th>Why</th></tr></thead>
+        <tbody>
+          <tr><td>Startup: customer support chatbot</td><td><strong>API (GPT-4)</strong></td><td>Fast to market, generic task, low volume.</td></tr>
+          <tr><td>Bank: fraud detection</td><td><strong>Build from scratch</strong></td><td>Proprietary data, regulatory requirements, core differentiator.</td></tr>
+          <tr><td>Hospital: radiology AI</td><td><strong>Fine-tune open-source</strong></td><td>Domain adaptation needed, patient data can't leave servers.</td></tr>
+        </tbody>
+      </table></div>
+    </div></div>
+  </div>
+
+  <!-- Q4 -->
+  <div class="qa-card" id="q4">
+    <div class="qa-question" onclick="toggleCard(this)">
+      <input type="checkbox" onclick="event.stopPropagation();updateScore()">
+      <span class="q-num">Q4.</span>
+      <span class="q-text">What is Hugging Face? Why is it called the "GitHub of ML"?</span>
+      <span class="qa-toggle">▼</span>
+    </div>
+    <div class="qa-answer"><div class="qa-answer-inner">
+      <p><strong>Hugging Face</strong> is the central hub for open-source AI — a platform for sharing, discovering, and using ML models and datasets.</p>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Feature</th><th>What it provides</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Model Hub</strong></td><td>500K+ pre-trained models with documentation (model cards).</td></tr>
+          <tr><td><strong>Datasets</strong></td><td>100K+ datasets ready to use with preview and streaming.</td></tr>
+          <tr><td><strong>Transformers library</strong></td><td>Python library to load and use any model in a few lines.</td></tr>
+          <tr><td><strong>Spaces</strong></td><td>Host interactive model demos (Gradio, Streamlit).</td></tr>
+          <tr><td><strong>Inference API</strong></td><td>Run models via API without deploying infrastructure.</td></tr>
+          <tr><td><strong>PEFT/LoRA</strong></td><td>Tools for parameter-efficient fine-tuning.</td></tr>
+        </tbody>
+      </table></div>
+      <p><strong>"GitHub of ML"</strong> because: just as GitHub hosts code, Hugging Face hosts models. You can browse, download, fork, contribute, and collaborate on ML models — with versioning, documentation, and community discussion.</p>
+    </div></div>
+  </div>
+
+  <p style="text-align:center;color:var(--text-muted);margin-top:3rem;font-size:.85rem"><em>End of Session 4 Questions & Answers</em></p>
+</main>
+
+<button class="back-top" id="backTop" aria-label="Back to top">↑</button>
+
+<script>
+function toggleCard(el){const card=el.closest('.qa-card');card.classList.toggle('open')}
+function toggleAll(show){document.querySelectorAll('.qa-card').forEach(c=>{show?c.classList.add('open'):c.classList.remove('open')})}
+function updateScore(){const checks=document.querySelectorAll('.qa-question input[type="checkbox"]');let s=0;checks.forEach(c=>{if(c.checked)s++});document.getElementById('score').textContent=s}
+window.addEventListener('scroll',()=>{const h=document.documentElement;const pct=h.scrollTop/(h.scrollHeight-h.clientHeight)*100;document.getElementById('progressBar').style.width=pct+'%';document.getElementById('backTop').classList.toggle('show',h.scrollTop>400)});
+document.getElementById('backTop').addEventListener('click',()=>window.scrollTo({top:0,behavior:'smooth'}));
+document.getElementById('sidebarToggle').addEventListener('click',()=>document.getElementById('sidebar').classList.toggle('open'));
+</script>
+</body>
+</html>
