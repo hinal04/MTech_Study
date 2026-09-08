@@ -38,6 +38,19 @@ As organisations grow, their computing needs inevitably outgrow a single databas
 | **Availability & reliability** | If one node fails, others continue serving requests. Replicated data survives hardware failures. A system with 3 replicas can tolerate 2 simultaneous node failures and still serve data. |
 | **Local autonomy** | Each site can manage its own data (local schema changes, local backups, local performance tuning) while still participating in the global system. |
 
+### Advantages of Distributed Databases
+
+*(From class slide 7 — 6 named advantages)*
+
+| Advantage | Description |
+|---|---|
+| **Improved Reliability and Availability** | Failure of one site does not necessarily make the entire database inaccessible. The system can continue operating with remaining sites. |
+| **Improved Performance** | Data can be stored close to where it is most frequently used, reducing data communication and access time. Local queries are faster. |
+| **Local Control of Data** | Individual sites can retain a degree of control over their locally stored data, including local schema management, backup policies, and tuning. |
+| **Modular Growth** | New sites and computing resources can be added as organisational requirements grow — without redesigning the entire system. Incremental expansion. |
+| **Reduced Communication Overhead** | Frequently accessed data can be processed locally instead of repeatedly accessing a remote central database. Less network traffic for common queries. |
+| **Support for Distributed Organisations** | The database structure can naturally reflect organisations operating across multiple geographical locations. The data distribution mirrors the organisational distribution. |
+
 ### Centralised vs. Distributed: A Comparison
 
 | Aspect | Centralised | Distributed |
@@ -374,6 +387,22 @@ When two nodes independently update the same data, you have a **write conflict**
 | **Last-writer-wins (LWW)** | The write with the latest timestamp wins. Earlier write is silently discarded. | Simple to implement. | **Data loss** — the earlier write is gone. Relies on synchronised clocks (problematic in distributed systems). |
 | **CRDTs (Conflict-free Replicated Data Types)** | Data structures mathematically designed so that concurrent updates can always be merged automatically without conflicts. | No data loss. Fully automatic. | Limited to specific data types (counters, sets, registers). Cannot model arbitrary business logic. |
 | **Application-level resolution** | The application defines custom merge logic (e.g. show both versions to the user, pick the one with more edits, merge fields individually). | Most flexible. Can implement any business rule. | Most complex. Application developers must handle conflicts correctly. |
+
+### 3.4.6 Comparing Replication Strategies
+
+*(From class slide 25)*
+
+| Aspect | Single-Leader | Multi-Leader | Leaderless |
+|---|---|---|---|
+| **Write endpoint** | One leader only | Multiple leaders | Any node |
+| **Write conflicts** | None | Possible | Possible |
+| **Conflict resolution** | Not needed | Required (LWW, CRDTs, app-level) | Required (read repair, quorum) |
+| **Read scaling** | Followers serve reads | Leaders + followers | All nodes |
+| **Write latency** | Low (single node) | Low (local leader per region) | Depends on W |
+| **Failover** | Complex (promote follower) | Medium (other leaders continue) | Low (no single leader) |
+| **Consistency** | Strong (sync) or Eventual (async) | Eventual | Tunable (W+R>N for strong) |
+| **Best for** | Simple apps, single-region | Multi-region, offline-capable | High availability, no SPOF |
+| **Examples** | PostgreSQL replication | CouchDB | Cassandra, DynamoDB |
 
 ---
 
