@@ -20,17 +20,90 @@
 - [2.3 Types of Virtualization](#23-types-of-virtualization)
 - [2.4 x86 Hardware Virtualization](#24-x86-hardware-virtualization)
 - [2.5 Resource Management for SaaS, PaaS, and IaaS Models](#25-resource-management-for-saas-paas-and-iaas-models)
-- [2.6 Containers and Containerization Concepts](#26-containers-and-containerization-concepts)
+- [2.6 Storage Virtualization](#26-storage-virtualization)
+- [2.7 Containers and Containerization Concepts](#27-containers-and-containerization-concepts)
 
 ---
 
 ## 2.1 Introduction to Virtualization
 
+### History of Virtual Machines
+
+The concept of virtual machines originated at **IBM in the 1960s** to provide parallel and interactive access to expensive mainframe computers. Instead of giving each user a dedicated physical machine, IBM created **virtual machines** — software copies of the physical machine — so multiple users could share one mainframe simultaneously.
+
+**Popek and Goldberg (1974)** formally defined a virtual machine as:
+
+> *"An efficient, isolated duplicate of a real machine."*
+
+This definition has three key requirements:
+1. **Efficiency** — Programs running in a VM should execute at near-native speed (no excessive overhead).
+2. **Isolation** — VMs should be completely isolated from each other. One VM cannot access another's memory or data.
+3. **Fidelity** — A VM should be indistinguishable from the real machine. Software should behave identically whether running on a VM or bare metal.
+
+Each VM is a **fully protected and isolated copy** of the physical machine. Virtualization allowed sharing expensive hardware, reducing costs and improving productivity as many users could concurrently use the same hardware.
+
 ### What is Virtualization?
 
-**Virtualization** is the creation of a software-based (virtual) representation of something physical — a server, a storage device, a network, or even an entire operating system. Instead of running one OS on one physical machine, virtualization allows multiple virtual machines (VMs) to share a single physical machine, each running its own OS and applications in isolation.
+**Virtualization** is a technique by which the physical characteristics of computing resources (hardware, storage, network) are **hidden (abstracted)** from the users, and another abstract computing platform is provided in its place. Instead of running one OS on one physical machine, virtualization allows multiple virtual machines (VMs) to share a single physical machine, each running its own OS and applications in isolation.
 
 At its core, virtualization inserts a layer of software called a **hypervisor** (or Virtual Machine Monitor — VMM) between the physical hardware and the operating systems. The hypervisor manages the physical resources (CPU, memory, disk, network) and presents each VM with the illusion that it has its own dedicated hardware.
+
+### What is a Virtual Machine?
+
+A **virtual machine (VM)** is a software implementation of a machine that executes programs like a physical machine. It gives the user an illusion that they are interacting with the physical machine itself. The end user has the same experience on a virtual machine as they would have on dedicated hardware.
+
+### Classification of Virtual Machines
+
+Virtual machines are separated into **two major classes** based on their use:
+
+| Class | What It Does | How It Works | Example |
+|---|---|---|---|
+| **System Virtual Machine** | Provides a complete system platform that supports the execution of a **complete operating system** | Emulates an existing architecture. Multiple instances lead to more efficient use of computing resources (hardware virtualization). This is the key to cloud computing. | VMware ESXi, KVM, Hyper-V — running multiple OS instances on one physical server |
+| **Process Virtual Machine** (Language VM) | Designed to run a **single program/process** | Provides user-level instruction compatibility. The software running inside is limited to the resources provided by the VM — it cannot break out. | **JVM** (Java Virtual Machine) — "write once, run anywhere." Also **.NET CLR** (Common Language Runtime) |
+
+> **Key distinction:** A system VM gives you an entire operating system. A process VM gives you a runtime environment for one application.
+
+### VM Advantages (from class slides)
+
+- Multiple OS environments can **co-exist** on the same physical hardware
+- Application **provisioning, maintenance, high availability, and disaster recovery** are built into the VM management software
+- Can provide **emulated hardware environments** different from the host's instruction set architecture (ISA) — for example, running ARM software on an x86 machine through emulation
+
+### VM Disadvantages (from class slides)
+
+- A VM is **less efficient** than a physical machine when accessing the host hard drive indirectly (extra abstraction layer)
+- When multiple VMs run concurrently, performance may be **varying and unstable** depending on the data load imposed by other VMs — the **"noisy neighbour" problem** (unless temporal isolation is enforced)
+- **Malware protection** for VMs may not be compatible with the host OS and may require separate security software for each VM
+
+### Classification of Virtualization
+
+Based on the computing resource that is virtualized, virtualization can be classified as:
+
+| Type | What is Virtualized | What It Enables | Key Concept |
+|---|---|---|---|
+| **Server Virtualization** (Hardware/Platform Virtualization) | The physical server/machine | Multiple VMs on one physical server. Enables **Infrastructure as a Service (IaaS)**. | Abstracts the physical machine — software believes it's running on real hardware |
+| **Storage Virtualization** | Physical storage devices | Multiple physical disks appear as one logical storage pool. Enables **Storage as a Service**. | Abstracts physical storage — users/applications don't know which disk their data is on |
+
+### Reasons for Server Virtualization (from class slides)
+
+1. **Server consolidation** — Many small physical servers are replaced by one larger physical server to increase utilization of costly hardware (CPU, memory)
+2. **Energy reduction** — Fewer physical servers = less electricity for computing and cooling
+3. **Easier management** — A VM can be more easily controlled, inspected, and configured from outside than a physical machine
+4. **Rapid provisioning** — A new VM can be provisioned in seconds without an upfront hardware purchase
+5. **Easy relocation** — A VM can easily be relocated (migrated) from one physical machine to another as needed
+
+### Server Virtualization Classification
+
+Server virtualization itself is further classified into:
+
+| Type | Where VMM Runs | User Sees | Example |
+|---|---|---|---|
+| **System Virtualization** | VMM sits **between the OS and hardware** | Full operating system in each VM | VMware ESXi, KVM, Hyper-V |
+| **Process Virtualization** | VMM runs **above the operating system** | User-level instruction compatibility for a single program | JVM (Java), .NET CLR |
+
+In **process virtualization**, the VM management software runs above the operating system and provides user-level instruction compatibility. Example: JVM — Java code compiles to bytecode that runs on the JVM regardless of the underlying OS (Windows, Linux, macOS).
+
+In **system virtualization**, the virtualization software is present between the operating system and the physical hardware. Example: VMware ESXi — multiple complete operating systems (Windows, Linux) run simultaneously on one physical server.
 
 ### Why Virtualization Matters for Cloud Computing
 
@@ -52,31 +125,36 @@ Specifically, virtualization enables:
 
 The hypervisor is the software layer that creates and manages virtual machines. It sits between the physical hardware and the guest operating systems, mediating all access to hardware resources.
 
-**Two types of hypervisors:**
+In server virtualization, the host OS is not very important — it's mainly confined to booting up and running the VMs. Since a regular OS is not ideal for running multiple VMs, a new breed of software called the **Hypervisor** takes over the OS role. A hypervisor is an efficient VMM designed from the ground up to run multiple high-performance VMs.
 
-| Type | Where it runs | How it works | Examples |
+> **Key insight:** A Hypervisor is to VMs what an OS is to processes.
+
+**Three types of hypervisors (from class slides):**
+
+| Type | Where it Runs | How it Works | Examples |
 |---|---|---|---|
-| **Type 1 (Bare-metal)** | Directly on the physical hardware, replacing the host OS. | The hypervisor IS the operating system. It has direct access to hardware, providing the best performance and lowest overhead. | VMware ESXi, Microsoft Hyper-V, Xen, KVM (Linux) |
-| **Type 2 (Hosted)** | On top of an existing host operating system, as an application. | The hypervisor runs as a user-level application on a conventional OS. The host OS mediates hardware access, adding overhead. | VMware Workstation, Oracle VirtualBox, Parallels Desktop |
+| **Native (Bare-metal / Type 1)** | Directly on physical hardware, **replacing** the host OS | The hypervisor IS the OS. Has direct access to hardware. Best performance and lowest overhead. | VMware ESXi, Microsoft Hyper-V (standalone), Xen, KVM (Linux) |
+| **Hosted (Type 2)** | On top of an existing host OS, as an **application** | Runs as a user-level app. The host OS mediates hardware access, adding overhead. | VMware Workstation, Oracle VirtualBox, Parallels Desktop (macOS) |
+| **Hybrid** | Directly on hardware but **uses features of the host OS** | Runs on bare metal like Type 1, but leverages an existing OS for device drivers and hardware support. Combines benefits of both. | KVM (technically — it's a Linux kernel module that turns the Linux kernel into a Type 1 hypervisor), bhyve (FreeBSD) |
 
 ```
-Type 1 (Bare-metal):                Type 2 (Hosted):
+Native (Type 1):              Hosted (Type 2):              Hybrid:
 
-┌───────┐ ┌───────┐ ┌───────┐      ┌───────┐ ┌───────┐
-│ VM 1  │ │ VM 2  │ │ VM 3  │      │ VM 1  │ │ VM 2  │
-│(Guest │ │(Guest │ │(Guest │      │(Guest │ │(Guest │
-│  OS)  │ │  OS)  │ │  OS)  │      │  OS)  │ │  OS)  │
-├───────┴─┴───────┴─┴───────┤      ├───────┴─┴───────┤
-│       Hypervisor           │      │    Hypervisor     │
-├────────────────────────────┤      ├───────────────────┤
-│    Physical Hardware       │      │   Host OS (Linux, │
-└────────────────────────────┘      │   Windows, macOS) │
-                                    ├───────────────────┤
-                                    │ Physical Hardware  │
-                                    └───────────────────┘
+┌───────┐ ┌───────┐          ┌───────┐ ┌───────┐          ┌───────┐ ┌───────┐
+│ VM 1  │ │ VM 2  │          │ VM 1  │ │ VM 2  │          │ VM 1  │ │ VM 2  │
+│(Guest │ │(Guest │          │(Guest │ │(Guest │          │(Guest │ │(Guest │
+│  OS)  │ │  OS)  │          │  OS)  │ │  OS)  │          │  OS)  │ │  OS)  │
+├───────┴─┴───────┤          ├───────┴─┴───────┤          ├───────┴─┴───────┤
+│   Hypervisor    │          │   Hypervisor     │          │   Hypervisor    │
+│   (bare-metal)  │          │   (application)  │          │ (uses OS parts) │
+├─────────────────┤          ├──────────────────┤          ├─────────────────┤
+│Physical Hardware│          │   Host OS        │          │ Host OS + HW    │
+└─────────────────┘          ├──────────────────┤          └─────────────────┘
+                             │Physical Hardware │
+                             └──────────────────┘
 ```
 
-**In cloud computing, Type 1 hypervisors are used exclusively** because they provide better performance, security, and resource efficiency. Type 2 hypervisors are used primarily for development and testing on personal machines.
+**In cloud computing, Type 1 (Native) hypervisors are used exclusively** because they provide better performance, security, and resource efficiency. Type 2 (Hosted) hypervisors are used primarily for development and testing on personal machines.
 
 ---
 
@@ -260,7 +338,122 @@ In SaaS, the provider manages everything. Resource management is completely invi
 
 ---
 
-## 2.6 Containers and Containerization Concepts
+## 2.6 Storage Virtualization
+
+Storage virtualization uses virtualization techniques to enable better functionality and advanced features in computer data storage systems. It abstracts the physical storage system from users and applications, presenting storage as **logical entities** while hiding the complexities of accessing them.
+
+> **Simple definition:** Storage virtualization makes multiple physical storage devices (hard drives, SSDs, SANs) appear as a **single, unified storage pool** to users and applications. Users don't know (or care) which physical disk their data is actually stored on.
+
+### Why Storage Virtualization?
+
+Without storage virtualization, each server connects to specific physical disks. This leads to:
+- Some disks are 90% full while others are 20% used
+- Adding storage requires downtime
+- Migrating data between disks is disruptive
+- Managing hundreds of individual disks is a nightmare
+
+With storage virtualization, all disks are pooled together and managed as one logical unit.
+
+### Advantages of Storage Virtualization (from class slides)
+
+| Advantage | Explanation |
+|---|---|
+| **Non-disruptive data migration** | Data can be moved between physical storage devices **while applications continue to read and write**. The host only knows the logical disk (mapped LUN), so any changes to the physical mapping are transparent. |
+| **Improved utilization** | Pooling, migration, and **thin provisioning** allow better use of storage. Users avoid over-buying and over-provisioning. Multiple physical disks used as one pool = less waste. |
+| **Fewer points of management** | Multiple independent storage devices, even scattered across a network, appear as a **single monolithic storage device** and can be managed centrally from one console. |
+| **Thin provisioning** | Allocate virtual storage to a server that's larger than the physical storage available. Physical storage is consumed only when data is actually written. Example: Give a VM 1TB virtual disk but only 100GB is physically used. |
+
+### Implementation Approaches
+
+Storage virtualization can be implemented at three levels:
+
+#### 1. Host-Based Storage Virtualization
+
+The virtualization software runs **on the host server** itself, as a privileged task or process.
+
+**How it works:** A software layer called the **volume manager** sits above the physical disk device driver and intercepts I/O requests, performing metadata lookup and I/O mapping. The host OS's Logical Volume Manager (LVM) is a common example.
+
+```
+┌─────────────────────────┐
+│    Application           │
+├─────────────────────────┤
+│    File System           │
+├─────────────────────────┤
+│    Volume Manager        │  ← Virtualization layer
+│    (LVM, ZFS, LDM)      │
+├─────────────────────────┤
+│    Physical Disk Driver  │
+├─────────────────────────┤
+│    Physical Disks        │
+└─────────────────────────┘
+```
+
+**Examples:** Linux LVM (Logical Volume Manager), Solaris/FreeBSD ZFS zpool, Windows LDM (Logical Disk Manager)
+
+| Pros | Cons |
+|---|---|
+| Simple to design and code | Storage utilization optimized only on a per-host basis |
+| Supports any storage type | Replication and data migration only possible locally to that host |
+| Improves storage utilization | Software is unique to each operating system |
+| | No easy way to keep host instances in sync |
+
+#### 2. Storage Device-Based Virtualization
+
+The virtualization is performed by the **storage array controller** itself.
+
+**How it works:** Advanced disk arrays use RAID schemes to join multiple physical disks into a single array, and may later divide the array into smaller volumes. A primary storage controller provides pooling and metadata management services and allows attachment of other storage controllers.
+
+| Pros | Cons |
+|---|---|
+| No additional hardware or infrastructure needed | Utilization optimized only across connected controllers |
+| Provides most benefits of storage virtualization | Replication limited to connected controllers and same vendor |
+| Does not add latency to individual I/Os | Downstream controller support limited to vendor's matrix |
+
+#### 3. Network-Based Storage Virtualization
+
+The virtualization operates on a **network-based device** (server or smart switch) using iSCSI or Fibre Channel (FC) networks to connect as a SAN (Storage Area Network). This is the **most commonly implemented** form of storage virtualization.
+
+**How it works:** The virtualization device sits in the SAN between the hosts and the storage controllers, providing the layer of abstraction.
+
+| Pros | Cons |
+|---|---|
+| **True heterogeneous** storage virtualization (any vendor) | Complex interoperability matrices |
+| Caching of data possible (performance benefit) when in-band | Difficult to implement fast metadata updates in switched devices |
+| Single management interface for all virtualized storage | In-band may add latency to I/O |
+| Replication across heterogeneous devices | Most complicated to design and code |
+
+#### Network-Based: Appliance-Based vs Switch-Based
+
+| Type | What It Is | How It Works |
+|---|---|---|
+| **Appliance-based** | Dedicated hardware devices providing SAN connectivity | Sits between hosts and storage (in-band). I/O requests are targeted at the appliance, which performs metadata mapping before redirecting I/O to underlying storage. Can cache data and cluster for high availability. |
+| **Switch-based** | Resides in the physical SAN switch hardware | Uses techniques like packet cracking to snoop on I/O requests and perform redirection. More difficult to ensure atomic metadata updates. |
+
+Both models provide: disk management, metadata lookup, data migration, and replication.
+
+### In-Band vs Out-of-Band Virtualization (from class slides)
+
+| Aspect | In-Band (Symmetric) | Out-of-Band (Asymmetric) |
+|---|---|---|
+| **Data path** | Virtualization device sits **in** the data path. All I/O passes through it. | Virtualization device is a **metadata server** only. Data does NOT pass through it. |
+| **How it works** | Hosts perform I/O to the virtualization device. The device performs I/O to the actual storage on behalf of the host. | Host intercepts its own I/O request → asks metadata server for physical location → then sends I/O directly to storage. |
+| **Caching** | Yes — data passes through the device, so caching is possible | No — data never passes through the device |
+| **Performance** | May add latency (extra hop in data path) | Lower latency for data (direct host-to-storage) but metadata lookup adds overhead |
+| **Additional software** | No additional host software needed | Requires additional software on the host to intercept I/O and query metadata server |
+| **Best for** | Environments needing caching, replication, migration | Environments where latency is critical and caching isn't needed |
+
+```
+In-Band:                           Out-of-Band:
+
+Host → Virtualization → Storage    Host → Metadata Server (location query)
+       Device                            ↓
+   (All data flows through)        Host → Storage (direct I/O)
+                                   (Only metadata goes through server)
+```
+
+---
+
+## 2.7 Containers and Containerization Concepts
 
 ### What is a Container?
 
