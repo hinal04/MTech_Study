@@ -1,0 +1,896 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Session 6: Data Engineering Pipelines</title>
+<style>
+:root{--bg:#0f172a;--surface:#1e293b;--surface2:#334155;--border:#475569;--text:#e2e8f0;--text-muted:#94a3b8;--code-bg:#0d1117;--accent:#06b6d4;--accent-dim:rgba(6,182,212,.15);--accent-border:rgba(6,182,212,.3);--header-gradient:linear-gradient(135deg,#164e63,#0891b2,#06b6d4)}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);line-height:1.7;display:flex;min-height:100vh}
+.progress-bar{position:fixed;top:0;left:0;height:4px;background:var(--accent);z-index:1000;transition:width .2s}
+.sidebar{position:fixed;top:0;left:0;width:280px;height:100vh;background:var(--surface);border-right:1px solid var(--border);overflow-y:auto;padding:1.5rem 0;z-index:100;transition:transform .3s}
+.sidebar-header{padding:0 1.5rem 1.5rem;border-bottom:1px solid var(--border);margin-bottom:1rem}
+.sidebar-header h2{font-size:1rem;color:var(--accent);margin-bottom:.25rem}
+.sidebar-header p{font-size:.75rem;color:var(--text-muted)}
+.sidebar nav a{display:block;padding:.55rem 1.5rem;color:var(--text-muted);text-decoration:none;font-size:.85rem;border-left:3px solid transparent;transition:all .2s}
+.sidebar nav a:hover,.sidebar nav a.active{color:var(--accent);background:var(--accent-dim);border-left-color:var(--accent)}
+.sidebar nav a.sub{padding-left:2.5rem;font-size:.8rem}
+.sidebar-toggle{display:none;position:fixed;top:1rem;left:1rem;z-index:200;background:var(--surface);border:1px solid var(--border);color:var(--text);width:40px;height:40px;border-radius:8px;cursor:pointer;font-size:1.2rem}
+.main{margin-left:280px;flex:1;max-width:900px;padding:2rem 3rem 4rem}
+.page-header{background:var(--header-gradient);border-radius:16px;padding:2.5rem;margin-bottom:2.5rem;position:relative;overflow:hidden}
+.page-header::after{content:'';position:absolute;top:0;right:0;width:200px;height:100%;background:radial-gradient(circle at 80% 50%,rgba(255,255,255,.1),transparent);pointer-events:none}
+.page-header .badge{display:inline-block;background:rgba(0,0,0,.3);color:#fff;padding:.25rem .75rem;border-radius:20px;font-size:.75rem;margin-bottom:.75rem}
+.page-header h1{font-size:2rem;color:#fff;margin-bottom:.5rem}
+.page-header .meta{color:rgba(255,255,255,.8);font-size:.85rem}
+h2{font-size:1.5rem;color:var(--accent);margin:2.5rem 0 1rem;padding-bottom:.5rem;border-bottom:2px solid var(--accent-border)}
+h3{font-size:1.15rem;color:var(--text);margin:1.8rem 0 .8rem}
+h4{font-size:1rem;color:var(--accent);margin:1.2rem 0 .6rem}
+p{margin-bottom:1rem;color:var(--text)}
+strong{color:var(--text)}
+.table-wrap{overflow-x:auto;margin:1.2rem 0;border-radius:10px;border:1px solid var(--border)}
+table{width:100%;border-collapse:collapse;font-size:.88rem}
+thead th{background:var(--accent);color:#000;padding:.75rem 1rem;text-align:left;font-weight:600;white-space:nowrap}
+tbody tr:nth-child(even){background:var(--surface)}
+tbody tr:nth-child(odd){background:var(--surface2)}
+tbody tr:hover{background:var(--accent-dim)}
+td{padding:.7rem 1rem;border-top:1px solid var(--border);color:var(--text)}
+pre{background:var(--code-bg);border:1px solid var(--border);border-radius:10px;padding:1.2rem;overflow-x:auto;margin:1.2rem 0;font-size:.85rem;line-height:1.6}
+code{font-family:'Cascadia Code','Fira Code','Consolas',monospace;color:#e6edf3}
+p code,li code,td code{background:var(--code-bg);padding:.15rem .4rem;border-radius:4px;font-size:.85em;color:var(--accent)}
+.callout{background:var(--accent-dim);border-left:4px solid var(--accent);border-radius:0 10px 10px 0;padding:1rem 1.2rem;margin:1.2rem 0;font-size:.92rem}
+.callout p{margin:0;color:var(--text)}
+.callout em{color:var(--text-muted)}
+ul,ol{margin:0 0 1rem 1.5rem;color:var(--text)}
+li{margin-bottom:.4rem}
+li strong{color:var(--accent)}
+.back-top{position:fixed;bottom:2rem;right:2rem;width:44px;height:44px;background:var(--accent);color:#000;border:none;border-radius:50%;cursor:pointer;font-size:1.3rem;display:none;align-items:center;justify-content:center;box-shadow:0 4px 15px rgba(6,182,212,.3);transition:transform .2s,opacity .2s;z-index:100}
+.back-top:hover{transform:scale(1.1)}
+.back-top.show{display:flex}
+@media(max-width:900px){
+  .sidebar{transform:translateX(-100%)}
+  .sidebar.open{transform:translateX(0)}
+  .sidebar-toggle{display:flex;align-items:center;justify-content:center}
+  .main{margin-left:0;padding:2rem 1.2rem 4rem}
+}
+@media print{
+  .sidebar,.sidebar-toggle,.back-top,.progress-bar{display:none!important}
+  .main{margin-left:0;max-width:100%}
+  body{background:#fff;color:#000}
+  h2{color:#164e63}
+  thead th{background:#06b6d4;color:#000;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  tbody tr:nth-child(even){background:#f8f8f8}
+  tbody tr:nth-child(odd){background:#fff}
+  pre{border:1px solid #ccc;background:#f5f5f5}
+  code{color:#333}
+  .callout{background:#e0f7fa;border-left-color:#06b6d4}
+  .page-header{background:#06b6d4!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+}
+</style>
+</head>
+<body>
+<div class="progress-bar" id="progress"></div>
+<button class="sidebar-toggle" id="sidebarToggle">&#9776;</button>
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <h2>SS ZG662</h2>
+    <p>Introduction to AI Systems</p>
+  </div>
+  <nav>
+    <a href="#table-of-contents">Table of Contents</a>
+    <a href="#6-1-what-is-a-data-pipeline">6.1 What is a Data Pipeline?</a>
+    <a href="#simple-definition" class="sub">Simple Definition</a>
+    <a href="#why-do-ai-systems-need-data-pipelines" class="sub">Why Do AI Systems Need Data Pipelines?</a>
+    <a href="#basic-pipeline-structure" class="sub">Basic Pipeline Structure</a>
+    <a href="#live-example-swiggy-s-data-pipeline" class="sub">Live Example: Swiggy's Data Pipeline</a>
+    <a href="#6-2-etl-vs-elt">6.2 ETL vs ELT</a>
+    <a href="#etl-extract-transform-load" class="sub">ETL — Extract, Transform, Load</a>
+    <a href="#elt-extract-load-transform" class="sub">ELT — Extract, Load, Transform</a>
+    <a href="#etl-vs-elt-side-by-side-comparison" class="sub">ETL vs ELT — Side-by-Side Comparison</a>
+    <a href="#live-example-etl-vs-elt-at-phonepe" class="sub">Live Example: ETL vs ELT at PhonePe</a>
+    <a href="#6-3-batch-vs-streaming-pipelines">6.3 Batch vs Streaming Pipelines</a>
+    <a href="#batch-processing-process-data-in-large-chunks-at-scheduled-times" class="sub">Batch Processing — "Process data in large chunks a...</a>
+    <a href="#streaming-processing-process-data-as-it-arrives-in-real-time" class="sub">Streaming Processing — "Process data as it arrives...</a>
+    <a href="#batch-vs-streaming-comparison" class="sub">Batch vs Streaming — Comparison</a>
+    <a href="#live-examples" class="sub">Live Examples</a>
+    <a href="#lambda-architecture-use-both" class="sub">Lambda Architecture — "Use Both"</a>
+    <a href="#6-4-data-lakes-and-data-warehouses">6.4 Data Lakes and Data Warehouses</a>
+    <a href="#data-warehouse-a-clean-organised-library" class="sub">Data Warehouse — "A clean, organised library"</a>
+    <a href="#data-lake-a-huge-storage-dump-for-everything" class="sub">Data Lake — "A huge storage dump for everything"</a>
+    <a href="#data-lakehouse-best-of-both-worlds-modern-approach" class="sub">Data Lakehouse — "Best of both worlds" (Modern App...</a>
+    <a href="#comparison-table" class="sub">Comparison Table</a>
+    <a href="#live-examples_1" class="sub">Live Examples</a>
+    <a href="#what-is-a-data-swamp" class="sub">What is a "Data Swamp"?</a>
+    <a href="#6-5-enterprise-data-pipeline-case-study">6.5 Enterprise Data Pipeline — Case Study</a>
+    <a href="#case-study-building-a-real-time-recommendation-pipeline-for-myntra" class="sub">Case Study: Building a Real-Time Recommendation Pi...</a>
+    <a href="#requirements" class="sub">Requirements</a>
+    <a href="#architecture" class="sub">Architecture</a>
+    <a href="#pipeline-tools-used" class="sub">Pipeline Tools Used</a>
+    <a href="#key-takeaways-from-this-case-study" class="sub">Key Takeaways from This Case Study</a>
+    <a href="#key-terms-glossary-session-6">Key Terms Glossary (Session 6)</a>
+  </nav>
+</aside>
+<main class="main">
+  <div class="page-header">
+    <span class="badge">Session 6</span>
+    <h1>Session 6: Data Engineering Pipelines</h1>
+    <div class="meta">Contact Session 6 | Module 2: Data and Feature Engineering</div>
+  </div>
+<h1 id="session-6-data-engineering-pipelines">Session 6: Data Engineering Pipelines</h1>
+<div class="callout">
+<p>BITS Pilani — <strong>SS ZG662: Introduction to AI Systems</strong> — Instructor: Chandrasekhar Anantrama</p>
+<p><strong>References:</strong> T1 Chapter 3, Class Notes</p>
+<p><strong>Contact Session:</strong> 6 (Module 2: Data and Feature Engineering)</p>
+</div>
+<hr />
+<h2 id="table-of-contents">Table of Contents</h2>
+<ul>
+<li><a href="#61-what-is-a-data-pipeline">6.1 What is a Data Pipeline?</a></li>
+<li><a href="#62-etl-vs-elt">6.2 ETL vs ELT</a></li>
+<li><a href="#63-batch-vs-streaming-pipelines">6.3 Batch vs Streaming Pipelines</a></li>
+<li><a href="#64-data-lakes-and-data-warehouses">6.4 Data Lakes and Data Warehouses</a></li>
+<li><a href="#65-enterprise-data-pipeline--case-study">6.5 Enterprise Data Pipeline — Case Study</a></li>
+</ul>
+<hr />
+<h2 id="6-1-what-is-a-data-pipeline">6.1 What is a Data Pipeline?</h2>
+<h3 id="simple-definition">Simple Definition</h3>
+<p>A <strong>data pipeline</strong> is a series of steps that moves data from where it is created (sources) to where it is needed (destinations), transforming it along the way.</p>
+<div class="callout">
+<p><strong>Analogy:</strong> Think of a water supply system. Water comes from rivers and lakes (sources), goes through treatment plants (cleaning/transformation), flows through pipes (transport), and arrives at your tap (destination) clean and ready to use. A data pipeline does the same thing, but with data instead of water.</p>
+</div>
+<h3 id="why-do-ai-systems-need-data-pipelines">Why Do AI Systems Need Data Pipelines?</h3>
+<p>AI models can't just eat raw data. The data needs to be:
+1. <strong>Collected</strong> from multiple sources (databases, APIs, logs, files)
+2. <strong>Cleaned</strong> (remove errors, fill missing values, fix formats)
+3. <strong>Transformed</strong> (combine tables, compute aggregations, create features)
+4. <strong>Loaded</strong> into the right storage for the model to consume</p>
+<p>Without pipelines, data scientists spend all their time manually downloading CSVs, cleaning them in Excel, and copying them around. Pipelines <strong>automate</strong> this entire process.</p>
+<h3 id="basic-pipeline-structure">Basic Pipeline Structure</h3>
+<pre><code>┌──────────────┐    ┌──────────────┐    ┌──────────────┐    ┌──────────────┐
+│   SOURCES    │───→│   EXTRACT    │───→│  TRANSFORM   │───→│    LOAD      │
+│              │    │              │    │              │    │              │
+│ • Databases  │    │ Pull data    │    │ Clean, join, │    │ Store in     │
+│ • APIs       │    │ from all     │    │ aggregate,   │    │ warehouse,   │
+│ • Log files  │    │ sources      │    │ compute      │    │ data lake,   │
+│ • Streams    │    │              │    │ features     │    │ feature store│
+│ • CSV files  │    │              │    │              │    │              │
+└──────────────┘    └──────────────┘    └──────────────┘    └──────────────┘
+</code></pre>
+<h3 id="live-example-swiggy-s-data-pipeline">Live Example: Swiggy's Data Pipeline</h3>
+<p>Every time you place an order on Swiggy, data flows through their pipeline:</p>
+<pre><code>SOURCES:
+├── User app → order details, location, payment
+├── Restaurant app → prep time, menu, availability  
+├── Driver app → GPS location, speed, route
+├── Google Maps API → traffic conditions, distance
+├── Weather API → current weather (rain = longer delivery)
+└── Payment gateway → transaction status
+
+EXTRACT:
+├── Apache Kafka collects events in real-time
+└── Millions of events per second
+
+TRANSFORM:
+├── Join order data with restaurant data
+├── Calculate distance between restaurant and user
+├── Compute average prep time for this restaurant (last 100 orders)
+├── Flag if it's raining (affects delivery time)
+└── Create feature: &quot;driver_availability_radius_3km = 8 drivers&quot;
+
+LOAD:
+├── Real-time features → Feature Store (for ETA prediction)
+├── Raw events → Data Lake (for batch analytics)
+└── Aggregated data → Data Warehouse (for business dashboards)
+</code></pre>
+<hr />
+<h2 id="6-2-etl-vs-elt">6.2 ETL vs ELT</h2>
+<h3 id="etl-extract-transform-load">ETL — Extract, Transform, Load</h3>
+<p><strong>ETL</strong> is the traditional approach: data is <strong>transformed before</strong> it's loaded into the destination.</p>
+<pre><code>Source → Extract → Transform (clean, filter, aggregate) → Load into warehouse
+</code></pre>
+<div class="callout">
+<p><strong>Analogy:</strong> You go grocery shopping (extract), wash and cut vegetables at home (transform), then store them in the fridge (load). The prep work happens before storage.</p>
+</div>
+<p><strong>How ETL works:</strong>
+1. <strong>Extract:</strong> Pull data from source systems (databases, APIs, files)
+2. <strong>Transform:</strong> Clean the data, fix formats, join tables, compute aggregates — all done in a separate processing system (like Apache Spark)
+3. <strong>Load:</strong> Put the cleaned, transformed data into the data warehouse</p>
+<p><strong>When to use ETL:</strong>
+- Data warehouse has limited storage or compute (expensive per TB)
+- You only want clean, structured data in the warehouse
+- Data volumes are moderate
+- Traditional industries (banking, insurance) with well-defined schemas</p>
+<h3 id="elt-extract-load-transform">ELT — Extract, Load, Transform</h3>
+<p><strong>ELT</strong> is the modern approach: data is loaded <strong>raw</strong> first, then transformed inside the destination.</p>
+<pre><code>Source → Extract → Load (raw data into data lake) → Transform (inside the lake/warehouse)
+</code></pre>
+<div class="callout">
+<p><strong>Analogy:</strong> You buy groceries (extract), dump everything in the fridge raw (load), then wash and cut vegetables only when you're ready to cook (transform). Less upfront work, but you need a big fridge.</p>
+</div>
+<p><strong>How ELT works:</strong>
+1. <strong>Extract:</strong> Pull data from source systems
+2. <strong>Load:</strong> Dump raw data as-is into a data lake (cheap storage like S3)
+3. <strong>Transform:</strong> Transform data inside the data lake/warehouse using tools like dbt or Spark — only when needed</p>
+<p><strong>When to use ELT:</strong>
+- Cloud data warehouses with cheap storage and powerful compute (Snowflake, BigQuery)
+- You want to keep raw data for future use (you might need it later for new ML features)
+- Data volumes are very large
+- Modern tech companies, startups</p>
+<h3 id="etl-vs-elt-side-by-side-comparison">ETL vs ELT — Side-by-Side Comparison</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Aspect</th>
+<th>ETL</th>
+<th>ELT</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Order</strong></td>
+<td>Extract → Transform → Load</td>
+<td>Extract → Load → Transform</td>
+</tr>
+<tr>
+<td><strong>Where transformation happens</strong></td>
+<td>Separate processing server</td>
+<td>Inside the data warehouse/lake</td>
+</tr>
+<tr>
+<td><strong>Raw data kept?</strong></td>
+<td>No (only transformed data is stored)</td>
+<td>Yes (raw data is stored first)</td>
+</tr>
+<tr>
+<td><strong>Storage cost</strong></td>
+<td>Lower (only clean data stored)</td>
+<td>Higher (raw + transformed data stored)</td>
+</tr>
+<tr>
+<td><strong>Flexibility</strong></td>
+<td>Low (if you need new transforms, re-extract from source)</td>
+<td>High (raw data is always available, transform anytime)</td>
+</tr>
+<tr>
+<td><strong>Speed of loading</strong></td>
+<td>Slower (transform before load)</td>
+<td>Faster (load immediately, transform later)</td>
+</tr>
+<tr>
+<td><strong>Best for</strong></td>
+<td>On-premise warehouses, structured data, regulated industries</td>
+<td>Cloud warehouses, big data, AI/ML workloads</td>
+</tr>
+<tr>
+<td><strong>Tools</strong></td>
+<td>Informatica, Talend, SSIS</td>
+<td>dbt, Fivetran + Snowflake, Airbyte + BigQuery</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="live-example-etl-vs-elt-at-phonepe">Live Example: ETL vs ELT at PhonePe</h3>
+<p><strong>ETL approach (what they used initially):</strong>
+- Extract transaction data from payment servers
+- Transform: clean, validate, aggregate into daily summaries
+- Load into data warehouse
+- Problem: If data science team needed raw transaction-level data for a new fraud model, they couldn't get it — only aggregated data was stored</p>
+<p><strong>ELT approach (what they switched to):</strong>
+- Extract transaction data
+- Load raw data into data lake (Amazon S3)
+- Transform as needed: daily summaries for dashboards, raw data for ML models
+- Now fraud detection team can access raw transactions anytime for new model features
+- Marketing team can do their own transformations for campaign analysis</p>
+<div class="callout">
+<p><strong>Industry trend:</strong> Most modern companies are moving from ETL to ELT because cloud storage is cheap, and keeping raw data gives more flexibility for AI/ML.</p>
+</div>
+<hr />
+<h2 id="6-3-batch-vs-streaming-pipelines">6.3 Batch vs Streaming Pipelines</h2>
+<h3 id="batch-processing-process-data-in-large-chunks-at-scheduled-times">Batch Processing — "Process data in large chunks at scheduled times"</h3>
+<p><strong>Batch processing</strong> collects data over a period and processes it all at once — hourly, daily, or weekly.</p>
+<div class="callout">
+<p><strong>Analogy:</strong> Doing laundry. You collect dirty clothes all week, then wash everything in one batch on Sunday. Efficient, but your clothes aren't clean instantly.</p>
+</div>
+<pre><code>Events accumulate over time:
+[event1] [event2] [event3] ... [event1000]
+                    ↓
+        At midnight, process ALL events
+                    ↓
+        Results available next morning
+</code></pre>
+<p><strong>When to use batch:</strong>
+- Reports and dashboards (daily sales report)
+- Model training (retrain model every night with new data)
+- Data warehouse updates
+- Tasks where a few hours of delay is acceptable</p>
+<p><strong>Tools:</strong> Apache Spark, Apache Airflow (scheduling), dbt (transformations), Hadoop</p>
+<h3 id="streaming-processing-process-data-as-it-arrives-in-real-time">Streaming Processing — "Process data as it arrives, in real-time"</h3>
+<p><strong>Streaming processing</strong> handles each event immediately as it arrives — with millisecond to second latency.</p>
+<div class="callout">
+<p><strong>Analogy:</strong> A live cricket scoreboard. Every ball bowled is immediately reflected on the score — there's no waiting for the end of the over to update.</p>
+</div>
+<pre><code>Events arrive continuously:
+[event1] → process immediately → result available in milliseconds
+[event2] → process immediately → result available in milliseconds
+[event3] → process immediately → result available in milliseconds
+</code></pre>
+<p><strong>When to use streaming:</strong>
+- Fraud detection (must block fraudulent transaction BEFORE it completes)
+- Real-time recommendations (show results as user browses)
+- Live monitoring and alerting
+- Any task where delay = lost value</p>
+<p><strong>Tools:</strong> Apache Kafka, Apache Flink, Apache Spark Streaming, AWS Kinesis</p>
+<h3 id="batch-vs-streaming-comparison">Batch vs Streaming — Comparison</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Aspect</th>
+<th>Batch</th>
+<th>Streaming</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Processing</strong></td>
+<td>All data at once, on schedule</td>
+<td>Each event as it arrives</td>
+</tr>
+<tr>
+<td><strong>Latency</strong></td>
+<td>Minutes to hours</td>
+<td>Milliseconds to seconds</td>
+</tr>
+<tr>
+<td><strong>Throughput</strong></td>
+<td>Very high (process millions of records efficiently)</td>
+<td>Moderate (limited by event rate)</td>
+</tr>
+<tr>
+<td><strong>Complexity</strong></td>
+<td>Simpler to build and debug</td>
+<td>More complex (handle late events, out-of-order data)</td>
+</tr>
+<tr>
+<td><strong>Cost</strong></td>
+<td>Lower (run compute only when needed)</td>
+<td>Higher (compute always running)</td>
+</tr>
+<tr>
+<td><strong>Error handling</strong></td>
+<td>Easy (reprocess the entire batch)</td>
+<td>Hard (can't easily "undo" a real-time decision)</td>
+</tr>
+<tr>
+<td><strong>Use cases</strong></td>
+<td>Reports, model training, ETL</td>
+<td>Fraud detection, real-time recommendations, alerts</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="live-examples">Live Examples</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Company</th>
+<th>Batch Pipeline</th>
+<th>Streaming Pipeline</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Netflix</strong></td>
+<td>Retrain recommendation model nightly with yesterday's viewing data</td>
+<td>Real-time "Continue Watching" updates as you switch devices</td>
+</tr>
+<tr>
+<td><strong>Uber</strong></td>
+<td>Daily driver performance reports, weekly demand forecasting</td>
+<td>Real-time surge pricing — recalculated every 2 minutes</td>
+</tr>
+<tr>
+<td><strong>HDFC Bank</strong></td>
+<td>Monthly customer risk scoring, quarterly regulatory reports</td>
+<td>Real-time fraud detection — every card swipe analysed in &lt;100ms</td>
+</tr>
+<tr>
+<td><strong>Flipkart</strong></td>
+<td>Nightly product catalog updates, weekly sales analytics</td>
+<td>Real-time inventory updates — when item is sold, stock count decreases instantly</td>
+</tr>
+<tr>
+<td><strong>Zomato</strong></td>
+<td>Daily restaurant rating recalculation</td>
+<td>Real-time order tracking — driver location updated every 5 seconds</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="lambda-architecture-use-both">Lambda Architecture — "Use Both"</h3>
+<p>Most real-world systems use <strong>both</strong> batch and streaming. This is called <strong>Lambda Architecture:</strong></p>
+<pre><code>                    ┌──────────────────────┐
+                    │   STREAMING LAYER    │
+    Events ────────→│   (real-time, fast,  │──→ Real-time View
+       │            │    approximate)      │   (latest few hours)
+       │            └──────────────────────┘
+       │
+       │            ┌──────────────────────┐
+       └───────────→│    BATCH LAYER       │──→ Batch View
+                    │   (slow, accurate,   │   (complete history)
+                    │    all historical)   │
+                    └──────────────────────┘
+                              ↓
+                    ┌──────────────────────┐
+                    │    SERVING LAYER     │──→ User Query
+                    │  (merge both views)  │   (best of both)
+                    └──────────────────────┘
+</code></pre>
+<div class="callout">
+<p><strong>Live Example — Swiggy's Lambda Architecture:</strong>
+- <strong>Streaming:</strong> ETA prediction uses real-time traffic, driver location, restaurant load
+- <strong>Batch:</strong> Nightly model retraining uses all historical delivery data
+- <strong>Serving:</strong> When you place an order, the system combines the real-time model with historical averages for the most accurate prediction</p>
+</div>
+<hr />
+<h2 id="6-4-data-lakes-and-data-warehouses">6.4 Data Lakes and Data Warehouses</h2>
+<h3 id="data-warehouse-a-clean-organised-library">Data Warehouse — "A clean, organised library"</h3>
+<p>A <strong>data warehouse</strong> stores <strong>cleaned, structured, and organised</strong> data optimised for querying and reporting.</p>
+<div class="callout">
+<p><strong>Analogy:</strong> A library where every book is catalogued, shelved in the right section, and indexed. You can easily find any book. But you can only store books that follow the library's format — no random handwritten notes allowed.</p>
+</div>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Characteristic</th>
+<th>Details</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Data type</strong></td>
+<td>Structured only (tables with rows and columns)</td>
+</tr>
+<tr>
+<td><strong>Schema</strong></td>
+<td>Schema-on-write (data must conform to schema BEFORE being loaded)</td>
+</tr>
+<tr>
+<td><strong>Optimised for</strong></td>
+<td>Fast SQL queries, analytics, dashboards</td>
+</tr>
+<tr>
+<td><strong>Users</strong></td>
+<td>Business analysts, data analysts</td>
+</tr>
+<tr>
+<td><strong>Storage cost</strong></td>
+<td>Higher (stored in optimised columnar format)</td>
+</tr>
+<tr>
+<td><strong>Examples</strong></td>
+<td><strong>Snowflake</strong>, <strong>Google BigQuery</strong>, <strong>Amazon Redshift</strong>, <strong>Azure Synapse</strong></td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="data-lake-a-huge-storage-dump-for-everything">Data Lake — "A huge storage dump for everything"</h3>
+<p>A <strong>data lake</strong> stores <strong>raw data of any type</strong> (structured, semi-structured, unstructured) without requiring a predefined schema.</p>
+<div class="callout">
+<p><strong>Analogy:</strong> A warehouse where you dump everything — boxes, loose items, furniture, documents. It's cheap and you can store anything. But finding something specific requires rummaging through piles of stuff.</p>
+</div>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Characteristic</th>
+<th>Details</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Data type</strong></td>
+<td>Any — structured, semi-structured, unstructured</td>
+</tr>
+<tr>
+<td><strong>Schema</strong></td>
+<td>Schema-on-read (data is stored raw; schema applied when you query it)</td>
+</tr>
+<tr>
+<td><strong>Optimised for</strong></td>
+<td>Cheap storage, flexibility, ML/AI workloads</td>
+</tr>
+<tr>
+<td><strong>Users</strong></td>
+<td>Data engineers, data scientists, ML engineers</td>
+</tr>
+<tr>
+<td><strong>Storage cost</strong></td>
+<td>Very low (plain files in cloud storage)</td>
+</tr>
+<tr>
+<td><strong>Examples</strong></td>
+<td><strong>Amazon S3</strong>, <strong>Google Cloud Storage</strong>, <strong>Azure Data Lake Storage</strong></td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="data-lakehouse-best-of-both-worlds-modern-approach">Data Lakehouse — "Best of both worlds" (Modern Approach)</h3>
+<p>A <strong>data lakehouse</strong> combines the cheap, flexible storage of a data lake with the query performance of a data warehouse.</p>
+<div class="callout">
+<p><strong>Analogy:</strong> An organised warehouse with a searchable catalog system — you can dump anything in, but you can also quickly find and query it.</p>
+</div>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Characteristic</th>
+<th>Details</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Data type</strong></td>
+<td>Any type (like a lake)</td>
+</tr>
+<tr>
+<td><strong>Query performance</strong></td>
+<td>Fast SQL queries (like a warehouse)</td>
+</tr>
+<tr>
+<td><strong>Schema</strong></td>
+<td>Flexible — supports both schema-on-write and schema-on-read</td>
+</tr>
+<tr>
+<td><strong>Examples</strong></td>
+<td><strong>Databricks Lakehouse</strong>, <strong>Apache Iceberg + Spark</strong>, <strong>Delta Lake</strong></td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="comparison-table">Comparison Table</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Aspect</th>
+<th>Data Warehouse</th>
+<th>Data Lake</th>
+<th>Data Lakehouse</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Data types</strong></td>
+<td>Structured only</td>
+<td>Any type</td>
+<td>Any type</td>
+</tr>
+<tr>
+<td><strong>Schema</strong></td>
+<td>Schema-on-write (rigid)</td>
+<td>Schema-on-read (flexible)</td>
+<td>Both</td>
+</tr>
+<tr>
+<td><strong>Storage cost</strong></td>
+<td>High</td>
+<td>Very low</td>
+<td>Low</td>
+</tr>
+<tr>
+<td><strong>Query speed</strong></td>
+<td>Very fast (optimised)</td>
+<td>Slow (raw files)</td>
+<td>Fast</td>
+</tr>
+<tr>
+<td><strong>Best for</strong></td>
+<td>BI dashboards, reports</td>
+<td>ML/AI, raw data archive</td>
+<td>ML + BI (unified)</td>
+</tr>
+<tr>
+<td><strong>Users</strong></td>
+<td>Business analysts</td>
+<td>Data scientists</td>
+<td>Everyone</td>
+</tr>
+<tr>
+<td><strong>Risk</strong></td>
+<td>Can't store unstructured data</td>
+<td>"Data swamp" if not managed</td>
+<td>Newer, less mature</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="live-examples_1">Live Examples</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Company</th>
+<th>Storage Approach</th>
+<th>Why</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Flipkart</strong></td>
+<td>Data Lake (S3) + Data Warehouse (Redshift)</td>
+<td>Raw clickstream in S3 for ML. Aggregated sales in Redshift for dashboards.</td>
+</tr>
+<tr>
+<td><strong>Netflix</strong></td>
+<td>Data Lake (S3) + processing with Spark</td>
+<td>Stores everything raw (viewing events, server logs, A/B test data). Processes with Spark for ML.</td>
+</tr>
+<tr>
+<td><strong>CRED</strong></td>
+<td>Data Lakehouse (Databricks)</td>
+<td>Unified platform — data scientists and analysts both query the same data</td>
+</tr>
+<tr>
+<td><strong>Uber</strong></td>
+<td>Data Lake (HDFS/S3) + real-time (Apache Kafka/Flink)</td>
+<td>Massive scale — millions of rides, GPS pings, transactions daily</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="what-is-a-data-swamp">What is a "Data Swamp"?</h3>
+<p>A data lake without governance becomes a <strong>data swamp</strong> — data is dumped in but nobody knows what's in there, who owns it, or whether it's still accurate.</p>
+<pre><code>Data Lake (well-managed):
+├── /raw/orders/2025-09-07/       ← Dated, organized
+├── /processed/user_features/      ← Clear naming
+├── /models/recommendation_v3/     ← Versioned
+└── README.md with data catalog    ← Documented
+
+Data Swamp (poorly managed):
+├── data_final.csv
+├── data_final_v2.csv
+├── data_final_FINAL.csv          ← Which one is actual final?
+├── test123.parquet               ← What is this?
+├── johns_experiment/             ← John left 2 years ago
+└── (no documentation anywhere)
+</code></pre>
+<div class="callout">
+<p><strong>Lesson:</strong> A data lake needs governance (catalog, ownership, retention policies) to avoid becoming a data swamp.</p>
+</div>
+<hr />
+<h2 id="6-5-enterprise-data-pipeline-case-study">6.5 Enterprise Data Pipeline — Case Study</h2>
+<h3 id="case-study-building-a-real-time-recommendation-pipeline-for-myntra">Case Study: Building a Real-Time Recommendation Pipeline for Myntra</h3>
+<p>Let's design a complete data pipeline for Myntra (fashion e-commerce) to power real-time product recommendations.</p>
+<h3 id="requirements">Requirements</h3>
+<ul>
+<li>Show personalised "Recommended for You" products on the homepage</li>
+<li>Update recommendations in real-time as the user browses</li>
+<li>Train recommendation model daily with fresh data</li>
+<li>Handle 50 million daily active users</li>
+</ul>
+<h3 id="architecture">Architecture</h3>
+<pre><code>━━━ DATA SOURCES ━━━
+├── User activity (clicks, views, purchases, wishlists)
+├── Product catalog (images, descriptions, prices, categories)
+├── Inventory system (stock levels per warehouse)
+├── Weather API (seasonal fashion depends on weather!)
+└── Social trends (trending styles from social media)
+
+━━━ STREAMING PIPELINE (Real-time) ━━━
+├── Apache Kafka ingests all user events in real-time
+├── Apache Flink processes events:
+│   ├── Compute: &quot;user viewed 5 dresses in last 10 minutes&quot;
+│   ├── Compute: &quot;user's price range today: Rs 500-2000&quot;  
+│   └── Update real-time user profile in Feature Store
+├── Latency: &lt; 500ms from event to feature update
+└── Output: Real-time features in Redis (Feature Store)
+
+━━━ BATCH PIPELINE (Nightly) ━━━
+├── Apache Airflow orchestrates nightly jobs at 2 AM:
+│   ├── Job 1: Export yesterday's events from Kafka to S3 (data lake)
+│   ├── Job 2: Spark processes all historical data:
+│   │   ├── Compute user-level aggregations (last 30 days)
+│   │   ├── Compute product-level statistics (popularity, return rate)
+│   │   └── Generate training dataset for recommendation model
+│   ├── Job 3: Train new recommendation model
+│   │   ├── Input: training dataset + product embeddings
+│   │   ├── Model: two-tower neural network (user tower + item tower)
+│   │   └── Output: trained model registered in MLflow
+│   ├── Job 4: Evaluate model on test set
+│   │   └── If accuracy &gt; threshold → promote to production
+│   └── Job 5: Update batch features in Feature Store
+├── Duration: ~3 hours (2 AM to 5 AM)
+└── Output: Fresh model + updated batch features
+
+━━━ SERVING PIPELINE ━━━
+├── User opens Myntra app
+├── API Gateway receives request (user_id, context)
+├── Feature Store serves:
+│   ├── Batch features: user's last-30-day preferences
+│   └── Real-time features: user's current session activity
+├── Model Server computes recommendation scores
+├── Business logic:
+│   ├── Remove out-of-stock items
+│   ├── Apply diversity rules (don't show 10 similar dresses)
+│   ├── Boost items on sale
+│   └── A/B test: 10% of users see experimental model
+├── Return top 20 products to app
+└── Total latency: &lt; 200ms
+
+━━━ MONITORING ━━━
+├── Track: click-through rate on recommendations
+├── Track: recommendation → purchase conversion rate
+├── Alert: if click-through rate drops 20% below baseline
+├── Alert: if model serving latency exceeds 500ms
+├── Data quality: check daily for missing/corrupt data
+└── Data drift: compare this week's user behaviour to training data
+</code></pre>
+<h3 id="pipeline-tools-used">Pipeline Tools Used</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Component</th>
+<th>Tool</th>
+<th>Why This Tool</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Event streaming</td>
+<td>Apache Kafka</td>
+<td>Industry standard for real-time event streaming. Handles millions of events/second.</td>
+</tr>
+<tr>
+<td>Stream processing</td>
+<td>Apache Flink</td>
+<td>Real-time computation with exactly-once processing guarantees.</td>
+</tr>
+<tr>
+<td>Batch orchestration</td>
+<td>Apache Airflow</td>
+<td>Schedule and monitor complex batch workflows. Open-source, widely used.</td>
+</tr>
+<tr>
+<td>Batch processing</td>
+<td>Apache Spark</td>
+<td>Process terabytes of data in the data lake efficiently.</td>
+</tr>
+<tr>
+<td>Data lake</td>
+<td>Amazon S3</td>
+<td>Cheap, durable, unlimited storage.</td>
+</tr>
+<tr>
+<td>Feature store</td>
+<td>Feast + Redis</td>
+<td>Feast manages feature definitions. Redis serves features with &lt;1ms latency.</td>
+</tr>
+<tr>
+<td>Model training</td>
+<td>PyTorch + MLflow</td>
+<td>PyTorch for model code. MLflow for experiment tracking and model registry.</td>
+</tr>
+<tr>
+<td>Model serving</td>
+<td>TorchServe on Kubernetes</td>
+<td>Serve model via API. K8s auto-scales based on traffic.</td>
+</tr>
+<tr>
+<td>Monitoring</td>
+<td>Prometheus + Grafana</td>
+<td>Prometheus collects metrics. Grafana visualises dashboards.</td>
+</tr>
+<tr>
+<td>Data quality</td>
+<td>Great Expectations</td>
+<td>Automated data quality checks with clear expectations.</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="key-takeaways-from-this-case-study">Key Takeaways from This Case Study</h3>
+<ol>
+<li><strong>Two pipelines (batch + streaming)</strong> — batch for thorough processing, streaming for real-time freshness</li>
+<li><strong>Feature store bridges both</strong> — batch features (historical) + real-time features (current session) served together</li>
+<li><strong>Automation is key</strong> — Airflow orchestrates nightly jobs without human intervention</li>
+<li><strong>Monitoring closes the loop</strong> — if recommendations degrade, alerts fire before users complain</li>
+<li><strong>Business logic matters</strong> — the model's output is just scores; business rules make them useful (remove out-of-stock, diversify, boost promotions)</li>
+</ol>
+<hr />
+<h2 id="key-terms-glossary-session-6">Key Terms Glossary (Session 6)</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Term</th>
+<th>Simple Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Data Pipeline</strong></td>
+<td>Automated flow that moves data from sources to destinations, transforming it along the way</td>
+</tr>
+<tr>
+<td><strong>ETL</strong></td>
+<td>Extract-Transform-Load — transform data before loading into warehouse</td>
+</tr>
+<tr>
+<td><strong>ELT</strong></td>
+<td>Extract-Load-Transform — load raw data first, transform inside the warehouse/lake</td>
+</tr>
+<tr>
+<td><strong>Batch Processing</strong></td>
+<td>Processing data in large chunks at scheduled times (hourly, daily)</td>
+</tr>
+<tr>
+<td><strong>Streaming Processing</strong></td>
+<td>Processing data immediately as each event arrives (real-time)</td>
+</tr>
+<tr>
+<td><strong>Lambda Architecture</strong></td>
+<td>Using both batch and streaming pipelines together</td>
+</tr>
+<tr>
+<td><strong>Data Lake</strong></td>
+<td>Cheap storage for raw data of any type. Schema applied when reading.</td>
+</tr>
+<tr>
+<td><strong>Data Warehouse</strong></td>
+<td>Optimised storage for clean, structured data. Schema required when loading.</td>
+</tr>
+<tr>
+<td><strong>Data Lakehouse</strong></td>
+<td>Modern approach combining data lake flexibility with warehouse query speed</td>
+</tr>
+<tr>
+<td><strong>Data Swamp</strong></td>
+<td>A poorly managed data lake where nobody knows what data exists</td>
+</tr>
+<tr>
+<td><strong>Apache Kafka</strong></td>
+<td>Popular tool for real-time event streaming (collects and distributes events)</td>
+</tr>
+<tr>
+<td><strong>Apache Spark</strong></td>
+<td>Popular tool for processing large amounts of data in batch</td>
+</tr>
+<tr>
+<td><strong>Apache Airflow</strong></td>
+<td>Tool for scheduling and orchestrating data pipeline workflows</td>
+</tr>
+<tr>
+<td><strong>Apache Flink</strong></td>
+<td>Tool for real-time stream processing</td>
+</tr>
+<tr>
+<td><strong>dbt</strong></td>
+<td>Tool for transforming data inside a warehouse using SQL</td>
+</tr>
+<tr>
+<td><strong>Schema-on-Write</strong></td>
+<td>Data must match the schema before it can be stored (warehouse approach)</td>
+</tr>
+<tr>
+<td><strong>Schema-on-Read</strong></td>
+<td>Data is stored raw; schema applied when you query it (lake approach)</td>
+</tr>
+</tbody>
+</table></div>
+<hr />
+<p><em>End of Session 6</em></p>
+</main>
+<button class="back-top" id="backTop" title="Back to top">&#8593;</button>
+<script>
+const bar=document.getElementById('progress');
+const btn=document.getElementById('backTop');
+const toggle=document.getElementById('sidebarToggle');
+const sidebar=document.getElementById('sidebar');
+window.addEventListener('scroll',()=>{
+  const s=document.documentElement.scrollTop;
+  const h=document.documentElement.scrollHeight-document.documentElement.clientHeight;
+  bar.style.width=(s/h*100)+'%';
+  btn.classList.toggle('show',s>400);
+});
+btn.onclick=()=>window.scrollTo({top:0,behavior:'smooth'});
+toggle.onclick=()=>sidebar.classList.toggle('open');
+// Active sidebar link
+const links=document.querySelectorAll('.sidebar nav a');
+const obs=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{if(e.isIntersecting){
+    links.forEach(l=>l.classList.remove('active'));
+    const a=document.querySelector('.sidebar nav a[href="#'+e.target.id+'"]');
+    if(a)a.classList.add('active');
+  }});
+},{rootMargin:'-20% 0px -70% 0px'});
+document.querySelectorAll('h2[id],h3[id]').forEach(h=>obs.observe(h));
+</script>
+</body>
+</html>

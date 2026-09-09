@@ -3,63 +3,49 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Session 1: Q&A — Introduction to AI</title>
+<title>Session 1: Questions and Answers</title>
 <style>
 :root{--bg:#0f172a;--surface:#1e293b;--surface2:#334155;--border:#475569;--text:#e2e8f0;--text-muted:#94a3b8;--code-bg:#0d1117;--accent:#f59e0b;--accent-dim:rgba(245,158,11,.15);--accent-border:rgba(245,158,11,.3);--header-gradient:linear-gradient(135deg,#78350f,#d97706,#f59e0b)}
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth}
 body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);line-height:1.7;display:flex;min-height:100vh}
 .progress-bar{position:fixed;top:0;left:0;height:4px;background:var(--accent);z-index:1000;transition:width .2s}
-/* Sidebar */
 .sidebar{position:fixed;top:0;left:0;width:280px;height:100vh;background:var(--surface);border-right:1px solid var(--border);overflow-y:auto;padding:1.5rem 0;z-index:100;transition:transform .3s}
 .sidebar-header{padding:0 1.5rem 1.5rem;border-bottom:1px solid var(--border);margin-bottom:1rem}
 .sidebar-header h2{font-size:1rem;color:var(--accent);margin-bottom:.25rem}
 .sidebar-header p{font-size:.75rem;color:var(--text-muted)}
 .sidebar nav a{display:block;padding:.55rem 1.5rem;color:var(--text-muted);text-decoration:none;font-size:.85rem;border-left:3px solid transparent;transition:all .2s}
 .sidebar nav a:hover,.sidebar nav a.active{color:var(--accent);background:var(--accent-dim);border-left-color:var(--accent)}
+.sidebar nav a.sub{padding-left:2.5rem;font-size:.8rem}
 .sidebar-toggle{display:none;position:fixed;top:1rem;left:1rem;z-index:200;background:var(--surface);border:1px solid var(--border);color:var(--text);width:40px;height:40px;border-radius:8px;cursor:pointer;font-size:1.2rem}
-/* Main */
 .main{margin-left:280px;flex:1;max-width:900px;padding:2rem 3rem 4rem}
-.page-header{background:var(--header-gradient);border-radius:16px;padding:2.5rem;margin-bottom:2rem;position:relative;overflow:hidden}
+.page-header{background:var(--header-gradient);border-radius:16px;padding:2.5rem;margin-bottom:2.5rem;position:relative;overflow:hidden}
 .page-header::after{content:'';position:absolute;top:0;right:0;width:200px;height:100%;background:radial-gradient(circle at 80% 50%,rgba(255,255,255,.1),transparent);pointer-events:none}
 .page-header .badge{display:inline-block;background:rgba(0,0,0,.3);color:#fff;padding:.25rem .75rem;border-radius:20px;font-size:.75rem;margin-bottom:.75rem}
 .page-header h1{font-size:2rem;color:#fff;margin-bottom:.5rem}
 .page-header .meta{color:rgba(255,255,255,.8);font-size:.85rem}
-/* Score & Controls */
-.controls{display:flex;flex-wrap:wrap;gap:.75rem;align-items:center;margin-bottom:2rem;padding:1rem 1.2rem;background:var(--surface);border:1px solid var(--border);border-radius:12px}
-.score-display{font-size:.95rem;color:var(--text);margin-right:auto}
-.score-display span{color:var(--accent);font-weight:700;font-size:1.1rem}
-.btn{padding:.5rem 1rem;border:1px solid var(--accent);background:transparent;color:var(--accent);border-radius:8px;cursor:pointer;font-size:.85rem;transition:all .2s}
-.btn:hover{background:var(--accent);color:#000}
-/* Q&A Cards */
-.qa-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;margin-bottom:1.2rem;overflow:hidden;transition:border-color .3s}
-.qa-card:hover{border-color:var(--accent-border)}
-.qa-question{display:flex;align-items:flex-start;gap:.75rem;padding:1.2rem;cursor:pointer;user-select:none}
-.qa-question input[type="checkbox"]{margin-top:.35rem;width:18px;height:18px;accent-color:var(--accent);flex-shrink:0;cursor:pointer}
-.qa-question .q-text{flex:1;font-weight:600;font-size:1rem;color:var(--text)}
-.qa-question .q-num{color:var(--accent);font-weight:700;flex-shrink:0;min-width:28px}
-.qa-toggle{color:var(--accent);font-size:1.2rem;flex-shrink:0;transition:transform .3s;margin-top:.1rem}
-.qa-card.open .qa-toggle{transform:rotate(180deg)}
-.qa-answer{max-height:0;overflow:hidden;transition:max-height .4s ease}
-.qa-card.open .qa-answer{max-height:3000px}
-.qa-answer-inner{padding:0 1.2rem 1.2rem;border-top:1px solid var(--border);margin-top:0;padding-top:1rem}
-.qa-answer-inner p{margin-bottom:.8rem}
-/* Tables inside answers */
-.table-wrap{overflow-x:auto;margin:1rem 0;border-radius:10px;border:1px solid var(--border)}
-table{width:100%;border-collapse:collapse;font-size:.85rem}
-thead th{background:var(--accent);color:#000;padding:.6rem .8rem;text-align:left;font-weight:600;white-space:nowrap}
+h2{font-size:1.5rem;color:var(--accent);margin:2.5rem 0 1rem;padding-bottom:.5rem;border-bottom:2px solid var(--accent-border)}
+h3{font-size:1.15rem;color:var(--text);margin:1.8rem 0 .8rem}
+h4{font-size:1rem;color:var(--accent);margin:1.2rem 0 .6rem}
+p{margin-bottom:1rem;color:var(--text)}
+strong{color:var(--text)}
+.table-wrap{overflow-x:auto;margin:1.2rem 0;border-radius:10px;border:1px solid var(--border)}
+table{width:100%;border-collapse:collapse;font-size:.88rem}
+thead th{background:var(--accent);color:#000;padding:.75rem 1rem;text-align:left;font-weight:600;white-space:nowrap}
 tbody tr:nth-child(even){background:var(--surface)}
 tbody tr:nth-child(odd){background:var(--surface2)}
 tbody tr:hover{background:var(--accent-dim)}
-td{padding:.55rem .8rem;border-top:1px solid var(--border)}
-pre{background:var(--code-bg);border:1px solid var(--border);border-radius:10px;padding:1rem;overflow-x:auto;margin:1rem 0;font-size:.83rem;line-height:1.5}
+td{padding:.7rem 1rem;border-top:1px solid var(--border);color:var(--text)}
+pre{background:var(--code-bg);border:1px solid var(--border);border-radius:10px;padding:1.2rem;overflow-x:auto;margin:1.2rem 0;font-size:.85rem;line-height:1.6}
 code{font-family:'Cascadia Code','Fira Code','Consolas',monospace;color:#e6edf3}
 p code,li code,td code{background:var(--code-bg);padding:.15rem .4rem;border-radius:4px;font-size:.85em;color:var(--accent)}
-ul,ol{margin:0 0 .8rem 1.5rem}
-li{margin-bottom:.3rem}
+.callout{background:var(--accent-dim);border-left:4px solid var(--accent);border-radius:0 10px 10px 0;padding:1rem 1.2rem;margin:1.2rem 0;font-size:.92rem}
+.callout p{margin:0;color:var(--text)}
+.callout em{color:var(--text-muted)}
+ul,ol{margin:0 0 1rem 1.5rem;color:var(--text)}
+li{margin-bottom:.4rem}
 li strong{color:var(--accent)}
-strong{color:var(--text)}
-.back-top{position:fixed;bottom:2rem;right:2rem;width:44px;height:44px;background:var(--accent);color:#000;border:none;border-radius:50%;cursor:pointer;font-size:1.3rem;display:none;align-items:center;justify-content:center;box-shadow:0 4px 15px rgba(245,158,11,.3);transition:transform .2s;z-index:100}
+.back-top{position:fixed;bottom:2rem;right:2rem;width:44px;height:44px;background:var(--accent);color:#000;border:none;border-radius:50%;cursor:pointer;font-size:1.3rem;display:none;align-items:center;justify-content:center;box-shadow:0 4px 15px rgba(245,158,11,.3);transition:transform .2s,opacity .2s;z-index:100}
 .back-top:hover{transform:scale(1.1)}
 .back-top.show{display:flex}
 @media(max-width:900px){
@@ -69,158 +55,591 @@ strong{color:var(--text)}
   .main{margin-left:0;padding:2rem 1.2rem 4rem}
 }
 @media print{
-  .sidebar,.sidebar-toggle,.back-top,.progress-bar,.controls{display:none!important}
+  .sidebar,.sidebar-toggle,.back-top,.progress-bar{display:none!important}
   .main{margin-left:0;max-width:100%}
   body{background:#fff;color:#000}
-  .qa-answer{max-height:none!important}
-  .qa-card{border:1px solid #ccc;break-inside:avoid}
-  thead th{background:#f59e0b;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  h2{color:#78350f}
+  thead th{background:#f59e0b;color:#000;-webkit-print-color-adjust:exact;print-color-adjust:exact}
   tbody tr:nth-child(even){background:#f8f8f8}
   tbody tr:nth-child(odd){background:#fff}
-  pre{background:#f5f5f5;border:1px solid #ccc}
+  pre{border:1px solid #ccc;background:#f5f5f5}
   code{color:#333}
+  .callout{background:#fff8e1;border-left-color:#f59e0b}
   .page-header{background:#f59e0b!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
 }
 </style>
 </head>
 <body>
-
-<div class="progress-bar" id="progressBar"></div>
-<button class="sidebar-toggle" id="sidebarToggle" aria-label="Toggle sidebar">☰</button>
-
+<div class="progress-bar" id="progress"></div>
+<button class="sidebar-toggle" id="sidebarToggle">&#9776;</button>
 <aside class="sidebar" id="sidebar">
   <div class="sidebar-header">
-    <h2>Session 1 Q&A</h2>
-    <p>Introduction to AI</p>
+    <h2>SS ZG662</h2>
+    <p>Introduction to AI Systems</p>
   </div>
   <nav>
-    <a href="#q1">Q1. AI vs ML vs Deep Learning</a>
-    <a href="#q2">Q2. AI System Lifecycle</a>
-    <a href="#q3">Q3. Components of an AI System</a>
-    <a href="#q4">Q4. AI Applications Across Industries</a>
-    <a href="Session-1-Introduction-to-AI.html" style="margin-top:1rem;color:var(--accent);">📖 Session 1 Notes →</a>
+    <a href="#q1-what-is-artificial-intelligence-how-is-it-different-from-traditional-software">Q1: What is Artificial Intelligence? How is it dif...</a>
+    <a href="#q2-explain-the-relationship-between-ai-machine-learning-and-deep-learning-with-a-diagram">Q2: Explain the relationship between AI, Machine L...</a>
+    <a href="#q3-compare-ai-machine-learning-and-deep-learning-across-five-key-aspects">Q3: Compare AI, Machine Learning, and Deep Learnin...</a>
+    <a href="#q4-when-should-you-use-traditional-ai-machine-learning-or-deep-learning-give-examples">Q4: When should you use Traditional AI, Machine Le...</a>
+    <a href="#q5-what-is-an-ai-system-why-is-the-model-less-than-5-of-the-total-system">Q5: What is an AI System? Why is the model "less t...</a>
+    <a href="#q6-describe-the-six-stages-of-the-ai-system-lifecycle-why-is-it-a-cycle-and-not-a-straight-line">Q6: Describe the six stages of the AI System Lifec...</a>
+    <a href="#q7-what-are-the-six-key-components-of-an-ai-system-explain-each-briefly">Q7: What are the six key components of an AI syste...</a>
+    <a href="#q8-what-is-training-serving-skew-why-is-it-a-serious-problem-in-ai-systems">Q8: What is Training-Serving Skew? Why is it a ser...</a>
+    <a href="#q9-explain-overfitting-with-a-simple-analogy-how-does-it-affect-ai-systems">Q9: Explain overfitting with a simple analogy. How...</a>
+    <a href="#q10-what-is-data-drift-give-a-real-world-example-of-how-it-can-break-an-ai-model">Q10: What is Data Drift? Give a real-world example...</a>
+    <a href="#q11-list-five-real-world-ai-applications-across-different-industries-with-specific-company-examples">Q11: List five real-world AI applications across d...</a>
+    <a href="#q12-what-is-a-b-testing-in-the-context-of-ai-systems-why-is-it-important">Q12: What is A/B Testing in the context of AI syst...</a>
+    <a href="#q13-scenario-a-local-kirana-store-owner-in-mumbai-asks-you-i-have-500-customers-should-i-use-ai-for-my-business-what-would-you-advise">Q13: Scenario — A local kirana store owner in Mumb...</a>
+    <a href="#q14-what-is-the-difference-between-training-and-inference-serving-in-ai">Q14: What is the difference between Training and I...</a>
+    <a href="#q15-why-do-ai-models-degrade-over-time-while-traditional-software-doesn-t-explain-with-examples">Q15: Why do AI models degrade over time while trad...</a>
+    <a href="#q16-what-does-garbage-in-garbage-out-mean-in-the-context-of-ai-systems">Q16: What does "Garbage In, Garbage Out" mean in t...</a>
+    <a href="#q17-give-two-ai-application-examples-each-from-healthcare-and-finance-explain-how-ai-helps-in-each-case">Q17: Give two AI application examples each from He...</a>
+    <a href="#q18-what-is-the-role-of-the-monitoring-component-in-an-ai-system-what-happens-if-monitoring-is-missing">Q18: What is the role of the Monitoring component ...</a>
+    <a href="#q19-scenario-flipkart-wants-to-build-an-ai-system-to-predict-which-products-a-customer-will-buy-next-walk-through-the-six-lifecycle-stages-for-this-system">Q19: Scenario — Flipkart wants to build an AI syst...</a>
+    <a href="#q20-why-does-the-course-emphasise-ai-systems-rather-than-just-ai-algorithms-explain-with-the-restaurant-analogy">Q20: Why does the course emphasise AI "Systems" ra...</a>
   </nav>
 </aside>
-
 <main class="main">
   <div class="page-header">
-    <span class="badge">Session 1 — 4 Questions</span>
-    <h1>Questions & Answers</h1>
-    <p class="meta">Introduction to AI — Self-Assessment</p>
+    <span class="badge">Session 1 — Q&A</span>
+    <h1>Session 1: Questions and Answers</h1>
+    <div class="meta">Contact Session 1 | Module 1: Foundations of AI Systems</div>
   </div>
-
-  <div class="controls">
-    <div class="score-display">Score: <span id="score">0</span> / <span id="total">4</span></div>
-    <button class="btn" onclick="toggleAll(true)">Show All</button>
-    <button class="btn" onclick="toggleAll(false)">Hide All</button>
-  </div>
-
-  <!-- Q1 -->
-  <div class="qa-card" id="q1">
-    <div class="qa-question" onclick="toggleCard(this)">
-      <input type="checkbox" onclick="event.stopPropagation();updateScore()">
-      <span class="q-num">Q1.</span>
-      <span class="q-text">Differentiate between AI, Machine Learning, and Deep Learning with examples.</span>
-      <span class="qa-toggle">▼</span>
-    </div>
-    <div class="qa-answer"><div class="qa-answer-inner">
-      <p>These are nested concepts — each is a subset of the previous:</p>
-      <div class="table-wrap"><table>
-        <thead><tr><th>Aspect</th><th>AI</th><th>Machine Learning</th><th>Deep Learning</th></tr></thead>
-        <tbody>
-          <tr><td><strong>Definition</strong></td><td>Systems that exhibit intelligent behaviour</td><td>Subset of AI that learns from data</td><td>Subset of ML using deep neural networks</td></tr>
-          <tr><td><strong>How it works</strong></td><td>Rules, logic, heuristics, or learning</td><td>Learns function f(x)→y from examples</td><td>Multi-layer networks learn hierarchical features</td></tr>
-          <tr><td><strong>Feature engineering</strong></td><td>Manual rules</td><td>Manual features needed</td><td>Automatic feature learning from raw data</td></tr>
-          <tr><td><strong>Data needs</strong></td><td>Varies</td><td>Moderate (thousands-millions)</td><td>Large (millions-billions)</td></tr>
-          <tr><td><strong>Example</strong></td><td>Chess engine (Minimax), expert systems</td><td>Spam filter, fraud detection</td><td>GPT-4, image recognition, speech recognition</td></tr>
-        </tbody>
-      </table></div>
-      <p><strong>Key distinction:</strong> Traditional AI uses hand-coded rules. ML learns rules from data. Deep Learning learns both the rules AND the features from raw data.</p>
-    </div></div>
-  </div>
-
-  <!-- Q2 -->
-  <div class="qa-card" id="q2">
-    <div class="qa-question" onclick="toggleCard(this)">
-      <input type="checkbox" onclick="event.stopPropagation();updateScore()">
-      <span class="q-num">Q2.</span>
-      <span class="q-text">Describe the six stages of the AI system lifecycle. Why is it circular?</span>
-      <span class="qa-toggle">▼</span>
-    </div>
-    <div class="qa-answer"><div class="qa-answer-inner">
-      <div class="table-wrap"><table>
-        <thead><tr><th>Stage</th><th>What happens</th><th>Key pitfall</th></tr></thead>
-        <tbody>
-          <tr><td><strong>1. Problem Definition</strong></td><td>Translate business problem to ML task. Define metrics.</td><td>Solving the wrong problem. No clear success metric.</td></tr>
-          <tr><td><strong>2. Data Collection & Prep</strong></td><td>Gather, clean, label data. Train/test split.</td><td>Poor quality, bias, data leakage.</td></tr>
-          <tr><td><strong>3. Model Development</strong></td><td>Feature engineering, model selection, training, tuning.</td><td>Overfitting. Not establishing baseline first.</td></tr>
-          <tr><td><strong>4. Deployment</strong></td><td>Package model, create API, configure infrastructure.</td><td>Works in notebook, fails in production.</td></tr>
-          <tr><td><strong>5. Monitoring</strong></td><td>Track accuracy, drift, latency, errors in production.</td><td>Assuming model stays accurate forever.</td></tr>
-          <tr><td><strong>6. Iteration</strong></td><td>Retrain, fix bugs, update features from production feedback.</td><td>Not closing the feedback loop.</td></tr>
-        </tbody>
-      </table></div>
-      <p><strong>Why circular:</strong> Unlike traditional software (code doesn't degrade), ML systems degrade over time because the world changes — user behaviour evolves, new patterns emerge, data distributions shift. Continuous retraining and monitoring is required. The lifecycle is an infinite loop.</p>
-    </div></div>
-  </div>
-
-  <!-- Q3 -->
-  <div class="qa-card" id="q3">
-    <div class="qa-question" onclick="toggleCard(this)">
-      <input type="checkbox" onclick="event.stopPropagation();updateScore()">
-      <span class="q-num">Q3.</span>
-      <span class="q-text">What are the key components of an AI system? Why is the model "less than 5% of the system"?</span>
-      <span class="qa-toggle">▼</span>
-    </div>
-    <div class="qa-answer"><div class="qa-answer-inner">
-      <div class="table-wrap"><table>
-        <thead><tr><th>Component</th><th>Purpose</th></tr></thead>
-        <tbody>
-          <tr><td><strong>Data Pipeline</strong></td><td>Collect, clean, transform, store data. "Garbage in, garbage out."</td></tr>
-          <tr><td><strong>Feature Pipeline</strong></td><td>Transform raw data into model-consumable features. Must be consistent between training and serving.</td></tr>
-          <tr><td><strong>Model Pipeline</strong></td><td>Train, evaluate, select, version models. Experiment tracking.</td></tr>
-          <tr><td><strong>Serving Infrastructure</strong></td><td>Host model, serve predictions via API, handle scaling and latency.</td></tr>
-          <tr><td><strong>Monitoring</strong></td><td>Track performance, data drift, prediction drift, system health.</td></tr>
-          <tr><td><strong>Application Layer</strong></td><td>Business logic, UI, A/B testing, feedback collection.</td></tr>
-        </tbody>
-      </table></div>
-      <p><strong>Why &lt;5%:</strong> The model is just one Python file. The surrounding system — data pipelines, feature engineering, serving, monitoring, CI/CD, logging, A/B testing — is 95% of the code and effort. Google's famous paper "Hidden Technical Debt in ML Systems" showed that the ML code is a tiny box surrounded by a massive infrastructure.</p>
-    </div></div>
-  </div>
-
-  <!-- Q4 -->
-  <div class="qa-card" id="q4">
-    <div class="qa-question" onclick="toggleCard(this)">
-      <input type="checkbox" onclick="event.stopPropagation();updateScore()">
-      <span class="q-num">Q4.</span>
-      <span class="q-text">List 5 AI applications across different industries with examples.</span>
-      <span class="qa-toggle">▼</span>
-    </div>
-    <div class="qa-answer"><div class="qa-answer-inner">
-      <div class="table-wrap"><table>
-        <thead><tr><th>Industry</th><th>Application</th><th>Example</th></tr></thead>
-        <tbody>
-          <tr><td><strong>Healthcare</strong></td><td>Medical imaging analysis</td><td>DeepMind detecting eye diseases from retinal scans.</td></tr>
-          <tr><td><strong>Finance</strong></td><td>Fraud detection</td><td>PayPal detecting fraud among 10M+ daily transactions.</td></tr>
-          <tr><td><strong>E-commerce</strong></td><td>Recommendation engines</td><td>Amazon's "Customers also bought" drives 35% of revenue.</td></tr>
-          <tr><td><strong>Manufacturing</strong></td><td>Predictive maintenance</td><td>Siemens predicting turbine failures 20 hours in advance.</td></tr>
-          <tr><td><strong>Transportation</strong></td><td>Autonomous driving</td><td>Waymo robotaxis operating in geofenced areas (Level 4).</td></tr>
-        </tbody>
-      </table></div>
-    </div></div>
-  </div>
-
-  <p style="text-align:center;color:var(--text-muted);margin-top:3rem;font-size:.85rem"><em>End of Session 1 Questions & Answers</em></p>
+<h1 id="session-1-questions-and-answers">Session 1: Questions and Answers</h1>
+<div class="callout">
+<p>BITS Pilani — SS ZG662: Introduction to AI Systems</p>
+</div>
+<hr />
+<h2 id="q1-what-is-artificial-intelligence-how-is-it-different-from-traditional-software">Q1: What is Artificial Intelligence? How is it different from traditional software?</h2>
+<p><strong>Answer:</strong>
+Artificial Intelligence (AI) means making computers do tasks that normally need human intelligence — like understanding language, recognising faces, making decisions, or learning from experience.</p>
+<p>Traditional software follows fixed rules written by a programmer. For example, a calculator always adds 2 + 2 = 4 using a fixed formula. AI, on the other hand, can learn patterns from data and handle tasks where rules are not easy to write — like identifying whether a photo contains a dog or a cat.</p>
+<p>Key difference: In traditional software, a human writes all the logic. In AI, the system learns its own logic from data.</p>
+<p>Real-world example: A thermostat that turns on AC when temperature crosses 25°C is traditional software (fixed rule). Gmail's spam filter that learns from millions of emails to identify new types of spam is AI (learned from data).</p>
+<hr />
+<h2 id="q2-explain-the-relationship-between-ai-machine-learning-and-deep-learning-with-a-diagram">Q2: Explain the relationship between AI, Machine Learning, and Deep Learning with a diagram.</h2>
+<p><strong>Answer:</strong>
+AI, ML, and DL are nested concepts — each one fits inside the previous like Russian dolls:</p>
+<pre><code>┌──────────────────────────────────────────┐
+│       Artificial Intelligence (AI)       │
+│   (Any system that mimics human intel.)  │
+│                                          │
+│   ┌──────────────────────────────────┐   │
+│   │      Machine Learning (ML)       │   │
+│   │   (Systems that learn from data) │   │
+│   │                                  │   │
+│   │   ┌──────────────────────────┐   │   │
+│   │   │    Deep Learning (DL)    │   │   │
+│   │   │ (ML using deep neural    │   │   │
+│   │   │  networks)               │   │   │
+│   │   └──────────────────────────┘   │   │
+│   └──────────────────────────────────┘   │
+└──────────────────────────────────────────┘
+</code></pre>
+<ul>
+<li><strong>AI</strong> is the broadest term — the goal of making computers smart.</li>
+<li><strong>ML</strong> is a subset of AI — machines learn patterns from data instead of being explicitly programmed.</li>
+<li><strong>DL</strong> is a subset of ML — uses multi-layered neural networks to learn very complex patterns from raw data (images, text, audio).</li>
+</ul>
+<p>All Deep Learning is Machine Learning, and all Machine Learning is AI. But not all AI is ML (rule-based expert systems are AI but not ML), and not all ML is DL (a decision tree is ML but not DL).</p>
+<hr />
+<h2 id="q3-compare-ai-machine-learning-and-deep-learning-across-five-key-aspects">Q3: Compare AI, Machine Learning, and Deep Learning across five key aspects.</h2>
+<p><strong>Answer:</strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Aspect</th>
+<th>Traditional AI</th>
+<th>Machine Learning</th>
+<th>Deep Learning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>How it works</strong></td>
+<td>Human writes rules ("if X then Y")</td>
+<td>Algorithm learns rules from data</td>
+<td>Neural network discovers features AND rules from raw data</td>
+</tr>
+<tr>
+<td><strong>Who writes the logic?</strong></td>
+<td>Human programmer</td>
+<td>Algorithm learns automatically</td>
+<td>Network learns everything on its own</td>
+</tr>
+<tr>
+<td><strong>Data needed</strong></td>
+<td>Little or none</td>
+<td>Thousands to millions of examples</td>
+<td>Millions to billions of examples</td>
+</tr>
+<tr>
+<td><strong>Computing power</strong></td>
+<td>Low</td>
+<td>Medium</td>
+<td>High (needs GPUs/TPUs)</td>
+</tr>
+<tr>
+<td><strong>Best for</strong></td>
+<td>Problems with clear, known rules</td>
+<td>Problems where patterns exist but are hard to code</td>
+<td>Complex data like images, text, and audio</td>
+</tr>
+</tbody>
+</table></div>
+<p>Example — Building a spam filter:
+- <strong>Traditional AI:</strong> Human writes rules like "if email contains 'lottery' → spam." But spammers change words, so rules break.
+- <strong>ML:</strong> Show the system 100,000 emails labelled spam/not-spam. It automatically discovers patterns (certain words, domains, link counts).
+- <strong>DL:</strong> Feed the raw email (text + HTML + images + metadata) to a deep neural network. It figures out the features AND the rules by itself.</p>
+<hr />
+<h2 id="q4-when-should-you-use-traditional-ai-machine-learning-or-deep-learning-give-examples">Q4: When should you use Traditional AI, Machine Learning, or Deep Learning? Give examples.</h2>
+<p><strong>Answer:</strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Situation</th>
+<th>Best Approach</th>
+<th>Why</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Rules are clear and simple</td>
+<td>Traditional AI (rules)</td>
+<td>No need for ML — rules work fine</td>
+<td>Age verification: if age &gt; 18, allow entry</td>
+</tr>
+<tr>
+<td>Patterns exist but hard to write as rules</td>
+<td>Machine Learning</td>
+<td>Let data reveal the patterns</td>
+<td>Credit card fraud detection — too many patterns for a human to code</td>
+</tr>
+<tr>
+<td>Data is complex (images, speech, text)</td>
+<td>Deep Learning</td>
+<td>Neural networks handle raw complexity well</td>
+<td>Google Photos recognising your friends' faces</td>
+</tr>
+<tr>
+<td>Very little data available</td>
+<td>Traditional AI</td>
+<td>ML and DL need lots of data to learn</td>
+<td>A small clinic with only 50 patient records</td>
+</tr>
+<tr>
+<td>Data is abundant and compute is available</td>
+<td>Deep Learning</td>
+<td>More data + more compute = better DL performance</td>
+<td>ChatGPT trained on trillions of words from the internet</td>
+</tr>
+</tbody>
+</table></div>
+<p>Key insight: Always start with the simplest approach that works. Don't use Deep Learning if a simple rule-based system solves the problem. Using DL to check "is age &gt; 18?" would be like using a rocket to go to the neighbourhood shop.</p>
+<hr />
+<h2 id="q5-what-is-an-ai-system-why-is-the-model-less-than-5-of-the-total-system">Q5: What is an AI System? Why is the model "less than 5% of the total system"?</h2>
+<p><strong>Answer:</strong>
+An AI system is the complete end-to-end setup needed to deliver AI to real users. It is NOT just the model (algorithm). The model is like the engine of a car — important, but useless without wheels, brakes, fuel system, and dashboard.</p>
+<p>An AI system includes:
+- <strong>Data pipelines</strong> — collecting and cleaning data
+- <strong>Feature engineering</strong> — preparing inputs for the model
+- <strong>Model training</strong> — teaching the AI
+- <strong>Serving infrastructure</strong> — making predictions available to users
+- <strong>Monitoring</strong> — checking if the AI still works well
+- <strong>Application layer</strong> — the app or website users interact with</p>
+<p>The model (algorithm) is typically less than 5% of the total code in a production AI system. The other 95% is everything around it — data pipelines, feature engineering, serving, monitoring, CI/CD, logging, and A/B testing.</p>
+<p>Restaurant analogy: The chef's recipe (model) is important, but the restaurant system includes sourcing ingredients (data), kitchen equipment (infrastructure), the menu (application), the waiter serving food (serving layer), and customer feedback cards (monitoring). The recipe alone doesn't feed anyone.</p>
+<hr />
+<h2 id="q6-describe-the-six-stages-of-the-ai-system-lifecycle-why-is-it-a-cycle-and-not-a-straight-line">Q6: Describe the six stages of the AI System Lifecycle. Why is it a cycle and not a straight line?</h2>
+<p><strong>Answer:</strong></p>
+<p>The six stages are:</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Stage</th>
+<th>What Happens</th>
+<th>Example (Swiggy Delivery)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>1. Define Problem</strong></td>
+<td>Figure out what you're solving. Define success metric.</td>
+<td>"Predict delivery time accurately. Success = prediction within 5 min of actual."</td>
+</tr>
+<tr>
+<td><strong>2. Collect &amp; Prepare Data</strong></td>
+<td>Gather data, clean it, label it, split into train/test.</td>
+<td>Collect past deliveries (prep time, distance, traffic, weather). Remove cancelled orders.</td>
+</tr>
+<tr>
+<td><strong>3. Build &amp; Train Model</strong></td>
+<td>Choose algorithm, train on data, tune parameters.</td>
+<td>Try linear regression, XGBoost, neural network. XGBoost predicts best.</td>
+</tr>
+<tr>
+<td><strong>4. Deploy &amp; Serve</strong></td>
+<td>Put model into production for real users.</td>
+<td>Deploy as API. When user orders, app calls API → gets predicted time → shows on screen.</td>
+</tr>
+<tr>
+<td><strong>5. Monitor &amp; Evaluate</strong></td>
+<td>Watch real-world performance over time.</td>
+<td>Track: Are actual delivery times matching predictions? Is error increasing?</td>
+</tr>
+<tr>
+<td><strong>6. Iterate &amp; Improve</strong></td>
+<td>Fix issues, add new data, retrain, deploy improved version.</td>
+<td>Add Diwali traffic data. Retrain. New model is 15% more accurate during festivals.</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Why it's a cycle:</strong> Unlike traditional software (a tax calculator works correctly forever), AI models degrade over time because the real world changes:
+- Customer preferences change with seasons
+- New types of fraud appear that the model has never seen
+- A pandemic changes all buying patterns overnight</p>
+<p>So AI systems need continuous retraining and monitoring — it's an infinite loop, not a one-time project. Netflix runs this cycle continuously — their recommendation models are never "done."</p>
+<hr />
+<h2 id="q7-what-are-the-six-key-components-of-an-ai-system-explain-each-briefly">Q7: What are the six key components of an AI system? Explain each briefly.</h2>
+<p><strong>Answer:</strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Component</th>
+<th>What It Does</th>
+<th>Example (Amazon)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Data Pipeline</strong></td>
+<td>Collects raw data, cleans it, transforms it, stores it. "Garbage in, garbage out."</td>
+<td>Amazon collects clicks, purchases, searches, reviews from millions of users every second.</td>
+</tr>
+<tr>
+<td><strong>Feature Pipeline</strong></td>
+<td>Converts raw data into features — the specific inputs the model needs.</td>
+<td>Raw: "User clicked product X at 10pm." Feature: "user_click_count_last_7_days = 45, category_preference = electronics."</td>
+</tr>
+<tr>
+<td><strong>Model Pipeline</strong></td>
+<td>Trains, evaluates, and selects the best model. Tracks versions.</td>
+<td>Amazon tests hundreds of recommendation models. The best one gets promoted to production.</td>
+</tr>
+<tr>
+<td><strong>Serving Infrastructure</strong></td>
+<td>Hosts the trained model and answers prediction requests fast.</td>
+<td>When you open Amazon, a model server computes personalised recommendations in milliseconds.</td>
+</tr>
+<tr>
+<td><strong>Monitoring</strong></td>
+<td>Watches if the model is working well. Alerts when something goes wrong.</td>
+<td>Amazon monitors if recommendation click-through rates drop. If yes, alert fires.</td>
+</tr>
+<tr>
+<td><strong>Application Layer</strong></td>
+<td>The app/website users interact with. Connects predictions to user experience.</td>
+<td>Amazon's website takes model scores and displays products ranked with "Recommended" badges.</td>
+</tr>
+</tbody>
+</table></div>
+<hr />
+<h2 id="q8-what-is-training-serving-skew-why-is-it-a-serious-problem-in-ai-systems">Q8: What is Training-Serving Skew? Why is it a serious problem in AI systems?</h2>
+<p><strong>Answer:</strong>
+Training-serving skew happens when the data or features used during training are different from what's available during serving (production). The model sees different data in production than what it trained on, which causes accuracy to drop.</p>
+<p><strong>Analogy:</strong> Imagine studying for an exam using last year's question paper (training). But this year's exam (serving) has completely different questions. You prepared for the wrong thing — your performance will suffer.</p>
+<p><strong>Real-world example:</strong> A fraud detection model is trained using a feature called "time since last transaction." During training, this is calculated exactly from historical data. But during serving, the feature calculation has a bug that rounds to the nearest hour. The model gets slightly different inputs in production → accuracy drops silently.</p>
+<p>Why it's serious:
+- It doesn't cause a crash or error — the model still runs but gives wrong predictions
+- It's very hard to detect without proper monitoring
+- It can go unnoticed for weeks or months before someone complains</p>
+<p>Prevention: Use a Feature Store (like Feast or Tecton) to ensure the exact same feature computation logic is used in both training and serving.</p>
+<hr />
+<h2 id="q9-explain-overfitting-with-a-simple-analogy-how-does-it-affect-ai-systems">Q9: Explain overfitting with a simple analogy. How does it affect AI systems?</h2>
+<p><strong>Answer:</strong>
+<strong>Overfitting</strong> is when a model memorises the training data too well and fails on new, unseen data.</p>
+<p><strong>Analogy:</strong> A student who memorises every answer from past exam papers word-for-word. When a slightly different question appears in the actual exam, they can't answer it because they memorised instead of understanding the concepts.</p>
+<p>In AI terms:
+- An overfitted model scores 99% on training data but only 60% on new data
+- It has learned the noise and quirks of the training set instead of the real patterns
+- It's like remembering that "Question 5 answer is always C" instead of learning the subject</p>
+<p>Impact on AI systems:
+- Model performs great during development/testing but fails in production
+- Wastes time and resources — the team thinks they have a good model but it doesn't work in the real world</p>
+<p>How to prevent it:
+- Use more training data
+- Use simpler models (fewer parameters)
+- Apply regularisation techniques
+- Always evaluate on a separate test set that the model has never seen</p>
+<hr />
+<h2 id="q10-what-is-data-drift-give-a-real-world-example-of-how-it-can-break-an-ai-model">Q10: What is Data Drift? Give a real-world example of how it can break an AI model.</h2>
+<p><strong>Answer:</strong>
+Data drift occurs when the real-world data changes over time, making the model's training data outdated. The patterns the model learned no longer match what's happening in the current world.</p>
+<p><strong>Example 1 — COVID impact:</strong> A loan approval model trained on 2019 data learned that "restaurant owner with steady income" is a safe borrower. During COVID-19 in 2020, restaurants shut down, and restaurant owners defaulted on loans. The model's assumptions were no longer valid — data drift made it approve risky loans.</p>
+<p><strong>Example 2 — Seasonal drift:</strong> A clothing recommendation model trained on winter data recommends sweaters and jackets. When summer comes, users want kurtas and cotton clothes, but the model keeps recommending winter wear.</p>
+<p><strong>Example 3 — Swiggy delivery:</strong> A delivery time model trained on normal traffic patterns fails during IPL match days or Diwali when traffic patterns are completely different from the training data.</p>
+<p>Why it matters: Unlike bugs in traditional software (which cause immediate errors), data drift causes silent degradation. The model doesn't crash — it just slowly becomes wrong. Without monitoring, you won't know until customers start complaining weeks later.</p>
+<hr />
+<h2 id="q11-list-five-real-world-ai-applications-across-different-industries-with-specific-company-examples">Q11: List five real-world AI applications across different industries with specific company examples.</h2>
+<p><strong>Answer:</strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Industry</th>
+<th>Application</th>
+<th>Company Example</th>
+<th>Impact</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Healthcare</strong></td>
+<td>Medical image analysis</td>
+<td>Google DeepMind detected 50+ eye diseases from retinal scans with accuracy matching specialist doctors. Used in NHS hospitals.</td>
+<td>Faster and more consistent diagnosis</td>
+</tr>
+<tr>
+<td><strong>Finance</strong></td>
+<td>Fraud detection</td>
+<td>PayPal uses ML to evaluate 10+ million transactions daily. Reduced false positives by 50% compared to rule-based systems.</td>
+<td>Catches fraud in milliseconds</td>
+</tr>
+<tr>
+<td><strong>E-commerce</strong></td>
+<td>Product recommendations</td>
+<td>Amazon's "Customers who bought this also bought..." drives 35% of total revenue (~$130 billion/year influenced by AI).</td>
+<td>Massive revenue increase</td>
+</tr>
+<tr>
+<td><strong>Manufacturing</strong></td>
+<td>Predictive maintenance</td>
+<td>Siemens uses AI on turbine sensor data to predict failures 20 hours before they happen.</td>
+<td>Saves millions in unplanned downtime</td>
+</tr>
+<tr>
+<td><strong>Transportation</strong></td>
+<td>Self-driving vehicles</td>
+<td>Waymo robotaxis in San Francisco — fully driverless, no safety driver, carrying paying passengers daily.</td>
+<td>Safer autonomous transport</td>
+</tr>
+</tbody>
+</table></div>
+<p>Indian examples:
+- <strong>Jio</strong> uses AI to manage network traffic across 400+ million subscribers
+- <strong>HDFC Bank</strong> uses ML for real-time fraud detection on every transaction
+- <strong>Swiggy/Zomato</strong> use AI for delivery time prediction and restaurant recommendations</p>
+<hr />
+<h2 id="q12-what-is-a-b-testing-in-the-context-of-ai-systems-why-is-it-important">Q12: What is A/B Testing in the context of AI systems? Why is it important?</h2>
+<p><strong>Answer:</strong>
+A/B Testing means comparing two versions of something on real users to measure which performs better.</p>
+<p>How it works in AI systems:
+- <strong>Version A (Control):</strong> The current model (e.g., recommendation model v1)
+- <strong>Version B (Treatment):</strong> The new model (e.g., recommendation model v2)
+- Split users randomly — 50% see recommendations from v1, 50% from v2
+- After 1-2 weeks, compare metrics: Which version led to more clicks? More purchases? Higher watch time?
+- If v2 is better, promote it to 100% of users. If not, discard it.</p>
+<p><strong>Example:</strong> Google runs 10,000+ A/B tests per year on Search results. Each tiny change to the ranking algorithm is tested on a small percentage of users before being rolled out to everyone.</p>
+<p>Why it's important:
+- A model that performs well on test data might not perform well with real users
+- A/B testing is the only way to measure real-world impact
+- Prevents deploying a model that looks good on paper but actually hurts the user experience
+- Allows data-driven decisions instead of guesswork</p>
+<hr />
+<h2 id="q13-scenario-a-local-kirana-store-owner-in-mumbai-asks-you-i-have-500-customers-should-i-use-ai-for-my-business-what-would-you-advise">Q13: Scenario — A local kirana store owner in Mumbai asks you: "I have 500 customers. Should I use AI for my business?" What would you advise?</h2>
+<p><strong>Answer:</strong>
+Short answer: Not ML/DL, but simple rule-based automation could help.</p>
+<p>Detailed reasoning:
+1. <strong>Data volume is too low.</strong> With only 500 customers, there isn't enough data to train meaningful ML models. ML needs thousands to millions of data points.</p>
+<ol>
+<li><strong>Simple rules work better here.</strong> For a small store:</li>
+<li>Track which products sell most using a basic spreadsheet → stock accordingly</li>
+<li>Send WhatsApp reminders to regular customers when their usual items arrive → simple rule, not ML</li>
+<li>
+<p>Track expiry dates using a basic alert system → no AI needed</p>
+</li>
+<li>
+<p><strong>Where AI might help indirectly:</strong></p>
+</li>
+<li>Use a ready-made accounting app (like Khatabook) that uses AI internally</li>
+<li>Use Google Translate or ChatGPT to communicate with suppliers in different languages</li>
+<li>Use an API-based tool for generating marketing messages</li>
+</ol>
+<p>Key principle: Don't use AI where a simple formula or rule works fine. AI adds complexity, cost, and maintenance burden. For a 500-customer business, the return on investment of building a custom AI model would be negative.</p>
+<hr />
+<h2 id="q14-what-is-the-difference-between-training-and-inference-serving-in-ai">Q14: What is the difference between Training and Inference (Serving) in AI?</h2>
+<p><strong>Answer:</strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Aspect</th>
+<th>Training</th>
+<th>Inference (Serving)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>What happens</strong></td>
+<td>Model learns patterns from data</td>
+<td>Trained model makes predictions on new data</td>
+</tr>
+<tr>
+<td><strong>When it happens</strong></td>
+<td>Before deployment (offline, can take hours/days)</td>
+<td>After deployment (real-time, must be fast)</td>
+</tr>
+<tr>
+<td><strong>Data used</strong></td>
+<td>Historical labelled data (training set)</td>
+<td>New, unseen data from real users</td>
+</tr>
+<tr>
+<td><strong>Compute needed</strong></td>
+<td>Very high (GPUs running for hours/days)</td>
+<td>Lower (needs to respond in milliseconds)</td>
+</tr>
+<tr>
+<td><strong>Frequency</strong></td>
+<td>Done periodically (weekly, monthly, or on-demand)</td>
+<td>Done continuously (every time a user makes a request)</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Analogy:</strong> Training is like studying for an exam (takes days, needs heavy effort). Inference is like writing the exam (must answer each question quickly, uses what you already learned).</p>
+<p><strong>Example — Swiggy:</strong>
+- Training: Feed 2 years of delivery data to the model. It learns patterns over several hours on a GPU cluster.
+- Inference: When you place an order, the trained model predicts "42 minutes" in under 100 milliseconds.</p>
+<hr />
+<h2 id="q15-why-do-ai-models-degrade-over-time-while-traditional-software-doesn-t-explain-with-examples">Q15: Why do AI models degrade over time while traditional software doesn't? Explain with examples.</h2>
+<p><strong>Answer:</strong>
+Traditional software follows fixed rules that don't change unless a programmer changes them. A function that calculates GST at 18% will always calculate correctly — it doesn't degrade.</p>
+<p>AI models, however, learn from historical data. When the real world changes, the patterns the model learned become outdated. This is called <strong>model degradation</strong> or <strong>concept drift</strong>.</p>
+<p>Examples of why models degrade:</p>
+<ol>
+<li>
+<p><strong>Customer behaviour changes:</strong> A movie recommendation model trained in 2019 wouldn't predict the sudden popularity of pandemic-themed movies in 2020.</p>
+</li>
+<li>
+<p><strong>New fraud patterns:</strong> A fraud detection model trained on 2022 data won't catch new scam methods invented in 2024 (like UPI phishing scams).</p>
+</li>
+<li>
+<p><strong>Market changes:</strong> A house price prediction model trained during stable times would give wildly wrong predictions during a real estate boom or crash.</p>
+</li>
+<li>
+<p><strong>Seasonal shifts:</strong> A fashion recommendation model trained on monsoon data would recommend raincoats during winter.</p>
+</li>
+<li>
+<p><strong>Regulatory changes:</strong> A loan approval model trained before new RBI guidelines might approve loans that should now be rejected.</p>
+</li>
+</ol>
+<p>This is why the AI lifecycle is a cycle — models must be continuously monitored and retrained to stay accurate.</p>
+<hr />
+<h2 id="q16-what-does-garbage-in-garbage-out-mean-in-the-context-of-ai-systems">Q16: What does "Garbage In, Garbage Out" mean in the context of AI systems?</h2>
+<p><strong>Answer:</strong>
+"Garbage In, Garbage Out" (GIGO) means that if you feed bad data into an AI model, you will get bad predictions out — no matter how advanced the algorithm is.</p>
+<p><strong>Example 1 — Biased data:</strong> If a hiring AI is trained only on data from male employees (because historically only men were hired), it will learn that "male" is a positive signal and discriminate against female candidates. The algorithm isn't biased — the data is.</p>
+<p><strong>Example 2 — Dirty data:</strong> If a house price dataset has incorrect entries (a Rs 50 lakh house entered as Rs 5 crore), the model will learn wrong patterns and make absurd predictions.</p>
+<p><strong>Example 3 — Incomplete data:</strong> If a delivery time prediction model doesn't include weather data in training, it won't know that rain slows down deliveries. Its predictions will be wrong on rainy days.</p>
+<p>This is why the Data Pipeline component is so critical in AI systems. Companies like Amazon and Netflix spend more time on data collection, cleaning, and preparation than on model building.</p>
+<hr />
+<h2 id="q17-give-two-ai-application-examples-each-from-healthcare-and-finance-explain-how-ai-helps-in-each-case">Q17: Give two AI application examples each from Healthcare and Finance. Explain how AI helps in each case.</h2>
+<p><strong>Answer:</strong></p>
+<p><strong>Healthcare:</strong></p>
+<ol>
+<li>
+<p><strong>Medical Image Analysis (Google DeepMind):</strong> Deep learning models analyse retinal scans, X-rays, and MRIs to detect diseases. DeepMind's model detected 50+ eye diseases from retinal scans with accuracy matching specialist doctors. This helps in early detection, especially in areas with doctor shortages (like rural India where specialist availability is low).</p>
+</li>
+<li>
+<p><strong>Drug Discovery (Insilico Medicine):</strong> AI models predict how different chemical compounds will interact with human proteins. What traditionally took 4-5 years of lab work can now be narrowed down to months. This speeds up the creation of new medicines and reduces the cost from billions to millions of dollars.</p>
+</li>
+</ol>
+<p><strong>Finance:</strong></p>
+<ol>
+<li>
+<p><strong>Fraud Detection (HDFC Bank/PayPal):</strong> ML models analyse every transaction in real-time — checking amount, location, time, merchant type — and flag unusual patterns. PayPal evaluates 10+ million transactions daily and catches fraud within milliseconds before the transaction completes.</p>
+</li>
+<li>
+<p><strong>Credit Scoring (CRED):</strong> AI analyses spending patterns, repayment history, and income to predict if a user will default on payments. This helps decide credit limits and personalised offers. Unlike traditional rule-based scoring, ML can find complex patterns that humans might miss.</p>
+</li>
+</ol>
+<hr />
+<h2 id="q18-what-is-the-role-of-the-monitoring-component-in-an-ai-system-what-happens-if-monitoring-is-missing">Q18: What is the role of the Monitoring component in an AI system? What happens if monitoring is missing?</h2>
+<p><strong>Answer:</strong>
+The Monitoring component watches the deployed model's performance in production and alerts when something goes wrong.</p>
+<p>What monitoring tracks:
+- <strong>Model accuracy over time:</strong> Is the model still making correct predictions?
+- <strong>Data drift:</strong> Has the incoming data changed compared to what the model was trained on?
+- <strong>System health:</strong> Is the model responding fast enough? Any server errors?
+- <strong>Business metrics:</strong> Is the model actually improving business outcomes (revenue, user satisfaction)?</p>
+<p>What happens without monitoring — the <strong>Zillow disaster (2020):</strong>
+Zillow built an AI model to predict US house prices for their home-buying business. Initially it worked great. But:
+- The housing market changed rapidly (COVID effect)
+- The model's predictions drifted — it consistently overpredicted prices
+- Without adequate monitoring, Zillow kept buying houses at inflated prices
+- Lost $881 million and shut down the entire business unit
+- 2,000 employees were laid off</p>
+<p>This is the most expensive AI monitoring failure in history. Proper drift detection could have caught the problem months earlier and saved hundreds of millions.</p>
+<hr />
+<h2 id="q19-scenario-flipkart-wants-to-build-an-ai-system-to-predict-which-products-a-customer-will-buy-next-walk-through-the-six-lifecycle-stages-for-this-system">Q19: Scenario — Flipkart wants to build an AI system to predict which products a customer will buy next. Walk through the six lifecycle stages for this system.</h2>
+<p><strong>Answer:</strong></p>
+<p><strong>Stage 1 — Define Problem:</strong>
+Goal: Predict the next product a customer is likely to purchase. Success metric: Increase purchase conversion rate by 10% through personalised "Recommended for You" suggestions.</p>
+<p><strong>Stage 2 — Collect &amp; Prepare Data:</strong>
+Collect: Past purchase history, browsing history, search queries, wishlist items, time of day, device type, customer demographics, festival/sale data. Clean: Remove bot traffic, handle missing values, remove returns/cancelled orders.</p>
+<p><strong>Stage 3 — Build &amp; Train Model:</strong>
+Create features like "number_of_purchases_last_30_days," "most_viewed_category," "days_since_last_purchase." Try collaborative filtering, XGBoost, and deep learning models. Evaluate each on held-out test data. Select the best-performing model.</p>
+<p><strong>Stage 4 — Deploy &amp; Serve:</strong>
+Deploy the model as an API on Flipkart's servers. When a user opens the app, the API is called with the user's features → model returns top 10 predicted products → shown as "Recommended for You."</p>
+<p><strong>Stage 5 — Monitor &amp; Evaluate:</strong>
+Track: Click-through rate on recommendations, conversion rate, revenue from recommended products. Check for data drift (are user patterns changing?). Alert if click-through rate drops below baseline.</p>
+<p><strong>Stage 6 — Iterate &amp; Improve:</strong>
+Add Big Billion Days sale data. Retrain model with festival shopping patterns. Add new features like "trending products in user's city." A/B test the new model vs old. If better, promote to production.</p>
+<p>The cycle repeats continuously — especially before and after major sales events.</p>
+<hr />
+<h2 id="q20-why-does-the-course-emphasise-ai-systems-rather-than-just-ai-algorithms-explain-with-the-restaurant-analogy">Q20: Why does the course emphasise AI "Systems" rather than just AI "Algorithms"? Explain with the restaurant analogy.</h2>
+<p><strong>Answer:</strong>
+An AI algorithm (model) is just one piece of a much larger puzzle. Teaching only algorithms would be like teaching someone a recipe without teaching them how to run a restaurant.</p>
+<p>The restaurant analogy:
+- <strong>Recipe (Algorithm/Model):</strong> The chef knows how to cook biryani — this is the core skill
+- <strong>Ingredient sourcing (Data Pipeline):</strong> Getting quality rice, spices, and meat from suppliers
+- <strong>Kitchen equipment (Infrastructure):</strong> Ovens, stoves, refrigerators, vessels
+- <strong>Menu &amp; service (Application Layer):</strong> How the food reaches the customer's table
+- <strong>Waiter (Serving Layer):</strong> Taking orders and delivering food quickly
+- <strong>Customer feedback cards (Monitoring):</strong> Checking if customers are happy, if quality is declining</p>
+<p>Without all of these, the recipe alone doesn't feed anyone. Similarly, a brilliant ML model sitting in a Jupyter notebook is useless if:
+- There's no data pipeline to feed it fresh data
+- There's no serving infrastructure to deliver predictions to users
+- There's no monitoring to catch when it starts failing
+- There's no application layer to turn raw predictions into useful actions</p>
+<p>Google's research showed that the ML model code is typically less than 5% of a production AI system. The other 95% is the surrounding system — and that's what this course teaches.</p>
+<hr />
+<p><em>End of Session 1 Questions and Answers</em></p>
 </main>
-
-<button class="back-top" id="backTop" aria-label="Back to top">↑</button>
-
+<button class="back-top" id="backTop" title="Back to top">&#8593;</button>
 <script>
-function toggleCard(el){const card=el.closest('.qa-card');card.classList.toggle('open')}
-function toggleAll(show){document.querySelectorAll('.qa-card').forEach(c=>{show?c.classList.add('open'):c.classList.remove('open')})}
-function updateScore(){const checks=document.querySelectorAll('.qa-question input[type="checkbox"]');let s=0;checks.forEach(c=>{if(c.checked)s++});document.getElementById('score').textContent=s}
-window.addEventListener('scroll',()=>{const h=document.documentElement;const pct=h.scrollTop/(h.scrollHeight-h.clientHeight)*100;document.getElementById('progressBar').style.width=pct+'%';document.getElementById('backTop').classList.toggle('show',h.scrollTop>400)});
-document.getElementById('backTop').addEventListener('click',()=>window.scrollTo({top:0,behavior:'smooth'}));
-document.getElementById('sidebarToggle').addEventListener('click',()=>document.getElementById('sidebar').classList.toggle('open'));
+const bar=document.getElementById('progress');
+const btn=document.getElementById('backTop');
+const toggle=document.getElementById('sidebarToggle');
+const sidebar=document.getElementById('sidebar');
+window.addEventListener('scroll',()=>{
+  const s=document.documentElement.scrollTop;
+  const h=document.documentElement.scrollHeight-document.documentElement.clientHeight;
+  bar.style.width=(s/h*100)+'%';
+  btn.classList.toggle('show',s>400);
+});
+btn.onclick=()=>window.scrollTo({top:0,behavior:'smooth'});
+toggle.onclick=()=>sidebar.classList.toggle('open');
+// Active sidebar link
+const links=document.querySelectorAll('.sidebar nav a');
+const obs=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{if(e.isIntersecting){
+    links.forEach(l=>l.classList.remove('active'));
+    const a=document.querySelector('.sidebar nav a[href="#'+e.target.id+'"]');
+    if(a)a.classList.add('active');
+  }});
+},{rootMargin:'-20% 0px -70% 0px'});
+document.querySelectorAll('h2[id],h3[id]').forEach(h=>obs.observe(h));
 </script>
 </body>
 </html>

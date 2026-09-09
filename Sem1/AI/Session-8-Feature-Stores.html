@@ -1,0 +1,853 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Session 8: Feature Stores</title>
+<style>
+:root{--bg:#0f172a;--surface:#1e293b;--surface2:#334155;--border:#475569;--text:#e2e8f0;--text-muted:#94a3b8;--code-bg:#0d1117;--accent:#ec4899;--accent-dim:rgba(236,72,153,.15);--accent-border:rgba(236,72,153,.3);--header-gradient:linear-gradient(135deg,#831843,#db2777,#ec4899)}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);line-height:1.7;display:flex;min-height:100vh}
+.progress-bar{position:fixed;top:0;left:0;height:4px;background:var(--accent);z-index:1000;transition:width .2s}
+.sidebar{position:fixed;top:0;left:0;width:280px;height:100vh;background:var(--surface);border-right:1px solid var(--border);overflow-y:auto;padding:1.5rem 0;z-index:100;transition:transform .3s}
+.sidebar-header{padding:0 1.5rem 1.5rem;border-bottom:1px solid var(--border);margin-bottom:1rem}
+.sidebar-header h2{font-size:1rem;color:var(--accent);margin-bottom:.25rem}
+.sidebar-header p{font-size:.75rem;color:var(--text-muted)}
+.sidebar nav a{display:block;padding:.55rem 1.5rem;color:var(--text-muted);text-decoration:none;font-size:.85rem;border-left:3px solid transparent;transition:all .2s}
+.sidebar nav a:hover,.sidebar nav a.active{color:var(--accent);background:var(--accent-dim);border-left-color:var(--accent)}
+.sidebar nav a.sub{padding-left:2.5rem;font-size:.8rem}
+.sidebar-toggle{display:none;position:fixed;top:1rem;left:1rem;z-index:200;background:var(--surface);border:1px solid var(--border);color:var(--text);width:40px;height:40px;border-radius:8px;cursor:pointer;font-size:1.2rem}
+.main{margin-left:280px;flex:1;max-width:900px;padding:2rem 3rem 4rem}
+.page-header{background:var(--header-gradient);border-radius:16px;padding:2.5rem;margin-bottom:2.5rem;position:relative;overflow:hidden}
+.page-header::after{content:'';position:absolute;top:0;right:0;width:200px;height:100%;background:radial-gradient(circle at 80% 50%,rgba(255,255,255,.1),transparent);pointer-events:none}
+.page-header .badge{display:inline-block;background:rgba(0,0,0,.3);color:#fff;padding:.25rem .75rem;border-radius:20px;font-size:.75rem;margin-bottom:.75rem}
+.page-header h1{font-size:2rem;color:#fff;margin-bottom:.5rem}
+.page-header .meta{color:rgba(255,255,255,.8);font-size:.85rem}
+h2{font-size:1.5rem;color:var(--accent);margin:2.5rem 0 1rem;padding-bottom:.5rem;border-bottom:2px solid var(--accent-border)}
+h3{font-size:1.15rem;color:var(--text);margin:1.8rem 0 .8rem}
+h4{font-size:1rem;color:var(--accent);margin:1.2rem 0 .6rem}
+p{margin-bottom:1rem;color:var(--text)}
+strong{color:var(--text)}
+.table-wrap{overflow-x:auto;margin:1.2rem 0;border-radius:10px;border:1px solid var(--border)}
+table{width:100%;border-collapse:collapse;font-size:.88rem}
+thead th{background:var(--accent);color:#000;padding:.75rem 1rem;text-align:left;font-weight:600;white-space:nowrap}
+tbody tr:nth-child(even){background:var(--surface)}
+tbody tr:nth-child(odd){background:var(--surface2)}
+tbody tr:hover{background:var(--accent-dim)}
+td{padding:.7rem 1rem;border-top:1px solid var(--border);color:var(--text)}
+pre{background:var(--code-bg);border:1px solid var(--border);border-radius:10px;padding:1.2rem;overflow-x:auto;margin:1.2rem 0;font-size:.85rem;line-height:1.6}
+code{font-family:'Cascadia Code','Fira Code','Consolas',monospace;color:#e6edf3}
+p code,li code,td code{background:var(--code-bg);padding:.15rem .4rem;border-radius:4px;font-size:.85em;color:var(--accent)}
+.callout{background:var(--accent-dim);border-left:4px solid var(--accent);border-radius:0 10px 10px 0;padding:1rem 1.2rem;margin:1.2rem 0;font-size:.92rem}
+.callout p{margin:0;color:var(--text)}
+.callout em{color:var(--text-muted)}
+ul,ol{margin:0 0 1rem 1.5rem;color:var(--text)}
+li{margin-bottom:.4rem}
+li strong{color:var(--accent)}
+.back-top{position:fixed;bottom:2rem;right:2rem;width:44px;height:44px;background:var(--accent);color:#000;border:none;border-radius:50%;cursor:pointer;font-size:1.3rem;display:none;align-items:center;justify-content:center;box-shadow:0 4px 15px rgba(236,72,153,.3);transition:transform .2s,opacity .2s;z-index:100}
+.back-top:hover{transform:scale(1.1)}
+.back-top.show{display:flex}
+@media(max-width:900px){
+  .sidebar{transform:translateX(-100%)}
+  .sidebar.open{transform:translateX(0)}
+  .sidebar-toggle{display:flex;align-items:center;justify-content:center}
+  .main{margin-left:0;padding:2rem 1.2rem 4rem}
+}
+@media print{
+  .sidebar,.sidebar-toggle,.back-top,.progress-bar{display:none!important}
+  .main{margin-left:0;max-width:100%}
+  body{background:#fff;color:#000}
+  h2{color:#831843}
+  thead th{background:#ec4899;color:#000;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  tbody tr:nth-child(even){background:#f8f8f8}
+  tbody tr:nth-child(odd){background:#fff}
+  pre{border:1px solid #ccc;background:#f5f5f5}
+  code{color:#333}
+  .callout{background:#fce4ec;border-left-color:#ec4899}
+  .page-header{background:#ec4899!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+}
+</style>
+</head>
+<body>
+<div class="progress-bar" id="progress"></div>
+<button class="sidebar-toggle" id="sidebarToggle">&#9776;</button>
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <h2>SS ZG662</h2>
+    <p>Introduction to AI Systems</p>
+  </div>
+  <nav>
+    <a href="#table-of-contents">Table of Contents</a>
+    <a href="#8-1-what-is-a-feature-store">8.1 What is a Feature Store?</a>
+    <a href="#simple-definition" class="sub">Simple Definition</a>
+    <a href="#why-do-we-need-feature-stores" class="sub">Why Do We Need Feature Stores?</a>
+    <a href="#architecture-of-a-feature-store" class="sub">Architecture of a Feature Store</a>
+    <a href="#popular-feature-store-tools" class="sub">Popular Feature Store Tools</a>
+    <a href="#live-example-how-uber-uses-their-feature-store-michelangelo" class="sub">Live Example: How Uber Uses Their Feature Store (M...</a>
+    <a href="#8-2-offline-vs-online-features">8.2 Offline vs Online Features</a>
+    <a href="#the-two-modes-of-feature-serving" class="sub">The Two Modes of Feature Serving</a>
+    <a href="#offline-features-explained" class="sub">Offline Features — Explained</a>
+    <a href="#online-features-explained" class="sub">Online Features — Explained</a>
+    <a href="#using-both-together" class="sub">Using Both Together</a>
+    <a href="#8-3-feature-pipelines">8.3 Feature Pipelines</a>
+    <a href="#what-is-a-feature-pipeline" class="sub">What is a Feature Pipeline?</a>
+    <a href="#batch-feature-pipeline" class="sub">Batch Feature Pipeline</a>
+    <a href="#streaming-feature-pipeline" class="sub">Streaming Feature Pipeline</a>
+    <a href="#batch-streaming-combined-pipeline" class="sub">Batch + Streaming Combined Pipeline</a>
+    <a href="#8-4-data-consistency-the-training-serving-skew-problem">8.4 Data Consistency — The Training-Serving Skew P...</a>
+    <a href="#what-is-training-serving-skew" class="sub">What is Training-Serving Skew?</a>
+    <a href="#types-of-training-serving-skew" class="sub">Types of Training-Serving Skew</a>
+    <a href="#how-feature-stores-prevent-skew" class="sub">How Feature Stores Prevent Skew</a>
+    <a href="#live-example-training-serving-skew-at-zillow" class="sub">Live Example: Training-Serving Skew at Zillow</a>
+    <a href="#best-practices-for-preventing-skew" class="sub">Best Practices for Preventing Skew</a>
+    <a href="#8-5-real-time-recommendation-systems">8.5 Real-Time Recommendation Systems</a>
+    <a href="#how-real-time-recommendations-work" class="sub">How Real-Time Recommendations Work</a>
+    <a href="#architecture-of-a-real-time-recommendation-system" class="sub">Architecture of a Real-Time Recommendation System</a>
+    <a href="#the-two-stage-recommendation-architecture" class="sub">The Two-Stage Recommendation Architecture</a>
+    <a href="#key-concept-approximate-nearest-neighbour-ann-search" class="sub">Key Concept: Approximate Nearest Neighbour (ANN) S...</a>
+    <a href="#live-examples-of-real-time-recommendation-systems" class="sub">Live Examples of Real-Time Recommendation Systems</a>
+    <a href="#end-to-end-example-building-spotify-s-discover-weekly" class="sub">End-to-End Example: Building Spotify's "Discover W...</a>
+    <a href="#key-terms-glossary-session-8">Key Terms Glossary (Session 8)</a>
+  </nav>
+</aside>
+<main class="main">
+  <div class="page-header">
+    <span class="badge">Session 8</span>
+    <h1>Session 8: Feature Stores</h1>
+    <div class="meta">Contact Session 8 | Module 2: Data and Feature Engineering</div>
+  </div>
+<h1 id="session-8-feature-stores">Session 8: Feature Stores</h1>
+<div class="callout">
+<p>BITS Pilani — <strong>SS ZG662: Introduction to AI Systems</strong> — Instructor: Chandrasekhar Anantrama</p>
+<p><strong>References:</strong> T1 Chapter 4, Class Notes</p>
+<p><strong>Contact Session:</strong> 8 (Module 2: Data and Feature Engineering)</p>
+</div>
+<hr />
+<h2 id="table-of-contents">Table of Contents</h2>
+<ul>
+<li><a href="#81-what-is-a-feature-store">8.1 What is a Feature Store?</a></li>
+<li><a href="#82-offline-vs-online-features">8.2 Offline vs Online Features</a></li>
+<li><a href="#83-feature-pipelines">8.3 Feature Pipelines</a></li>
+<li><a href="#84-data-consistency--the-training-serving-skew-problem">8.4 Data Consistency — The Training-Serving Skew Problem</a></li>
+<li><a href="#85-real-time-recommendation-systems">8.5 Real-Time Recommendation Systems</a></li>
+</ul>
+<hr />
+<h2 id="8-1-what-is-a-feature-store">8.1 What is a Feature Store?</h2>
+<h3 id="simple-definition">Simple Definition</h3>
+<p>A <strong>feature store</strong> is a centralised system that stores, manages, and serves ML features. It ensures that the same features used during model training are also available during model serving (prediction time).</p>
+<div class="callout">
+<p><strong>Analogy:</strong> Think of a feature store like a <strong>central kitchen</strong> in a restaurant chain. Every branch gets the same pre-cut vegetables, same sauces, same marinades — prepared centrally and delivered fresh. Without the central kitchen, each branch would prepare things differently, leading to inconsistent food.</p>
+<p>In the same way, without a feature store, the training pipeline computes features one way and the serving pipeline computes them differently — causing bugs and accuracy drops.</p>
+</div>
+<h3 id="why-do-we-need-feature-stores">Why Do We Need Feature Stores?</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Problem Without Feature Store</th>
+<th>How Feature Store Solves It</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Training-serving skew:</strong> Features computed differently in training vs serving</td>
+<td>Feature store is the single source of truth — same feature definition, same computation</td>
+</tr>
+<tr>
+<td><strong>Duplicate work:</strong> 5 teams each building the same "user_avg_spend" feature</td>
+<td>Feature store shares features across teams. Compute once, use everywhere.</td>
+</tr>
+<tr>
+<td><strong>Slow feature serving:</strong> Computing features on-the-fly takes too long for real-time predictions</td>
+<td>Feature store pre-computes and caches features for instant retrieval (&lt;1ms)</td>
+</tr>
+<tr>
+<td><strong>No feature discovery:</strong> Data scientists don't know what features exist</td>
+<td>Feature store has a catalog — browse, search, and reuse features</td>
+</tr>
+<tr>
+<td><strong>No versioning:</strong> Feature definitions change, breaking models</td>
+<td>Feature store versions features. Model v1 uses feature_v1, model v2 uses feature_v2.</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="architecture-of-a-feature-store">Architecture of a Feature Store</h3>
+<pre><code>┌──────────────────────────────────────────────────────────────┐
+│                     FEATURE STORE                             │
+│                                                               │
+│  ┌─────────────────────┐     ┌─────────────────────────┐    │
+│  │   OFFLINE STORE     │     │    ONLINE STORE          │    │
+│  │   (for training)    │     │    (for serving)         │    │
+│  │                     │     │                          │    │
+│  │  • All historical   │     │  • Latest values only    │    │
+│  │    feature values   │     │  • Ultra-fast reads      │    │
+│  │  • Stored in data   │     │    (&lt;1ms latency)        │    │
+│  │    warehouse/lake   │     │  • Stored in Redis/      │    │
+│  │  • Used for batch   │     │    DynamoDB              │    │
+│  │    model training   │     │  • Used for real-time    │    │
+│  │                     │     │    predictions           │    │
+│  └─────────────────────┘     └─────────────────────────┘    │
+│                                                               │
+│  ┌─────────────────────────────────────────────────────┐     │
+│  │              FEATURE REGISTRY                        │     │
+│  │  • Feature definitions (name, type, description)    │     │
+│  │  • Data source and transformation logic             │     │
+│  │  • Owner, version, creation date                    │     │
+│  │  • Feature statistics (mean, min, max, distribution)│     │
+│  └─────────────────────────────────────────────────────┘     │
+│                                                               │
+│  ┌─────────────────────────────────────────────────────┐     │
+│  │              FEATURE PIPELINES                       │     │
+│  │  • Batch pipelines (compute features from historical│     │
+│  │    data, run nightly)                               │     │
+│  │  • Streaming pipelines (compute features from real- │     │
+│  │    time events, update continuously)                 │     │
+│  └─────────────────────────────────────────────────────┘     │
+└──────────────────────────────────────────────────────────────┘
+</code></pre>
+<h3 id="popular-feature-store-tools">Popular Feature Store Tools</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Tool</th>
+<th>Type</th>
+<th>Who Uses It</th>
+<th>Key Feature</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Feast</strong></td>
+<td>Open-source</td>
+<td>Startups, mid-size companies</td>
+<td>Simple, works with any data source. Most popular open-source option.</td>
+</tr>
+<tr>
+<td><strong>Tecton</strong></td>
+<td>Commercial (SaaS)</td>
+<td>Large enterprises</td>
+<td>Built by creators of Uber's Michelangelo. Real-time feature computation.</td>
+</tr>
+<tr>
+<td><strong>Hopsworks</strong></td>
+<td>Open-source + Commercial</td>
+<td>Research, enterprises</td>
+<td>Full ML platform. Strong Python integration.</td>
+</tr>
+<tr>
+<td><strong>Amazon SageMaker Feature Store</strong></td>
+<td>AWS service</td>
+<td>AWS users</td>
+<td>Integrated with SageMaker ML platform.</td>
+</tr>
+<tr>
+<td><strong>Google Vertex AI Feature Store</strong></td>
+<td>GCP service</td>
+<td>GCP users</td>
+<td>Integrated with Vertex AI ML platform.</td>
+</tr>
+<tr>
+<td><strong>Databricks Feature Store</strong></td>
+<td>Databricks platform</td>
+<td>Databricks users</td>
+<td>Integrated with Databricks Lakehouse.</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="live-example-how-uber-uses-their-feature-store-michelangelo">Live Example: How Uber Uses Their Feature Store (Michelangelo)</h3>
+<p>Uber's "Michelangelo" platform has one of the most sophisticated feature stores:</p>
+<pre><code>UBER'S FEATURE STORE:
+├── Stores 10,000+ features used across the company
+├── Serves features for: ETA prediction, surge pricing, fraud detection,
+│   driver matching, restaurant recommendations
+├── 
+├── Feature examples:
+│   ├── user_avg_trip_distance_30d (batch — updated daily)
+│   ├── driver_current_location (streaming — updated every 5 seconds)
+│   ├── area_demand_last_15min (streaming — updated every minute)
+│   ├── restaurant_avg_prep_time_7d (batch — updated daily)
+│   └── surge_multiplier_current (streaming — computed in real-time)
+├── 
+├── Any ML team at Uber can:
+│   ├── Browse the feature catalog to find existing features
+│   ├── Reuse features (no duplicate computation)
+│   ├── Request features via API for training or serving
+│   └── Create new features that others can also use
+└──
+└── Impact: Reduced feature development time from weeks to hours
+</code></pre>
+<hr />
+<h2 id="8-2-offline-vs-online-features">8.2 Offline vs Online Features</h2>
+<h3 id="the-two-modes-of-feature-serving">The Two Modes of Feature Serving</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Aspect</th>
+<th>Offline Features</th>
+<th>Online Features</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>When computed</strong></td>
+<td>In batch (nightly, hourly)</td>
+<td>In real-time (as events happen)</td>
+</tr>
+<tr>
+<td><strong>What they represent</strong></td>
+<td>Historical aggregations</td>
+<td>Current state</td>
+</tr>
+<tr>
+<td><strong>Latency requirement</strong></td>
+<td>Minutes to hours is fine</td>
+<td>Must be served in &lt;1-10ms</td>
+</tr>
+<tr>
+<td><strong>Storage</strong></td>
+<td>Data warehouse (BigQuery, Snowflake) or data lake (S3)</td>
+<td>Key-value store (Redis, DynamoDB)</td>
+</tr>
+<tr>
+<td><strong>Used for</strong></td>
+<td>Model training, batch predictions</td>
+<td>Real-time predictions</td>
+</tr>
+<tr>
+<td><strong>Size</strong></td>
+<td>Can be very large (months/years of history)</td>
+<td>Small (only latest values)</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="offline-features-explained">Offline Features — Explained</h3>
+<p>Offline features are computed from historical data in batch jobs, typically running nightly.</p>
+<div class="callout">
+<p><strong>Analogy:</strong> Your bank statement at the end of the month — it summarises all your transactions over 30 days. Computed once, valid for a while.</p>
+</div>
+<p><strong>Examples of offline features:</strong></p>
+<pre><code>Feature: user_total_purchases_last_30_days
+├── Computed: Every night at 2 AM
+├── Logic: SELECT COUNT(*) FROM orders WHERE user_id = ? AND date &gt; now() - 30 days
+├── Storage: Written to offline feature store (BigQuery table)
+├── Used by: Recommendation model training, customer segmentation
+└── Freshness: Up to 24 hours stale (computed last night)
+
+Feature: restaurant_avg_rating
+├── Computed: Every night
+├── Logic: AVG(rating) FROM reviews WHERE restaurant_id = ?
+├── Storage: Feature store offline table
+├── Used by: Restaurant ranking model
+└── Freshness: Up to 24 hours stale
+</code></pre>
+<h3 id="online-features-explained">Online Features — Explained</h3>
+<p>Online features are computed or updated in real-time as events happen, and must be served instantly.</p>
+<div class="callout">
+<p><strong>Analogy:</strong> The "currently playing" status on Spotify — it changes the moment you press play or pause. It reflects the current state, not yesterday's state.</p>
+</div>
+<p><strong>Examples of online features:</strong></p>
+<pre><code>Feature: user_clicks_last_10_minutes
+├── Computed: Continuously (streaming pipeline)
+├── Logic: Count user click events in sliding 10-minute window
+├── Storage: Redis (in-memory key-value store)
+├── Used by: Real-time recommendation model (what to show next)
+├── Latency: Must be served in &lt;1ms
+└── Freshness: Updated within seconds of each click
+
+Feature: driver_current_location
+├── Computed: Every 5 seconds (GPS ping from driver app)
+├── Logic: Latest GPS coordinates from driver
+├── Storage: Redis
+├── Used by: Driver matching model (assign nearest driver to order)
+├── Latency: &lt;1ms
+└── Freshness: 5 seconds old at most
+</code></pre>
+<h3 id="using-both-together">Using Both Together</h3>
+<p>Most real-world models use <strong>both</strong> offline and online features for the best predictions:</p>
+<pre><code>SWIGGY ETA PREDICTION — Feature Request:
+
+Offline features (from batch store):
+├── restaurant_avg_prep_time_30d:     18 min    (computed last night)
+├── user_avg_order_frequency:          3/week    (computed last night)
+├── route_avg_delivery_time_7d:        25 min    (computed last night)
+└── driver_avg_speed_7d:               22 kmph   (computed last night)
+
+Online features (from real-time store):
+├── restaurant_current_active_orders:  7         (updated 30 seconds ago)
+├── driver_current_location:           12.97,77.59 (updated 5 seconds ago)
+├── current_traffic_level:             HIGH       (updated 1 minute ago)
+└── current_weather:                   RAIN        (updated 5 minutes ago)
+
+Combined → fed to model → predicted ETA: 42 minutes
+</code></pre>
+<p>The offline features provide stable baselines (how this restaurant usually performs). The online features provide current context (the restaurant is busy right now, it's raining). Together, they give the most accurate prediction.</p>
+<hr />
+<h2 id="8-3-feature-pipelines">8.3 Feature Pipelines</h2>
+<h3 id="what-is-a-feature-pipeline">What is a Feature Pipeline?</h3>
+<p>A <strong>feature pipeline</strong> is the automated process that computes features from raw data and loads them into the feature store. There are two types:</p>
+<h3 id="batch-feature-pipeline">Batch Feature Pipeline</h3>
+<p>Runs on a schedule (nightly, hourly) to compute features from historical data.</p>
+<pre><code>BATCH FEATURE PIPELINE (runs every night at 2 AM):
+
+┌──────────┐    ┌──────────────┐    ┌──────────────┐    ┌──────────────┐
+│ Raw Data │───→│ Read from    │───→│ Compute      │───→│ Write to     │
+│ (Data    │    │ data lake/   │    │ features     │    │ feature      │
+│  Lake)   │    │ warehouse    │    │ (Spark/SQL)  │    │ store        │
+└──────────┘    └──────────────┘    └──────────────┘    └──────────────┘
+
+Example (Flipkart nightly pipeline):
+├── Read: All yesterday's order and browse events from S3
+├── Compute: For each user:
+│   ├── total_orders_last_30_days
+│   ├── avg_order_value_last_30_days
+│   ├── favourite_category (most purchased)
+│   ├── days_since_last_order
+│   └── cart_abandonment_rate_last_30_days
+├── Write: Updated features to offline feature store (BigQuery)
+└── Duration: ~2 hours for 100M users
+</code></pre>
+<p><strong>Tools:</strong> Apache Spark, Apache Airflow, dbt, SQL</p>
+<h3 id="streaming-feature-pipeline">Streaming Feature Pipeline</h3>
+<p>Runs continuously, computing features from real-time events as they arrive.</p>
+<pre><code>STREAMING FEATURE PIPELINE (runs 24/7):
+
+┌──────────┐    ┌──────────────┐    ┌──────────────┐    ┌──────────────┐
+│ Events   │───→│ Read from    │───→│ Compute      │───→│ Write to     │
+│ (Real-   │    │ event stream │    │ features in  │    │ online       │
+│  time)   │    │ (Kafka)      │    │ real-time    │    │ feature      │
+│          │    │              │    │ (Flink)      │    │ store(Redis) │
+└──────────┘    └──────────────┘    └──────────────┘    └──────────────┘
+
+Example (HDFC fraud detection):
+├── Read: Every card transaction from Kafka stream
+├── Compute: For each card in real-time:
+│   ├── txn_count_last_1_hour (sliding window)
+│   ├── total_amount_last_1_hour
+│   ├── unique_merchants_last_1_hour
+│   ├── distance_from_last_txn_km
+│   └── time_since_last_txn_seconds
+├── Write: Updated features to online store (Redis)
+└── Latency: Feature available within 100ms of transaction
+</code></pre>
+<p><strong>Tools:</strong> Apache Kafka, Apache Flink, Spark Streaming, AWS Kinesis</p>
+<h3 id="batch-streaming-combined-pipeline">Batch + Streaming Combined Pipeline</h3>
+<pre><code>                    ┌─────────────────────────────────┐
+                    │        RAW DATA SOURCES          │
+                    │   (databases, APIs, events)      │
+                    └───────────────┬──────────────────┘
+                                    │
+                    ┌───────────────┴──────────────────┐
+                    │                                   │
+              ┌─────▼──────┐                    ┌──────▼─────┐
+              │   BATCH    │                    │  STREAMING │
+              │  PIPELINE  │                    │  PIPELINE  │
+              │ (Airflow + │                    │ (Kafka +   │
+              │  Spark)    │                    │  Flink)    │
+              │ Runs: 2 AM │                    │ Runs: 24/7 │
+              └─────┬──────┘                    └──────┬─────┘
+                    │                                   │
+              ┌─────▼──────┐                    ┌──────▼─────┐
+              │  OFFLINE   │                    │   ONLINE   │
+              │  STORE     │                    │   STORE    │
+              │ (BigQuery) │                    │  (Redis)   │
+              └─────┬──────┘                    └──────┬─────┘
+                    │                                   │
+                    │     ┌──────────────────┐          │
+                    └────→│  MODEL SERVING   │←─────────┘
+                          │  (combines both) │
+                          └──────────────────┘
+</code></pre>
+<hr />
+<h2 id="8-4-data-consistency-the-training-serving-skew-problem">8.4 Data Consistency — The Training-Serving Skew Problem</h2>
+<h3 id="what-is-training-serving-skew">What is Training-Serving Skew?</h3>
+<p><strong>Training-serving skew</strong> happens when features used during model training are different from features available during prediction (serving). This is one of the most common and dangerous bugs in ML systems.</p>
+<div class="callout">
+<p><strong>Analogy:</strong> You study for a Hindi exam but the actual exam is in English. You prepared (trained) on different data than what you're tested (served) on. No wonder you fail.</p>
+</div>
+<h3 id="types-of-training-serving-skew">Types of Training-Serving Skew</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Type</th>
+<th>What Goes Wrong</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Feature computation skew</strong></td>
+<td>Training computes features one way, serving computes differently</td>
+<td>Training: age = current_year - birth_year. Serving: age = current_date - birth_date (different formula → different values)</td>
+</tr>
+<tr>
+<td><strong>Data distribution skew</strong></td>
+<td>Training data has different distribution than live data</td>
+<td>Training on 2023 data, but 2025 user demographics are different (more young users)</td>
+</tr>
+<tr>
+<td><strong>Feature availability skew</strong></td>
+<td>A feature available during training is not available at serving time</td>
+<td>Training uses "credit_score" (available in historical data). At serving time, credit score hasn't been fetched yet → NULL → model breaks.</td>
+</tr>
+<tr>
+<td><strong>Time-travel skew</strong></td>
+<td>Training accidentally uses future information</td>
+<td>Training data includes "days_until_cancellation" — but at prediction time, you don't know when (or if) the user will cancel!</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="how-feature-stores-prevent-skew">How Feature Stores Prevent Skew</h3>
+<pre><code>WITHOUT FEATURE STORE:
+
+Training pipeline (Python):
+  user_avg_spend = df.groupby('user_id')['amount'].mean()
+  # Uses pandas, includes all historical data
+
+Serving pipeline (Java):
+  user_avg_spend = redis.get(&quot;user:&quot; + userId + &quot;:avg_spend&quot;)  
+  # Different code, different language, might compute differently
+
+RESULT: Skew! Training and serving compute features differently.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+WITH FEATURE STORE:
+
+Feature definition (defined ONCE in feature store):
+  name: user_avg_spend_30d
+  type: float
+  description: &quot;Average transaction amount in last 30 days&quot;
+  computation: SQL(&quot;SELECT AVG(amount) FROM transactions 
+                    WHERE user_id = ? AND date &gt; now() - 30&quot;)
+
+Training: reads from feature store offline table
+Serving:  reads from feature store online table
+Both use the SAME definition → NO SKEW!
+</code></pre>
+<h3 id="live-example-training-serving-skew-at-zillow">Live Example: Training-Serving Skew at Zillow</h3>
+<p>Zillow's "Zestimate" home price prediction model suffered from training-serving skew:</p>
+<pre><code>WHAT HAPPENED:
+├── Training: Model trained on features including &quot;days_on_market&quot;
+│   (how long the house has been listed)
+├── Serving: When predicting price for a NEW listing, 
+│   &quot;days_on_market&quot; = 0 (just listed)
+├── But in training data, &quot;days_on_market&quot; was always &gt; 0
+│   (historical listings that had been on market for a while)
+├── The model never saw days_on_market = 0 during training
+├── This caused systematic overestimation for new listings
+│   
+├── RESULT: Zillow bought houses at inflated prices
+├── LOSS: $881 million
+└── Zillow shut down their home-buying business entirely
+</code></pre>
+<h3 id="best-practices-for-preventing-skew">Best Practices for Preventing Skew</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Practice</th>
+<th>How It Helps</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Use a feature store</strong></td>
+<td>Single source of truth for feature definitions</td>
+</tr>
+<tr>
+<td><strong>Point-in-time correctness</strong></td>
+<td>When creating training data, only use features that were available at that point in time (no future data)</td>
+</tr>
+<tr>
+<td><strong>Feature validation</strong></td>
+<td>Automatically compare feature distributions between training and serving. Alert on significant differences.</td>
+</tr>
+<tr>
+<td><strong>Share code</strong></td>
+<td>Training and serving should use the same feature computation code (or the same feature store)</td>
+</tr>
+<tr>
+<td><strong>Monitor feature values</strong></td>
+<td>Track feature distributions in production. Alert when they deviate from training distribution.</td>
+</tr>
+</tbody>
+</table></div>
+<hr />
+<h2 id="8-5-real-time-recommendation-systems">8.5 Real-Time Recommendation Systems</h2>
+<h3 id="how-real-time-recommendations-work">How Real-Time Recommendations Work</h3>
+<p>A real-time recommendation system combines everything we've learned — feature stores, online/offline features, streaming pipelines — to deliver personalised recommendations in milliseconds.</p>
+<h3 id="architecture-of-a-real-time-recommendation-system">Architecture of a Real-Time Recommendation System</h3>
+<pre><code>━━━ WHEN USER OPENS THE APP ━━━
+
+1. User opens Myntra app
+   └── Request: &quot;Show recommendations for user USR-12345&quot;
+
+2. Feature Store serves features instantly (&lt;5ms total):
+
+   OFFLINE features (pre-computed nightly):
+   ├── purchase_history_embedding: [0.23, 0.45, ...128 dims]
+   ├── favourite_brands: [&quot;Zara&quot;, &quot;H&amp;M&quot;, &quot;Allen Solly&quot;]
+   ├── size_preference: &quot;M&quot;
+   ├── price_range: Rs 500-3000
+   └── style_preference: &quot;casual&quot;
+
+   ONLINE features (real-time):
+   ├── current_session_clicks: [&quot;dress-456&quot;, &quot;top-789&quot;]
+   ├── session_duration_seconds: 120
+   ├── search_query: &quot;red dress for party&quot;
+   └── current_time: &quot;evening&quot;
+
+3. Candidate Generation (first filter — fast but rough):
+   ├── From 10 million products → filter to 1000 candidates
+   ├── Method: ANN (Approximate Nearest Neighbour) search
+   │   using user_embedding vs product_embeddings
+   └── Takes: ~10ms
+
+4. Ranking Model (second filter — accurate but slower):
+   ├── Score each of 1000 candidates
+   ├── Model uses ALL features (offline + online + product features)
+   ├── Outputs: relevance score for each product
+   └── Takes: ~20ms
+
+5. Business Logic (final filter):
+   ├── Remove out-of-stock items
+   ├── Apply diversity rules (not all from same brand)
+   ├── Boost items on sale (business priority)
+   ├── Boost items matching search query &quot;red dress for party&quot;
+   └── Apply A/B test: 10% of users see experimental ranking
+
+6. Return top 30 products to app
+   └── Total time: &lt;100ms (user doesn't notice any delay)
+
+7. User clicks on &quot;Red Party Dress&quot; →
+   ├── Click event sent to Kafka
+   ├── Streaming pipeline updates online features
+   │   (session_clicks now includes &quot;red-dress-123&quot;)
+   ├── Next recommendation request uses updated features
+   └── Recommendations become more relevant with each click!
+</code></pre>
+<h3 id="the-two-stage-recommendation-architecture">The Two-Stage Recommendation Architecture</h3>
+<p>Almost all large-scale recommendation systems use two stages:</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Stage</th>
+<th>Purpose</th>
+<th>Speed</th>
+<th>Accuracy</th>
+<th>Input Size</th>
+<th>Output Size</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Stage 1: Candidate Generation</strong></td>
+<td>Quickly find a rough set of relevant items</td>
+<td>Very fast (ANN search)</td>
+<td>Lower (approximate)</td>
+<td>Millions of items</td>
+<td>~1000 candidates</td>
+</tr>
+<tr>
+<td><strong>Stage 2: Ranking</strong></td>
+<td>Accurately rank the candidates</td>
+<td>Slower (full model)</td>
+<td>Higher (precise)</td>
+<td>~1000 candidates</td>
+<td>Top 20-50 items</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Why two stages?</strong>
+- Running the full ranking model on 10 million products would take too long (seconds)
+- Candidate generation narrows to 1000 in milliseconds using cheap approximate methods
+- Then the expensive ranking model only scores 1000 items (fast enough)</p>
+<div class="callout">
+<p><strong>Analogy:</strong> When buying a house, you first filter by city, budget, and BHK (candidate generation — eliminates 99% of options). Then you personally visit the shortlisted 10 houses and evaluate each carefully (ranking).</p>
+</div>
+<h3 id="key-concept-approximate-nearest-neighbour-ann-search">Key Concept: Approximate Nearest Neighbour (ANN) Search</h3>
+<p>ANN search is how candidate generation works at scale:</p>
+<pre><code>Every user and product has an embedding (vector of numbers):
+  User USR-123:    [0.8, 0.2, 0.5, 0.1, ...]
+  Product PROD-A:  [0.7, 0.3, 0.5, 0.2, ...]  ← Similar! (close vectors)
+  Product PROD-B:  [0.1, 0.9, 0.1, 0.8, ...]  ← Different (far vectors)
+
+ANN search finds the 1000 products whose embeddings are 
+closest to the user's embedding — in milliseconds, even with
+10 million products.
+
+Tools: FAISS (Facebook), ScaNN (Google), Pinecone, Weaviate, Milvus
+</code></pre>
+<h3 id="live-examples-of-real-time-recommendation-systems">Live Examples of Real-Time Recommendation Systems</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Company</th>
+<th>What's Recommended</th>
+<th>Scale</th>
+<th>Refresh Speed</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Netflix</strong></td>
+<td>Movies and TV shows</td>
+<td>230M users, 15,000+ titles</td>
+<td>Thumbnails change in real-time, rankings updated every few hours</td>
+</tr>
+<tr>
+<td><strong>YouTube</strong></td>
+<td>Videos</td>
+<td>2B users, 800M videos</td>
+<td>Recommendations update with every video watched</td>
+</tr>
+<tr>
+<td><strong>Amazon</strong></td>
+<td>Products</td>
+<td>300M users, 350M products</td>
+<td>"Frequently bought together" updates in real-time</td>
+</tr>
+<tr>
+<td><strong>Spotify</strong></td>
+<td>Songs and playlists</td>
+<td>600M users, 100M tracks</td>
+<td>"Discover Weekly" (batch, weekly). Radio (real-time, adjusts as you skip)</td>
+</tr>
+<tr>
+<td><strong>Swiggy</strong></td>
+<td>Restaurants and dishes</td>
+<td>50M users, 200K restaurants</td>
+<td>Updates based on current time, location, weather, and browsing</td>
+</tr>
+<tr>
+<td><strong>LinkedIn</strong></td>
+<td>Job postings, connections</td>
+<td>900M users, 60M companies</td>
+<td>"Jobs you might be interested in" updates as you browse profiles</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="end-to-end-example-building-spotify-s-discover-weekly">End-to-End Example: Building Spotify's "Discover Weekly"</h3>
+<pre><code>BATCH PIPELINE (runs every Monday at 3 AM):
+├── Input: Last 7 days of listening data for all 600M users
+├── Compute user taste profile:
+│   ├── User embedding from listening history
+│   ├── Genre preferences (30% Bollywood, 25% pop, 20% rock, ...)
+│   ├── Tempo preferences (prefers 100-130 BPM)
+│   └── Artist affinity scores
+├── Collaborative filtering:
+│   ├── Find 1000 most similar users
+│   ├── Get songs those similar users loved
+│   └── Filter out songs user already knows
+├── Ranking model:
+│   ├── Score remaining candidates
+│   ├── Apply diversity (mix genres, mix artists)
+│   └── Select top 30 songs
+├── Store playlist in feature store / playlist database
+└── User opens Spotify Monday morning → sees personalised 30-song playlist
+
+REAL-TIME PIPELINE (runs during listening):
+├── User skips a song in Discover Weekly → negative signal
+│   └── Skip event → Kafka → update user preferences in real-time
+├── User adds a song to their library → positive signal
+│   └── Like event → Kafka → update user preferences
+├── User's &quot;Radio&quot; feature adjusts in real-time based on skips/likes
+└── All signals feed into NEXT week's Discover Weekly generation
+</code></pre>
+<hr />
+<h2 id="key-terms-glossary-session-8">Key Terms Glossary (Session 8)</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Term</th>
+<th>Simple Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Feature Store</strong></td>
+<td>A centralised system that stores, manages, and serves ML features consistently for training and serving</td>
+</tr>
+<tr>
+<td><strong>Offline Store</strong></td>
+<td>Part of feature store that holds historical feature values for training (stored in warehouse)</td>
+</tr>
+<tr>
+<td><strong>Online Store</strong></td>
+<td>Part of feature store that holds latest feature values for real-time serving (stored in Redis/DynamoDB)</td>
+</tr>
+<tr>
+<td><strong>Feature Pipeline</strong></td>
+<td>Automated process that computes features from raw data and loads them into the feature store</td>
+</tr>
+<tr>
+<td><strong>Training-Serving Skew</strong></td>
+<td>When features differ between training and production, causing model to perform worse than expected</td>
+</tr>
+<tr>
+<td><strong>Point-in-Time Correctness</strong></td>
+<td>Ensuring training data only uses features that were actually available at that historical time</td>
+</tr>
+<tr>
+<td><strong>Candidate Generation</strong></td>
+<td>First stage of recommendation: quickly narrow millions of items to ~1000 candidates</td>
+</tr>
+<tr>
+<td><strong>Ranking Model</strong></td>
+<td>Second stage: accurately score and rank the candidate items</td>
+</tr>
+<tr>
+<td><strong>ANN (Approximate Nearest Neighbour)</strong></td>
+<td>Fast search that finds similar items in a large collection using embedding vectors</td>
+</tr>
+<tr>
+<td><strong>Embedding Similarity</strong></td>
+<td>Measuring how similar two items are by comparing their embedding vectors (cosine similarity)</td>
+</tr>
+<tr>
+<td><strong>Feast</strong></td>
+<td>Most popular open-source feature store</td>
+</tr>
+<tr>
+<td><strong>Redis</strong></td>
+<td>In-memory key-value store used for ultra-fast online feature serving</td>
+</tr>
+<tr>
+<td><strong>FAISS</strong></td>
+<td>Facebook's library for fast similarity search on embedding vectors</td>
+</tr>
+<tr>
+<td><strong>Sliding Window</strong></td>
+<td>A moving time frame for computing real-time features (e.g., "last 10 minutes")</td>
+</tr>
+</tbody>
+</table></div>
+<hr />
+<p><em>End of Session 8</em></p>
+</main>
+<button class="back-top" id="backTop" title="Back to top">&#8593;</button>
+<script>
+const bar=document.getElementById('progress');
+const btn=document.getElementById('backTop');
+const toggle=document.getElementById('sidebarToggle');
+const sidebar=document.getElementById('sidebar');
+window.addEventListener('scroll',()=>{
+  const s=document.documentElement.scrollTop;
+  const h=document.documentElement.scrollHeight-document.documentElement.clientHeight;
+  bar.style.width=(s/h*100)+'%';
+  btn.classList.toggle('show',s>400);
+});
+btn.onclick=()=>window.scrollTo({top:0,behavior:'smooth'});
+toggle.onclick=()=>sidebar.classList.toggle('open');
+// Active sidebar link
+const links=document.querySelectorAll('.sidebar nav a');
+const obs=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{if(e.isIntersecting){
+    links.forEach(l=>l.classList.remove('active'));
+    const a=document.querySelector('.sidebar nav a[href="#'+e.target.id+'"]');
+    if(a)a.classList.add('active');
+  }});
+},{rootMargin:'-20% 0px -70% 0px'});
+document.querySelectorAll('h2[id],h3[id]').forEach(h=>obs.observe(h));
+</script>
+</body>
+</html>

@@ -1,0 +1,1539 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Session 6: Questions and Answers</title>
+<style>
+:root{--bg:#0f172a;--surface:#1e293b;--surface2:#334155;--border:#475569;--text:#e2e8f0;--text-muted:#94a3b8;--code-bg:#0d1117;--accent:#06b6d4;--accent-dim:rgba(6,182,212,.15);--accent-border:rgba(6,182,212,.3);--header-gradient:linear-gradient(135deg,#164e63,#0891b2,#06b6d4)}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);line-height:1.7;display:flex;min-height:100vh}
+.progress-bar{position:fixed;top:0;left:0;height:4px;background:var(--accent);z-index:1000;transition:width .2s}
+.sidebar{position:fixed;top:0;left:0;width:280px;height:100vh;background:var(--surface);border-right:1px solid var(--border);overflow-y:auto;padding:1.5rem 0;z-index:100;transition:transform .3s}
+.sidebar-header{padding:0 1.5rem 1.5rem;border-bottom:1px solid var(--border);margin-bottom:1rem}
+.sidebar-header h2{font-size:1rem;color:var(--accent);margin-bottom:.25rem}
+.sidebar-header p{font-size:.75rem;color:var(--text-muted)}
+.sidebar nav a{display:block;padding:.55rem 1.5rem;color:var(--text-muted);text-decoration:none;font-size:.85rem;border-left:3px solid transparent;transition:all .2s}
+.sidebar nav a:hover,.sidebar nav a.active{color:var(--accent);background:var(--accent-dim);border-left-color:var(--accent)}
+.sidebar nav a.sub{padding-left:2.5rem;font-size:.8rem}
+.sidebar-toggle{display:none;position:fixed;top:1rem;left:1rem;z-index:200;background:var(--surface);border:1px solid var(--border);color:var(--text);width:40px;height:40px;border-radius:8px;cursor:pointer;font-size:1.2rem}
+.main{margin-left:280px;flex:1;max-width:900px;padding:2rem 3rem 4rem}
+.page-header{background:var(--header-gradient);border-radius:16px;padding:2.5rem;margin-bottom:2.5rem;position:relative;overflow:hidden}
+.page-header::after{content:'';position:absolute;top:0;right:0;width:200px;height:100%;background:radial-gradient(circle at 80% 50%,rgba(255,255,255,.1),transparent);pointer-events:none}
+.page-header .badge{display:inline-block;background:rgba(0,0,0,.3);color:#fff;padding:.25rem .75rem;border-radius:20px;font-size:.75rem;margin-bottom:.75rem}
+.page-header h1{font-size:2rem;color:#fff;margin-bottom:.5rem}
+.page-header .meta{color:rgba(255,255,255,.8);font-size:.85rem}
+h2{font-size:1.5rem;color:var(--accent);margin:2.5rem 0 1rem;padding-bottom:.5rem;border-bottom:2px solid var(--accent-border)}
+h3{font-size:1.15rem;color:var(--text);margin:1.8rem 0 .8rem}
+h4{font-size:1rem;color:var(--accent);margin:1.2rem 0 .6rem}
+p{margin-bottom:1rem;color:var(--text)}
+strong{color:var(--text)}
+.table-wrap{overflow-x:auto;margin:1.2rem 0;border-radius:10px;border:1px solid var(--border)}
+table{width:100%;border-collapse:collapse;font-size:.88rem}
+thead th{background:var(--accent);color:#000;padding:.75rem 1rem;text-align:left;font-weight:600;white-space:nowrap}
+tbody tr:nth-child(even){background:var(--surface)}
+tbody tr:nth-child(odd){background:var(--surface2)}
+tbody tr:hover{background:var(--accent-dim)}
+td{padding:.7rem 1rem;border-top:1px solid var(--border);color:var(--text)}
+pre{background:var(--code-bg);border:1px solid var(--border);border-radius:10px;padding:1.2rem;overflow-x:auto;margin:1.2rem 0;font-size:.85rem;line-height:1.6}
+code{font-family:'Cascadia Code','Fira Code','Consolas',monospace;color:#e6edf3}
+p code,li code,td code{background:var(--code-bg);padding:.15rem .4rem;border-radius:4px;font-size:.85em;color:var(--accent)}
+.callout{background:var(--accent-dim);border-left:4px solid var(--accent);border-radius:0 10px 10px 0;padding:1rem 1.2rem;margin:1.2rem 0;font-size:.92rem}
+.callout p{margin:0;color:var(--text)}
+.callout em{color:var(--text-muted)}
+ul,ol{margin:0 0 1rem 1.5rem;color:var(--text)}
+li{margin-bottom:.4rem}
+li strong{color:var(--accent)}
+.back-top{position:fixed;bottom:2rem;right:2rem;width:44px;height:44px;background:var(--accent);color:#000;border:none;border-radius:50%;cursor:pointer;font-size:1.3rem;display:none;align-items:center;justify-content:center;box-shadow:0 4px 15px rgba(6,182,212,.3);transition:transform .2s,opacity .2s;z-index:100}
+.back-top:hover{transform:scale(1.1)}
+.back-top.show{display:flex}
+@media(max-width:900px){
+  .sidebar{transform:translateX(-100%)}
+  .sidebar.open{transform:translateX(0)}
+  .sidebar-toggle{display:flex;align-items:center;justify-content:center}
+  .main{margin-left:0;padding:2rem 1.2rem 4rem}
+}
+@media print{
+  .sidebar,.sidebar-toggle,.back-top,.progress-bar{display:none!important}
+  .main{margin-left:0;max-width:100%}
+  body{background:#fff;color:#000}
+  h2{color:#164e63}
+  thead th{background:#06b6d4;color:#000;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  tbody tr:nth-child(even){background:#f8f8f8}
+  tbody tr:nth-child(odd){background:#fff}
+  pre{border:1px solid #ccc;background:#f5f5f5}
+  code{color:#333}
+  .callout{background:#e0f7fa;border-left-color:#06b6d4}
+  .page-header{background:#06b6d4!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+}
+</style>
+</head>
+<body>
+<div class="progress-bar" id="progress"></div>
+<button class="sidebar-toggle" id="sidebarToggle">&#9776;</button>
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <h2>SS ZG662</h2>
+    <p>Introduction to AI Systems</p>
+  </div>
+  <nav>
+    <a href="#q1-what-is-a-data-pipeline-why-is-it-essential-for-ai-systems">Q1: What is a Data Pipeline? Why is it essential f...</a>
+    <a href="#q2-compare-etl-and-elt-when-should-you-use-each-approach">Q2: Compare ETL and ELT. When should you use each ...</a>
+    <a href="#q3-compare-batch-processing-and-stream-processing-with-examples">Q3: Compare Batch Processing and Stream Processing...</a>
+    <a href="#q4-what-is-lambda-architecture-why-was-it-created">Q4: What is Lambda Architecture? Why was it create...</a>
+    <a href="#q5-compare-data-lake-data-warehouse-and-data-lakehouse">Q5: Compare Data Lake, Data Warehouse, and Data La...</a>
+    <a href="#q6-what-is-a-data-swamp-how-does-a-data-lake-become-a-data-swamp">Q6: What is a Data Swamp? How does a Data Lake bec...</a>
+    <a href="#q7-walk-through-an-enterprise-data-pipeline-for-an-e-commerce-company-like-myntra">Q7: Walk through an enterprise data pipeline for a...</a>
+    <a href="#q8-explain-apache-kafka-spark-airflow-and-flink-when-do-you-use-each">Q8: Explain Apache Kafka, Spark, Airflow, and Flin...</a>
+    <a href="#apache-kafka-the-message-highway" class="sub">Apache Kafka — The Message Highway</a>
+    <a href="#apache-spark-the-heavy-lifter" class="sub">Apache Spark — The Heavy Lifter</a>
+    <a href="#apache-airflow-the-scheduler-orchestrator" class="sub">Apache Airflow — The Scheduler/Orchestrator</a>
+    <a href="#apache-flink-the-real-time-brain" class="sub">Apache Flink — The Real-Time Brain</a>
+    <a href="#q9-design-a-data-pipeline-architecture-for-zomato-s-food-delivery-platform-what-tools-would-you-use-and-why">Q9: Design a data pipeline architecture for Zomato...</a>
+    <a href="#q10-what-is-the-difference-between-kafka-and-flink-students-often-confuse-them">Q10: What is the difference between Kafka and Flin...</a>
+    <a href="#q11-scenario-irctc-wants-to-show-real-time-seat-availability-during-tatkal-booking-design-the-pipeline">Q11: Scenario — IRCTC wants to show real-time seat...</a>
+    <a href="#q12-when-would-you-choose-batch-processing-over-streaming-and-vice-versa-give-a-decision-framework">Q12: When would you choose Batch processing over S...</a>
+    <a href="#q13-what-is-an-airflow-dag-explain-with-a-real-example">Q13: What is an Airflow DAG? Explain with a real e...</a>
+    <a href="#q14-scenario-a-retail-company-like-reliance-retail-is-moving-from-on-premises-to-cloud-should-they-use-etl-or-elt-justify">Q14: Scenario — A retail company (like Reliance Re...</a>
+    <a href="#q15-what-are-the-key-differences-between-a-data-engineer-and-a-data-scientist-how-do-their-pipelines-differ">Q15: What are the key differences between a Data E...</a>
+    <a href="#q16-what-are-the-common-failure-modes-in-data-pipelines-how-do-you-handle-them">Q16: What are the common failure modes in data pip...</a>
+    <a href="#q17-scenario-zerodha-needs-to-process-10-million-stock-trades-per-day-design-the-pipeline-should-they-use-batch-or-streaming">Q17: Scenario — Zerodha needs to process 10 millio...</a>
+    <a href="#q18-explain-the-concept-of-exactly-once-processing-in-streaming-pipelines-why-is-it-important">Q18: Explain the concept of "Exactly-Once Processi...</a>
+    <a href="#q19-a-company-stores-50tb-of-data-in-a-data-lake-but-nobody-uses-it-what-went-wrong-and-how-would-you-fix-it">Q19: A company stores 50TB of data in a data lake ...</a>
+    <a href="#q20-compare-all-the-data-storage-options-data-lake-data-warehouse-data-lakehouse-with-a-decision-framework-for-when-to-use-each">Q20: Compare all the data storage options (Data La...</a>
+  </nav>
+</aside>
+<main class="main">
+  <div class="page-header">
+    <span class="badge">Session 6 — Q&A</span>
+    <h1>Session 6: Questions and Answers</h1>
+    <div class="meta">Contact Session 6 | Module 2: Data and Feature Engineering</div>
+  </div>
+<h1 id="session-6-questions-and-answers">Session 6: Questions and Answers</h1>
+<div class="callout">
+<p>BITS Pilani — SS ZG662: Introduction to AI Systems</p>
+</div>
+<hr />
+<h2 id="q1-what-is-a-data-pipeline-why-is-it-essential-for-ai-systems">Q1: What is a Data Pipeline? Why is it essential for AI systems?</h2>
+<p><strong>Answer:</strong>
+A data pipeline is an automated series of steps that moves data from source systems, transforms it, and delivers it to a destination where it can be used for analysis or AI model training.</p>
+<p><strong>Simple analogy:</strong> Think of a water pipeline. Water (raw data) comes from a river (source systems), goes through a purification plant (transformations — cleaning, filtering), and reaches your home tap (destination — data warehouse or model training). The pipeline runs automatically — you don't manually carry water every day.</p>
+<p><strong>Why essential for AI:</strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Without Pipelines</th>
+<th>With Pipelines</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Data scientists spend 80% time manually collecting and cleaning data</td>
+<td>Automated — data arrives clean and ready</td>
+</tr>
+<tr>
+<td>Data from different sources is in different formats</td>
+<td>Pipeline standardises everything</td>
+</tr>
+<tr>
+<td>No repeatability — done differently every time</td>
+<td>Same process runs daily/hourly automatically</td>
+</tr>
+<tr>
+<td>Impossible to scale</td>
+<td>Can handle millions of records per second</td>
+</tr>
+<tr>
+<td>No audit trail</td>
+<td>Every step is logged and traceable</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Structure of a typical data pipeline:</strong></p>
+<pre><code>Source → Ingestion → Processing/Transformation → Storage → Serving/Consumption
+</code></pre>
+<p><strong>Real example — Swiggy's pipeline:</strong>
+1. <strong>Source:</strong> App clicks, order events, GPS pings, restaurant data, payment data
+2. <strong>Ingestion:</strong> Apache Kafka collects millions of events per second
+3. <strong>Processing:</strong> Apache Spark cleans, joins, and transforms the data
+4. <strong>Storage:</strong> Stored in a data lake (S3) and data warehouse (Redshift)
+5. <strong>Serving:</strong> Delivery time prediction model reads from the warehouse; real-time recommendations read from the data lake</p>
+<hr />
+<h2 id="q2-compare-etl-and-elt-when-should-you-use-each-approach">Q2: Compare ETL and ELT. When should you use each approach?</h2>
+<p><strong>Answer:</strong>
+Both are approaches to moving and transforming data, but they differ in WHEN the transformation happens.</p>
+<p><strong>ETL — Extract, Transform, Load:</strong>
+- Data is extracted from sources → transformed (cleaned, filtered, joined) in a separate processing engine → loaded into the destination (data warehouse)
+- Transformation happens BEFORE loading</p>
+<p><strong>ELT — Extract, Load, Transform:</strong>
+- Data is extracted from sources → loaded raw into the destination (data lake/cloud warehouse) → transformed inside the destination using its own computing power
+- Transformation happens AFTER loading</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Aspect</th>
+<th>ETL</th>
+<th>ELT</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Order</strong></td>
+<td>Extract → Transform → Load</td>
+<td>Extract → Load → Transform</td>
+</tr>
+<tr>
+<td><strong>Where transformation happens</strong></td>
+<td>In a separate ETL tool/server</td>
+<td>Inside the destination (data lake/warehouse)</td>
+</tr>
+<tr>
+<td><strong>Data loaded</strong></td>
+<td>Only clean, transformed data</td>
+<td>All raw data (transform later)</td>
+</tr>
+<tr>
+<td><strong>Speed</strong></td>
+<td>Slower (transform before load)</td>
+<td>Faster initial load (transform on-demand)</td>
+</tr>
+<tr>
+<td><strong>Storage cost</strong></td>
+<td>Lower (only store clean data)</td>
+<td>Higher (store everything, including raw)</td>
+</tr>
+<tr>
+<td><strong>Flexibility</strong></td>
+<td>Low — must define transformations upfront</td>
+<td>High — raw data is available for any future transformation</td>
+</tr>
+<tr>
+<td><strong>Best for</strong></td>
+<td>Traditional data warehousing, structured data</td>
+<td>Cloud data lakes, big data, exploratory analysis</td>
+</tr>
+<tr>
+<td><strong>Tools</strong></td>
+<td>Informatica, Talend, SSIS</td>
+<td>dbt, Spark SQL, BigQuery, Snowflake</td>
+</tr>
+<tr>
+<td><strong>Indian example</strong></td>
+<td>SBI processing daily branch transactions into reporting warehouse</td>
+<td>Flipkart loading all clickstream data into S3, then running Spark jobs to analyse later</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>When to use ETL:</strong>
+- When you know exactly what transformations are needed
+- When storage is expensive (on-premises)
+- When data governance requires only clean data in the warehouse</p>
+<p><strong>When to use ELT:</strong>
+- When you're on the cloud (storage is cheap)
+- When you don't know all the use cases upfront — store raw, transform later
+- When you have massive data volumes (big data)
+- When different teams need different transformations of the same raw data</p>
+<p><strong>Modern trend:</strong> ELT is becoming the default because cloud storage is cheap and cloud warehouses (BigQuery, Snowflake, Redshift) are powerful enough to handle transformations.</p>
+<hr />
+<h2 id="q3-compare-batch-processing-and-stream-processing-with-examples">Q3: Compare Batch Processing and Stream Processing with examples.</h2>
+<p><strong>Answer:</strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Aspect</th>
+<th>Batch Processing</th>
+<th>Stream Processing</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>What it is</strong></td>
+<td>Process large volumes of data at scheduled intervals</td>
+<td>Process data continuously as it arrives</td>
+</tr>
+<tr>
+<td><strong>Latency</strong></td>
+<td>High (minutes to hours)</td>
+<td>Low (milliseconds to seconds)</td>
+</tr>
+<tr>
+<td><strong>Data</strong></td>
+<td>Processes accumulated historical data</td>
+<td>Processes individual events in real-time</td>
+</tr>
+<tr>
+<td><strong>Complexity</strong></td>
+<td>Simpler to build and debug</td>
+<td>More complex — must handle out-of-order events, failures</td>
+</tr>
+<tr>
+<td><strong>Tools</strong></td>
+<td>Apache Spark, Hadoop MapReduce, AWS Batch</td>
+<td>Apache Kafka, Apache Flink, Apache Spark Streaming</td>
+</tr>
+<tr>
+<td><strong>Cost</strong></td>
+<td>Lower (runs periodically)</td>
+<td>Higher (runs 24/7)</td>
+</tr>
+<tr>
+<td><strong>Use case</strong></td>
+<td>Monthly salary processing at TCS</td>
+<td>Fraud detection at HDFC Bank during a UPI transaction</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Indian examples:</strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Company</th>
+<th>Batch Processing</th>
+<th>Stream Processing</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>HDFC Bank</strong></td>
+<td>Monthly credit card statement generation</td>
+<td>Real-time fraud detection on every UPI payment</td>
+</tr>
+<tr>
+<td><strong>Swiggy</strong></td>
+<td>Daily aggregation of delivery performance metrics</td>
+<td>Real-time delivery tracking and ETA updates</td>
+</tr>
+<tr>
+<td><strong>Flipkart</strong></td>
+<td>Nightly product catalog update and search index rebuild</td>
+<td>Real-time inventory update when someone buys an item</td>
+</tr>
+<tr>
+<td><strong>IRCTC</strong></td>
+<td>Daily report of bookings, cancellations, revenue</td>
+<td>Real-time seat availability display during Tatkal booking</td>
+</tr>
+<tr>
+<td><strong>Zerodha</strong></td>
+<td>End-of-day portfolio P&amp;L calculation</td>
+<td>Real-time stock price updates and order matching</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Key insight:</strong> Most real-world systems use BOTH. Flipkart uses batch processing to rebuild search indexes nightly but stream processing to update "Only 2 left!" in real-time.</p>
+<hr />
+<h2 id="q4-what-is-lambda-architecture-why-was-it-created">Q4: What is Lambda Architecture? Why was it created?</h2>
+<p><strong>Answer:</strong>
+Lambda Architecture is a data processing pattern that combines both batch and stream processing to provide a complete and accurate picture of data.</p>
+<p><strong>The problem it solves:</strong>
+- Batch processing is accurate but slow (processes data hours later)
+- Stream processing is fast but can miss data or produce approximate results
+- Lambda Architecture gives you BOTH: real-time speed AND batch-level accuracy</p>
+<p><strong>Three layers:</strong></p>
+<pre><code>                    ┌─────────────────┐
+   Raw Data ──────→ │   Batch Layer   │ ──→ Batch Views (accurate, slow)
+        │           │ (Spark/Hadoop)  │              │
+        │           └─────────────────┘              │
+        │                                            ▼
+        │                                   ┌──────────────┐
+        │                                   │ Serving Layer │ ──→ Queries/Users
+        │                                   └──────────────┘
+        │                                            ▲
+        │           ┌─────────────────┐              │
+        └─────────→ │   Speed Layer   │ ──→ Real-time Views (fast, approximate)
+                    │ (Kafka/Flink)   │
+                    └─────────────────┘
+</code></pre>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Layer</th>
+<th>What It Does</th>
+<th>Tools</th>
+<th>Example (Swiggy)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Batch Layer</strong></td>
+<td>Processes ALL historical data periodically (e.g., every 6 hours)</td>
+<td>Spark, Hadoop</td>
+<td>Calculate accurate average delivery time per restaurant per area using all historical data</td>
+</tr>
+<tr>
+<td><strong>Speed Layer</strong></td>
+<td>Processes only the most recent data in real-time</td>
+<td>Kafka, Flink</td>
+<td>Calculate delivery time estimate based on current traffic, weather, and active orders</td>
+</tr>
+<tr>
+<td><strong>Serving Layer</strong></td>
+<td>Merges batch and speed layer results to answer queries</td>
+<td>Druid, Cassandra</td>
+<td>When you open the app, combine historical average (batch) with current conditions (speed) to show you accurate ETA</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Limitation:</strong> You write the same business logic twice — once for batch, once for streaming. This is called "code duplication" and makes maintenance harder. This led to the development of the <strong>Kappa Architecture</strong> (streaming-only approach using Kafka + Flink).</p>
+<hr />
+<h2 id="q5-compare-data-lake-data-warehouse-and-data-lakehouse">Q5: Compare Data Lake, Data Warehouse, and Data Lakehouse.</h2>
+<p><strong>Answer:</strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Aspect</th>
+<th>Data Lake</th>
+<th>Data Warehouse</th>
+<th>Data Lakehouse</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>What it stores</strong></td>
+<td>Everything — raw, unprocessed data in any format</td>
+<td>Clean, structured, transformed data only</td>
+<td>Both raw and processed data with management features</td>
+</tr>
+<tr>
+<td><strong>Schema</strong></td>
+<td>Schema-on-read (no structure until you query)</td>
+<td>Schema-on-write (must define structure before loading)</td>
+<td>Schema-on-read with optional schema enforcement</td>
+</tr>
+<tr>
+<td><strong>Data types</strong></td>
+<td>Structured + Semi-structured + Unstructured</td>
+<td>Structured only</td>
+<td>All types (like a lake) with warehouse-like management</td>
+</tr>
+<tr>
+<td><strong>Cost</strong></td>
+<td>Very low (cheap object storage like S3)</td>
+<td>High (optimised columnar storage)</td>
+<td>Medium (cheap storage + smart metadata layer)</td>
+</tr>
+<tr>
+<td><strong>Performance</strong></td>
+<td>Slow for analytical queries</td>
+<td>Very fast for analytical queries</td>
+<td>Fast (approaching warehouse speed)</td>
+</tr>
+<tr>
+<td><strong>Users</strong></td>
+<td>Data engineers, data scientists</td>
+<td>Business analysts, BI teams</td>
+<td>Everyone — engineers, scientists, analysts</td>
+</tr>
+<tr>
+<td><strong>ACID transactions</strong></td>
+<td>No</td>
+<td>Yes</td>
+<td>Yes (Delta Lake/Iceberg adds this)</td>
+</tr>
+<tr>
+<td><strong>Data quality</strong></td>
+<td>No guarantees (can become a "data swamp")</td>
+<td>High quality enforced</td>
+<td>Quality enforced via metadata layer</td>
+</tr>
+<tr>
+<td><strong>Tools</strong></td>
+<td>S3, HDFS, Azure Data Lake</td>
+<td>Snowflake, BigQuery, Redshift</td>
+<td>Databricks (Delta Lake), Apache Iceberg</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Simple analogy:</strong>
+- <strong>Data Lake</strong> = A huge library where you dump all books, newspapers, handwritten notes, CDs — everything. No catalog, no shelf organisation. Finding something is hard.
+- <strong>Data Warehouse</strong> = A well-organised library with only curated, cataloged textbooks. Easy to find information but expensive to maintain and can't store videos or art.
+- <strong>Data Lakehouse</strong> = A huge library (like a lake) but WITH a proper catalog system, shelves, and librarian. Store everything but find anything quickly.</p>
+<p><strong>Indian example — Myntra:</strong>
+- <strong>Data Lake (S3):</strong> Stores everything — raw clickstream data, product images, customer reviews, app logs, payment events
+- <strong>Data Warehouse (Redshift):</strong> Stores clean, structured data — daily sales by category, customer segments, revenue metrics
+- <strong>Data Lakehouse (Databricks):</strong> Combines both — data scientists can query raw clickstream data AND clean sales data in one place</p>
+<hr />
+<h2 id="q6-what-is-a-data-swamp-how-does-a-data-lake-become-a-data-swamp">Q6: What is a Data Swamp? How does a Data Lake become a Data Swamp?</h2>
+<p><strong>Answer:</strong>
+A Data Swamp is a Data Lake that has become unusable because nobody can find, understand, or trust the data in it.</p>
+<p><strong>Analogy:</strong> A data lake is like a clean pond where you can see the fish. A data swamp is when you dump garbage, mud, and sewage into it — the pond is full but nothing in it is usable.</p>
+<p><strong>How a Data Lake becomes a Data Swamp:</strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Problem</th>
+<th>What Happens</th>
+<th>Real Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>No metadata</strong></td>
+<td>Nobody knows what the data means, when it was created, or who owns it</td>
+<td>A Flipkart engineer finds a table called "tmp_data_v2_final_FINAL" — nobody knows what's in it</td>
+</tr>
+<tr>
+<td><strong>No data catalog</strong></td>
+<td>Can't search or discover what data exists</td>
+<td>500 TB of data in S3, but no way to know which folder has customer data vs. server logs</td>
+</tr>
+<tr>
+<td><strong>No ownership</strong></td>
+<td>Nobody is responsible for data quality</td>
+<td>A table hasn't been updated in 8 months but nobody noticed because nobody owns it</td>
+</tr>
+<tr>
+<td><strong>No access controls</strong></td>
+<td>Everyone dumps data, nobody cleans</td>
+<td>Interns upload test data to the same bucket as production data</td>
+</tr>
+<tr>
+<td><strong>No governance</strong></td>
+<td>No policies on data retention or quality</td>
+<td>Data from a discontinued product (2019) is still sitting there, consuming storage, confusing analysts</td>
+</tr>
+<tr>
+<td><strong>Duplicates everywhere</strong></td>
+<td>Same data loaded multiple ways</td>
+<td>Customer data loaded by 3 different teams in 3 different formats — which one is correct?</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>How to prevent a Data Swamp:</strong>
+1. <strong>Data Catalog</strong> — tools like Apache Atlas, AWS Glue Catalog
+2. <strong>Metadata management</strong> — document every dataset (owner, schema, freshness, description)
+3. <strong>Data quality checks</strong> — automated validation on every data load
+4. <strong>Access controls</strong> — not everyone can write to the lake
+5. <strong>Data lifecycle policies</strong> — auto-archive data older than X months
+6. <strong>Use a Lakehouse instead</strong> — built-in schema enforcement and metadata management</p>
+<hr />
+<h2 id="q7-walk-through-an-enterprise-data-pipeline-for-an-e-commerce-company-like-myntra">Q7: Walk through an enterprise data pipeline for an e-commerce company like Myntra.</h2>
+<p><strong>Answer:</strong>
+Here's a complete end-to-end pipeline:</p>
+<p><strong>Step 1: Data Sources (Ingestion)</strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Source</th>
+<th>Data Type</th>
+<th>Volume</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Mobile app</td>
+<td>Clickstream events (JSON)</td>
+<td>500M events/day</td>
+</tr>
+<tr>
+<td>Website</td>
+<td>Page views, search queries</td>
+<td>200M events/day</td>
+</tr>
+<tr>
+<td>Order system</td>
+<td>Transactions (structured)</td>
+<td>5M orders/day</td>
+</tr>
+<tr>
+<td>Payment gateway</td>
+<td>Payment events</td>
+<td>5M/day</td>
+</tr>
+<tr>
+<td>Warehouse/logistics</td>
+<td>Shipping, inventory updates</td>
+<td>10M events/day</td>
+</tr>
+<tr>
+<td>Product catalog</td>
+<td>Images, descriptions</td>
+<td>10M products</td>
+</tr>
+<tr>
+<td>Customer service</td>
+<td>Chat logs, call recordings</td>
+<td>500K interactions/day</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Step 2: Ingestion Layer</strong>
+- <strong>Apache Kafka</strong> collects all events in real-time (acts as a message bus)
+- Each data source publishes events to Kafka topics
+- Kafka retains data for 7 days (buffer in case downstream processing fails)</p>
+<p><strong>Step 3: Processing Layer</strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Processing Type</th>
+<th>Tool</th>
+<th>What It Does</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Stream processing</td>
+<td>Apache Flink</td>
+<td>Real-time fraud detection, live inventory updates, real-time personalisation</td>
+</tr>
+<tr>
+<td>Batch processing</td>
+<td>Apache Spark</td>
+<td>Daily aggregations, user segmentation, recommendation model training data prep</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Step 4: Storage Layer</strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Storage</th>
+<th>Tool</th>
+<th>What's Stored</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Data Lake</td>
+<td>S3 + Delta Lake</td>
+<td>All raw data + processed datasets (lakehouse approach)</td>
+</tr>
+<tr>
+<td>Data Warehouse</td>
+<td>Amazon Redshift</td>
+<td>Clean, aggregated business metrics</td>
+</tr>
+<tr>
+<td>Feature Store</td>
+<td>Feast</td>
+<td>Pre-computed features for ML models</td>
+</tr>
+<tr>
+<td>Search Index</td>
+<td>Elasticsearch</td>
+<td>Product search data</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Step 5: Consumption Layer</strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Consumer</th>
+<th>Tool</th>
+<th>What They Do</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Business analysts</td>
+<td>Tableau, Power BI</td>
+<td>View dashboards — daily GMV, category performance</td>
+</tr>
+<tr>
+<td>Data scientists</td>
+<td>Jupyter, Databricks</td>
+<td>Train recommendation models, demand forecasting</td>
+</tr>
+<tr>
+<td>ML models (production)</td>
+<td>Feature Store + Model Serving</td>
+<td>Real-time product recommendations, search ranking</td>
+</tr>
+<tr>
+<td>Operations team</td>
+<td>Grafana</td>
+<td>Monitor delivery performance, warehouse efficiency</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Step 6: Orchestration &amp; Monitoring</strong>
+- <strong>Apache Airflow</strong> schedules and orchestrates all batch jobs (the "conductor" of the pipeline)
+- <strong>Data quality checks</strong> run after each pipeline step (Great Expectations, Deequ)
+- <strong>Alerting</strong> if a pipeline fails or data quality drops below threshold</p>
+<hr />
+<h2 id="q8-explain-apache-kafka-spark-airflow-and-flink-when-do-you-use-each">Q8: Explain Apache Kafka, Spark, Airflow, and Flink. When do you use each?</h2>
+<p><strong>Answer:</strong></p>
+<h3 id="apache-kafka-the-message-highway">Apache Kafka — The Message Highway</h3>
+<ul>
+<li><strong>What:</strong> A distributed event streaming platform — collects and delivers real-time data events.</li>
+<li><strong>Analogy:</strong> Kafka is like India Post's sorting centre. Letters (events) arrive from millions of senders, get sorted by destination (topics), and are delivered to the right recipients (consumers).</li>
+<li><strong>Use when:</strong> You need to collect high-volume real-time events — app clicks, sensor data, transactions.</li>
+<li><strong>Example:</strong> Swiggy uses Kafka to collect every order event, GPS ping, and payment event in real-time. Millions of events per second flow through Kafka.</li>
+</ul>
+<h3 id="apache-spark-the-heavy-lifter">Apache Spark — The Heavy Lifter</h3>
+<ul>
+<li><strong>What:</strong> A distributed data processing engine for large-scale batch and micro-batch processing.</li>
+<li><strong>Analogy:</strong> Spark is like a team of 1000 accountants working in parallel. Each processes a chunk of data, then results are combined.</li>
+<li><strong>Use when:</strong> You need to process large datasets — ETL jobs, aggregations, ML training data prep.</li>
+<li><strong>Example:</strong> Flipkart runs nightly Spark jobs to aggregate all daily transactions, calculate seller performance, and prepare training data for recommendation models.</li>
+</ul>
+<h3 id="apache-airflow-the-scheduler-orchestrator">Apache Airflow — The Scheduler/Orchestrator</h3>
+<ul>
+<li><strong>What:</strong> A workflow orchestration tool that schedules and manages data pipelines. Does NOT process data itself — it tells other tools (Spark, Python scripts) when and in what order to run.</li>
+<li><strong>Analogy:</strong> Airflow is like a project manager. It doesn't write code — it decides: "First run the data extraction job, then the cleaning job, then the aggregation job. If extraction fails, alert the team and don't run the rest."</li>
+<li><strong>Use when:</strong> You have multiple pipeline steps that must run in a specific order with dependencies.</li>
+<li><strong>Example:</strong> Zomato's Airflow DAG (Directed Acyclic Graph):</li>
+<li>2:00 AM — Extract restaurant data from production database</li>
+<li>2:30 AM — Run Spark job to clean and transform</li>
+<li>3:00 AM — Load into data warehouse</li>
+<li>3:30 AM — Run data quality checks</li>
+<li>4:00 AM — Trigger ML model retraining</li>
+</ul>
+<h3 id="apache-flink-the-real-time-brain">Apache Flink — The Real-Time Brain</h3>
+<ul>
+<li><strong>What:</strong> A stream processing engine for real-time event-by-event processing with very low latency.</li>
+<li><strong>Analogy:</strong> Flink is like a quality inspector on an assembly line — checks EVERY item as it passes by, in real-time. Spark is like a warehouse inspector who checks items in batches at end of day.</li>
+<li><strong>Use when:</strong> You need true real-time processing with millisecond latency and complex event processing (CEP).</li>
+<li><strong>Example:</strong> HDFC Bank uses Flink-style streaming to detect fraud. Every UPI transaction is analysed in &lt;100ms. If the pattern matches fraud (unusual amount, new device, different city), the transaction is flagged before it completes.</li>
+</ul>
+<p><strong>Quick comparison:</strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Tool</th>
+<th>Type</th>
+<th>Latency</th>
+<th>Primary Role</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Kafka</strong></td>
+<td>Message broker</td>
+<td>Milliseconds</td>
+<td>Collect and distribute events</td>
+</tr>
+<tr>
+<td><strong>Spark</strong></td>
+<td>Processing engine</td>
+<td>Minutes–hours</td>
+<td>Batch processing, ETL, ML data prep</td>
+</tr>
+<tr>
+<td><strong>Flink</strong></td>
+<td>Processing engine</td>
+<td>Milliseconds</td>
+<td>Real-time stream processing</td>
+</tr>
+<tr>
+<td><strong>Airflow</strong></td>
+<td>Orchestrator</td>
+<td>N/A (schedules others)</td>
+<td>Schedule and manage pipeline workflows</td>
+</tr>
+</tbody>
+</table></div>
+<hr />
+<h2 id="q9-design-a-data-pipeline-architecture-for-zomato-s-food-delivery-platform-what-tools-would-you-use-and-why">Q9: Design a data pipeline architecture for Zomato's food delivery platform. What tools would you use and why?</h2>
+<p><strong>Answer:</strong>
+This is a system design question. Here's a complete architecture:</p>
+<p><strong>Data Sources:</strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Source</th>
+<th>Data</th>
+<th>Format</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Customer app</td>
+<td>Clicks, searches, orders, reviews</td>
+<td>JSON events</td>
+</tr>
+<tr>
+<td>Restaurant partner app</td>
+<td>Menu updates, order acceptance, prep time</td>
+<td>JSON events</td>
+</tr>
+<tr>
+<td>Delivery partner app</td>
+<td>GPS location, delivery status</td>
+<td>GPS + JSON</td>
+</tr>
+<tr>
+<td>Payment system</td>
+<td>Transaction records</td>
+<td>Structured</td>
+</tr>
+<tr>
+<td>Customer support</td>
+<td>Chat logs, call recordings</td>
+<td>Text + Audio</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Architecture:</strong></p>
+<pre><code>┌──────────────┐     ┌─────────┐     ┌──────────────────────┐
+│ Data Sources │────→│  Kafka  │────→│ Stream Processing    │──→ Real-time Actions
+│ (Apps, APIs) │     │ (Ingest)│     │ (Flink)              │   (fraud alerts,
+└──────────────┘     └────┬────┘     └──────────────────────┘    ETA updates,
+                          │                                       live tracking)
+                          │
+                          ▼
+                    ┌──────────────┐     ┌──────────────┐
+                    │  Data Lake   │────→│  Spark       │──→ Data Warehouse
+                    │  (S3/Delta)  │     │  (Batch ETL) │   (Redshift)
+                    └──────────────┘     └──────────────┘        │
+                                                                  ▼
+                                                          ┌──────────────┐
+                                                          │  Dashboards  │
+                                                          │  ML Training │
+                                                          │  Analytics   │
+                                                          └──────────────┘
+
+                    Airflow orchestrates all batch jobs
+</code></pre>
+<p><strong>Tool Selection Rationale:</strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Component</th>
+<th>Tool</th>
+<th>Why This Tool</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Ingestion</strong></td>
+<td>Apache Kafka</td>
+<td>Handles millions of events/sec from all apps. Fault-tolerant. Decouples sources from processing.</td>
+</tr>
+<tr>
+<td><strong>Stream Processing</strong></td>
+<td>Apache Flink</td>
+<td>Real-time fraud detection on payments, live ETA calculation, real-time GPS tracking on map. Sub-second latency required.</td>
+</tr>
+<tr>
+<td><strong>Batch Processing</strong></td>
+<td>Apache Spark</td>
+<td>Nightly aggregation of daily metrics, ML training data preparation, restaurant performance scoring.</td>
+</tr>
+<tr>
+<td><strong>Storage (Raw)</strong></td>
+<td>S3 + Delta Lake</td>
+<td>Cheap storage for all raw data. Delta Lake adds ACID transactions and schema enforcement (prevents data swamp).</td>
+</tr>
+<tr>
+<td><strong>Storage (Clean)</strong></td>
+<td>Amazon Redshift</td>
+<td>Fast analytical queries for business dashboards.</td>
+</tr>
+<tr>
+<td><strong>Orchestration</strong></td>
+<td>Apache Airflow</td>
+<td>Manages the nightly batch pipeline — schedule, dependency management, retry on failure, alerting.</td>
+</tr>
+<tr>
+<td><strong>Feature Store</strong></td>
+<td>Feast</td>
+<td>Stores pre-computed ML features for delivery time prediction, restaurant ranking, user personalisation.</td>
+</tr>
+<tr>
+<td><strong>Monitoring</strong></td>
+<td>Grafana + Prometheus</td>
+<td>Monitor pipeline health, data freshness, processing latency.</td>
+</tr>
+</tbody>
+</table></div>
+<hr />
+<h2 id="q10-what-is-the-difference-between-kafka-and-flink-students-often-confuse-them">Q10: What is the difference between Kafka and Flink? Students often confuse them.</h2>
+<p><strong>Answer:</strong>
+This is a common confusion. Think of it this way:</p>
+<ul>
+<li><strong>Kafka = the highway</strong> (transports data from point A to point B)</li>
+<li><strong>Flink = the factory on the highway</strong> (processes data as it flows through)</li>
+</ul>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Aspect</th>
+<th>Apache Kafka</th>
+<th>Apache Flink</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Primary job</strong></td>
+<td>Transport/deliver events between systems</td>
+<td>Process/transform events in real-time</td>
+</tr>
+<tr>
+<td><strong>Analogy</strong></td>
+<td>Post office — receives letters, stores them, delivers them</td>
+<td>Letter reader — opens, reads, analyses, and acts on letters</td>
+</tr>
+<tr>
+<td><strong>Does it process data?</strong></td>
+<td>Very basic (Kafka Streams for simple transforms)</td>
+<td>Advanced processing — joins, aggregations, windowing, complex event patterns</td>
+</tr>
+<tr>
+<td><strong>Does it store data?</strong></td>
+<td>Yes — retains events for configurable period (hours to days)</td>
+<td>No — processes events in flight, doesn't store</td>
+</tr>
+<tr>
+<td><strong>Latency</strong></td>
+<td>Milliseconds for delivery</td>
+<td>Milliseconds for processing</td>
+</tr>
+<tr>
+<td><strong>Use case</strong></td>
+<td>Collecting all order events from Swiggy's app</td>
+<td>Calculating running average delivery time per area using the last 30 minutes of orders from Kafka</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>How they work together:</strong>
+1. Swiggy's app sends order events → <strong>Kafka</strong> (receives and stores the events)
+2. <strong>Flink</strong> reads from Kafka → calculates real-time metrics (delivery ETA, fraud score)
+3. Flink writes results → <strong>Kafka</strong> (another topic) → consumed by the app, databases, or alerts</p>
+<p>They're complementary, not competitive. Most real-time architectures use Kafka + Flink together.</p>
+<hr />
+<h2 id="q11-scenario-irctc-wants-to-show-real-time-seat-availability-during-tatkal-booking-design-the-pipeline">Q11: Scenario — IRCTC wants to show real-time seat availability during Tatkal booking. Design the pipeline.</h2>
+<p><strong>Answer:</strong>
+This is a high-concurrency, low-latency problem. Here's the design:</p>
+<p><strong>Challenges:</strong>
+- 25 lakh+ tickets booked daily during peak season
+- Tatkal booking opens at 10:00 AM — massive spike of concurrent users
+- Seat availability must update in &lt;1 second after each booking
+- Must handle failures gracefully (what if a payment fails after seat was reserved?)</p>
+<p><strong>Pipeline Design:</strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Component</th>
+<th>Tool</th>
+<th>Function</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Event Ingestion</strong></td>
+<td>Apache Kafka</td>
+<td>Every booking attempt, cancellation, and payment event published as a Kafka event</td>
+</tr>
+<tr>
+<td><strong>Real-time Processing</strong></td>
+<td>Apache Flink</td>
+<td>Consumes booking events from Kafka. Maintains running count of available seats per train. Updates within milliseconds.</td>
+</tr>
+<tr>
+<td><strong>Fast Storage</strong></td>
+<td>Redis (in-memory cache)</td>
+<td>Stores current seat availability for instant reads. When Flink updates counts, it writes to Redis.</td>
+</tr>
+<tr>
+<td><strong>Primary Database</strong></td>
+<td>PostgreSQL/Oracle</td>
+<td>Source of truth for booking records. Batch-synced with Redis.</td>
+</tr>
+<tr>
+<td><strong>Batch Reconciliation</strong></td>
+<td>Apache Spark</td>
+<td>Runs every 15 minutes to reconcile Redis counts with actual database records (catches any missed events).</td>
+</tr>
+<tr>
+<td><strong>API Layer</strong></td>
+<td>Load-balanced REST API</td>
+<td>Reads from Redis to serve availability queries with &lt;50ms response time.</td>
+</tr>
+<tr>
+<td><strong>Orchestration</strong></td>
+<td>Airflow</td>
+<td>Manages daily batch jobs — seat allocation, waitlist processing, refund processing.</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Data flow:</strong>
+1. User clicks "Book" → API creates booking event → <strong>Kafka</strong>
+2. <strong>Flink</strong> reads event → decrements seat count → writes to <strong>Redis</strong>
+3. Next user refreshes → API reads from <strong>Redis</strong> → shows updated availability (total latency: &lt;1 second)
+4. If payment fails → cancellation event → Kafka → Flink increments seat count → Redis updated</p>
+<p><strong>Why Kafka + Flink + Redis (not just a database):</strong>
+- Direct database writes can't handle 50,000 concurrent writes at 10:00 AM
+- Redis serves reads in &lt;1ms (database takes 50-100ms)
+- Kafka ensures no event is lost even if Flink or Redis temporarily fails
+- Flink handles complex logic (reservation timeout, priority waitlist) in real-time</p>
+<hr />
+<h2 id="q12-when-would-you-choose-batch-processing-over-streaming-and-vice-versa-give-a-decision-framework">Q12: When would you choose Batch processing over Streaming, and vice versa? Give a decision framework.</h2>
+<p><strong>Answer:</strong></p>
+<p><strong>Choose Batch Processing when:</strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Criteria</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Results can wait hours/days</td>
+<td>Generating monthly electricity bills for Tata Power</td>
+</tr>
+<tr>
+<td>Need to process entire historical dataset</td>
+<td>Retraining Flipkart's recommendation model on 6 months of data</td>
+</tr>
+<tr>
+<td>Accuracy matters more than speed</td>
+<td>Financial reconciliation at SBI — must be exact</td>
+</tr>
+<tr>
+<td>Data volume is huge but infrequent</td>
+<td>Processing annual income tax returns for all taxpayers</td>
+</tr>
+<tr>
+<td>Cost is a priority</td>
+<td>Batch compute is cheaper — runs for 2 hours, shuts down</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Choose Stream Processing when:</strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Criteria</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Action needed in seconds</td>
+<td>Blocking a fraudulent UPI transaction at Paytm</td>
+</tr>
+<tr>
+<td>Users expect real-time updates</td>
+<td>Showing live GPS tracking of Swiggy delivery</td>
+</tr>
+<tr>
+<td>Event ordering matters</td>
+<td>Processing stock trades at NSE in exact sequence</td>
+</tr>
+<tr>
+<td>Continuous monitoring required</td>
+<td>Monitoring Jio network health — alert if a tower goes down</td>
+</tr>
+<tr>
+<td>Competitive advantage in speed</td>
+<td>Zerodha showing stock prices faster than competitors</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Decision flowchart:</strong></p>
+<pre><code>Is a delay of minutes/hours acceptable?
+├── Yes → BATCH (cheaper, simpler)
+│         Is the data volume &gt; 1TB per run?
+│         ├── Yes → Apache Spark
+│         └── No → Simple Python/SQL scripts
+│
+└── No → STREAMING (real-time)
+          Is the processing logic complex (joins, windows)?
+          ├── Yes → Apache Flink
+          └── No → Kafka Streams (lightweight)
+</code></pre>
+<p><strong>Most companies use both:</strong> Zomato uses streaming for live order tracking and batch for daily business reports.</p>
+<hr />
+<h2 id="q13-what-is-an-airflow-dag-explain-with-a-real-example">Q13: What is an Airflow DAG? Explain with a real example.</h2>
+<p><strong>Answer:</strong>
+A DAG (Directed Acyclic Graph) is Airflow's way of defining a workflow — a set of tasks with dependencies between them.</p>
+<ul>
+<li><strong>Directed:</strong> Tasks have a direction (Task A runs before Task B)</li>
+<li><strong>Acyclic:</strong> No loops — the workflow moves forward, never goes back</li>
+<li><strong>Graph:</strong> Tasks are nodes, dependencies are edges</li>
+</ul>
+<p><strong>Real example — Flipkart's nightly recommendation pipeline:</strong></p>
+<pre><code>                    ┌─────────────────┐
+                    │ extract_orders   │ (Task 1: Pull today's orders from production DB)
+                    └────────┬────────┘
+                             │
+                    ┌────────▼────────┐
+                    │ extract_clicks   │ (Task 2: Pull today's clickstream from Kafka)
+                    └────────┬────────┘
+                             │
+                ┌────────────┴────────────┐
+                │                         │
+       ┌────────▼────────┐      ┌────────▼────────┐
+       │ clean_orders    │      │ clean_clicks     │ (Tasks 3a, 3b: Can run in PARALLEL)
+       └────────┬────────┘      └────────┬────────┘
+                │                         │
+                └────────────┬────────────┘
+                             │
+                    ┌────────▼────────┐
+                    │ join_datasets    │ (Task 4: Combine orders + clicks)
+                    └────────┬────────┘
+                             │
+                    ┌────────▼────────┐
+                    │ compute_features │ (Task 5: Calculate user-product features)
+                    └────────┬────────┘
+                             │
+                ┌────────────┴────────────┐
+                │                         │
+       ┌────────▼────────┐      ┌────────▼────────┐
+       │ train_model     │      │ update_warehouse │ (Tasks 6a, 6b: Parallel)
+       └────────┬────────┘      └────────┬────────┘
+                │                         │
+                └────────────┬────────────┘
+                             │
+                    ┌────────▼────────┐
+                    │ quality_checks   │ (Task 7: Validate model and data quality)
+                    └────────┬────────┘
+                             │
+                    ┌────────▼────────┐
+                    │ deploy_model     │ (Task 8: Push new model to production)
+                    └─────────────────┘
+</code></pre>
+<p><strong>Key Airflow features:</strong>
+- <strong>Scheduling:</strong> This DAG runs daily at 2:00 AM
+- <strong>Dependencies:</strong> "train_model" won't run until "compute_features" succeeds
+- <strong>Parallelism:</strong> "clean_orders" and "clean_clicks" run simultaneously (no dependency between them)
+- <strong>Retries:</strong> If "extract_orders" fails, Airflow retries 3 times before alerting
+- <strong>Alerting:</strong> On failure, sends Slack message to the data engineering team
+- <strong>Backfilling:</strong> If yesterday's run failed, Airflow can automatically re-run for the missed date</p>
+<hr />
+<h2 id="q14-scenario-a-retail-company-like-reliance-retail-is-moving-from-on-premises-to-cloud-should-they-use-etl-or-elt-justify">Q14: Scenario — A retail company (like Reliance Retail) is moving from on-premises to cloud. Should they use ETL or ELT? Justify.</h2>
+<p><strong>Answer:</strong>
+<strong>Recommendation: ELT.</strong> Here's the justification:</p>
+<p><strong>Current state (on-premises with ETL):</strong>
+- Traditional ETL using Informatica — extract from Oracle DB, transform in ETL server, load into data warehouse
+- Storage is expensive (SAN/NAS arrays) — so they only store clean, transformed data
+- ETL runs nightly, takes 6 hours, processes yesterday's data
+- Only structured data (transactions, inventory) is processed</p>
+<p><strong>Why ELT on cloud is better:</strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Factor</th>
+<th>ETL (On-Premises)</th>
+<th>ELT (Cloud)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Storage cost</strong></td>
+<td>₹50 lakh/year for 50TB (SAN storage)</td>
+<td>₹2 lakh/year for 50TB (S3) — 25x cheaper</td>
+</tr>
+<tr>
+<td><strong>Compute</strong></td>
+<td>Fixed ETL server (expensive even when idle)</td>
+<td>Pay only when processing (Spark on EMR)</td>
+</tr>
+<tr>
+<td><strong>Flexibility</strong></td>
+<td>Must define transforms upfront</td>
+<td>Store raw data, transform when needed</td>
+</tr>
+<tr>
+<td><strong>New use cases</strong></td>
+<td>Adding a new report = weeks of ETL changes</td>
+<td>New report = new SQL query on existing raw data</td>
+</tr>
+<tr>
+<td><strong>Unstructured data</strong></td>
+<td>Can't handle product images, customer call recordings</td>
+<td>S3 stores everything — images, audio, JSON, CSV</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Recommended ELT architecture for Reliance Retail:</strong></p>
+<ol>
+<li><strong>Extract:</strong> Pull data from all stores' POS systems, e-commerce platform, warehouse systems</li>
+<li><strong>Load:</strong> Load ALL raw data into S3 (Data Lake) — structured AND unstructured</li>
+<li><strong>Transform:</strong> Use Spark/dbt to transform data ON-DEMAND inside the cloud warehouse</li>
+<li><strong>Serve:</strong> Clean data in Redshift for dashboards; raw data in S3 for data scientists</li>
+</ol>
+<p><strong>Key benefit:</strong> When the marketing team wants a new analysis 6 months later (e.g., "correlation between weather and ice cream sales"), the raw weather data is already in S3. With ETL, they'd have to go back and rebuild the pipeline to include weather data.</p>
+<hr />
+<h2 id="q15-what-are-the-key-differences-between-a-data-engineer-and-a-data-scientist-how-do-their-pipelines-differ">Q15: What are the key differences between a Data Engineer and a Data Scientist? How do their pipelines differ?</h2>
+<p><strong>Answer:</strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Aspect</th>
+<th>Data Engineer</th>
+<th>Data Scientist</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Primary role</strong></td>
+<td>Build and maintain data infrastructure/pipelines</td>
+<td>Analyse data and build ML models</td>
+</tr>
+<tr>
+<td><strong>Analogy</strong></td>
+<td>The person who builds roads, bridges, and water supply</td>
+<td>The person who uses those roads to deliver goods</td>
+</tr>
+<tr>
+<td><strong>Key skills</strong></td>
+<td>SQL, Spark, Kafka, Airflow, cloud infra, Python/Scala</td>
+<td>Python, statistics, ML algorithms, TensorFlow, pandas</td>
+</tr>
+<tr>
+<td><strong>What they build</strong></td>
+<td>ETL pipelines, data lakes, data warehouses</td>
+<td>Predictive models, dashboards, insights</td>
+</tr>
+<tr>
+<td><strong>Pipeline type</strong></td>
+<td>Data pipelines (move and transform data)</td>
+<td>ML pipelines (feature engineering → training → evaluation → deployment)</td>
+</tr>
+<tr>
+<td><strong>Output</strong></td>
+<td>Clean, reliable, accessible data</td>
+<td>Trained models and predictions</td>
+</tr>
+<tr>
+<td><strong>Metric of success</strong></td>
+<td>Data freshness, pipeline uptime, data quality</td>
+<td>Model accuracy, F1-score, business impact</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>How they collaborate (Flipkart example):</strong></p>
+<pre><code>Data Engineer builds:
+  POS data → Kafka → Spark ETL → Data Warehouse → Feature Store
+
+Data Scientist uses:
+  Feature Store → Feature Engineering → Model Training → Model Evaluation → Deployment
+</code></pre>
+<p>The data engineer ensures clean data is available. The data scientist uses that data to build and train models. Without good data engineering, the data scientist spends 80% of their time cleaning data instead of building models.</p>
+<hr />
+<h2 id="q16-what-are-the-common-failure-modes-in-data-pipelines-how-do-you-handle-them">Q16: What are the common failure modes in data pipelines? How do you handle them?</h2>
+<p><strong>Answer:</strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Failure Mode</th>
+<th>What Happens</th>
+<th>Example</th>
+<th>Solution</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Source unavailable</strong></td>
+<td>Data source is down or unreachable</td>
+<td>Swiggy's restaurant database is undergoing maintenance</td>
+<td>Retry with exponential backoff. Use Kafka as buffer (data waits in Kafka until source is back).</td>
+</tr>
+<tr>
+<td><strong>Schema change</strong></td>
+<td>Source changes column names or types without notice</td>
+<td>Flipkart's product catalog adds a new field — pipeline breaks because it expects old schema</td>
+<td>Schema registry (Confluent Schema Registry). Schema evolution support. Alerts on schema changes.</td>
+</tr>
+<tr>
+<td><strong>Data volume spike</strong></td>
+<td>Sudden increase in data volume overwhelms pipeline</td>
+<td>Flipkart Big Billion Days — 10x normal traffic</td>
+<td>Auto-scaling (cloud). Kafka absorbs spike as buffer. Backpressure mechanisms in Flink.</td>
+</tr>
+<tr>
+<td><strong>Late-arriving data</strong></td>
+<td>Data arrives after the processing window closes</td>
+<td>GPS pings arrive 5 minutes late due to poor network in rural areas</td>
+<td>Watermarks and late-event handling in Flink. Allow grace period.</td>
+</tr>
+<tr>
+<td><strong>Pipeline job failure</strong></td>
+<td>A Spark job fails mid-execution</td>
+<td>Out-of-memory error during a join operation</td>
+<td>Airflow retries. Checkpointing (resume from last successful step, not from scratch).</td>
+</tr>
+<tr>
+<td><strong>Data quality degradation</strong></td>
+<td>Pipeline runs but produces bad data</td>
+<td>A bug in the ETL script converts all prices to 0</td>
+<td>Data quality checks after each step (Great Expectations). Automated alerting. Circuit breaker pattern.</td>
+</tr>
+<tr>
+<td><strong>Duplicate processing</strong></td>
+<td>Same data processed twice</td>
+<td>Kafka consumer restarts and reprocesses events</td>
+<td>Idempotent processing. Exactly-once semantics in Kafka + Flink. Deduplication logic.</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Best practices for resilient pipelines:</strong>
+1. <strong>Idempotency:</strong> Running the same pipeline twice should produce the same result
+2. <strong>Checkpointing:</strong> Save progress so failures resume, not restart
+3. <strong>Dead letter queues:</strong> Events that can't be processed go to a separate queue for investigation
+4. <strong>Monitoring and alerting:</strong> Know when things break BEFORE users notice
+5. <strong>Circuit breaker:</strong> If error rate exceeds threshold, pause the pipeline instead of producing bad data</p>
+<hr />
+<h2 id="q17-scenario-zerodha-needs-to-process-10-million-stock-trades-per-day-design-the-pipeline-should-they-use-batch-or-streaming">Q17: Scenario — Zerodha needs to process 10 million stock trades per day. Design the pipeline. Should they use batch or streaming?</h2>
+<p><strong>Answer:</strong>
+<strong>Answer: Both — but streaming for the core trading flow.</strong></p>
+<p><strong>Why streaming is essential:</strong>
+- Stock trades MUST be processed in real-time — a 5-second delay could mean lakhs of rupees in loss
+- Regulatory requirement: trades must be reported to NSE/BSE within seconds
+- Users expect to see their portfolio updated instantly after a trade</p>
+<p><strong>Why batch is still needed:</strong>
+- End-of-day P&amp;L calculations, margin calculations, regulatory reports
+- Historical analysis for risk management
+- Daily reconciliation with exchange records</p>
+<p><strong>Architecture:</strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Component</th>
+<th>Tool</th>
+<th>Function</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Order Ingestion</strong></td>
+<td>Kafka</td>
+<td>Every buy/sell order published to Kafka. Handles 100K+ orders/second during market open.</td>
+</tr>
+<tr>
+<td><strong>Order Matching</strong></td>
+<td>Flink</td>
+<td>Real-time order matching engine. Processes each order in &lt;10ms. Handles complex order types (limit, market, stop-loss).</td>
+</tr>
+<tr>
+<td><strong>Portfolio Update</strong></td>
+<td>Flink + Redis</td>
+<td>After trade execution, instantly update user's portfolio in Redis. User sees updated holdings immediately.</td>
+</tr>
+<tr>
+<td><strong>Risk Monitoring</strong></td>
+<td>Flink</td>
+<td>Real-time margin calculation. If a user's margin falls below threshold, trigger margin call alert instantly.</td>
+</tr>
+<tr>
+<td><strong>Market Data</strong></td>
+<td>Kafka + Flink</td>
+<td>Process real-time price feeds from NSE/BSE. Update stock prices on the app every second.</td>
+</tr>
+<tr>
+<td><strong>End-of-Day Batch</strong></td>
+<td>Spark + Airflow</td>
+<td>After market close (3:30 PM): calculate final P&amp;L, generate contract notes, prepare regulatory reports (SEBI submissions).</td>
+</tr>
+<tr>
+<td><strong>Persistent Storage</strong></td>
+<td>PostgreSQL + S3</td>
+<td>Trade records in PostgreSQL (ACID for financial data). Historical data archived to S3 for analytics.</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Data flow for a single trade:</strong>
+1. User places buy order on Kite (Zerodha app) → API server → <strong>Kafka</strong> (&lt; 1ms)
+2. <strong>Flink</strong> reads order → validates margin → sends to exchange → receives confirmation (&lt; 50ms)
+3. <strong>Flink</strong> updates user's portfolio in <strong>Redis</strong> → user sees updated holdings (&lt; 100ms total)
+4. After market close → <strong>Spark</strong> batch job reconciles all trades, calculates taxes, generates reports
+5. <strong>Airflow</strong> orchestrates: Reconciliation → P&amp;L calculation → Contract note generation → Email to user</p>
+<hr />
+<h2 id="q18-explain-the-concept-of-exactly-once-processing-in-streaming-pipelines-why-is-it-important">Q18: Explain the concept of "Exactly-Once Processing" in streaming pipelines. Why is it important?</h2>
+<p><strong>Answer:</strong>
+In streaming systems, each event can be processed in three ways:</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Semantics</th>
+<th>What It Means</th>
+<th>Problem</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>At-most-once</strong></td>
+<td>Event processed 0 or 1 times. If processing fails, event is lost.</td>
+<td>Might miss data — a Paytm transaction could be lost</td>
+</tr>
+<tr>
+<td><strong>At-least-once</strong></td>
+<td>Event processed 1 or more times. On failure, event is reprocessed.</td>
+<td>Might duplicate — a Paytm transaction could be processed twice (₹500 deducted twice!)</td>
+</tr>
+<tr>
+<td><strong>Exactly-once</strong></td>
+<td>Event processed exactly 1 time, even on failures.</td>
+<td>No loss, no duplication — ideal but hardest to achieve</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Why exactly-once matters:</strong>
+- In financial systems (Paytm, HDFC Bank), processing a payment twice or losing a payment is unacceptable
+- In Swiggy's order system, duplicating an order means the customer receives two orders and is charged twice</p>
+<p><strong>How Kafka + Flink achieve exactly-once:</strong>
+1. <strong>Kafka transactions:</strong> Producer writes to Kafka in a transaction — either all messages are written or none (atomic)
+2. <strong>Flink checkpointing:</strong> Flink periodically saves its state (checkpoint). On failure, it restores from the last checkpoint and reprocesses — but using Kafka offsets, it knows exactly where it left off
+3. <strong>Idempotent writes:</strong> Even if an event is reprocessed, the output operation checks "has this already been done?" and skips duplicates</p>
+<p><strong>Simple analogy:</strong> Exactly-once is like sending an important courier. You want guaranteed delivery (not lost = at-least-once) but also want to ensure only one copy arrives (not duplicated = at-most-once). Exactly-once = guaranteed one delivery.</p>
+<hr />
+<h2 id="q19-a-company-stores-50tb-of-data-in-a-data-lake-but-nobody-uses-it-what-went-wrong-and-how-would-you-fix-it">Q19: A company stores 50TB of data in a data lake but nobody uses it. What went wrong, and how would you fix it?</h2>
+<p><strong>Answer:</strong>
+This company has a classic <strong>Data Swamp</strong> problem. Here's the diagnosis and fix:</p>
+<p><strong>Diagnosis — What likely went wrong:</strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Symptom</th>
+<th>Root Cause</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Nobody can find relevant data</td>
+<td>No data catalog or search functionality</td>
+</tr>
+<tr>
+<td>Nobody trusts the data</td>
+<td>No data quality monitoring — nobody knows if the data is accurate</td>
+</tr>
+<tr>
+<td>Nobody understands the data</td>
+<td>No documentation, no metadata, no column descriptions</td>
+</tr>
+<tr>
+<td>Multiple versions of same data</td>
+<td>No governance — different teams loaded the same data differently</td>
+</tr>
+<tr>
+<td>Stale data mixed with fresh data</td>
+<td>No lifecycle management — data from 2019 sits next to data from today</td>
+</tr>
+<tr>
+<td>Nobody owns the data</td>
+<td>No data ownership or stewardship assigned</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Fix — The Data Swamp Recovery Plan:</strong></p>
+<p><strong>Phase 1 (Week 1-2): Discover and Document</strong>
+1. Inventory all datasets — what's in the 50TB?
+2. Deploy a data catalog tool (Apache Atlas or AWS Glue Catalog)
+3. Auto-discover schemas and tag datasets
+4. Identify "golden datasets" — the most important 20% that drive 80% of business value</p>
+<p><strong>Phase 2 (Week 3-4): Assign Ownership and Quality</strong>
+1. Assign a data owner for each dataset (a person accountable)
+2. Define data quality rules for each golden dataset
+3. Implement automated quality checks (Great Expectations)
+4. Delete or archive clearly outdated/useless data</p>
+<p><strong>Phase 3 (Month 2): Build Access and Self-Service</strong>
+1. Build a searchable data catalog with descriptions, sample data, quality scores
+2. Create "data products" — curated, documented, trusted datasets
+3. Set up access controls (who can read what)
+4. Create templates for common queries</p>
+<p><strong>Phase 4 (Ongoing): Governance</strong>
+1. New data must have metadata, owner, and quality rules BEFORE loading
+2. Monthly data quality reports
+3. Automatic archiving of data not accessed in 6 months
+4. Migrate to a Lakehouse architecture (Delta Lake/Iceberg) for built-in schema enforcement</p>
+<hr />
+<h2 id="q20-compare-all-the-data-storage-options-data-lake-data-warehouse-data-lakehouse-with-a-decision-framework-for-when-to-use-each">Q20: Compare all the data storage options (Data Lake, Data Warehouse, Data Lakehouse) with a decision framework for when to use each.</h2>
+<p><strong>Answer:</strong></p>
+<p><strong>Decision Framework:</strong></p>
+<pre><code>What type of data do you primarily have?
+│
+├── Mostly Structured (SQL tables) + Known queries
+│   └── DATA WAREHOUSE (Snowflake, BigQuery, Redshift)
+│       Best for: BI dashboards, SQL analytics, reporting
+│       Example: HDFC Bank's risk reporting — structured financial data, known queries
+│
+├── Mix of Structured + Unstructured + Don't know all use cases yet
+│   └── DATA LAKEHOUSE (Databricks/Delta Lake, Apache Iceberg)
+│       Best for: Modern data + AI stack, combines flexibility with reliability
+│       Example: Flipkart — needs product images (unstructured) + sales data (structured)
+│                + ML training + BI dashboards, all from one system
+│
+└── Everything, cheapest possible, primarily for data scientists
+    └── DATA LAKE (S3 + Hive/Glue)
+        Best for: Raw data storage, ML experimentation, cost-sensitive
+        Example: A startup that needs to store tons of raw data cheaply and figure out use cases later
+</code></pre>
+<p><strong>Summary comparison:</strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Factor</th>
+<th>Data Warehouse</th>
+<th>Data Lake</th>
+<th>Data Lakehouse</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Cost</strong></td>
+<td>$$$ (expensive)</td>
+<td>$ (cheapest)</td>
+<td>$$ (moderate)</td>
+</tr>
+<tr>
+<td><strong>Query speed</strong></td>
+<td>Fastest</td>
+<td>Slowest</td>
+<td>Fast (approaching warehouse)</td>
+</tr>
+<tr>
+<td><strong>Data types</strong></td>
+<td>Structured only</td>
+<td>All types</td>
+<td>All types</td>
+</tr>
+<tr>
+<td><strong>ACID transactions</strong></td>
+<td>Yes</td>
+<td>No</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><strong>Data governance</strong></td>
+<td>Strong</td>
+<td>Weak (swamp risk)</td>
+<td>Strong</td>
+</tr>
+<tr>
+<td><strong>ML support</strong></td>
+<td>Poor (structured data only)</td>
+<td>Good (all data, but messy)</td>
+<td>Best (all data, well-managed)</td>
+</tr>
+<tr>
+<td><strong>Maturity</strong></td>
+<td>Very mature</td>
+<td>Mature</td>
+<td>Emerging but rapidly adopted</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Industry trend (2024):</strong> The Lakehouse is winning. Databricks (Delta Lake) and Snowflake are converging — Snowflake added unstructured data support, Databricks improved SQL performance. Most new projects at Indian companies like Myntra, CRED, and PhonePe use a Lakehouse approach.</p>
+</main>
+<button class="back-top" id="backTop" title="Back to top">&#8593;</button>
+<script>
+const bar=document.getElementById('progress');
+const btn=document.getElementById('backTop');
+const toggle=document.getElementById('sidebarToggle');
+const sidebar=document.getElementById('sidebar');
+window.addEventListener('scroll',()=>{
+  const s=document.documentElement.scrollTop;
+  const h=document.documentElement.scrollHeight-document.documentElement.clientHeight;
+  bar.style.width=(s/h*100)+'%';
+  btn.classList.toggle('show',s>400);
+});
+btn.onclick=()=>window.scrollTo({top:0,behavior:'smooth'});
+toggle.onclick=()=>sidebar.classList.toggle('open');
+// Active sidebar link
+const links=document.querySelectorAll('.sidebar nav a');
+const obs=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{if(e.isIntersecting){
+    links.forEach(l=>l.classList.remove('active'));
+    const a=document.querySelector('.sidebar nav a[href="#'+e.target.id+'"]');
+    if(a)a.classList.add('active');
+  }});
+},{rootMargin:'-20% 0px -70% 0px'});
+document.querySelectorAll('h2[id],h3[id]').forEach(h=>obs.observe(h));
+</script>
+</body>
+</html>

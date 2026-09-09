@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Session 3: AI System Architecture</title>
 <style>
-:root{--bg:#0f172a;--surface:#1e293b;--surface2:#334155;--border:#475569;--text:#e2e8f0;--text-muted:#94a3b8;--code-bg:#0d1117;--accent:#8b5cf6;--accent-dim:rgba(139,92,246,.15);--accent-border:rgba(139,92,246,.3);--header-gradient:linear-gradient(135deg,#4c1d95,#7c3aed,#8b5cf6)}
+:root{--bg:#0f172a;--surface:#1e293b;--surface2:#334155;--border:#475569;--text:#e2e8f0;--text-muted:#94a3b8;--code-bg:#0d1117;--accent:#10b981;--accent-dim:rgba(16,185,129,.15);--accent-border:rgba(16,185,129,.3);--header-gradient:linear-gradient(135deg,#064e3b,#059669,#10b981)}
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth}
 body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);line-height:1.7;display:flex;min-height:100vh}
@@ -27,23 +27,25 @@ body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--
 h2{font-size:1.5rem;color:var(--accent);margin:2.5rem 0 1rem;padding-bottom:.5rem;border-bottom:2px solid var(--accent-border)}
 h3{font-size:1.15rem;color:var(--text);margin:1.8rem 0 .8rem}
 h4{font-size:1rem;color:var(--accent);margin:1.2rem 0 .6rem}
-p{margin-bottom:1rem}
+p{margin-bottom:1rem;color:var(--text)}
+strong{color:var(--text)}
 .table-wrap{overflow-x:auto;margin:1.2rem 0;border-radius:10px;border:1px solid var(--border)}
 table{width:100%;border-collapse:collapse;font-size:.88rem}
-thead th{background:var(--accent);color:#fff;padding:.75rem 1rem;text-align:left;font-weight:600;white-space:nowrap}
+thead th{background:var(--accent);color:#000;padding:.75rem 1rem;text-align:left;font-weight:600;white-space:nowrap}
 tbody tr:nth-child(even){background:var(--surface)}
 tbody tr:nth-child(odd){background:var(--surface2)}
 tbody tr:hover{background:var(--accent-dim)}
-td{padding:.7rem 1rem;border-top:1px solid var(--border)}
+td{padding:.7rem 1rem;border-top:1px solid var(--border);color:var(--text)}
 pre{background:var(--code-bg);border:1px solid var(--border);border-radius:10px;padding:1.2rem;overflow-x:auto;margin:1.2rem 0;font-size:.85rem;line-height:1.6}
 code{font-family:'Cascadia Code','Fira Code','Consolas',monospace;color:#e6edf3}
 p code,li code,td code{background:var(--code-bg);padding:.15rem .4rem;border-radius:4px;font-size:.85em;color:var(--accent)}
 .callout{background:var(--accent-dim);border-left:4px solid var(--accent);border-radius:0 10px 10px 0;padding:1rem 1.2rem;margin:1.2rem 0;font-size:.92rem}
-.callout p{margin:0}
-ul,ol{margin:0 0 1rem 1.5rem}
+.callout p{margin:0;color:var(--text)}
+.callout em{color:var(--text-muted)}
+ul,ol{margin:0 0 1rem 1.5rem;color:var(--text)}
 li{margin-bottom:.4rem}
 li strong{color:var(--accent)}
-.back-top{position:fixed;bottom:2rem;right:2rem;width:44px;height:44px;background:var(--accent);color:#fff;border:none;border-radius:50%;cursor:pointer;font-size:1.3rem;display:none;align-items:center;justify-content:center;box-shadow:0 4px 15px rgba(139,92,246,.3);transition:transform .2s;z-index:100}
+.back-top{position:fixed;bottom:2rem;right:2rem;width:44px;height:44px;background:var(--accent);color:#000;border:none;border-radius:50%;cursor:pointer;font-size:1.3rem;display:none;align-items:center;justify-content:center;box-shadow:0 4px 15px rgba(16,185,129,.3);transition:transform .2s,opacity .2s;z-index:100}
 .back-top:hover{transform:scale(1.1)}
 .back-top.show{display:flex}
 @media(max-width:900px){
@@ -56,195 +58,511 @@ li strong{color:var(--accent)}
   .sidebar,.sidebar-toggle,.back-top,.progress-bar{display:none!important}
   .main{margin-left:0;max-width:100%}
   body{background:#fff;color:#000}
-  h2{color:#4c1d95}
-  thead th{background:#8b5cf6;color:#fff;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  h2{color:#064e3b}
+  thead th{background:#10b981;color:#000;-webkit-print-color-adjust:exact;print-color-adjust:exact}
   tbody tr:nth-child(even){background:#f8f8f8}
   tbody tr:nth-child(odd){background:#fff}
   pre{border:1px solid #ccc;background:#f5f5f5}
   code{color:#333}
-  .callout{background:#ede9fe;border-left-color:#8b5cf6}
-  .page-header{background:#8b5cf6!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .callout{background:#e8f5e9;border-left-color:#10b981}
+  .page-header{background:#10b981!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
 }
 </style>
 </head>
 <body>
-
-<div class="progress-bar" id="progressBar"></div>
-<button class="sidebar-toggle" id="sidebarToggle" aria-label="Toggle sidebar">☰</button>
-
+<div class="progress-bar" id="progress"></div>
+<button class="sidebar-toggle" id="sidebarToggle">&#9776;</button>
 <aside class="sidebar" id="sidebar">
   <div class="sidebar-header">
-    <h2>Session 3</h2>
-    <p>AI System Architecture</p>
+    <h2>SS ZG662</h2>
+    <p>Introduction to AI Systems</p>
   </div>
   <nav>
-    <a href="#section-3-1">3.1 Five-Layer Architecture</a>
-    <a href="#section-3-1-1" class="sub">3.1.1 Data Layer</a>
-    <a href="#section-3-1-2" class="sub">3.1.2 Model Layer</a>
-    <a href="#section-3-1-3" class="sub">3.1.3 Application Layer</a>
-    <a href="#section-3-1-4" class="sub">3.1.4 Infrastructure Layer</a>
-    <a href="#section-3-1-5" class="sub">3.1.5 Monitoring Layer</a>
-    <a href="#section-3-2">3.2 Architecture Walkthrough</a>
-    <a href="Session-3-Questions-and-Answers.html" style="margin-top:1rem;color:var(--accent);">📝 Session 3 Q&A →</a>
-    <a href="Session-2-Categories-of-AI-Systems.html">← Session 2</a>
-    <a href="Session-4-AI-Ecosystem-and-Marketplaces.html">→ Session 4</a>
+    <a href="#table-of-contents">Table of Contents</a>
+    <a href="#3-1-the-five-layer-ai-system-architecture">3.1 The Five-Layer AI System Architecture</a>
+    <a href="#why-do-we-need-an-architecture" class="sub">Why Do We Need an Architecture?</a>
+    <a href="#the-five-layers" class="sub">The Five Layers</a>
+    <a href="#3-1-1-data-layer-without-good-data-nothing-else-matters" class="sub">3.1.1 Data Layer — "Without good data, nothing els...</a>
+    <a href="#3-1-2-model-layer-the-brain-of-the-system" class="sub">3.1.2 Model Layer — "The brain of the system"</a>
+    <a href="#3-1-3-application-layer-where-ai-meets-the-real-world" class="sub">3.1.3 Application Layer — "Where AI meets the real...</a>
+    <a href="#3-1-4-infrastructure-layer-the-foundation-everything-runs-on" class="sub">3.1.4 Infrastructure Layer — "The foundation every...</a>
+    <a href="#3-1-5-monitoring-layer-without-monitoring-you-re-flying-blind" class="sub">3.1.5 Monitoring Layer — "Without monitoring, you'...</a>
+    <a href="#3-2-architecture-walkthrough-a-modern-ai-application">3.2 Architecture Walkthrough: A Modern AI Applicat...</a>
+    <a href="#example-swiggy-food-delivery-time-prediction" class="sub">Example: Swiggy Food Delivery Time Prediction</a>
+    <a href="#key-takeaways-from-the-walkthrough" class="sub">Key Takeaways from the Walkthrough</a>
+    <a href="#key-terms-glossary-session-3">Key Terms Glossary (Session 3)</a>
   </nav>
 </aside>
-
 <main class="main">
   <div class="page-header">
-    <span class="badge">Module 1: Foundations of AI Systems</span>
+    <span class="badge">Session 3</span>
     <h1>Session 3: AI System Architecture</h1>
-    <p class="meta">BITS Pilani — SS ZG662: Introduction to AI Systems — Instructor: Chandrasekhar Anantrama<br>References: Class Notes</p>
+    <div class="meta">Contact Session 3 | Module 1: Foundations of AI Systems</div>
   </div>
-
-  <!-- 3.1 -->
-  <h2 id="section-3-1">3.1 The Five-Layer AI System Architecture</h2>
-  <p>A modern AI system is structured in layers, each with distinct responsibilities. This layered architecture enables teams to work independently, replace components without affecting others, and scale each layer based on its specific needs.</p>
-  <pre><code>┌─────────────────────────────────────────────────────────┐
+<h1 id="session-3-ai-system-architecture">Session 3: AI System Architecture</h1>
+<div class="callout">
+<p>BITS Pilani — <strong>SS ZG662: Introduction to AI Systems</strong> — Instructor: Chandrasekhar Anantrama</p>
+<p><strong>References:</strong> Class Notes</p>
+<p><strong>Contact Session:</strong> 3 (Module 1: Foundations of AI Systems)</p>
+</div>
+<hr />
+<h2 id="table-of-contents">Table of Contents</h2>
+<ul>
+<li><a href="#31-the-five-layer-ai-system-architecture">3.1 The Five-Layer AI System Architecture</a></li>
+<li><a href="#32-architecture-walkthrough-a-modern-ai-application">3.2 Architecture Walkthrough: A Modern AI Application</a></li>
+</ul>
+<hr />
+<h2 id="3-1-the-five-layer-ai-system-architecture">3.1 The Five-Layer AI System Architecture</h2>
+<h3 id="why-do-we-need-an-architecture">Why Do We Need an Architecture?</h3>
+<p>An AI system is not just a model. The model is like the brain, but a body needs a heart, lungs, muscles, and a nervous system too. The <strong>architecture</strong> describes how all the parts fit together.</p>
+<div class="callout">
+<p><strong>Analogy:</strong> Think of a restaurant chain like McDonald's:
+- <strong>Data Layer</strong> = Supply chain (getting ingredients to every restaurant)
+- <strong>Model Layer</strong> = The kitchen (where food is prepared using recipes)
+- <strong>Application Layer</strong> = The counter/app (where customers order and receive food)
+- <strong>Infrastructure Layer</strong> = The building, electricity, gas, equipment
+- <strong>Monitoring Layer</strong> = Quality checks, customer feedback, health inspections</p>
+</div>
+<h3 id="the-five-layers">The Five Layers</h3>
+<pre><code>┌─────────────────────────────────────────────────────────┐
 │                   APPLICATION LAYER                       │
-│   User interface, business logic, A/B testing, UX        │
+│   What users see — app, website, API, business logic     │
 ├─────────────────────────────────────────────────────────┤
 │                   MODEL LAYER                             │
-│   Model serving, inference, model registry, versioning   │
+│   The &quot;brain&quot; — training, serving predictions, versioning│
 ├─────────────────────────────────────────────────────────┤
 │                   DATA LAYER                              │
-│   Data pipelines, feature store, data warehouse/lake     │
+│   The &quot;fuel&quot; — data pipelines, storage, feature store    │
 ├─────────────────────────────────────────────────────────┤
 │                   INFRASTRUCTURE LAYER                    │
-│   Compute (GPUs/TPUs), storage, networking, orchestration│
+│   The &quot;hardware&quot; — GPUs, storage, networking, containers │
 ├─────────────────────────────────────────────────────────┤
 │                   MONITORING LAYER                        │
-│   Logging, metrics, drift detection, alerting, feedback  │
-└─────────────────────────────────────────────────────────┘</code></pre>
+│   The &quot;nervous system&quot; — logs, alerts, drift detection   │
+└─────────────────────────────────────────────────────────┘
+</code></pre>
+<hr />
+<h3 id="3-1-1-data-layer-without-good-data-nothing-else-matters">3.1.1 Data Layer — "Without good data, nothing else matters"</h3>
+<p>The Data Layer is the foundation. It handles <strong>collecting, storing, processing, and serving data</strong> to the rest of the system.</p>
+<div class="callout">
+<p><strong>Simple rule:</strong> An AI model is only as good as the data it's trained on. If your data is bad, your model will be bad — no matter how sophisticated the algorithm.</p>
+</div>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Component</th>
+<th>What It Does (Simple)</th>
+<th>Think of It As...</th>
+<th>Live Examples</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Data Ingestion</strong></td>
+<td>Pulls data from different sources into one place</td>
+<td>A funnel collecting water from multiple streams</td>
+<td><strong>Apache Kafka</strong> — collects millions of events/second (used by LinkedIn, Uber). <strong>AWS Kinesis</strong> — Amazon's data streaming service.</td>
+</tr>
+<tr>
+<td><strong>Data Storage</strong></td>
+<td>Stores raw and processed data durably</td>
+<td>A warehouse with organised shelves</td>
+<td><strong>Data Lake</strong> (store everything raw: S3, Google Cloud Storage). <strong>Data Warehouse</strong> (store cleaned, structured data: Snowflake, BigQuery).</td>
+</tr>
+<tr>
+<td><strong>Data Processing</strong></td>
+<td>Cleans, transforms, and prepares data</td>
+<td>A kitchen where raw ingredients are washed, cut, and prepared</td>
+<td><strong>Apache Spark</strong> — processes terabytes of data in minutes. <strong>dbt</strong> — transforms data using SQL. <strong>Apache Airflow</strong> — schedules and orchestrates data pipelines.</td>
+</tr>
+<tr>
+<td><strong>Feature Store</strong></td>
+<td>Stores pre-computed features (inputs to the model) that are consistent between training and serving</td>
+<td>A prep station with pre-cut ingredients ready to use instantly</td>
+<td><strong>Feast</strong> (open-source), <strong>Tecton</strong>, <strong>Hopsworks</strong>. Amazon's feature store serves features for recommendations.</td>
+</tr>
+<tr>
+<td><strong>Data Quality</strong></td>
+<td>Checks data for problems — missing values, wrong formats, unexpected changes</td>
+<td>Quality control on a production line</td>
+<td><strong>Great Expectations</strong> — runs automated data quality checks. <strong>Deequ</strong> (by Amazon) — validates data quality at scale.</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Live Example — Uber's Data Layer:</strong>
+Uber collects data from millions of rides daily:
+- GPS coordinates every second from drivers and riders
+- Payment transactions
+- Ratings and reviews
+- Surge pricing data
+- Weather and traffic feeds</p>
+<p>All this flows through Kafka → gets stored in their data lake → gets processed by Spark → features are computed and stored in a feature store → ready for ML models (ETA prediction, surge pricing, fraud detection).</p>
+<hr />
+<h3 id="3-1-2-model-layer-the-brain-of-the-system">3.1.2 Model Layer — "The brain of the system"</h3>
+<p>The Model Layer handles everything about the ML model — training it, evaluating it, versioning it, and serving predictions.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Component</th>
+<th>What It Does (Simple)</th>
+<th>Think of It As...</th>
+<th>Live Examples</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Experiment Tracking</strong></td>
+<td>Records every experiment — which data, which settings, what results</td>
+<td>A lab notebook recording every experiment</td>
+<td><strong>MLflow</strong> (open-source, very popular), <strong>Weights &amp; Biases</strong> (W&amp;B), <strong>Neptune</strong></td>
+</tr>
+<tr>
+<td><strong>Training Pipeline</strong></td>
+<td>Automates the model training process — load data, train, evaluate, save</td>
+<td>An automated assembly line for models</td>
+<td><strong>Kubeflow Pipelines</strong>, <strong>AWS SageMaker Pipelines</strong>, <strong>Google Vertex AI</strong></td>
+</tr>
+<tr>
+<td><strong>Model Registry</strong></td>
+<td>Stores trained models with versions, metadata, and status (staging/production)</td>
+<td>A library catalog — stores, versions, and tracks which book is on display</td>
+<td><strong>MLflow Model Registry</strong>, <strong>SageMaker Model Registry</strong></td>
+</tr>
+<tr>
+<td><strong>Model Serving</strong></td>
+<td>Hosts the model and answers prediction requests fast via an API</td>
+<td>A restaurant's serving counter — takes orders, delivers food quickly</td>
+<td><strong>TensorFlow Serving</strong>, <strong>TorchServe</strong>, <strong>Triton</strong> (NVIDIA), <strong>Seldon</strong></td>
+</tr>
+<tr>
+<td><strong>Model Evaluation</strong></td>
+<td>Tests the model on held-out data to measure accuracy before deployment</td>
+<td>A final quality check before shipping a product</td>
+<td>Custom evaluation pipelines, benchmark suites</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Live Example — How Spotify Ships a New Recommendation Model:</strong>
+1. Data scientist trains a new model using MLflow (experiment tracking)
+2. Model is registered in MLflow Model Registry as "recommendation-v2.5"
+3. Model is deployed to a staging environment for A/B testing
+4. 5% of users get the new model, 95% get the old one
+5. After 2 weeks: new model increases listen time by 3%
+6. New model promoted to production → serves all 400M+ users</p>
+<hr />
+<h3 id="3-1-3-application-layer-where-ai-meets-the-real-world">3.1.3 Application Layer — "Where AI meets the real world"</h3>
+<p>The Application Layer is what users actually interact with. It takes raw model predictions and turns them into something useful.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Component</th>
+<th>What It Does (Simple)</th>
+<th>Think of It As...</th>
+<th>Live Examples</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>API Gateway</strong></td>
+<td>The front door — receives all requests, authenticates, rate-limits</td>
+<td>The reception desk that checks your ID before letting you in</td>
+<td><strong>Kong</strong>, <strong>AWS API Gateway</strong>, <strong>FastAPI</strong></td>
+</tr>
+<tr>
+<td><strong>Business Logic</strong></td>
+<td>Transforms model output into user-relevant actions</td>
+<td>A translator converting technical jargon into plain language</td>
+<td>Model says score=0.87 → app shows "Highly Recommended." Model says fraud_probability=0.95 → app blocks the transaction.</td>
+</tr>
+<tr>
+<td><strong>A/B Testing</strong></td>
+<td>Tests two versions on different user groups to see which performs better</td>
+<td>A taste test — 50% of customers try new recipe, 50% get the old one</td>
+<td><strong>LaunchDarkly</strong>, <strong>Optimizely</strong>. Google runs 10,000+ A/B tests per year.</td>
+</tr>
+<tr>
+<td><strong>User Interface (UI)</strong></td>
+<td>The app or website users interact with</td>
+<td>The dining room where customers sit and eat</td>
+<td>Web apps (React), mobile apps (Flutter), dashboards (Streamlit for prototyping)</td>
+</tr>
+<tr>
+<td><strong>Feedback Collection</strong></td>
+<td>Captures user reactions — clicks, ratings, complaints, corrections</td>
+<td>Comment cards at a restaurant</td>
+<td>Custom event logging → feeds back into training data.</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Live Example — Zomato's Application Layer:</strong>
+1. You open Zomato → API gateway receives your request
+2. Business logic: "User is on homepage at 12:30 PM → show lunch recommendations"
+3. Model returns: [Restaurant A: score 0.95, Restaurant B: score 0.88, ...]
+4. Business logic filters: Remove closed restaurants, apply "Free delivery" promo
+5. A/B test: 50% of users see "Top Rated" first, 50% see "Fastest Delivery" first
+6. UI displays personalised restaurant list
+7. You tap on a restaurant → click event logged → feeds back into recommendation model</p>
+<hr />
+<h3 id="3-1-4-infrastructure-layer-the-foundation-everything-runs-on">3.1.4 Infrastructure Layer — "The foundation everything runs on"</h3>
+<p>The Infrastructure Layer provides the computing power, storage, and networking that everything else needs.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Component</th>
+<th>What It Does (Simple)</th>
+<th>Think of It As...</th>
+<th>Live Examples</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Compute (CPU/GPU/TPU)</strong></td>
+<td>Processing power for training and serving models</td>
+<td>The engine of a car</td>
+<td><strong>GPU instances</strong> (AWS P4d, Google TPU v5). Training GPT-4 required ~25,000 GPUs running for months.</td>
+</tr>
+<tr>
+<td><strong>Container Orchestration</strong></td>
+<td>Packages and runs model-serving code in containers, scales up/down automatically</td>
+<td>Shipping containers on a cargo ship — standardised, stackable, portable</td>
+<td><strong>Kubernetes</strong> (K8s) — the standard. <strong>Docker</strong> for containerisation. Used by Netflix, Uber, Airbnb.</td>
+</tr>
+<tr>
+<td><strong>Storage</strong></td>
+<td>Stores data, models, logs, and artifacts</td>
+<td>A warehouse</td>
+<td><strong>S3</strong> (AWS), <strong>GCS</strong> (Google), <strong>Azure Blob Storage</strong></td>
+</tr>
+<tr>
+<td><strong>CI/CD (Continuous Integration / Continuous Deployment)</strong></td>
+<td>Automatically builds, tests, and deploys new code and models</td>
+<td>An automated factory conveyor belt — code goes in, tested product comes out</td>
+<td><strong>GitHub Actions</strong>, <strong>GitLab CI</strong>, <strong>Jenkins</strong></td>
+</tr>
+<tr>
+<td><strong>Infrastructure as Code (IaC)</strong></td>
+<td>Defines infrastructure in config files (instead of manually clicking in a cloud console)</td>
+<td>A blueprint for a building — follow the blueprint, get the same building every time</td>
+<td><strong>Terraform</strong> (most popular), <strong>Pulumi</strong>, <strong>AWS CloudFormation</strong></td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Why GPUs Matter for AI:</strong>
+- <strong>CPU</strong> (Central Processing Unit) = good at doing one task at a time, very fast
+- <strong>GPU</strong> (Graphics Processing Unit) = good at doing thousands of small tasks simultaneously
+- AI training involves millions of simple math operations (matrix multiplications) → GPUs do this 10-100x faster than CPUs
+- <strong>TPU</strong> (Tensor Processing Unit) = Google's custom chip, even faster than GPUs for specific AI workloads</p>
+<hr />
+<h3 id="3-1-5-monitoring-layer-without-monitoring-you-re-flying-blind">3.1.5 Monitoring Layer — "Without monitoring, you're flying blind"</h3>
+<p>The Monitoring Layer watches the entire system and alerts when something goes wrong.</p>
+<div class="callout">
+<p><strong>Why monitoring is critical for AI:</strong> In traditional software, bugs cause crashes (obvious). In AI systems, a degraded model <strong>silently gives wrong predictions</strong> — it doesn't crash, it just quietly becomes wrong. Without monitoring, you won't know until customers complain weeks later.</p>
+</div>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>What to Monitor</th>
+<th>Why</th>
+<th>What Metrics to Track</th>
+<th>Live Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Model Performance</strong></td>
+<td>Model accuracy degrades over time as data changes</td>
+<td>Accuracy, Precision, Recall, F1 score over time</td>
+<td>Netflix monitors if recommendation click-through rate drops below baseline</td>
+</tr>
+<tr>
+<td><strong>Data Drift</strong></td>
+<td>The data coming in today may look different from training data</td>
+<td>Statistical tests (KS test, PSI) comparing training vs live data distributions</td>
+<td>Fraud detection model trained on 2023 data. In 2025, new scam types appear → data drift → model misses new fraud</td>
+</tr>
+<tr>
+<td><strong>Prediction Drift</strong></td>
+<td>Distribution of predictions changes even if individual inputs look normal</td>
+<td>Distribution of predicted scores/classes over time</td>
+<td>Credit scoring model suddenly approves 30% more applications than usual → something changed</td>
+</tr>
+<tr>
+<td><strong>System Health</strong></td>
+<td>Infrastructure issues — slow responses, out of memory, server crashes</td>
+<td>Latency (p50, p95, p99), error rate, throughput, CPU/memory utilisation</td>
+<td>Amazon monitors that recommendation API responds in &lt;100ms for 99% of requests</td>
+</tr>
+<tr>
+<td><strong>Business Metrics</strong></td>
+<td>Does the AI actually improve business outcomes?</td>
+<td>Revenue, conversion rate, user retention, customer satisfaction</td>
+<td>Spotify monitors if Discover Weekly increases total listen time per user</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Live Example — What Happens Without Monitoring:</strong>
+In 2020, Zillow (US real estate company) built an AI model to predict house prices for their home-buying business. The model worked great initially, but:
+- Housing market changed rapidly (COVID effect)
+- Model's predictions drifted (data drift) — it overpredicted prices
+- Without adequate monitoring, Zillow bought thousands of houses at inflated prices
+- <strong>Lost $881 million</strong> and shut down the entire business unit
+- 2,000 employees laid off</p>
+<p>This is the most expensive AI monitoring failure in history. If they had proper drift detection, they could have caught the problem months earlier.</p>
+<hr />
+<h2 id="3-2-architecture-walkthrough-a-modern-ai-application">3.2 Architecture Walkthrough: A Modern AI Application</h2>
+<h3 id="example-swiggy-food-delivery-time-prediction">Example: Swiggy Food Delivery Time Prediction</h3>
+<p>Let's trace what happens when you order food on Swiggy, through all 5 layers:</p>
+<pre><code>━━━ YOU OPEN SWIGGY AND PLACE AN ORDER ━━━
 
-  <!-- 3.1.1 -->
-  <h3 id="section-3-1-1">3.1.1 Data Layer</h3>
-  <p>The foundation of every AI system. Responsible for collecting, storing, processing, and serving data.</p>
-  <div class="table-wrap"><table>
-    <thead><tr><th>Component</th><th>Purpose</th><th>Examples</th></tr></thead>
-    <tbody>
-      <tr><td><strong>Data ingestion</strong></td><td>Collect data from sources (databases, APIs, logs, streams).</td><td>Apache Kafka, AWS Kinesis, Airbyte.</td></tr>
-      <tr><td><strong>Data storage</strong></td><td>Store raw and processed data durably.</td><td>Data Lakes (S3, GCS), Data Warehouses (Snowflake, BigQuery).</td></tr>
-      <tr><td><strong>Data processing</strong></td><td>Clean, transform, aggregate data. ETL/ELT pipelines.</td><td>Apache Spark, dbt, Airflow.</td></tr>
-      <tr><td><strong>Feature store</strong></td><td>Manage and serve ML features consistently across training and serving.</td><td>Feast, Tecton, Hopsworks.</td></tr>
-      <tr><td><strong>Data quality</strong></td><td>Monitor data for completeness, freshness, schema changes, anomalies.</td><td>Great Expectations, Deequ.</td></tr>
-    </tbody>
-  </table></div>
-
-  <!-- 3.1.2 -->
-  <h3 id="section-3-1-2">3.1.2 Model Layer</h3>
-  <p>Handles everything related to the ML model — from training to serving predictions.</p>
-  <div class="table-wrap"><table>
-    <thead><tr><th>Component</th><th>Purpose</th><th>Examples</th></tr></thead>
-    <tbody>
-      <tr><td><strong>Experiment tracking</strong></td><td>Log experiments, hyperparameters, metrics, and artifacts.</td><td>MLflow, Weights & Biases, Neptune.</td></tr>
-      <tr><td><strong>Training pipeline</strong></td><td>Automate model training — data loading, preprocessing, training, evaluation.</td><td>Kubeflow, SageMaker Pipelines, Vertex AI.</td></tr>
-      <tr><td><strong>Model registry</strong></td><td>Store, version, and manage trained models. Track which model is in production.</td><td>MLflow Model Registry, SageMaker Model Registry.</td></tr>
-      <tr><td><strong>Model serving</strong></td><td>Host models and serve predictions via APIs. Handle batching, caching, scaling.</td><td>TensorFlow Serving, TorchServe, Triton, Seldon.</td></tr>
-      <tr><td><strong>Model evaluation</strong></td><td>Evaluate model performance on held-out test sets. Compare against baselines.</td><td>Custom evaluation pipelines, benchmarking suites.</td></tr>
-    </tbody>
-  </table></div>
-
-  <!-- 3.1.3 -->
-  <h3 id="section-3-1-3">3.1.3 Application Layer</h3>
-  <p>Where the model's predictions meet the real world — the user-facing layer.</p>
-  <div class="table-wrap"><table>
-    <thead><tr><th>Component</th><th>Purpose</th><th>Examples</th></tr></thead>
-    <tbody>
-      <tr><td><strong>API gateway</strong></td><td>Single entry point for all model requests. Rate limiting, authentication, routing.</td><td>Kong, AWS API Gateway, FastAPI.</td></tr>
-      <tr><td><strong>Business logic</strong></td><td>Transform raw model output into user-relevant actions (e.g. model says 0.87 → show "Recommended").</td><td>Application code in Python/Java/Go.</td></tr>
-      <tr><td><strong>A/B testing</strong></td><td>Test different model versions on different user groups to measure impact.</td><td>LaunchDarkly, Optimizely, custom solutions.</td></tr>
-      <tr><td><strong>User interface</strong></td><td>Present results to users (web app, mobile app, dashboard).</td><td>React, Flutter, Streamlit (for prototyping).</td></tr>
-      <tr><td><strong>Feedback collection</strong></td><td>Capture user feedback (clicks, ratings, corrections) to improve the model.</td><td>Custom event logging, analytics pipelines.</td></tr>
-    </tbody>
-  </table></div>
-
-  <!-- 3.1.4 -->
-  <h3 id="section-3-1-4">3.1.4 Infrastructure Layer</h3>
-  <p>The compute and networking resources that run everything.</p>
-  <div class="table-wrap"><table>
-    <thead><tr><th>Component</th><th>Purpose</th><th>Examples</th></tr></thead>
-    <tbody>
-      <tr><td><strong>Compute</strong></td><td>CPU/GPU/TPU for training and inference.</td><td>AWS EC2 (GPU), Google TPU, Azure GPU VMs.</td></tr>
-      <tr><td><strong>Container orchestration</strong></td><td>Deploy and scale model-serving containers.</td><td>Kubernetes (EKS/GKE/AKS), Docker.</td></tr>
-      <tr><td><strong>Storage</strong></td><td>Object storage for data and models.</td><td>S3, GCS, Azure Blob.</td></tr>
-      <tr><td><strong>CI/CD</strong></td><td>Automated build, test, deploy pipelines for models and code.</td><td>GitHub Actions, GitLab CI, Jenkins.</td></tr>
-      <tr><td><strong>Infrastructure as Code</strong></td><td>Define infrastructure declaratively.</td><td>Terraform, Pulumi, CloudFormation.</td></tr>
-    </tbody>
-  </table></div>
-
-  <!-- 3.1.5 -->
-  <h3 id="section-3-1-5">3.1.5 Monitoring Layer</h3>
-  <p>Observes the entire system and alerts when things go wrong.</p>
-  <div class="table-wrap"><table>
-    <thead><tr><th>What to monitor</th><th>Why</th><th>Metrics</th></tr></thead>
-    <tbody>
-      <tr><td><strong>Model performance</strong></td><td>Model accuracy may degrade over time as data shifts.</td><td>Accuracy, precision, recall, F1, AUC over time.</td></tr>
-      <tr><td><strong>Data drift</strong></td><td>The distribution of incoming data may change (new user demographics, seasonal changes).</td><td>Statistical tests (KS test, PSI) comparing training data vs serving data distributions.</td></tr>
-      <tr><td><strong>Prediction drift</strong></td><td>The distribution of predictions may shift even if data looks similar.</td><td>Distribution of predicted classes/scores over time.</td></tr>
-      <tr><td><strong>System health</strong></td><td>Infrastructure may have issues (high latency, out-of-memory, disk full).</td><td>Latency (p50, p95, p99), error rate, throughput, memory/CPU utilization.</td></tr>
-      <tr><td><strong>Business metrics</strong></td><td>Ultimately, does the model improve business outcomes?</td><td>Click-through rate, conversion rate, revenue, user retention.</td></tr>
-    </tbody>
-  </table></div>
-
-  <!-- 3.2 -->
-  <h2 id="section-3-2">3.2 Architecture Walkthrough: A Modern AI Application</h2>
-  <p><strong>Example: An E-Commerce Product Recommendation System</strong></p>
-  <p>Let's trace how a recommendation flows through the architecture when a user opens the app:</p>
-  <pre><code>1. USER opens app
-      ↓
-2. APPLICATION LAYER
-   - API gateway receives request (user_id, context)
-   - Business logic: "This user is on the homepage → need Top Picks"
-      ↓
-3. MODEL LAYER
-   - Model serving endpoint receives user features
-   - Model computes scores for candidate items
-   - Returns top 20 ranked items
-      ↓
-4. DATA LAYER
-   - Feature store provides user features (past purchases, browsing history)
-   - Feature store provides item features (category, price, popularity)
-   - All features served with &lt;10ms latency (pre-computed)
-      ↓
-5. APPLICATION LAYER (continued)
-   - Business logic filters: remove out-of-stock, apply diversity rules
-   - A/B testing: user in experiment group → show new model's results
-   - Render final 10 items in the UI
-      ↓
-6. USER sees recommendations, clicks on Item #3
-      ↓
-7. MONITORING LAYER
-   - Log: user saw 10 items, clicked item #3 → click-through rate tracked
-   - Data pipeline: user click event sent to data lake for future training
-   - Model monitor: check if today's recommendation distribution looks normal
-      ↓
-8. FEEDBACK LOOP
-   - Click data (what users engaged with) feeds back into training data
-   - Next model retrain will include this new data</code></pre>
-
-  <p style="text-align:center;color:var(--text-muted);margin-top:3rem;font-size:.85rem"><em>End of Session 3</em></p>
+┌──────────────────────────────────────────────────────────────────┐
+│ STEP 1: APPLICATION LAYER                                        │
+│ ├── Swiggy app sends request: {user_id, restaurant_id, items,   │
+│ │    delivery_address, current_time}                              │
+│ ├── API Gateway authenticates your session                       │
+│ └── Business logic: &quot;User placed an order → need ETA prediction&quot; │
+└──────────────────────────────┬───────────────────────────────────┘
+                               ↓
+┌──────────────────────────────────────────────────────────────────┐
+│ STEP 2: DATA LAYER                                               │
+│ ├── Feature Store serves pre-computed features:                  │
+│ │   ├── restaurant_avg_prep_time = 18 min                        │
+│ │   ├── current_traffic_level = HIGH (from Google Maps API)      │
+│ │   ├── distance_km = 4.2                                        │
+│ │   ├── current_weather = RAIN                                   │
+│ │   ├── active_drivers_nearby = 12                               │
+│ │   └── restaurant_current_order_queue = 5 pending orders        │
+│ └── All features served in &lt;10ms (pre-computed and cached)       │
+└──────────────────────────────┬───────────────────────────────────┘
+                               ↓
+┌──────────────────────────────────────────────────────────────────┐
+│ STEP 3: MODEL LAYER                                              │
+│ ├── ETA prediction model receives all features                   │
+│ ├── Model computes: prep_time=20min + travel_time=18min          │
+│ │   + buffer_for_rain=5min = 43 minutes                          │
+│ └── Returns: predicted_eta = 43 minutes                          │
+└──────────────────────────────┬───────────────────────────────────┘
+                               ↓
+┌──────────────────────────────────────────────────────────────────┐
+│ STEP 4: APPLICATION LAYER (continued)                            │
+│ ├── Business logic adds buffer: 43 + 2 = 45 min (round up)      │
+│ ├── Displays: &quot;Estimated delivery: 45 minutes&quot;                   │
+│ └── User sees &quot;Your food is on the way! ETA: 45 min&quot;            │
+└──────────────────────────────┬───────────────────────────────────┘
+                               ↓
+┌──────────────────────────────────────────────────────────────────┐
+│ STEP 5: INFRASTRUCTURE LAYER (running silently)                  │
+│ ├── Model runs on Kubernetes cluster with auto-scaling           │
+│ ├── If Swiggy has a sale → 10x more orders → K8s automatically  │
+│ │   spins up more model servers                                  │
+│ └── All logs stored in S3 for future training                    │
+└──────────────────────────────┬───────────────────────────────────┘
+                               ↓
+┌──────────────────────────────────────────────────────────────────┐
+│ STEP 6: MONITORING LAYER                                         │
+│ ├── Log: prediction=45min, actual_delivery=42min → error=3min ✓ │
+│ ├── Track: average prediction error across all orders today      │
+│ ├── Alert: if error &gt; 10 min for 5% of orders → trigger alert   │
+│ ├── Data drift check: is today's traffic pattern different from  │
+│ │   training data? (e.g., city-wide bandh causing unusual traffic)│
+│ └── Feedback: actual delivery times → stored → used for          │
+│     next model retraining                                        │
+└──────────────────────────────────────────────────────────────────┘
+</code></pre>
+<h3 id="key-takeaways-from-the-walkthrough">Key Takeaways from the Walkthrough</h3>
+<ol>
+<li><strong>The model is just one step</strong> — Steps 1, 2, 4, 5, and 6 are all "non-model" work that's essential</li>
+<li><strong>Speed matters</strong> — The entire flow (from order to showing ETA) must happen in under 1 second</li>
+<li><strong>Features are pre-computed</strong> — The feature store has restaurant prep times, traffic levels, etc. ready to go (not computed on-the-fly)</li>
+<li><strong>Monitoring closes the loop</strong> — Actual delivery times are compared with predictions and feed back into retraining</li>
+<li><strong>Infrastructure scales automatically</strong> — During sales or festivals, more servers spin up without human intervention</li>
+</ol>
+<hr />
+<h2 id="key-terms-glossary-session-3">Key Terms Glossary (Session 3)</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Term</th>
+<th>Simple Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Data Layer</strong></td>
+<td>The part of an AI system that collects, stores, cleans, and serves data</td>
+</tr>
+<tr>
+<td><strong>Model Layer</strong></td>
+<td>The part that trains, evaluates, versions, and serves ML models</td>
+</tr>
+<tr>
+<td><strong>Application Layer</strong></td>
+<td>The user-facing part — app, website, API, business logic</td>
+</tr>
+<tr>
+<td><strong>Infrastructure Layer</strong></td>
+<td>The hardware and cloud resources — GPUs, storage, networking, containers</td>
+</tr>
+<tr>
+<td><strong>Monitoring Layer</strong></td>
+<td>The observability part — logs, metrics, alerts, drift detection</td>
+</tr>
+<tr>
+<td><strong>Feature Store</strong></td>
+<td>A centralised store of pre-computed ML features, shared between training and serving</td>
+</tr>
+<tr>
+<td><strong>Data Drift</strong></td>
+<td>When live data looks different from the data the model was trained on</td>
+</tr>
+<tr>
+<td><strong>Model Registry</strong></td>
+<td>A versioned catalog of trained models (like Git for models)</td>
+</tr>
+<tr>
+<td><strong>A/B Testing</strong></td>
+<td>Testing two versions on different user groups to measure which performs better</td>
+</tr>
+<tr>
+<td><strong>Kubernetes (K8s)</strong></td>
+<td>Container orchestration platform — runs and scales containerised applications</td>
+</tr>
+<tr>
+<td><strong>MLflow</strong></td>
+<td>Popular open-source tool for experiment tracking and model registry</td>
+</tr>
+<tr>
+<td><strong>CI/CD</strong></td>
+<td>Continuous Integration / Continuous Deployment — automated build, test, deploy</td>
+</tr>
+</tbody>
+</table></div>
+<hr />
+<p><em>End of Session 3</em></p>
 </main>
-
-<button class="back-top" id="backTop" aria-label="Back to top">↑</button>
-
+<button class="back-top" id="backTop" title="Back to top">&#8593;</button>
 <script>
+const bar=document.getElementById('progress');
+const btn=document.getElementById('backTop');
+const toggle=document.getElementById('sidebarToggle');
+const sidebar=document.getElementById('sidebar');
 window.addEventListener('scroll',()=>{
-  const h=document.documentElement;
-  const pct=h.scrollTop/(h.scrollHeight-h.clientHeight)*100;
-  document.getElementById('progressBar').style.width=pct+'%';
-  document.getElementById('backTop').classList.toggle('show',h.scrollTop>400);
+  const s=document.documentElement.scrollTop;
+  const h=document.documentElement.scrollHeight-document.documentElement.clientHeight;
+  bar.style.width=(s/h*100)+'%';
+  btn.classList.toggle('show',s>400);
 });
-document.getElementById('backTop').addEventListener('click',()=>window.scrollTo({top:0,behavior:'smooth'}));
-document.getElementById('sidebarToggle').addEventListener('click',()=>document.getElementById('sidebar').classList.toggle('open'));
-const sections=document.querySelectorAll('h2[id],h3[id]');
-const navLinks=document.querySelectorAll('.sidebar nav a[href^="#"]');
-window.addEventListener('scroll',()=>{
-  let current='';
-  sections.forEach(s=>{if(window.scrollY>=s.offsetTop-100)current=s.id});
-  navLinks.forEach(a=>{a.classList.toggle('active',a.getAttribute('href')==='#'+current)});
-});
+btn.onclick=()=>window.scrollTo({top:0,behavior:'smooth'});
+toggle.onclick=()=>sidebar.classList.toggle('open');
+// Active sidebar link
+const links=document.querySelectorAll('.sidebar nav a');
+const obs=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{if(e.isIntersecting){
+    links.forEach(l=>l.classList.remove('active'));
+    const a=document.querySelector('.sidebar nav a[href="#'+e.target.id+'"]');
+    if(a)a.classList.add('active');
+  }});
+},{rootMargin:'-20% 0px -70% 0px'});
+document.querySelectorAll('h2[id],h3[id]').forEach(h=>obs.observe(h));
 </script>
 </body>
 </html>

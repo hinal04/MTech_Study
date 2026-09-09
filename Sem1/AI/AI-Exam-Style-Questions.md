@@ -1,359 +1,350 @@
-# AI Systems — Exam-Style Questions (BITS Pilani Pattern)
+# AI Systems — Exam-Style Questions
 
-> **Based on:** BITS Pilani SS ZG662 course structure and evaluation pattern.
+> BITS Pilani — **SS ZG662: Introduction to AI Systems**
 >
-> **Exam Pattern:**
-> - **Mid-Semester (EC-2):** Closed Book, 2 hours, 30% weightage. Covers Sessions 1–8 (Modules 1–2).
-> - **Comprehensive (EC-3):** Open Book, 2.5 hours, 30% weightage. All topics.
-> - Topics 1-5 (Foundations + Data) are heavily tested in mid-semester.
->
-> **Question styles:** Short answer, comparison, scenario-based design, case study analysis, MCQ/True-False.
-
----
----
-
-## SECTION A — Short Answer (3-5 marks each)
+> Covers: Sessions 1–8 (Module 1: Foundations of AI Systems + Module 2: Data and Feature Engineering)
 
 ---
 
-### A1. Define AI, ML, and Deep Learning. Show their relationship and give one example of each. [5 marks]
+## Section A: Short Answer Questions (2-3 marks each)
 
-**Answer:**
+### Session 1: Introduction to AI
 
-AI is the broad field of creating systems that perform tasks requiring human intelligence. ML is a subset where systems learn patterns from data. DL is a subset of ML using deep neural networks that automatically learn hierarchical features.
+**Q1.** Define Artificial Intelligence. How is it different from traditional software?
 
-**Relationship:** AI ⊃ ML ⊃ DL (nested subsets).
+**Q2.** Draw the nested relationship between AI, Machine Learning, and Deep Learning. Give one example of each.
 
-| | Example |
+**Q3.** Why is the AI system lifecycle circular rather than linear? Give one real-world reason.
+
+**Q4.** Name the 6 components of an AI system. Which component typically accounts for less than 5% of the total system?
+
+**Q5.** What is "training-serving skew"? Why is it dangerous?
+
+### Session 2: Categories of AI Systems
+
+**Q6.** List the four types of predictive AI tasks with one example each.
+
+**Q7.** What is a "hallucination" in the context of Generative AI? Why does it happen?
+
+**Q8.** Explain the cold start problem in recommender systems. How does Netflix solve it for new users?
+
+**Q9.** What is RAG (Retrieval-Augmented Generation)? How does it reduce hallucinations?
+
+**Q10.** List the SAE levels of vehicle autonomy (0-5) with one real example for Level 2 and Level 4.
+
+### Session 3: AI System Architecture
+
+**Q11.** Name the five layers of an AI system architecture. Give one tool example for each layer.
+
+**Q12.** What is "data drift"? Give an example of how data drift can silently degrade a fraud detection model.
+
+**Q13.** Why did Zillow lose $881 million? Which architecture layer failed?
+
+**Q14.** What is the difference between a Feature Store and a Data Warehouse in the context of AI systems?
+
+### Session 4: AI Ecosystem and Marketplaces
+
+**Q15.** Define "foundation model." List any three characteristics.
+
+**Q16.** Name three benefits of open-source AI models over proprietary API-based models.
+
+**Q17.** What is Hugging Face? Why is it called the "GitHub of AI"?
+
+**Q18.** When should a company use an API vs fine-tune an open-source model vs build from scratch?
+
+### Session 5: Data and Feature Engineering
+
+**Q19.** Compare structured, semi-structured, and unstructured data with one example each.
+
+**Q20.** List the six dimensions of data quality with a one-line definition of each.
+
+**Q21.** What is "data leakage" in ML? Give an example.
+
+**Q22.** Name four key components of data governance and explain why they matter for AI systems.
+
+**Q23.** How does India's DPDP Act (2023) impact AI systems? Name two specific requirements.
+
+### Session 6: Data Engineering Pipelines
+
+**Q24.** What is a data pipeline? Draw its basic structure (Source → Extract → Transform → Load).
+
+**Q25.** Compare ETL and ELT in a table with at least 4 differences.
+
+**Q26.** When would you use batch processing vs streaming processing? Give one use case for each.
+
+**Q27.** What is Lambda Architecture? Why do most real-world companies use both batch and streaming?
+
+**Q28.** Compare Data Lake, Data Warehouse, and Data Lakehouse with at least 3 differences.
+
+### Session 7: Feature Engineering
+
+**Q29.** What is feature engineering? Why does it have a bigger impact on model accuracy than model selection?
+
+**Q30.** Explain any three feature transformation techniques with examples.
+
+**Q31.** What is the "curse of dimensionality"? How does feature selection help?
+
+**Q32.** Compare filter, wrapper, and embedded methods of feature selection.
+
+**Q33.** What is an embedding? Why is it useful for ML? Give one example.
+
+### Session 8: Feature Stores
+
+**Q34.** What is a feature store? Name any two problems it solves.
+
+**Q35.** Compare offline features and online features in a table with at least 4 differences.
+
+**Q36.** What is training-serving skew? Name its four types.
+
+**Q37.** Explain the two-stage recommendation architecture (candidate generation + ranking). Why not use just one stage?
+
+---
+
+## Section B: Long Answer Questions (5-8 marks each)
+
+### Session 1-2: AI Foundations
+
+**Q38.** Compare AI, Machine Learning, and Deep Learning with respect to: (a) how they work, (b) data requirements, (c) feature engineering, (d) compute requirements, (e) examples. Use a table format. Then explain with a spam detection example how each approach would solve the problem differently. *[8 marks]*
+
+**Q39.** Explain the 6 stages of the AI system lifecycle with a real-world example (e.g., Swiggy delivery time prediction or Netflix recommendations). For each stage, mention: what happens, key activities, and common pitfalls. *[8 marks]*
+
+**Q40.** Describe any four categories of AI systems from the following: Predictive AI, Generative AI, Recommender Systems, Conversational AI, Computer Vision, Autonomous Systems. For each, explain: (a) what it does, (b) how it works, (c) one real-world case study with specific company name. *[8 marks]*
+
+### Session 2: Case Studies
+
+**Q41.** Explain how ChatGPT works in three stages (pre-training, RLHF fine-tuning, serving). What system components exist beyond the model itself? *[5 marks]*
+
+**Q42.** Describe the Netflix recommendation system covering: (a) data signals used, (b) multiple models for different UI sections, (c) personalised thumbnails, (d) offline + online processing. Why does Netflix say 80% of content watched comes from recommendations? *[5 marks]*
+
+**Q43.** Explain the Waymo autonomous vehicle system covering: (a) sensors used and their purpose, (b) AI tasks (detection, tracking, prediction, planning, control), (c) why Level 5 autonomy doesn't exist yet. *[5 marks]*
+
+### Session 3: Architecture
+
+**Q44.** Describe the five-layer AI system architecture. For each layer, explain: (a) its purpose, (b) key components, (c) one popular tool, (d) one live company example. *[8 marks]*
+
+**Q45.** Trace a complete request through all 5 layers of an AI system for a food delivery ETA prediction (like Swiggy). Show what happens at each layer from "user places order" to "user sees estimated delivery time" to "system monitors prediction accuracy." *[8 marks]*
+
+**Q46.** Explain why monitoring is critical for AI systems but less critical for traditional software. Use the Zillow case study ($881M loss) to illustrate what happens without proper monitoring. What metrics should be monitored? *[5 marks]*
+
+### Session 4: Ecosystem
+
+**Q47.** A startup CTO needs to decide between using an API (GPT-4), fine-tuning an open-source model (LLaMA), or building from scratch for the following three scenarios. Recommend and justify your answer for each:
+(a) A customer support chatbot for a small e-commerce company
+(b) A fraud detection system for a bank
+(c) A medical imaging AI for a hospital chain
+*[6 marks]*
+
+**Q48.** Explain the concept of foundation models covering: (a) definition and key characteristics, (b) why they are expensive to train, (c) how they are made accessible (APIs + fine-tuning), (d) the trend from APIs to open-source. Name at least 4 notable foundation models. *[5 marks]*
+
+### Session 5: Data Quality & Governance
+
+**Q49.** A bank is building a credit scoring model and discovers these data quality issues:
+(a) 15% of applicants have missing "employment_years"
+(b) Training data includes "credit_bureau_score" which is updated after loan decisions
+(c) Training data only covers urban professionals (not rural applicants)
+(d) Only 2% of loans default
+
+For each issue, identify: the data quality problem type, why it's harmful, and how to fix it. *[8 marks]*
+
+**Q50.** Explain data governance for AI systems covering: (a) why it's more important for AI than traditional analytics, (b) at least 5 key components, (c) AI-specific challenges (consent for ML, right to be forgotten, bias auditing), (d) the Cambridge Analytica case as an example of governance failure. *[8 marks]*
+
+### Session 6: Data Pipelines
+
+**Q51.** Compare ETL and ELT approaches with respect to: (a) order of operations, (b) where transformation happens, (c) raw data retention, (d) flexibility, (e) best use cases, (f) example tools. Which approach is more common in modern AI systems and why? *[6 marks]*
+
+**Q52.** Compare batch processing and streaming processing with respect to: (a) when data is processed, (b) latency, (c) complexity, (d) cost, (e) use cases. Then explain Lambda Architecture and why most companies use both approaches together. Give a live example. *[6 marks]*
+
+**Q53.** Design a complete data pipeline for an e-commerce recommendation system (like Myntra). Cover: (a) data sources, (b) streaming pipeline components, (c) batch pipeline components, (d) storage layer (lake vs warehouse), (e) feature store integration, (f) monitoring. Name specific tools for each component. *[8 marks]*
+
+### Session 7: Feature Engineering
+
+**Q54.** You are building a fraud detection model for credit card transactions. The raw data includes: card_id, merchant_name, merchant_category, amount, timestamp, location_lat, location_lng, is_online.
+
+Design at least 15 features across these categories:
+(a) Transaction-level features
+(b) Velocity features (speed of transactions)
+(c) Location features
+(d) User profile features
+
+For each feature, explain what it captures and why it's useful for fraud detection. *[8 marks]*
+
+**Q55.** Explain the following feature transformation techniques with examples: (a) Min-Max Scaling, (b) Standard Scaling, (c) Log Transformation, (d) One-Hot Encoding, (e) Label Encoding. For encoding, explain when to use one-hot vs label encoding and why using label encoding for nominal data is wrong. *[6 marks]*
+
+**Q56.** Compare filter, wrapper, and embedded methods of feature selection. For each, explain: (a) how it works, (b) advantages and disadvantages, (c) one specific technique. Then explain why using all available features is not always better — use the "curse of dimensionality" concept. *[6 marks]*
+
+**Q57.** What are embeddings? Explain with the example of word embeddings (Word2Vec). How do embeddings capture similarity? Show how "king - man + woman ≈ queen" works. List three types of embeddings used in AI systems with a live example for each. *[5 marks]*
+
+### Session 8: Feature Stores & Real-Time Systems
+
+**Q58.** Explain what a feature store is and why it's needed. Cover: (a) the 5 problems it solves, (b) architecture (offline store, online store, feature registry, feature pipelines), (c) how it prevents training-serving skew, (d) name 3 popular feature store tools. *[6 marks]*
+
+**Q59.** Compare offline features and online features with respect to: (a) when they are computed, (b) what they represent, (c) latency requirements, (d) storage technology, (e) use cases. Then show with a Swiggy ETA prediction example how both offline and online features are combined for a single prediction. *[6 marks]*
+
+**Q60.** Explain the four types of training-serving skew with one example each: (a) feature computation skew, (b) data distribution skew, (c) feature availability skew, (d) time-travel skew. How does a feature store prevent these? Use the Zillow case study to illustrate the real-world impact of skew. *[6 marks]*
+
+**Q61.** Describe the two-stage architecture of a real-time recommendation system:
+(a) Stage 1: Candidate Generation — what it does, how ANN search works, input/output sizes
+(b) Stage 2: Ranking — what it does, what features it uses, why it's more accurate
+(c) Why can't we just use the ranking model on all items?
+(d) Trace a complete request through this architecture (user opens app → sees recommendations)
+Use a real company example (Netflix, Spotify, or Amazon). *[8 marks]*
+
+---
+
+## Section C: Scenario-Based / Design Questions (8-10 marks each)
+
+**Q62.** You are the Chief AI Officer at a large Indian bank (like HDFC or SBI). The bank wants to build an AI-powered fraud detection system. Answer the following:
+
+(a) What category of AI system is this? (Predictive/Generative/etc.)
+(b) What data sources would you use? (Internal and external)
+(c) Design at least 10 features for the model
+(d) Should you build from scratch, use an API, or fine-tune open-source? Justify.
+(e) Describe the architecture — which of the 5 layers handle what?
+(f) What data quality issues might you face?
+(g) What data governance requirements apply? (DPDP Act, RBI regulations)
+(h) How would you monitor the system in production?
+*[10 marks]*
+
+**Q63.** Design a complete AI system for Swiggy's restaurant recommendation. Cover:
+
+(a) Problem definition and success metrics
+(b) Data sources (user data, restaurant data, external data)
+(c) Feature engineering — design 10 features each for users, restaurants, and user-restaurant interactions
+(d) Pipeline architecture — batch and streaming components
+(e) Feature store design — which features are offline vs online?
+(f) Two-stage recommendation architecture (candidate generation + ranking)
+(g) Monitoring — what metrics to track, what alerts to set
+(h) How would recommendations update in real-time as the user browses?
+*[10 marks]*
+
+**Q64.** Compare the following pairs. For each pair, explain both concepts, their differences, and when to use which:
+
+(a) ETL vs ELT *[3 marks]*
+(b) Data Lake vs Data Warehouse *[3 marks]*
+(c) Batch Processing vs Streaming Processing *[3 marks]*
+(d) Offline Features vs Online Features *[3 marks]*
+(e) Collaborative Filtering vs Content-Based Filtering *[3 marks]*
+
+**Q65.** A healthcare startup wants to build an AI system that analyses chest X-rays to detect pneumonia. Answer:
+
+(a) What type of AI system is this? What AI technique (CNN, NLP, etc.) would you use?
+(b) What data do you need? What are the data quality concerns?
+(c) Should you build from scratch, use API, or fine-tune open-source? Justify.
+(d) What data governance challenges exist? (Patient privacy, consent, HIPAA/DPDP Act)
+(e) Design the 5-layer architecture for this system
+(f) What monitoring metrics are critical? (Consider: this is a safety-critical application)
+(g) What could go wrong if the model has data drift? Give a concrete scenario.
+*[10 marks]*
+
+---
+
+## Section D: True/False with Justification (1-2 marks each)
+
+State whether the following are True or False. Justify your answer in one sentence.
+
+**Q66.** Deep Learning always performs better than traditional Machine Learning.
+
+**Answer:** False. DL needs large data and compute. For small structured datasets, traditional ML (XGBoost, Random Forest) often outperforms DL.
+
+**Q67.** A foundation model can only be used for the task it was specifically trained for.
+
+**Answer:** False. Foundation models are general-purpose — they can be adapted to many tasks via fine-tuning or prompt engineering.
+
+**Q68.** ETL is more flexible than ELT because transformations happen before loading.
+
+**Answer:** False. ELT is more flexible because raw data is preserved in the lake, allowing new transformations anytime without re-extracting.
+
+**Q69.** In a recommender system, collaborative filtering can recommend items to brand-new users with no history.
+
+**Answer:** False. Collaborative filtering suffers from the cold start problem — it needs user history to find similar users.
+
+**Q70.** A data lake with no governance is better than a data warehouse because it stores more data types.
+
+**Answer:** False. A data lake without governance becomes a "data swamp" — data is dumped but nobody knows what's there or if it's accurate.
+
+**Q71.** Feature selection always improves model accuracy.
+
+**Answer:** False. Removing important features hurts accuracy. Feature selection improves accuracy only when removing irrelevant/noisy features that cause overfitting.
+
+**Q72.** The online store in a feature store contains all historical feature values.
+
+**Answer:** False. The online store contains only the latest values for fast serving. The offline store contains historical values for training.
+
+**Q73.** Streaming processing is always better than batch processing for ML pipelines.
+
+**Answer:** False. Streaming is more complex and expensive. Batch is sufficient for model training (nightly retraining is fine for most use cases).
+
+**Q74.** RAG eliminates hallucinations completely.
+
+**Answer:** False. RAG reduces hallucinations by grounding answers in documents, but the LLM can still misinterpret or incorrectly summarise the retrieved content.
+
+**Q75.** A model with 98% accuracy on imbalanced data (2% positive class) is a good model.
+
+**Answer:** False. A model predicting "negative" for everything achieves 98% accuracy but catches zero positive cases. Need to check precision, recall, and F1 score.
+
+---
+
+## Section E: Quick-Fire Matching (1 mark each)
+
+**Q76.** Match each tool with its primary function:
+
+| Tool | Function |
 |---|---|
-| **AI (not ML)** | Chess engine using Minimax algorithm (hand-coded rules, no learning). |
-| **ML (not DL)** | Spam filter using logistic regression on hand-crafted features (word counts). |
-| **DL** | GPT-4 generating text using a transformer with billions of parameters, learning features automatically from raw text. |
+| 1. Apache Kafka | A. Batch data processing |
+| 2. Apache Spark | B. Real-time event streaming |
+| 3. Apache Airflow | C. Feature store (open-source) |
+| 4. Feast | D. Experiment tracking |
+| 5. MLflow | E. Pipeline orchestration/scheduling |
+| 6. Kubernetes | F. Container orchestration |
+| 7. Redis | G. In-memory key-value store (online features) |
+| 8. dbt | H. Data transformation in warehouse |
 
-**Key distinction:** Traditional AI uses explicit rules. ML learns rules from data. DL learns both features AND rules from raw data.
+**Answers:** 1-B, 2-A, 3-E, 4-C, 5-D, 6-F, 7-G, 8-H
 
----
+**Q77.** Match each concept with its definition:
 
-### A2. List the five essential layers of an AI system architecture and state the primary responsibility of each. [5 marks]
-
-**Answer:**
-
-| Layer | Primary Responsibility |
+| Concept | Definition |
 |---|---|
-| **Data Layer** | Collect, store, process, and serve data. Feature store, data pipelines, data quality. |
-| **Model Layer** | Train, evaluate, version, and serve ML models. Experiment tracking, model registry. |
-| **Application Layer** | Integrate predictions into user experience. Business logic, A/B testing, APIs, feedback. |
-| **Infrastructure Layer** | Provide compute (GPUs), storage, networking, CI/CD, container orchestration. |
-| **Monitoring Layer** | Observe model performance, data drift, system health, business metrics. Alert on degradation. |
+| 1. Data Drift | A. Features differ between training and production |
+| 2. Training-Serving Skew | B. Creating new features from raw data |
+| 3. Feature Engineering | C. Live data distribution differs from training data |
+| 4. Cold Start Problem | D. Compact numerical representation capturing meaning |
+| 5. Embedding | E. Can't recommend to new users with no history |
+| 6. Lambda Architecture | F. AI generates confident but wrong information |
+| 7. Hallucination | G. Using both batch and streaming pipelines |
+| 8. RLHF | H. Training AI using human feedback ratings |
+
+**Answers:** 1-C, 2-A, 3-B, 4-E, 5-D, 6-G, 7-F, 8-H
+
+**Q78.** Match each company example with the AI application:
+
+| Company | AI Application |
+|---|---|
+| 1. Waymo | A. Credit card fraud detection |
+| 2. Netflix | B. Personalised music playlists |
+| 3. HDFC Bank | C. Self-driving robotaxis |
+| 4. Spotify | D. Content recommendations + personalised thumbnails |
+| 5. Zillow | E. Delivery time prediction |
+| 6. Swiggy | F. AI home price prediction ($881M loss) |
+
+**Answers:** 1-C, 2-D, 3-A, 4-B, 5-F, 6-E
 
 ---
 
-### A3. What is RLHF? Explain its role in building ChatGPT. [4 marks]
+## Exam Preparation Tips
 
-**Answer:**
+1. **Know your case studies:** ChatGPT (Session 2), Netflix (Session 2), Waymo (Session 2), Zillow (Session 3), Cambridge Analytica (Session 5), Myntra pipeline (Session 6), Spotify Discover Weekly (Session 8)
 
-**RLHF (Reinforcement Learning from Human Feedback)** is a technique to align language models with human preferences.
+2. **Know your comparisons:** AI vs ML vs DL, ETL vs ELT, Batch vs Streaming, Data Lake vs Warehouse vs Lakehouse, Offline vs Online features, Collaborative vs Content-based filtering, Build vs Buy vs Fine-tune
 
-**Process in ChatGPT:**
-1. Human labellers rank multiple model responses to the same prompt (e.g. response A is better than B).
-2. A **reward model** is trained to predict human preference scores from these rankings.
-3. The GPT model is fine-tuned using reinforcement learning (PPO algorithm) to maximise the reward model's score.
+3. **Know your architectures:** 5-layer AI architecture, Lambda Architecture, Two-stage recommendation architecture, Feature store architecture
 
-**Why it matters:** Pre-training alone produces a model that predicts likely text (which may be harmful, biased, or unhelpful). RLHF steers the model toward being helpful, harmless, and honest — bridging the gap between "what text is likely" and "what response is good."
+4. **Know your tools:** Kafka, Spark, Airflow, Flink, Feast, MLflow, Kubernetes, Redis, Hugging Face, dbt
 
----
+5. **Know your numbers:** GPT-4 training ~$100M, Netflix 80% from recommendations, Amazon 35% revenue from recommendations, Zillow $881M loss, data quality = 80% of ML project time, model = 5% of AI system code
 
-### A4. Name and briefly explain the six dimensions of data quality. [3 marks]
-
-**Answer:**
-
-1. **Accuracy** — Values correctly represent reality. (Age = 150 is inaccurate.)
-2. **Completeness** — No missing values where expected. (30% of rows missing income.)
-3. **Consistency** — Same fact represented identically everywhere. ("US" vs "United States".)
-4. **Timeliness** — Data reflects current state. (24-hour-old inventory in a real-time system.)
-5. **Validity** — Data conforms to defined formats/types. (Phone field containing emails.)
-6. **Uniqueness** — No unintended duplicates. (Same customer appearing 3 times.)
+6. **For design questions:** Always structure your answer using the 5 layers (Data → Model → Application → Infrastructure → Monitoring). This shows systematic thinking.
 
 ---
 
-### A5. What is data leakage? Why is it dangerous in ML? Give one example. [3 marks]
-
-**Answer:**
-
-**Data leakage** occurs when information from the test set or the future "leaks" into training data, giving the model access to information unavailable at prediction time.
-
-**Why dangerous:** Model appears to perform brilliantly during evaluation but completely fails in production — because the leaked feature doesn't exist when making real predictions. It's hard to detect because metrics look great.
-
-**Example:** A credit scoring model uses "credit_bureau_score" as a feature. But the bureau updates this score AFTER the loan decision. During training, the model sees future information → 99% accuracy. In production, the score isn't available at decision time → model fails.
-
----
-
-### A6. Distinguish between collaborative filtering and content-based filtering for recommender systems. [4 marks]
-
-**Answer:**
-
-| Aspect | Collaborative Filtering | Content-Based Filtering |
-|---|---|---|
-| **Approach** | "Users similar to you liked X" | "You liked items with features X, Y — here are similar items" |
-| **Data needed** | User-item interaction data (ratings, clicks, purchases) | Item features (genre, price, description) + user preferences |
-| **Cold-start** | Fails for new users/items (no interaction history) | Works for new items (features known). Fails for new users. |
-| **Diversity** | Can discover unexpected items | Tends to recommend more of the same |
-| **Example** | Netflix: "Users who watched Breaking Bad also watched..." | Spotify: "Based on the tempo and genre of songs you play..." |
-
-Most production systems use **hybrid** approaches combining both.
-
----
----
-
-## SECTION B — Comparison & Analysis (5-8 marks each)
-
----
-
-### B1. Compare Predictive AI and Generative AI across at least 5 dimensions. Give two applications of each. [6 marks]
-
-**Answer:**
-
-| Dimension | Predictive AI | Generative AI |
-|---|---|---|
-| **Goal** | Predict an outcome (label, number, probability) | Create new content (text, images, code, audio) |
-| **Output type** | Classification label, regression value, anomaly score | Text, images, music, video, code |
-| **Training approach** | Supervised learning (labelled examples) | Self-supervised (predict next token) + RLHF |
-| **Evaluation** | Accuracy, precision, recall, F1, AUC | Human evaluation, perplexity, BLEU, hallucination rate |
-| **Data needs** | Thousands to millions of labelled examples | Billions of tokens/images (internet-scale) |
-
-**Predictive AI applications:** (1) Fraud detection — classify transactions as fraud/legitimate. (2) Demand forecasting — predict next week's sales for inventory planning.
-
-**Generative AI applications:** (1) ChatGPT — generate conversational responses. (2) DALL-E — create images from text descriptions.
-
----
-
-### B2. A startup wants to build an AI-powered customer support chatbot. Compare three approaches: rule-based, intent-based NLU, and LLM-based. Recommend one with justification. [7 marks]
-
-**Answer:**
-
-| Aspect | Rule-Based | Intent-Based NLU | LLM-Based |
-|---|---|---|---|
-| **How it works** | Decision trees, keyword matching | Classifies intent + extracts entities → routes to handler | LLM understands and generates responses directly |
-| **Flexibility** | Low — only handles pre-defined paths | Medium — handles trained intents | High — handles open-ended conversations |
-| **Setup effort** | Low (write rules) | Medium (design intents, collect training data) | Low (API call) to Medium (fine-tune) |
-| **Accuracy** | 100% for known paths, 0% otherwise | Good for trained intents, fails on unknown | Good for general queries, may hallucinate |
-| **Cost** | Low | Medium | Higher (API fees or GPU hosting) |
-| **Maintenance** | High (update rules for every new scenario) | Medium (retrain for new intents) | Low (model handles new queries naturally) |
-
-**Recommendation for a startup: LLM-based (via API like GPT-4) with RAG.**
-
-**Justification:**
-1. **Fast time-to-market** — API integration in days, not months of rule/intent design.
-2. **Handles diverse queries** — customers ask unpredictable questions. LLM handles open-ended conversations naturally.
-3. **RAG for grounding** — Connect to company FAQ/knowledge base to reduce hallucinations and provide accurate answers.
-4. **Low upfront cost** — No ML team needed initially. Pay per API call.
-5. **Scalable** — As volume grows, can migrate from API to fine-tuned open-source model for cost efficiency.
-
----
-
-### B3. Compare "Build from Scratch," "Fine-Tune Open-Source," and "Use API" for AI model deployment. For each, give a scenario where it's the best choice. [8 marks]
-
-**Answer:**
-
-| Aspect | Use API | Fine-Tune Open-Source | Build from Scratch |
-|---|---|---|---|
-| **Time to deploy** | Hours to days | Days to weeks | Months |
-| **Upfront cost** | Zero | Moderate (compute) | High (team + compute + data) |
-| **Ongoing cost** | Per-request fees | Infrastructure hosting | Team + infrastructure |
-| **Data privacy** | Data sent to third party | Data stays on your servers | Full control |
-| **Customisation** | Limited (prompts only) | High (domain adaptation) | Maximum |
-| **Maintenance** | Provider handles | You handle | You handle |
-| **Vendor dependency** | High | Low | None |
-
-**Best-choice scenarios:**
-
-| Scenario | Best approach | Why |
-|---|---|---|
-| Marketing team generating ad copy | **Use API (GPT-4)** | Generic creative task, low volume, no sensitivity. Fast. |
-| Hospital building radiology AI | **Fine-tune open-source** | Patient data can't leave servers. Need medical domain adaptation. |
-| Self-driving car company | **Build from scratch** | Safety-critical. Massive proprietary data. Core technology differentiator. |
-
----
----
-
-## SECTION C — Scenario & Design Questions (8-12 marks each)
-
----
-
-### C1. You are designing an AI system for a large e-commerce company's product recommendation engine. Describe the system architecture using the five-layer model. For each layer, identify at least 2 specific components you would use. [10 marks]
-
-**Answer:**
-
-| Layer | Components | Specific technologies | Purpose in this system |
-|---|---|---|---|
-| **Data Layer** | Data lake, Feature store, Data pipeline | S3 (storage), Feast (feature store), Apache Kafka (streaming ingestion), Airflow (orchestration) | Store user clickstream, purchase history, product catalog. Serve user/item features with <10ms latency for real-time recommendations. |
-| **Model Layer** | Training pipeline, Model registry, Model serving | SageMaker (training), MLflow (registry + experiment tracking), TorchServe (serving) | Train collaborative filtering + content-based hybrid model. A/B test model versions. Serve predictions via REST API. |
-| **Application Layer** | API gateway, Business logic, A/B testing | FastAPI (gateway), Custom logic (filter out-of-stock, apply diversity rules), LaunchDarkly (A/B) | Transform model scores into ranked recommendations. Apply business rules. Test new models on 10% of users before full rollout. |
-| **Infrastructure Layer** | Compute, Orchestration, CI/CD | AWS GPU instances (training), Kubernetes (serving), GitHub Actions (CI/CD) | GPU clusters for model training. Auto-scaling Kubernetes pods for serving. Automated deployment pipeline. |
-| **Monitoring Layer** | Model metrics, Data drift, Business KPIs | Prometheus + Grafana (system health), custom drift detection (KS test on feature distributions), business dashboards (CTR, conversion) | Detect when recommendation quality degrades. Alert on feature drift. Track click-through rate and revenue impact. |
-
-**Request flow:** User opens app → API gateway → feature store serves user+item features → model scores candidates → business logic filters/reranks → top 10 shown → user clicks → click logged → feeds back into training data.
-
----
-
-### C2. A bank discovers that its loan approval AI model, deployed 6 months ago, is approving more high-risk loans than expected. Analyze potential causes and recommend fixes for each. [10 marks]
-
-**Answer:**
-
-| Potential cause | Explanation | Detection method | Fix |
-|---|---|---|---|
-| **1. Data drift** | Applicant demographics changed — bank expanded to rural areas not in training data. | Compare feature distributions (income, employment type) between training data and recent applications. KS test or PSI. | Retrain model with recent data including rural applicants. Monitor feature distributions continuously. |
-| **2. Concept drift** | Economic conditions changed — what constituted "low risk" in 2023 may be "high risk" in 2025 (recession, job market shifts). | Track default rate over time. If model confidence is high but defaults are increasing → concept drift. | Retrain on recent labelled data. Shorten retraining cycle from 6 months to monthly. |
-| **3. Label leakage in training** | Model was trained with a feature (e.g. credit bureau score) not available at prediction time, artificially inflating training accuracy. | Audit feature list — check each feature's availability at prediction time. | Remove leaked feature, retrain, accept lower (but honest) accuracy. |
-| **4. Class imbalance not handled** | Only 2% of training loans defaulted. Model learned to approve everyone. | Check precision/recall on the "default" class. If recall is near 0 → imbalance issue. | Apply class weights, SMOTE oversampling, or adjust decision threshold. |
-| **5. Missing monitoring** | No system in place to detect degradation. Problem discovered only after 6 months of damage. | (Retrospective — monitoring should have been there.) | Implement real-time monitoring: track approval rate, predicted risk distribution, and actual default rate. Set alerts for significant deviations. |
-
-**Recommended action plan:**
-1. **Immediate:** Increase human review threshold — require manual review for borderline approvals.
-2. **Short-term (1-2 weeks):** Audit features for leakage. Retrain with recent data and proper class balancing.
-3. **Medium-term (1 month):** Deploy monitoring for data drift, prediction drift, and business metric tracking.
-4. **Long-term:** Set up automated retraining pipeline triggered by drift alerts.
-
----
-
-### C3. A company wants to build an AI-powered document summarisation tool for internal use. Their documents contain confidential client information. Evaluate whether they should use an API (GPT-4), fine-tune an open-source model, or build from scratch. [8 marks]
-
-**Answer:**
-
-| Factor | Use API (GPT-4) | Fine-Tune Open-Source | Build from Scratch |
-|---|---|---|---|
-| **Data privacy** | ❌ Confidential docs sent to OpenAI servers | ✅ Data stays on company servers | ✅ Full control |
-| **Cost** | Low (per-request) | Medium (GPU for fine-tuning + hosting) | Very high (team + data + compute) |
-| **Quality** | Excellent for general summarisation | Good — improved with domain fine-tuning | Takes months to match pre-trained quality |
-| **Time to deploy** | Days | 2-4 weeks | 6-12 months |
-| **Customisation** | Limited (prompts only) | High (learns company terminology, format) | Maximum but requires massive effort |
-| **Maintenance** | Provider handles | Company handles updates | Company handles everything |
-
-**Recommendation: Fine-tune an open-source model (e.g. LLaMA 3 or Mistral).**
-
-**Justification:**
-1. **Privacy is non-negotiable** — confidential client data cannot leave company servers. This eliminates the API option.
-2. **Building from scratch is overkill** — summarisation is a well-solved problem. Pre-trained models already have strong capabilities. Fine-tuning adapts them to company-specific terminology and document formats.
-3. **Practical path:** Download LLaMA 3 → fine-tune on 1,000 company documents with example summaries → deploy on company's GPU servers → iterate based on user feedback.
-4. **Cost-effective:** One-time fine-tuning cost (a few hundred dollars of GPU time) + hosting cost. No per-request API fees. Scales better with volume.
-
----
----
-
-## SECTION D — MCQ / True-False (1-2 marks each)
-
----
-
-### D1. Which of the following is NOT a category of AI systems covered in this course?
-
-(a) Predictive AI
-(b) Generative AI
-(c) Quantum AI
-(d) Recommender Systems
-(e) Conversational AI
-
-**Answer: (c) Quantum AI.** The six categories covered are: Predictive AI, Generative AI, Recommender Systems, Conversational AI, Computer Vision, and Autonomous Systems.
-
----
-
-### D2. True or False: In the AI system lifecycle, deployment is the final step.
-
-**Answer: False.** Deployment is followed by Monitoring and then Iteration/Improvement. The lifecycle is circular — ML systems require continuous retraining and monitoring because the world changes (data drift, concept drift, evolving user behaviour). It's an infinite loop, not a waterfall.
-
----
-
-### D3. Which layer of the AI system architecture is responsible for detecting data drift?
-
-(a) Data Layer
-(b) Model Layer
-(c) Application Layer
-(d) Monitoring Layer
-
-**Answer: (d) Monitoring Layer.** The monitoring layer observes model performance, data distributions, prediction distributions, and system health. It detects drift by comparing incoming data distributions against training data distributions using statistical tests (KS test, PSI).
-
----
-
-### D4. True or False: A foundation model is trained for a specific task and cannot be adapted to other tasks.
-
-**Answer: False.** A foundation model is trained on broad, diverse data and is specifically designed to be **adapted (fine-tuned) for many downstream tasks** — translation, summarisation, coding, Q&A, image generation, etc. This generality is the defining characteristic.
-
----
-
-### D5. What does the "cold-start problem" refer to in recommender systems?
-
-(a) The system takes too long to start up
-(b) New users or items have no interaction history for recommendations
-(c) The recommendation model hasn't been trained yet
-(d) The server temperature is too low for GPU computation
-
-**Answer: (b).** The cold-start problem occurs when a new user (no purchase/click history) or new item (no ratings/interactions) joins the system. Collaborative filtering fails because it relies on interaction history. Content-based approaches partially mitigate this for new items (using item features).
-
----
-
-### D6. In the Build vs Buy framework, which approach is best when data privacy is critical and the task requires domain-specific adaptation?
-
-(a) Use a commercial API
-(b) Fine-tune an open-source model
-(c) Build a model from scratch
-(d) Use a no-code AI platform
-
-**Answer: (b) Fine-tune an open-source model.** Data stays on your servers (privacy ✓), and fine-tuning adapts the model to your domain (customisation ✓). Building from scratch is overkill if a good open-source base exists. APIs send data to third parties (privacy ✗).
-
----
-
-### D7. True or False: In an AI system, "better data almost always beats a better model."
-
-**Answer: True.** This is a widely accepted principle in ML engineering. A simple model on clean, relevant, representative data consistently outperforms a complex model on noisy, biased, incomplete data. Google's research confirmed that fixing data quality issues improved performance more than switching to more complex architectures.
-
----
-
-### D8. Which data quality dimension is violated when training data from 2020 is used to predict 2025 patterns without updating?
-
-(a) Accuracy
-(b) Completeness
-(c) Timeliness (Freshness)
-(d) Uniqueness
-
-**Answer: (c) Timeliness.** The data doesn't reflect the current state of the world. Patterns from 2020 (pre/during COVID) may not apply in 2025. The model will make predictions based on outdated distributions, leading to degraded performance.
-
----
-
-### D9. What is the primary purpose of a feature store in an AI system?
-
-(a) Store trained model weights
-(b) Manage and serve ML features consistently across training and serving
-(c) Store raw unprocessed data
-(d) Monitor model performance in production
-
-**Answer: (b).** A feature store manages computed features and ensures they are served consistently between training (offline, batch) and serving (online, real-time). This prevents **training-serving skew** — a common bug where features are computed differently during training vs production, causing silent model degradation.
-
----
-
-### D10. A facial recognition model trained mostly on light-skinned faces performs poorly on dark-skinned faces. This is an example of:
-
-(a) Data leakage
-(b) Concept drift
-(c) Sampling bias
-(d) Class imbalance
-
-**Answer: (c) Sampling bias.** The training data was not representative of the real-world population. Light-skinned faces were overrepresented, dark-skinned faces underrepresented. The model performs well on the majority group but poorly on underrepresented groups — a fairness and bias issue rooted in non-representative data collection.
-
----
----
-
-## Exam Preparation Tips (BITS Pilani SS ZG662)
-
-1. **AI vs ML vs DL** — Know the nested relationship. Be ready to give examples of each that are NOT the other.
-2. **AI System Lifecycle** — Memorise all 6 stages and why it's circular (data drift, concept drift).
-3. **5-Layer Architecture** — Draw it from memory. Know 2-3 components per layer.
-4. **Categories of AI Systems** — Know all 6 categories with real-world case studies (ChatGPT, Netflix, Waymo).
-5. **Build vs Buy** — The decision framework is a favourite exam question. Practice scenario-based recommendations with justification.
-6. **Data Quality** — Know the 6 dimensions. Practice identifying quality issues in given scenarios (like the bank loan example).
-7. **Data Governance** — Know why it's different for AI vs traditional systems. GDPR "right to be forgotten" is a common question.
-8. **Foundation Models** — Know what they are, 4 characteristics, 3-4 examples.
-9. **Scenario questions** — Practice designing AI systems for given business problems. Always structure your answer using the 5-layer architecture.
-10. **Open book (comprehensive)** — Bookmark key tables (comparison tables, architecture diagrams, decision frameworks) in your notes for quick lookup.
-
----
-
-*End of AI Exam-Style Questions*
+*End of Exam-Style Questions*

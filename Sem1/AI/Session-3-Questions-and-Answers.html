@@ -3,9 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Session 3: Q&A — AI System Architecture</title>
+<title>Session 3: Questions and Answers</title>
 <style>
-:root{--bg:#0f172a;--surface:#1e293b;--surface2:#334155;--border:#475569;--text:#e2e8f0;--text-muted:#94a3b8;--code-bg:#0d1117;--accent:#8b5cf6;--accent-dim:rgba(139,92,246,.15);--accent-border:rgba(139,92,246,.3);--header-gradient:linear-gradient(135deg,#4c1d95,#7c3aed,#8b5cf6)}
+:root{--bg:#0f172a;--surface:#1e293b;--surface2:#334155;--border:#475569;--text:#e2e8f0;--text-muted:#94a3b8;--code-bg:#0d1117;--accent:#10b981;--accent-dim:rgba(16,185,129,.15);--accent-border:rgba(16,185,129,.3);--header-gradient:linear-gradient(135deg,#064e3b,#059669,#10b981)}
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth}
 body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);line-height:1.7;display:flex;min-height:100vh}
@@ -16,190 +16,875 @@ body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--
 .sidebar-header p{font-size:.75rem;color:var(--text-muted)}
 .sidebar nav a{display:block;padding:.55rem 1.5rem;color:var(--text-muted);text-decoration:none;font-size:.85rem;border-left:3px solid transparent;transition:all .2s}
 .sidebar nav a:hover,.sidebar nav a.active{color:var(--accent);background:var(--accent-dim);border-left-color:var(--accent)}
+.sidebar nav a.sub{padding-left:2.5rem;font-size:.8rem}
 .sidebar-toggle{display:none;position:fixed;top:1rem;left:1rem;z-index:200;background:var(--surface);border:1px solid var(--border);color:var(--text);width:40px;height:40px;border-radius:8px;cursor:pointer;font-size:1.2rem}
 .main{margin-left:280px;flex:1;max-width:900px;padding:2rem 3rem 4rem}
-.page-header{background:var(--header-gradient);border-radius:16px;padding:2.5rem;margin-bottom:2rem;position:relative;overflow:hidden}
+.page-header{background:var(--header-gradient);border-radius:16px;padding:2.5rem;margin-bottom:2.5rem;position:relative;overflow:hidden}
 .page-header::after{content:'';position:absolute;top:0;right:0;width:200px;height:100%;background:radial-gradient(circle at 80% 50%,rgba(255,255,255,.1),transparent);pointer-events:none}
 .page-header .badge{display:inline-block;background:rgba(0,0,0,.3);color:#fff;padding:.25rem .75rem;border-radius:20px;font-size:.75rem;margin-bottom:.75rem}
 .page-header h1{font-size:2rem;color:#fff;margin-bottom:.5rem}
 .page-header .meta{color:rgba(255,255,255,.8);font-size:.85rem}
-.controls{display:flex;flex-wrap:wrap;gap:.75rem;align-items:center;margin-bottom:2rem;padding:1rem 1.2rem;background:var(--surface);border:1px solid var(--border);border-radius:12px}
-.score-display{font-size:.95rem;color:var(--text);margin-right:auto}
-.score-display span{color:var(--accent);font-weight:700;font-size:1.1rem}
-.btn{padding:.5rem 1rem;border:1px solid var(--accent);background:transparent;color:var(--accent);border-radius:8px;cursor:pointer;font-size:.85rem;transition:all .2s}
-.btn:hover{background:var(--accent);color:#fff}
-.qa-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;margin-bottom:1.2rem;overflow:hidden;transition:border-color .3s}
-.qa-card:hover{border-color:var(--accent-border)}
-.qa-question{display:flex;align-items:flex-start;gap:.75rem;padding:1.2rem;cursor:pointer;user-select:none}
-.qa-question input[type="checkbox"]{margin-top:.35rem;width:18px;height:18px;accent-color:var(--accent);flex-shrink:0;cursor:pointer}
-.qa-question .q-text{flex:1;font-weight:600;font-size:1rem}
-.qa-question .q-num{color:var(--accent);font-weight:700;flex-shrink:0;min-width:28px}
-.qa-toggle{color:var(--accent);font-size:1.2rem;flex-shrink:0;transition:transform .3s;margin-top:.1rem}
-.qa-card.open .qa-toggle{transform:rotate(180deg)}
-.qa-answer{max-height:0;overflow:hidden;transition:max-height .4s ease}
-.qa-card.open .qa-answer{max-height:5000px}
-.qa-answer-inner{padding:0 1.2rem 1.2rem;border-top:1px solid var(--border);padding-top:1rem}
-.qa-answer-inner p{margin-bottom:.8rem}
-.table-wrap{overflow-x:auto;margin:1rem 0;border-radius:10px;border:1px solid var(--border)}
-table{width:100%;border-collapse:collapse;font-size:.85rem}
-thead th{background:var(--accent);color:#fff;padding:.6rem .8rem;text-align:left;font-weight:600;white-space:nowrap}
+h2{font-size:1.5rem;color:var(--accent);margin:2.5rem 0 1rem;padding-bottom:.5rem;border-bottom:2px solid var(--accent-border)}
+h3{font-size:1.15rem;color:var(--text);margin:1.8rem 0 .8rem}
+h4{font-size:1rem;color:var(--accent);margin:1.2rem 0 .6rem}
+p{margin-bottom:1rem;color:var(--text)}
+strong{color:var(--text)}
+.table-wrap{overflow-x:auto;margin:1.2rem 0;border-radius:10px;border:1px solid var(--border)}
+table{width:100%;border-collapse:collapse;font-size:.88rem}
+thead th{background:var(--accent);color:#000;padding:.75rem 1rem;text-align:left;font-weight:600;white-space:nowrap}
 tbody tr:nth-child(even){background:var(--surface)}
 tbody tr:nth-child(odd){background:var(--surface2)}
 tbody tr:hover{background:var(--accent-dim)}
-td{padding:.55rem .8rem;border-top:1px solid var(--border)}
-pre{background:var(--code-bg);border:1px solid var(--border);border-radius:10px;padding:1rem;overflow-x:auto;margin:1rem 0;font-size:.83rem;line-height:1.5}
+td{padding:.7rem 1rem;border-top:1px solid var(--border);color:var(--text)}
+pre{background:var(--code-bg);border:1px solid var(--border);border-radius:10px;padding:1.2rem;overflow-x:auto;margin:1.2rem 0;font-size:.85rem;line-height:1.6}
 code{font-family:'Cascadia Code','Fira Code','Consolas',monospace;color:#e6edf3}
 p code,li code,td code{background:var(--code-bg);padding:.15rem .4rem;border-radius:4px;font-size:.85em;color:var(--accent)}
-ul,ol{margin:0 0 .8rem 1.5rem}
-li{margin-bottom:.3rem}
+.callout{background:var(--accent-dim);border-left:4px solid var(--accent);border-radius:0 10px 10px 0;padding:1rem 1.2rem;margin:1.2rem 0;font-size:.92rem}
+.callout p{margin:0;color:var(--text)}
+.callout em{color:var(--text-muted)}
+ul,ol{margin:0 0 1rem 1.5rem;color:var(--text)}
+li{margin-bottom:.4rem}
 li strong{color:var(--accent)}
-.back-top{position:fixed;bottom:2rem;right:2rem;width:44px;height:44px;background:var(--accent);color:#fff;border:none;border-radius:50%;cursor:pointer;font-size:1.3rem;display:none;align-items:center;justify-content:center;box-shadow:0 4px 15px rgba(139,92,246,.3);transition:transform .2s;z-index:100}
+.back-top{position:fixed;bottom:2rem;right:2rem;width:44px;height:44px;background:var(--accent);color:#000;border:none;border-radius:50%;cursor:pointer;font-size:1.3rem;display:none;align-items:center;justify-content:center;box-shadow:0 4px 15px rgba(16,185,129,.3);transition:transform .2s,opacity .2s;z-index:100}
 .back-top:hover{transform:scale(1.1)}
 .back-top.show{display:flex}
-@media(max-width:900px){.sidebar{transform:translateX(-100%)}.sidebar.open{transform:translateX(0)}.sidebar-toggle{display:flex;align-items:center;justify-content:center}.main{margin-left:0;padding:2rem 1.2rem 4rem}}
-@media print{.sidebar,.sidebar-toggle,.back-top,.progress-bar,.controls{display:none!important}.main{margin-left:0;max-width:100%}body{background:#fff;color:#000}.qa-answer{max-height:none!important}.qa-card{border:1px solid #ccc;break-inside:avoid}thead th{background:#8b5cf6;color:#fff;-webkit-print-color-adjust:exact;print-color-adjust:exact}tbody tr:nth-child(even){background:#f8f8f8}tbody tr:nth-child(odd){background:#fff}pre{background:#f5f5f5;border:1px solid #ccc}code{color:#333}.page-header{background:#8b5cf6!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}}
+@media(max-width:900px){
+  .sidebar{transform:translateX(-100%)}
+  .sidebar.open{transform:translateX(0)}
+  .sidebar-toggle{display:flex;align-items:center;justify-content:center}
+  .main{margin-left:0;padding:2rem 1.2rem 4rem}
+}
+@media print{
+  .sidebar,.sidebar-toggle,.back-top,.progress-bar{display:none!important}
+  .main{margin-left:0;max-width:100%}
+  body{background:#fff;color:#000}
+  h2{color:#064e3b}
+  thead th{background:#10b981;color:#000;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  tbody tr:nth-child(even){background:#f8f8f8}
+  tbody tr:nth-child(odd){background:#fff}
+  pre{border:1px solid #ccc;background:#f5f5f5}
+  code{color:#333}
+  .callout{background:#e8f5e9;border-left-color:#10b981}
+  .page-header{background:#10b981!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+}
 </style>
 </head>
 <body>
-
-<div class="progress-bar" id="progressBar"></div>
-<button class="sidebar-toggle" id="sidebarToggle" aria-label="Toggle sidebar">☰</button>
-
+<div class="progress-bar" id="progress"></div>
+<button class="sidebar-toggle" id="sidebarToggle">&#9776;</button>
 <aside class="sidebar" id="sidebar">
   <div class="sidebar-header">
-    <h2>Session 3 Q&A</h2>
-    <p>AI System Architecture</p>
+    <h2>SS ZG662</h2>
+    <p>Introduction to AI Systems</p>
   </div>
   <nav>
-    <a href="#q1">Q1. Five-layer architecture</a>
-    <a href="#q2">Q2. Recommendation flow</a>
-    <a href="#q3">Q3. Data drift & monitoring</a>
-    <a href="#q4">Q4. Model cards</a>
-    <a href="Session-3-AI-System-Architecture.html" style="margin-top:1rem;color:var(--accent);">📖 Session 3 Notes →</a>
+    <a href="#q1-what-are-the-five-layers-of-ai-system-architecture-list-each-layer-and-its-primary-role">Q1: What are the five layers of AI System Architec...</a>
+    <a href="#q2-describe-the-data-layer-in-detail-what-are-its-five-key-components-and-which-tools-are-used-for-each">Q2: Describe the Data Layer in detail. What are it...</a>
+    <a href="#q3-explain-the-model-layer-what-are-its-five-components-and-which-tools-are-commonly-used">Q3: Explain the Model Layer. What are its five com...</a>
+    <a href="#q4-what-is-the-application-layer-explain-its-five-components-with-a-zomato-example">Q4: What is the Application Layer? Explain its fiv...</a>
+    <a href="#q5-explain-the-infrastructure-layer-why-are-gpus-important-for-ai">Q5: Explain the Infrastructure Layer. Why are GPUs...</a>
+    <a href="#q6-why-is-the-monitoring-layer-critical-for-ai-systems-how-is-it-different-from-monitoring-traditional-software">Q6: Why is the Monitoring Layer critical for AI sy...</a>
+    <a href="#q7-case-study-explain-the-zillow-monitoring-failure-what-went-wrong-and-what-could-have-prevented-it">Q7: Case Study — Explain the Zillow monitoring fai...</a>
+    <a href="#q8-what-is-training-serving-skew-how-does-a-feature-store-help-prevent-it">Q8: What is Training-Serving Skew? How does a Feat...</a>
+    <a href="#q9-walk-through-the-swiggy-eta-prediction-system-across-all-five-architecture-layers">Q9: Walk through the Swiggy ETA prediction system ...</a>
+    <a href="#q10-what-layer-handles-x-match-each-task-to-its-correct-architecture-layer">Q10: "What layer handles X?" — Match each task to ...</a>
+    <a href="#q11-what-is-data-drift-how-is-it-different-from-prediction-drift-give-examples-of-each">Q11: What is Data Drift? How is it different from ...</a>
+    <a href="#q12-what-is-apache-kafka-and-why-is-it-important-for-ai-systems">Q12: What is Apache Kafka and why is it important ...</a>
+    <a href="#q13-what-is-kubernetes-k8s-why-is-it-essential-for-serving-ai-models-in-production">Q13: What is Kubernetes (K8s)? Why is it essential...</a>
+    <a href="#q14-compare-data-lake-and-data-warehouse-when-would-you-use-each-in-an-ai-system">Q14: Compare Data Lake and Data Warehouse. When wo...</a>
+    <a href="#q15-what-is-mlflow-how-does-it-help-manage-the-model-layer">Q15: What is MLflow? How does it help manage the M...</a>
+    <a href="#q16-scenario-you-re-designing-an-ai-system-for-indian-railways-to-predict-train-delays-which-components-would-you-need-at-each-layer">Q16: Scenario — You're designing an AI system for ...</a>
+    <a href="#q17-what-is-ci-cd-in-the-context-of-ai-systems-how-is-it-different-from-ci-cd-in-traditional-software">Q17: What is CI/CD in the context of AI systems? H...</a>
+    <a href="#q18-explain-the-difference-between-batch-processing-and-real-time-processing-in-ai-systems-when-would-you-use-each">Q18: Explain the difference between batch processi...</a>
+    <a href="#q19-what-would-happen-to-swiggy-s-eta-system-if-the-feature-store-failed-explain-the-cascading-impact-across-layers">Q19: What would happen to Swiggy's ETA system if t...</a>
+    <a href="#q20-scenario-a-fintech-startup-in-bangalore-is-building-a-loan-approval-ai-system-design-the-architecture-across-all-five-layers-including-specific-tools">Q20: Scenario — A fintech startup in Bangalore is ...</a>
   </nav>
 </aside>
-
 <main class="main">
   <div class="page-header">
-    <span class="badge">Session 3 — 4 Questions</span>
-    <h1>Questions & Answers</h1>
-    <p class="meta">AI System Architecture — Self-Assessment</p>
+    <span class="badge">Session 3 — Q&A</span>
+    <h1>Session 3: Questions and Answers</h1>
+    <div class="meta">Contact Session 3 | Module 1: Foundations of AI Systems</div>
   </div>
+<h1 id="session-3-questions-and-answers">Session 3: Questions and Answers</h1>
+<div class="callout">
+<p>BITS Pilani — SS ZG662: Introduction to AI Systems</p>
+</div>
+<hr />
+<h2 id="q1-what-are-the-five-layers-of-ai-system-architecture-list-each-layer-and-its-primary-role">Q1: What are the five layers of AI System Architecture? List each layer and its primary role.</h2>
+<p><strong>Answer:</strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Layer</th>
+<th>Role</th>
+<th>Analogy (McDonald's)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Data Layer</strong></td>
+<td>Collects, stores, cleans, and serves data. The fuel for everything.</td>
+<td>Supply chain — getting ingredients to every restaurant</td>
+</tr>
+<tr>
+<td><strong>Model Layer</strong></td>
+<td>Trains, evaluates, versions, and serves ML models. The brain.</td>
+<td>Kitchen — where food is prepared using recipes</td>
+</tr>
+<tr>
+<td><strong>Application Layer</strong></td>
+<td>User-facing part — app, website, API, business logic.</td>
+<td>Counter/app — where customers order and receive food</td>
+</tr>
+<tr>
+<td><strong>Infrastructure Layer</strong></td>
+<td>Computing power, storage, networking, containers. The hardware foundation.</td>
+<td>Building, electricity, gas, equipment</td>
+</tr>
+<tr>
+<td><strong>Monitoring Layer</strong></td>
+<td>Logs, metrics, alerts, drift detection. The nervous system.</td>
+<td>Quality checks, customer feedback, health inspections</td>
+</tr>
+</tbody>
+</table></div>
+<p>The layers stack together:</p>
+<pre><code>┌─────────────────────────────────┐
+│      APPLICATION LAYER          │  ← What users see
+├─────────────────────────────────┤
+│         MODEL LAYER             │  ← The &quot;brain&quot;
+├─────────────────────────────────┤
+│         DATA LAYER              │  ← The &quot;fuel&quot;
+├─────────────────────────────────┤
+│     INFRASTRUCTURE LAYER        │  ← The &quot;hardware&quot;
+├─────────────────────────────────┤
+│      MONITORING LAYER           │  ← The &quot;nervous system&quot;
+└─────────────────────────────────┘
+</code></pre>
+<p>Key insight: Every AI system has all five layers. If any layer is weak or missing, the entire system suffers. A great model (brain) with poor data (fuel) and no monitoring (nervous system) will fail.</p>
+<hr />
+<h2 id="q2-describe-the-data-layer-in-detail-what-are-its-five-key-components-and-which-tools-are-used-for-each">Q2: Describe the Data Layer in detail. What are its five key components and which tools are used for each?</h2>
+<p><strong>Answer:</strong>
+The Data Layer is the foundation of any AI system. Without good data, nothing else matters — "Garbage In, Garbage Out."</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Component</th>
+<th>What It Does</th>
+<th>Tools</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Data Ingestion</strong></td>
+<td>Pulls data from different sources into one place. Like a funnel collecting water from multiple streams.</td>
+<td>Apache Kafka (millions of events/sec, used by LinkedIn, Uber), AWS Kinesis</td>
+<td>Uber collects GPS coordinates, payment data, ratings from millions of rides</td>
+</tr>
+<tr>
+<td><strong>Data Storage</strong></td>
+<td>Stores raw and processed data durably.</td>
+<td>Data Lake (S3, Google Cloud Storage — store everything raw), Data Warehouse (Snowflake, BigQuery — cleaned, structured data)</td>
+<td>Netflix stores all viewing history, ratings, and browsing behaviour</td>
+</tr>
+<tr>
+<td><strong>Data Processing</strong></td>
+<td>Cleans, transforms, and prepares data for ML use.</td>
+<td>Apache Spark (processes terabytes in minutes), dbt (SQL transforms), Apache Airflow (orchestrates pipelines)</td>
+<td>Flipkart cleans product data — removes duplicates, fixes missing prices, standardises categories</td>
+</tr>
+<tr>
+<td><strong>Feature Store</strong></td>
+<td>Stores pre-computed features that are consistent between training and serving.</td>
+<td>Feast (open-source), Tecton, Hopsworks</td>
+<td>Amazon pre-computes "user_click_count_last_7_days" and stores in feature store for instant access</td>
+</tr>
+<tr>
+<td><strong>Data Quality</strong></td>
+<td>Checks data for problems — missing values, wrong formats, unexpected changes.</td>
+<td>Great Expectations, Deequ (by Amazon)</td>
+<td>Automated checks: "Is any column more than 5% null? Has the data schema changed unexpectedly?"</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Uber's Data Layer in action:</strong>
+Uber collects GPS coordinates every second from millions of drivers and riders, payment transactions, ratings, surge pricing data, plus weather and traffic feeds. All this flows through Kafka → stored in data lake → processed by Spark → features computed and stored in feature store → ready for ML models (ETA prediction, surge pricing, fraud detection).</p>
+<hr />
+<h2 id="q3-explain-the-model-layer-what-are-its-five-components-and-which-tools-are-commonly-used">Q3: Explain the Model Layer. What are its five components and which tools are commonly used?</h2>
+<p><strong>Answer:</strong>
+The Model Layer handles everything about the ML model — training, evaluating, versioning, and serving predictions. It's the "brain" of the AI system.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Component</th>
+<th>What It Does</th>
+<th>Tools</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Experiment Tracking</strong></td>
+<td>Records every experiment — which data, settings, and results. Like a lab notebook.</td>
+<td>MLflow (very popular, open-source), Weights &amp; Biases (W&amp;B), Neptune</td>
+</tr>
+<tr>
+<td><strong>Training Pipeline</strong></td>
+<td>Automates the model training process — load data, train, evaluate, save.</td>
+<td>Kubeflow Pipelines, AWS SageMaker Pipelines, Google Vertex AI</td>
+</tr>
+<tr>
+<td><strong>Model Registry</strong></td>
+<td>Stores trained models with versions, metadata, and status (staging/production). Like Git but for models.</td>
+<td>MLflow Model Registry, SageMaker Model Registry</td>
+</tr>
+<tr>
+<td><strong>Model Serving</strong></td>
+<td>Hosts the model and answers prediction requests fast via an API.</td>
+<td>TensorFlow Serving, TorchServe, Triton (NVIDIA), Seldon</td>
+</tr>
+<tr>
+<td><strong>Model Evaluation</strong></td>
+<td>Tests the model on held-out data to measure accuracy before deployment.</td>
+<td>Custom evaluation pipelines, benchmark suites</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Spotify example — How a new recommendation model is shipped:</strong>
+1. Data scientist trains a new model using MLflow (experiment tracking)
+2. Model is registered in MLflow Model Registry as "recommendation-v2.5"
+3. Model is deployed to staging environment for A/B testing
+4. 5% of users get the new model, 95% get the old one
+5. After 2 weeks: new model increases listen time by 3%
+6. New model is promoted to production → serves all 400M+ users</p>
+<hr />
+<h2 id="q4-what-is-the-application-layer-explain-its-five-components-with-a-zomato-example">Q4: What is the Application Layer? Explain its five components with a Zomato example.</h2>
+<p><strong>Answer:</strong>
+The Application Layer is where AI meets the real world — it's what users actually interact with. It takes raw model predictions and turns them into something useful.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Component</th>
+<th>What It Does</th>
+<th>Tools</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>API Gateway</strong></td>
+<td>Front door — receives all requests, authenticates, rate-limits</td>
+<td>Kong, AWS API Gateway, FastAPI</td>
+</tr>
+<tr>
+<td><strong>Business Logic</strong></td>
+<td>Transforms model output into user-relevant actions</td>
+<td>Custom code (Model says score=0.87 → app shows "Highly Recommended")</td>
+</tr>
+<tr>
+<td><strong>A/B Testing</strong></td>
+<td>Tests two versions on different user groups</td>
+<td>LaunchDarkly, Optimizely</td>
+</tr>
+<tr>
+<td><strong>User Interface (UI)</strong></td>
+<td>The app or website users interact with</td>
+<td>React, Flutter, Streamlit (prototyping)</td>
+</tr>
+<tr>
+<td><strong>Feedback Collection</strong></td>
+<td>Captures user reactions — clicks, ratings, complaints</td>
+<td>Custom event logging → feeds back into training data</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Zomato example — how all components work together:</strong>
+1. You open Zomato → <strong>API Gateway</strong> receives your request, authenticates your session
+2. <strong>Business Logic:</strong> "User is on homepage at 12:30 PM → show lunch recommendations"
+3. Model returns: [Restaurant A: score 0.95, Restaurant B: score 0.88, ...]
+4. <strong>Business Logic</strong> filters: Remove closed restaurants, apply "Free Delivery" promo
+5. <strong>A/B Test:</strong> 50% of users see "Top Rated" first, 50% see "Fastest Delivery" first
+6. <strong>UI</strong> displays personalised restaurant list on your phone
+7. You tap a restaurant → click event logged by <strong>Feedback Collection</strong> → feeds back into the recommendation model</p>
+<hr />
+<h2 id="q5-explain-the-infrastructure-layer-why-are-gpus-important-for-ai">Q5: Explain the Infrastructure Layer. Why are GPUs important for AI?</h2>
+<p><strong>Answer:</strong>
+The Infrastructure Layer provides the computing power, storage, and networking that everything else runs on.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Component</th>
+<th>What It Does</th>
+<th>Tools</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Compute (CPU/GPU/TPU)</strong></td>
+<td>Processing power for training and serving models</td>
+<td>AWS P4d GPU instances, Google TPU v5</td>
+</tr>
+<tr>
+<td><strong>Container Orchestration</strong></td>
+<td>Packages and runs code in containers, scales up/down automatically</td>
+<td>Kubernetes (K8s), Docker</td>
+</tr>
+<tr>
+<td><strong>Storage</strong></td>
+<td>Stores data, models, logs, artifacts</td>
+<td>S3 (AWS), GCS (Google), Azure Blob Storage</td>
+</tr>
+<tr>
+<td><strong>CI/CD</strong></td>
+<td>Automatically builds, tests, and deploys new code and models</td>
+<td>GitHub Actions, GitLab CI, Jenkins</td>
+</tr>
+<tr>
+<td><strong>Infrastructure as Code (IaC)</strong></td>
+<td>Defines infrastructure in config files instead of manually</td>
+<td>Terraform (most popular), Pulumi, AWS CloudFormation</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Why GPUs matter for AI:</strong>
+- <strong>CPU</strong> = good at doing one task at a time, very fast (like a brilliant professor solving one problem)
+- <strong>GPU</strong> = good at doing thousands of small tasks simultaneously (like 1000 students each solving a simple problem)
+- AI training involves millions of simple math operations (matrix multiplications) → GPUs do this 10-100x faster than CPUs
+- <strong>TPU</strong> = Google's custom chip, even faster than GPUs for specific AI workloads</p>
+<p>Scale example: Training GPT-4 required approximately 25,000 GPUs running for months. Without GPUs, the same training would have taken decades on CPUs.</p>
+<hr />
+<h2 id="q6-why-is-the-monitoring-layer-critical-for-ai-systems-how-is-it-different-from-monitoring-traditional-software">Q6: Why is the Monitoring Layer critical for AI systems? How is it different from monitoring traditional software?</h2>
+<p><strong>Answer:</strong>
+In traditional software, bugs cause crashes or errors — they're obvious. A broken function throws an exception. In AI systems, a degraded model <strong>silently gives wrong predictions</strong> — it doesn't crash, it just quietly becomes wrong. Without monitoring, you won't know until customers complain weeks later.</p>
+<p>What the Monitoring Layer tracks:</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>What to Monitor</th>
+<th>Why</th>
+<th>Metrics</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Model Performance</strong></td>
+<td>Accuracy degrades over time as data changes</td>
+<td>Accuracy, Precision, Recall, F1 score over time</td>
+</tr>
+<tr>
+<td><strong>Data Drift</strong></td>
+<td>Incoming data may look different from training data</td>
+<td>Statistical tests (KS test, PSI) comparing distributions</td>
+</tr>
+<tr>
+<td><strong>Prediction Drift</strong></td>
+<td>Distribution of predictions changes unexpectedly</td>
+<td>Distribution of predicted scores/classes over time</td>
+</tr>
+<tr>
+<td><strong>System Health</strong></td>
+<td>Infrastructure issues — slow responses, crashes</td>
+<td>Latency (p50, p95, p99), error rate, CPU/memory usage</td>
+</tr>
+<tr>
+<td><strong>Business Metrics</strong></td>
+<td>Does the AI actually improve business outcomes?</td>
+<td>Revenue, conversion rate, user retention</td>
+</tr>
+</tbody>
+</table></div>
+<p>Key difference from traditional monitoring:
+- Traditional monitoring asks: "Is the service running? Are there errors?"
+- AI monitoring also asks: "Is the model still accurate? Has the data changed? Are predictions still reliable?"
+- Traditional bugs crash the system. AI bugs produce wrong but plausible-looking outputs.</p>
+<hr />
+<h2 id="q7-case-study-explain-the-zillow-monitoring-failure-what-went-wrong-and-what-could-have-prevented-it">Q7: Case Study — Explain the Zillow monitoring failure. What went wrong and what could have prevented it?</h2>
+<p><strong>Answer:</strong>
+Zillow (US real estate company) built an AI model called "Zestimate" to predict house prices for their home-buying business (iBuying program).</p>
+<p><strong>What happened:</strong>
+1. The model worked great initially — accurately predicting house prices
+2. The housing market changed rapidly due to COVID effects (2020-2021)
+3. The model's predictions drifted — it consistently <strong>overpredicted</strong> house prices
+4. Without adequate monitoring and drift detection, Zillow kept buying houses at inflated AI-predicted prices
+5. When they tried to sell these houses, the actual market prices were much lower</p>
+<p><strong>The damage:</strong>
+- Lost <strong>$881 million</strong> in just a few quarters
+- Shut down the entire iBuying business unit
+- <strong>2,000 employees</strong> were laid off
+- This is the most expensive AI monitoring failure in history</p>
+<p><strong>What could have prevented it:</strong>
+1. <strong>Data drift detection:</strong> Statistical tests comparing training data distributions with live data would have flagged that the housing market had changed significantly
+2. <strong>Prediction drift monitoring:</strong> Tracking the distribution of predicted prices over time would have shown a suspicious upward trend
+3. <strong>Business metric monitoring:</strong> Comparing predicted prices vs actual sale prices would have revealed growing gaps
+4. <strong>Human-in-the-loop safeguards:</strong> Requiring human approval for purchases where the model's confidence was low
+5. <strong>Regular retraining:</strong> Monthly retraining with recent sales data would have helped the model adapt to the changing market</p>
+<p>Key lesson: No matter how good your model is at deployment, without continuous monitoring, it can silently become catastrophically wrong.</p>
+<hr />
+<h2 id="q8-what-is-training-serving-skew-how-does-a-feature-store-help-prevent-it">Q8: What is Training-Serving Skew? How does a Feature Store help prevent it?</h2>
+<p><strong>Answer:</strong>
+Training-serving skew happens when features used during training are computed differently from features used during serving (production). The model sees different data in production than what it trained on.</p>
+<p><strong>Example:</strong>
+A fraud detection model uses the feature "average transaction amount in last 7 days."
+- During training: This is calculated from a complete historical database — exact and accurate
+- During serving: This is calculated in real-time from a streaming pipeline that has a 5-minute delay — slightly different values
+- Result: The model's accuracy drops because it's seeing slightly different feature values than what it learned from</p>
+<p><strong>How a Feature Store prevents this:</strong>
+A Feature Store (like Feast, Tecton, or Hopsworks) stores pre-computed features in one centralised place and serves the exact same features for both training and serving.</p>
+<pre><code>Without Feature Store:
+Training: feature = compute_from_batch_data()     → might be different
+Serving:  feature = compute_from_streaming_data()  → might be different
+→ SKEW!
 
-  <div class="controls">
-    <div class="score-display">Score: <span id="score">0</span> / <span id="total">4</span></div>
-    <button class="btn" onclick="toggleAll(true)">Show All</button>
-    <button class="btn" onclick="toggleAll(false)">Hide All</button>
-  </div>
-
-  <!-- Q1 -->
-  <div class="qa-card" id="q1">
-    <div class="qa-question" onclick="toggleCard(this)">
-      <input type="checkbox" onclick="event.stopPropagation();updateScore()">
-      <span class="q-num">Q1.</span>
-      <span class="q-text">Describe the five-layer AI system architecture. What does each layer do?</span>
-      <span class="qa-toggle">▼</span>
-    </div>
-    <div class="qa-answer"><div class="qa-answer-inner">
-      <div class="table-wrap"><table>
-        <thead><tr><th>Layer</th><th>Responsibility</th><th>Key components</th></tr></thead>
-        <tbody>
-          <tr><td><strong>Data Layer</strong></td><td>Collect, store, process, serve data. Foundation of everything.</td><td>Data ingestion, data lake/warehouse, ETL pipelines, feature store, data quality checks.</td></tr>
-          <tr><td><strong>Model Layer</strong></td><td>Train, evaluate, version, serve models.</td><td>Experiment tracking (MLflow), training pipelines, model registry, model serving (TorchServe).</td></tr>
-          <tr><td><strong>Application Layer</strong></td><td>Integrate predictions into user experience.</td><td>API gateway, business logic, A/B testing, UI, feedback collection.</td></tr>
-          <tr><td><strong>Infrastructure Layer</strong></td><td>Compute and networking resources.</td><td>GPUs/TPUs, Kubernetes, storage, CI/CD, IaC.</td></tr>
-          <tr><td><strong>Monitoring Layer</strong></td><td>Observe everything, alert when things go wrong.</td><td>Model performance tracking, data drift detection, system health (latency, errors), business metrics.</td></tr>
-        </tbody>
-      </table></div>
-      <p>These layers enable independent team work, component replacement, and per-layer scaling.</p>
-    </div></div>
-  </div>
-
-  <!-- Q2 -->
-  <div class="qa-card" id="q2">
-    <div class="qa-question" onclick="toggleCard(this)">
-      <input type="checkbox" onclick="event.stopPropagation();updateScore()">
-      <span class="q-num">Q2.</span>
-      <span class="q-text">Walk through how a recommendation request flows through the AI system architecture.</span>
-      <span class="qa-toggle">▼</span>
-    </div>
-    <div class="qa-answer"><div class="qa-answer-inner">
-      <pre><code>1. USER opens app homepage
-2. APPLICATION LAYER: API gateway receives request (user_id, context)
-3. DATA LAYER: Feature store serves user features (past purchases, browse 
-   history) and item features (category, price) — pre-computed, &lt;10ms
-4. MODEL LAYER: Model scores candidate items using features → returns top 20
-5. APPLICATION LAYER: Business logic filters (remove out-of-stock), applies 
-   diversity rules, A/B testing assigns model version → renders top 10
-6. USER sees recommendations, clicks Item #3
-7. MONITORING: Click logged, CTR tracked, recommendation distribution checked
-8. FEEDBACK LOOP: Click data flows to data lake → included in next retrain</code></pre>
-      <p>The model itself is one step. The surrounding system (feature serving, filtering, A/B testing, monitoring, feedback loop) is the majority of the work.</p>
-    </div></div>
-  </div>
-
-  <!-- Q3 -->
-  <div class="qa-card" id="q3">
-    <div class="qa-question" onclick="toggleCard(this)">
-      <input type="checkbox" onclick="event.stopPropagation();updateScore()">
-      <span class="q-num">Q3.</span>
-      <span class="q-text">What is data drift? Why is monitoring essential for AI systems?</span>
-      <span class="qa-toggle">▼</span>
-    </div>
-    <div class="qa-answer"><div class="qa-answer-inner">
-      <p><strong>Data drift</strong> occurs when the distribution of incoming production data changes compared to the training data. The model was trained on one distribution but is now seeing a different one — its predictions degrade.</p>
-      <p><strong>Types of drift:</strong></p>
-      <ul>
-        <li><strong>Data drift (covariate shift):</strong> Input feature distributions change. Example: A fraud model trained on weekday transactions starts seeing weekend patterns.</li>
-        <li><strong>Concept drift:</strong> The relationship between features and target changes. Example: What constitutes "fraud" changes as fraudsters develop new techniques.</li>
-        <li><strong>Prediction drift:</strong> Model output distribution shifts. Example: A spam filter suddenly classifies 50% of emails as spam (previously 5%).</li>
-      </ul>
-      <p><strong>Why monitoring is essential:</strong> Unlike traditional software bugs (which crash visibly), ML drift causes the model to <strong>silently serve wrong predictions</strong>. Without monitoring, you won't know until business metrics drop — which could be weeks later.</p>
-    </div></div>
-  </div>
-
-  <!-- Q4 -->
-  <div class="qa-card" id="q4">
-    <div class="qa-question" onclick="toggleCard(this)">
-      <input type="checkbox" onclick="event.stopPropagation();updateScore()">
-      <span class="q-num">Q4.</span>
-      <span class="q-text">What is a model card? Why is documentation important in the AI ecosystem?</span>
-      <span class="qa-toggle">▼</span>
-    </div>
-    <div class="qa-answer"><div class="qa-answer-inner">
-      <p>A <strong>model card</strong> is standardised documentation for an ML model, typically including:</p>
-      <ul>
-        <li><strong>Model description:</strong> What it does, architecture, size.</li>
-        <li><strong>Training data:</strong> What data was used, how it was collected.</li>
-        <li><strong>Intended uses:</strong> What the model is designed for.</li>
-        <li><strong>Limitations:</strong> What it's NOT good at, known failure modes.</li>
-        <li><strong>Performance:</strong> Benchmarks, metrics on standard datasets.</li>
-        <li><strong>Ethical considerations:</strong> Bias analysis, fairness metrics.</li>
-        <li><strong>Environmental impact:</strong> Training compute, carbon footprint.</li>
-      </ul>
-      <p><strong>Why documentation matters:</strong></p>
-      <ol>
-        <li><strong>Responsible use:</strong> Users understand what the model can and can't do.</li>
-        <li><strong>Reproducibility:</strong> Others can replicate results.</li>
-        <li><strong>Accountability:</strong> Clear record for auditing and compliance.</li>
-        <li><strong>Trust:</strong> Transparent documentation builds trust in AI systems.</li>
-      </ol>
-      <p>Hugging Face requires model cards for all models on its hub — it's becoming an industry standard.</p>
-    </div></div>
-  </div>
-
-  <p style="text-align:center;color:var(--text-muted);margin-top:3rem;font-size:.85rem"><em>End of Session 3 Questions & Answers</em></p>
+With Feature Store:
+Training: feature = feature_store.get(&quot;avg_txn_7d&quot;)  → same source
+Serving:  feature = feature_store.get(&quot;avg_txn_7d&quot;)   → same source
+→ NO SKEW!
+</code></pre>
+<p>The Feature Store ensures consistency — the same logic computes the same feature the same way, whether the model is being trained or making live predictions.</p>
+<hr />
+<h2 id="q9-walk-through-the-swiggy-eta-prediction-system-across-all-five-architecture-layers">Q9: Walk through the Swiggy ETA prediction system across all five architecture layers.</h2>
+<p><strong>Answer:</strong>
+When you order food on Swiggy, all five layers work together:</p>
+<p><strong>Step 1 — Application Layer:</strong>
+Swiggy app sends request with your user_id, restaurant_id, items ordered, delivery address, and current time. API Gateway authenticates your session. Business logic says: "User placed an order → need ETA prediction."</p>
+<p><strong>Step 2 — Data Layer:</strong>
+Feature Store serves pre-computed features instantly (in under 10 milliseconds):
+- restaurant_avg_prep_time = 18 min
+- current_traffic_level = HIGH (from Google Maps API)
+- distance_km = 4.2
+- current_weather = RAIN
+- active_drivers_nearby = 12
+- restaurant_current_order_queue = 5 pending orders</p>
+<p>These features are pre-computed and cached — not calculated on-the-fly.</p>
+<p><strong>Step 3 — Model Layer:</strong>
+ETA prediction model receives all features and computes: prep_time (20 min) + travel_time (18 min) + buffer_for_rain (5 min) = 43 minutes.</p>
+<p><strong>Step 4 — Application Layer (continued):</strong>
+Business logic adds a buffer: 43 + 2 = 45 minutes (round up for safety). Displays: "Estimated delivery: 45 minutes."</p>
+<p><strong>Step 5 — Infrastructure Layer (running silently):</strong>
+Model runs on Kubernetes cluster with auto-scaling. If Swiggy runs a sale → 10x more orders → Kubernetes automatically spins up more model servers. All logs stored in S3 for future training.</p>
+<p><strong>Step 6 — Monitoring Layer:</strong>
+Logs prediction = 45 min, actual delivery = 42 min → error = 3 min (acceptable). Tracks average prediction error across all orders today. Alerts if error &gt; 10 min for 5% of orders. Checks if today's traffic pattern differs from training data (e.g., a city-wide bandh). Stores actual delivery times as feedback for next model retraining.</p>
+<p><strong>Key takeaways:</strong>
+- The model is just one step — the surrounding system does most of the work
+- Speed matters — entire flow must happen in under 1 second
+- Features are pre-computed (not computed on-the-fly)
+- Monitoring closes the loop — actual times feed back into retraining</p>
+<hr />
+<h2 id="q10-what-layer-handles-x-match-each-task-to-its-correct-architecture-layer">Q10: "What layer handles X?" — Match each task to its correct architecture layer.</h2>
+<p><strong>Answer:</strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Task</th>
+<th>Which Layer?</th>
+<th>Why?</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Storing 3 years of customer purchase data</td>
+<td><strong>Data Layer</strong></td>
+<td>Data storage is a Data Layer responsibility</td>
+</tr>
+<tr>
+<td>Training a new recommendation model</td>
+<td><strong>Model Layer</strong></td>
+<td>Model training is the core function of the Model Layer</td>
+</tr>
+<tr>
+<td>Showing "Recommended for You" products on the app</td>
+<td><strong>Application Layer</strong></td>
+<td>This is the user-facing UI and business logic</td>
+</tr>
+<tr>
+<td>Auto-scaling servers during Diwali sale traffic</td>
+<td><strong>Infrastructure Layer</strong></td>
+<td>Kubernetes scaling is an Infrastructure function</td>
+</tr>
+<tr>
+<td>Detecting that the model's accuracy dropped 10% this week</td>
+<td><strong>Monitoring Layer</strong></td>
+<td>Performance tracking and alerting is Monitoring</td>
+</tr>
+<tr>
+<td>Computing "user_click_count_last_7_days" and storing it</td>
+<td><strong>Data Layer</strong></td>
+<td>Feature Store is part of the Data Layer</td>
+</tr>
+<tr>
+<td>Deciding if 5% of users should see the new model (A/B test)</td>
+<td><strong>Application Layer</strong></td>
+<td>A/B testing is managed at the Application Layer</td>
+</tr>
+<tr>
+<td>Checking if today's incoming data looks different from training data</td>
+<td><strong>Monitoring Layer</strong></td>
+<td>Data drift detection is a Monitoring function</td>
+</tr>
+<tr>
+<td>Running model predictions on NVIDIA GPUs</td>
+<td><strong>Infrastructure Layer</strong></td>
+<td>GPU compute is an Infrastructure resource</td>
+</tr>
+<tr>
+<td>Versioning model v1.0, v1.1, v2.0 in a registry</td>
+<td><strong>Model Layer</strong></td>
+<td>Model Registry is part of the Model Layer</td>
+</tr>
+</tbody>
+</table></div>
+<hr />
+<h2 id="q11-what-is-data-drift-how-is-it-different-from-prediction-drift-give-examples-of-each">Q11: What is Data Drift? How is it different from Prediction Drift? Give examples of each.</h2>
+<p><strong>Answer:</strong></p>
+<p><strong>Data Drift:</strong> The data coming into the system today looks different from what the model was trained on. The input distribution has changed.</p>
+<p>Example: A fraud detection model was trained on 2023 transaction data. In 2025, new types of UPI scams appear that look completely different from 2023 fraud patterns. The incoming data has drifted — new patterns the model has never seen.</p>
+<p><strong>Prediction Drift:</strong> The distribution of the model's predictions changes over time, even if individual inputs might look normal. The output distribution shifts.</p>
+<p>Example: A credit scoring model that usually approves 40% of applications suddenly starts approving 65%. Individual applications might look fine, but the overall pattern has shifted — something has changed that makes the model behave differently.</p>
+<p><strong>Key differences:</strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Aspect</th>
+<th>Data Drift</th>
+<th>Prediction Drift</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>What changes</strong></td>
+<td>Input data distribution</td>
+<td>Output prediction distribution</td>
+</tr>
+<tr>
+<td><strong>What to monitor</strong></td>
+<td>Compare training data vs live data using statistical tests</td>
+<td>Compare prediction distributions over time</td>
+</tr>
+<tr>
+<td><strong>Detection</strong></td>
+<td>KS test, PSI (Population Stability Index)</td>
+<td>Track prediction class/score distributions daily</td>
+</tr>
+<tr>
+<td><strong>Cause</strong></td>
+<td>Real world changed (new customer types, new fraud methods)</td>
+<td>Could be data drift, model bug, or feature computation error</td>
+</tr>
+</tbody>
+</table></div>
+<p>Both types of drift require monitoring. Data drift tells you "the world changed." Prediction drift tells you "the model is behaving differently." Either one could mean trouble.</p>
+<hr />
+<h2 id="q12-what-is-apache-kafka-and-why-is-it-important-for-ai-systems">Q12: What is Apache Kafka and why is it important for AI systems?</h2>
+<p><strong>Answer:</strong>
+Apache Kafka is a distributed event streaming platform that can collect and process millions of data events per second in real-time.</p>
+<p>Think of it as a high-speed highway for data — events (clicks, transactions, sensor readings) flow through Kafka from various sources to various destinations at massive scale.</p>
+<p>Why it matters for AI systems:
+1. <strong>Real-time data collection:</strong> Captures user events (clicks, purchases, page views) the moment they happen — essential for real-time features
+2. <strong>Scale:</strong> Processes millions of events per second — handles the data volume of companies like Uber, LinkedIn, and Netflix
+3. <strong>Decoupling:</strong> Producers (apps that generate data) and consumers (ML pipelines that use data) don't need to talk directly — Kafka sits in between and manages the flow
+4. <strong>Reliability:</strong> Messages are stored durably — if a consumer goes down, it can pick up where it left off when it comes back</p>
+<p><strong>Example — Uber's use of Kafka:</strong>
+When a rider books a cab, the event flows through Kafka. From there it goes to:
+- The ETA prediction model (needs real-time traffic and driver location)
+- The surge pricing model (needs real-time demand)
+- The fraud detection model (needs transaction patterns)
+- The data warehouse (for historical analysis)</p>
+<p>All these consumers read from Kafka independently, at their own speed, without blocking each other.</p>
+<hr />
+<h2 id="q13-what-is-kubernetes-k8s-why-is-it-essential-for-serving-ai-models-in-production">Q13: What is Kubernetes (K8s)? Why is it essential for serving AI models in production?</h2>
+<p><strong>Answer:</strong>
+Kubernetes is a container orchestration platform that automatically manages, scales, and deploys containerised applications.</p>
+<p>Simple analogy: If Docker is like a shipping container (packages your code and dependencies into a portable box), then Kubernetes is the shipping port that manages thousands of containers — loading, unloading, routing, and replacing damaged ones.</p>
+<p>Why it's essential for AI serving:</p>
+<ol>
+<li>
+<p><strong>Auto-scaling:</strong> During a Swiggy sale, orders might increase 10x. Kubernetes automatically spins up more model-serving containers to handle the load, then scales down when demand drops. No human intervention needed.</p>
+</li>
+<li>
+<p><strong>Self-healing:</strong> If a model-serving container crashes, Kubernetes automatically restarts it or replaces it with a new one. Users don't notice any downtime.</p>
+</li>
+<li>
+<p><strong>Rolling updates:</strong> When deploying a new model version, Kubernetes gradually replaces old containers with new ones — no downtime. If the new version has issues, it rolls back automatically.</p>
+</li>
+<li>
+<p><strong>Resource management:</strong> Kubernetes allocates GPUs, memory, and CPU to different model containers based on their needs. Training gets the big GPUs; serving gets the fast-response containers.</p>
+</li>
+</ol>
+<p>Used by: Netflix, Uber, Airbnb, Spotify, Amazon — basically every major tech company running AI at scale.</p>
+<hr />
+<h2 id="q14-compare-data-lake-and-data-warehouse-when-would-you-use-each-in-an-ai-system">Q14: Compare Data Lake and Data Warehouse. When would you use each in an AI system?</h2>
+<p><strong>Answer:</strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Aspect</th>
+<th>Data Lake</th>
+<th>Data Warehouse</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Data type</strong></td>
+<td>Raw, unstructured (images, logs, JSON, CSV, videos)</td>
+<td>Cleaned, structured (tables with defined schema)</td>
+</tr>
+<tr>
+<td><strong>Schema</strong></td>
+<td>Schema-on-read (figure out structure when you use it)</td>
+<td>Schema-on-write (structure defined before storing)</td>
+</tr>
+<tr>
+<td><strong>Purpose</strong></td>
+<td>Store everything, figure out use later</td>
+<td>Store cleaned data ready for analysis and ML</td>
+</tr>
+<tr>
+<td><strong>Cost</strong></td>
+<td>Cheap (stores raw data without processing)</td>
+<td>More expensive (requires cleaning and structuring)</td>
+</tr>
+<tr>
+<td><strong>Speed of queries</strong></td>
+<td>Slower (data not optimised for queries)</td>
+<td>Fast (data is pre-structured and indexed)</td>
+</tr>
+<tr>
+<td><strong>Tools</strong></td>
+<td>S3 (AWS), Google Cloud Storage, Azure Data Lake</td>
+<td>Snowflake, BigQuery, Amazon Redshift</td>
+</tr>
+<tr>
+<td><strong>Think of it as</strong></td>
+<td>A big warehouse where you dump everything in boxes</td>
+<td>A well-organised library with catalogued books</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>When to use each:</strong>
+- <strong>Data Lake:</strong> Store raw data that you might need later — all user clickstreams, raw sensor data, video recordings, server logs. ML training often needs raw data.
+- <strong>Data Warehouse:</strong> Store cleaned, aggregated data for dashboards, reporting, and feature computation. Business analysts query the warehouse directly.</p>
+<p>In practice, most AI systems use BOTH:
+Raw data flows into the Data Lake → Spark/dbt processes it → Cleaned data stored in Data Warehouse → Features computed and stored in Feature Store.</p>
+<hr />
+<h2 id="q15-what-is-mlflow-how-does-it-help-manage-the-model-layer">Q15: What is MLflow? How does it help manage the Model Layer?</h2>
+<p><strong>Answer:</strong>
+MLflow is the most popular open-source tool for managing the ML lifecycle. It handles experiment tracking, model packaging, and model versioning.</p>
+<p>MLflow has three core components:</p>
+<ol>
+<li><strong>MLflow Tracking:</strong> Records every experiment — which dataset was used, which hyperparameters, what accuracy was achieved. Like a lab notebook that auto-records everything.</li>
+</ol>
+<p>Example: You try 50 different model configurations. MLflow records every single run — so you can compare all 50 and pick the best one, even weeks later.</p>
+<ol>
+<li>
+<p><strong>MLflow Models:</strong> Packages trained models in a standard format that can be deployed anywhere (Docker, Kubernetes, AWS, etc.).</p>
+</li>
+<li>
+<p><strong>MLflow Model Registry:</strong> A versioned catalog of models. You can mark models as "staging" or "production" and track which version is currently live.</p>
+</li>
+</ol>
+<p>Example: Your fraud detection model has versions v1.0 (old), v1.1 (staging, being A/B tested), and v2.0 (in development). The registry tracks all of this.</p>
+<p>Why it matters: Without a tool like MLflow, ML teams lose track of experiments ("Which parameters gave 92% accuracy last month?"), can't reproduce results, and have no systematic way to promote models from testing to production.</p>
+<hr />
+<h2 id="q16-scenario-you-re-designing-an-ai-system-for-indian-railways-to-predict-train-delays-which-components-would-you-need-at-each-layer">Q16: Scenario — You're designing an AI system for Indian Railways to predict train delays. Which components would you need at each layer?</h2>
+<p><strong>Answer:</strong></p>
+<p><strong>Data Layer:</strong>
+- <strong>Ingestion:</strong> Real-time data feeds — GPS signals from trains, platform sensor data, weather APIs, signal system status. Use Kafka for streaming.
+- <strong>Storage:</strong> Data Lake (S3) for raw GPS and sensor data. Data Warehouse (BigQuery) for cleaned historical delay records.
+- <strong>Processing:</strong> Apache Spark to process millions of GPS data points daily. Apache Airflow to schedule daily data pipelines.
+- <strong>Feature Store:</strong> Pre-compute features like "avg_delay_at_station_X_at_time_Y," "current_weather_on_route," "number_of_trains_on_same_track." Use Feast.
+- <strong>Data Quality:</strong> Great Expectations to validate incoming data (GPS coordinates within India, speed values realistic).</p>
+<p><strong>Model Layer:</strong>
+- <strong>Experiment Tracking:</strong> MLflow to record different model experiments
+- <strong>Training:</strong> Train models using historical delay data — try XGBoost for structured features, LSTM neural network for time-series patterns
+- <strong>Model Registry:</strong> MLflow Registry to version models (delay-predictor-v1, v2, etc.)
+- <strong>Serving:</strong> TensorFlow Serving or FastAPI to serve predictions in real-time</p>
+<p><strong>Application Layer:</strong>
+- <strong>API Gateway:</strong> Receives requests from the IRCTC app and station displays
+- <strong>Business Logic:</strong> Convert model output (delay = 23 minutes) into user-friendly message: "Train 12302 Rajdhani is expected 25 minutes late at New Delhi"
+- <strong>UI:</strong> IRCTC app and station display boards showing live predictions
+- <strong>Feedback Collection:</strong> Collect actual arrival times to compare with predictions</p>
+<p><strong>Infrastructure Layer:</strong>
+- <strong>Compute:</strong> GPU instances for training, CPU instances for serving (delay prediction doesn't need GPUs for inference)
+- <strong>Kubernetes:</strong> Auto-scale during peak booking/travel periods (festivals, holidays)
+- <strong>CI/CD:</strong> GitHub Actions for automated model deployment</p>
+<p><strong>Monitoring Layer:</strong>
+- Track prediction accuracy (predicted delay vs actual delay)
+- Monitor data drift (weather patterns changing, new routes added)
+- Alert if average prediction error exceeds 15 minutes
+- Business metric: Track if passenger satisfaction improves with better delay information</p>
+<hr />
+<h2 id="q17-what-is-ci-cd-in-the-context-of-ai-systems-how-is-it-different-from-ci-cd-in-traditional-software">Q17: What is CI/CD in the context of AI systems? How is it different from CI/CD in traditional software?</h2>
+<p><strong>Answer:</strong>
+CI/CD stands for Continuous Integration / Continuous Deployment. It automates the process of building, testing, and deploying code and models.</p>
+<p><strong>In traditional software:</strong>
+Code change → Automated tests → Build → Deploy to production
+- Focus: Does the new code pass all tests? Does it compile?</p>
+<p><strong>In AI systems (often called ML CI/CD or MLOps):</strong>
+Code change OR data change OR model retraining → Automated tests → Model validation → Deploy to production
+- Focus: Does the new model perform better? Are features consistent? Has data quality dropped?</p>
+<p>Key differences:</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Aspect</th>
+<th>Traditional CI/CD</th>
+<th>AI/ML CI/CD</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>What triggers deployment</strong></td>
+<td>Code change</td>
+<td>Code change, data change, or model retraining</td>
+</tr>
+<tr>
+<td><strong>What's tested</strong></td>
+<td>Code correctness (unit tests)</td>
+<td>Code + model accuracy + data quality + feature consistency</td>
+</tr>
+<tr>
+<td><strong>What's deployed</strong></td>
+<td>Application code</td>
+<td>Application code + model artifacts + feature pipelines</td>
+</tr>
+<tr>
+<td><strong>Rollback reason</strong></td>
+<td>Bug in code</td>
+<td>Bug in code OR model accuracy drops OR data drift detected</td>
+</tr>
+</tbody>
+</table></div>
+<p>Tools: GitHub Actions, GitLab CI, Jenkins (same tools, but ML-specific tests added).</p>
+<p>The key insight is that in AI systems, the model can break even without any code change — just because the data changed. So CI/CD pipelines must also monitor data quality and model performance, not just code correctness.</p>
+<hr />
+<h2 id="q18-explain-the-difference-between-batch-processing-and-real-time-processing-in-ai-systems-when-would-you-use-each">Q18: Explain the difference between batch processing and real-time processing in AI systems. When would you use each?</h2>
+<p><strong>Answer:</strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Aspect</th>
+<th>Batch Processing</th>
+<th>Real-Time Processing</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>How it works</strong></td>
+<td>Processes large amounts of data at scheduled intervals</td>
+<td>Processes data immediately as it arrives</td>
+</tr>
+<tr>
+<td><strong>Latency</strong></td>
+<td>Minutes to hours</td>
+<td>Milliseconds to seconds</td>
+</tr>
+<tr>
+<td><strong>When it runs</strong></td>
+<td>Scheduled (daily, hourly, weekly)</td>
+<td>Continuously, 24/7</td>
+</tr>
+<tr>
+<td><strong>Best for</strong></td>
+<td>Training models, computing historical features, generating reports</td>
+<td>Serving predictions, real-time fraud detection, live recommendations</td>
+</tr>
+<tr>
+<td><strong>Tools</strong></td>
+<td>Apache Spark, Apache Airflow, dbt</td>
+<td>Apache Kafka, Apache Flink, Redis</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>When to use each:</strong></p>
+<p><strong>Batch:</strong> Model training (retrain weekly on accumulated data), computing features like "user's total purchases in last 30 days," generating daily recommendation lists for all users overnight.</p>
+<p><strong>Real-time:</strong> Fraud detection (must flag suspicious transaction before it completes), showing delivery ETA when user places order, updating stock recommendations when market conditions change.</p>
+<p><strong>Netflix example — both used together:</strong>
+- <strong>Batch (offline):</strong> Every night, Netflix retrains its recommendation models using the previous day's viewing data. It pre-computes personalised recommendation lists for all 230M+ users.
+- <strong>Real-time (online):</strong> When you start watching a show and stop after 10 minutes, the real-time system immediately adjusts your recommendations to de-prioritise similar shows.</p>
+<p>Most production AI systems use BOTH — heavy training happens offline (batch), while serving and real-time adjustments happen online.</p>
+<hr />
+<h2 id="q19-what-would-happen-to-swiggy-s-eta-system-if-the-feature-store-failed-explain-the-cascading-impact-across-layers">Q19: What would happen to Swiggy's ETA system if the Feature Store failed? Explain the cascading impact across layers.</h2>
+<p><strong>Answer:</strong>
+If the Feature Store fails, it creates a cascading failure across multiple layers:</p>
+<p><strong>Immediate impact — Data Layer:</strong>
+Pre-computed features (restaurant prep time, traffic level, driver availability) become unavailable. The system can't serve feature values in under 10ms as expected.</p>
+<p><strong>Impact on Model Layer:</strong>
+The ETA model receives missing or stale features. Without "current_traffic_level = HIGH," the model might predict 25 minutes instead of 45 minutes. Predictions become inaccurate.</p>
+<p><strong>Impact on Application Layer:</strong>
+Users see wildly incorrect ETAs. Someone orders food during peak rain and sees "Delivery in 20 min" when it actually takes 50 min. Customer satisfaction drops. Support calls spike.</p>
+<p><strong>Impact on Infrastructure Layer:</strong>
+If the Feature Store failure causes the model-serving containers to timeout waiting for features, Kubernetes might start auto-scaling (spinning up more containers), wasting resources without fixing the root cause.</p>
+<p><strong>Impact on Monitoring Layer:</strong>
+Monitoring should detect this quickly — prediction error spikes dramatically, latency increases, and feature availability drops to zero. If monitoring is set up correctly, an alert fires within minutes.</p>
+<p><strong>Recovery path:</strong>
+1. Monitoring detects the failure and alerts the team
+2. As a fallback, the system could use cached (stale) features or default values
+3. Business logic could add a larger buffer to ETAs during the outage
+4. Feature Store is restored, and the system recovers</p>
+<p>This demonstrates why all five layers must work together — a failure in one layer ripples through the entire system.</p>
+<hr />
+<h2 id="q20-scenario-a-fintech-startup-in-bangalore-is-building-a-loan-approval-ai-system-design-the-architecture-across-all-five-layers-including-specific-tools">Q20: Scenario — A fintech startup in Bangalore is building a loan approval AI system. Design the architecture across all five layers, including specific tools.</h2>
+<p><strong>Answer:</strong></p>
+<p><strong>Data Layer:</strong>
+- <strong>Ingestion:</strong> Kafka to stream real-time loan applications and repayment events
+- <strong>Storage:</strong> Data Lake (S3) for raw application documents (Aadhaar scans, bank statements). Data Warehouse (BigQuery) for structured applicant data.
+- <strong>Processing:</strong> Apache Spark for processing millions of historical loan records. dbt for transforming raw data into analysis-ready tables.
+- <strong>Feature Store:</strong> Tecton or Feast. Pre-compute features: credit_score, income_to_debt_ratio, repayment_history_last_12_months, employer_stability_score, age, city_tier.
+- <strong>Data Quality:</strong> Great Expectations — validate that Aadhaar numbers are 12 digits, income values are positive, no duplicate applications.</p>
+<p><strong>Model Layer:</strong>
+- <strong>Experiment Tracking:</strong> MLflow — record all experiments comparing XGBoost, Random Forest, and neural network models
+- <strong>Training:</strong> AWS SageMaker Pipelines for automated weekly retraining
+- <strong>Model Registry:</strong> MLflow Model Registry — version models as loan-approval-v1, v2, etc. Track which is in production.
+- <strong>Serving:</strong> FastAPI + TorchServe for real-time scoring (approve/reject within 2 seconds)
+- <strong>Evaluation:</strong> Measure accuracy, precision, recall. Critically: monitor for bias across gender, religion, and geography (RBI fairness requirements).</p>
+<p><strong>Application Layer:</strong>
+- <strong>API Gateway:</strong> AWS API Gateway — handles authentication, rate limiting
+- <strong>Business Logic:</strong> Model returns probability (0.82). If probability &gt; 0.7 → auto-approve. If 0.4-0.7 → manual review. If &lt; 0.4 → auto-reject.
+- <strong>UI:</strong> Web dashboard for loan officers showing application details + model recommendation
+- <strong>A/B Testing:</strong> Test new model versions on 5% of applications before full rollout
+- <strong>Feedback Collection:</strong> Track actual repayment/default for every approved loan → feeds back into retraining</p>
+<p><strong>Infrastructure Layer:</strong>
+- <strong>Compute:</strong> CPU instances for serving (loan scoring doesn't need GPUs). GPU instances for weekly retraining.
+- <strong>Kubernetes:</strong> Auto-scale during peak application hours (salary week, festival season)
+- <strong>CI/CD:</strong> GitHub Actions — automated testing of model code + data validation + model accuracy checks before deployment
+- <strong>IaC:</strong> Terraform for managing AWS resources</p>
+<p><strong>Monitoring Layer:</strong>
+- <strong>Model performance:</strong> Track approval rate, default rate, accuracy monthly
+- <strong>Data drift:</strong> Monitor if applicant demographics or income distributions are shifting
+- <strong>Fairness monitoring:</strong> Ensure approval rates are not biased by gender, caste, or region
+- <strong>Prediction drift:</strong> Alert if the model suddenly approves 30% more or fewer applications than baseline
+- <strong>Business metrics:</strong> Track revenue from loans, default losses, customer satisfaction</p>
+<p><strong>Special considerations for fintech:</strong>
+- Data must comply with RBI regulations — can't send to third-party APIs
+- Must maintain audit trail for every model decision (explainability)
+- Must regularly test for and report on bias/fairness</p>
+<hr />
+<p><em>End of Session 3 Questions and Answers</em></p>
 </main>
-
-<button class="back-top" id="backTop" aria-label="Back to top">↑</button>
-
+<button class="back-top" id="backTop" title="Back to top">&#8593;</button>
 <script>
-function toggleCard(el){const card=el.closest('.qa-card');card.classList.toggle('open')}
-function toggleAll(show){document.querySelectorAll('.qa-card').forEach(c=>{show?c.classList.add('open'):c.classList.remove('open')})}
-function updateScore(){const checks=document.querySelectorAll('.qa-question input[type="checkbox"]');let s=0;checks.forEach(c=>{if(c.checked)s++});document.getElementById('score').textContent=s}
-window.addEventListener('scroll',()=>{const h=document.documentElement;const pct=h.scrollTop/(h.scrollHeight-h.clientHeight)*100;document.getElementById('progressBar').style.width=pct+'%';document.getElementById('backTop').classList.toggle('show',h.scrollTop>400)});
-document.getElementById('backTop').addEventListener('click',()=>window.scrollTo({top:0,behavior:'smooth'}));
-document.getElementById('sidebarToggle').addEventListener('click',()=>document.getElementById('sidebar').classList.toggle('open'));
+const bar=document.getElementById('progress');
+const btn=document.getElementById('backTop');
+const toggle=document.getElementById('sidebarToggle');
+const sidebar=document.getElementById('sidebar');
+window.addEventListener('scroll',()=>{
+  const s=document.documentElement.scrollTop;
+  const h=document.documentElement.scrollHeight-document.documentElement.clientHeight;
+  bar.style.width=(s/h*100)+'%';
+  btn.classList.toggle('show',s>400);
+});
+btn.onclick=()=>window.scrollTo({top:0,behavior:'smooth'});
+toggle.onclick=()=>sidebar.classList.toggle('open');
+// Active sidebar link
+const links=document.querySelectorAll('.sidebar nav a');
+const obs=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{if(e.isIntersecting){
+    links.forEach(l=>l.classList.remove('active'));
+    const a=document.querySelector('.sidebar nav a[href="#'+e.target.id+'"]');
+    if(a)a.classList.add('active');
+  }});
+},{rootMargin:'-20% 0px -70% 0px'});
+document.querySelectorAll('h2[id],h3[id]').forEach(h=>obs.observe(h));
 </script>
 </body>
 </html>

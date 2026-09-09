@@ -9,9 +9,7 @@
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth}
 body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);line-height:1.7;display:flex;min-height:100vh}
-/* Progress Bar */
 .progress-bar{position:fixed;top:0;left:0;height:4px;background:var(--accent);z-index:1000;transition:width .2s}
-/* Sidebar */
 .sidebar{position:fixed;top:0;left:0;width:280px;height:100vh;background:var(--surface);border-right:1px solid var(--border);overflow-y:auto;padding:1.5rem 0;z-index:100;transition:transform .3s}
 .sidebar-header{padding:0 1.5rem 1.5rem;border-bottom:1px solid var(--border);margin-bottom:1rem}
 .sidebar-header h2{font-size:1rem;color:var(--accent);margin-bottom:.25rem}
@@ -20,21 +18,17 @@ body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--
 .sidebar nav a:hover,.sidebar nav a.active{color:var(--accent);background:var(--accent-dim);border-left-color:var(--accent)}
 .sidebar nav a.sub{padding-left:2.5rem;font-size:.8rem}
 .sidebar-toggle{display:none;position:fixed;top:1rem;left:1rem;z-index:200;background:var(--surface);border:1px solid var(--border);color:var(--text);width:40px;height:40px;border-radius:8px;cursor:pointer;font-size:1.2rem}
-/* Main */
 .main{margin-left:280px;flex:1;max-width:900px;padding:2rem 3rem 4rem}
-/* Header */
 .page-header{background:var(--header-gradient);border-radius:16px;padding:2.5rem;margin-bottom:2.5rem;position:relative;overflow:hidden}
 .page-header::after{content:'';position:absolute;top:0;right:0;width:200px;height:100%;background:radial-gradient(circle at 80% 50%,rgba(255,255,255,.1),transparent);pointer-events:none}
 .page-header .badge{display:inline-block;background:rgba(0,0,0,.3);color:#fff;padding:.25rem .75rem;border-radius:20px;font-size:.75rem;margin-bottom:.75rem}
 .page-header h1{font-size:2rem;color:#fff;margin-bottom:.5rem}
 .page-header .meta{color:rgba(255,255,255,.8);font-size:.85rem}
-/* Sections */
 h2{font-size:1.5rem;color:var(--accent);margin:2.5rem 0 1rem;padding-bottom:.5rem;border-bottom:2px solid var(--accent-border)}
 h3{font-size:1.15rem;color:var(--text);margin:1.8rem 0 .8rem}
 h4{font-size:1rem;color:var(--accent);margin:1.2rem 0 .6rem}
 p{margin-bottom:1rem;color:var(--text)}
 strong{color:var(--text)}
-/* Tables */
 .table-wrap{overflow-x:auto;margin:1.2rem 0;border-radius:10px;border:1px solid var(--border)}
 table{width:100%;border-collapse:collapse;font-size:.88rem}
 thead th{background:var(--accent);color:#000;padding:.75rem 1rem;text-align:left;font-weight:600;white-space:nowrap}
@@ -42,30 +36,24 @@ tbody tr:nth-child(even){background:var(--surface)}
 tbody tr:nth-child(odd){background:var(--surface2)}
 tbody tr:hover{background:var(--accent-dim)}
 td{padding:.7rem 1rem;border-top:1px solid var(--border);color:var(--text)}
-/* Code */
 pre{background:var(--code-bg);border:1px solid var(--border);border-radius:10px;padding:1.2rem;overflow-x:auto;margin:1.2rem 0;font-size:.85rem;line-height:1.6}
 code{font-family:'Cascadia Code','Fira Code','Consolas',monospace;color:#e6edf3}
 p code,li code,td code{background:var(--code-bg);padding:.15rem .4rem;border-radius:4px;font-size:.85em;color:var(--accent)}
-/* Callout */
 .callout{background:var(--accent-dim);border-left:4px solid var(--accent);border-radius:0 10px 10px 0;padding:1rem 1.2rem;margin:1.2rem 0;font-size:.92rem}
 .callout p{margin:0;color:var(--text)}
 .callout em{color:var(--text-muted)}
-/* Lists */
 ul,ol{margin:0 0 1rem 1.5rem;color:var(--text)}
 li{margin-bottom:.4rem}
 li strong{color:var(--accent)}
-/* Back to top */
 .back-top{position:fixed;bottom:2rem;right:2rem;width:44px;height:44px;background:var(--accent);color:#000;border:none;border-radius:50%;cursor:pointer;font-size:1.3rem;display:none;align-items:center;justify-content:center;box-shadow:0 4px 15px rgba(245,158,11,.3);transition:transform .2s,opacity .2s;z-index:100}
 .back-top:hover{transform:scale(1.1)}
 .back-top.show{display:flex}
-/* Responsive */
 @media(max-width:900px){
   .sidebar{transform:translateX(-100%)}
   .sidebar.open{transform:translateX(0)}
   .sidebar-toggle{display:flex;align-items:center;justify-content:center}
   .main{margin-left:0;padding:2rem 1.2rem 4rem}
 }
-/* Print */
 @media print{
   .sidebar,.sidebar-toggle,.back-top,.progress-bar{display:none!important}
   .main{margin-left:0;max-width:100%}
@@ -82,51 +70,114 @@ li strong{color:var(--accent)}
 </style>
 </head>
 <body>
-
-<div class="progress-bar" id="progressBar"></div>
-
-<button class="sidebar-toggle" id="sidebarToggle" aria-label="Toggle sidebar">☰</button>
-
+<div class="progress-bar" id="progress"></div>
+<button class="sidebar-toggle" id="sidebarToggle">&#9776;</button>
 <aside class="sidebar" id="sidebar">
   <div class="sidebar-header">
-    <h2>Session 1</h2>
-    <p>Introduction to AI</p>
+    <h2>SS ZG662</h2>
+    <p>Introduction to AI Systems</p>
   </div>
   <nav>
-    <a href="#section-1-1">1.1 What is Artificial Intelligence?</a>
-    <a href="#section-1-2">1.2 AI vs ML vs Deep Learning</a>
-    <a href="#section-1-3">1.3 The AI System Lifecycle</a>
-    <a href="#section-1-4">1.4 Components of an AI System</a>
-    <a href="#section-1-5">1.5 AI Applications Across Industries</a>
-    <a href="Session-1-Questions-and-Answers.html" style="margin-top:1rem;color:var(--accent);">📝 Session 1 Q&A →</a>
-    <a href="Session-2-Categories-of-AI-Systems.html">→ Session 2</a>
+    <a href="#table-of-contents">Table of Contents</a>
+    <a href="#1-1-what-is-artificial-intelligence">1.1 What is Artificial Intelligence?</a>
+    <a href="#simple-definition" class="sub">Simple Definition</a>
+    <a href="#ai-is-not-one-thing-it-s-a-family-of-techniques" class="sub">AI is Not One Thing — It's a Family of Techniques</a>
+    <a href="#what-makes-this-course-different-focus-on-ai-systems" class="sub">What Makes This Course Different: Focus on AI Syst...</a>
+    <a href="#1-2-ai-vs-machine-learning-vs-deep-learning">1.2 AI vs Machine Learning vs Deep Learning</a>
+    <a href="#detailed-comparison" class="sub">Detailed Comparison</a>
+    <a href="#understanding-through-a-spam-detection-example" class="sub">Understanding Through a Spam Detection Example</a>
+    <a href="#key-insight-when-to-use-what" class="sub">Key Insight: When to Use What</a>
+    <a href="#1-3-the-ai-system-lifecycle">1.3 The AI System Lifecycle</a>
+    <a href="#why-is-it-a-cycle" class="sub">Why is it a Cycle?</a>
+    <a href="#the-6-stages" class="sub">The 6 Stages</a>
+    <a href="#live-example-how-netflix-continuously-improves" class="sub">Live Example: How Netflix Continuously Improves</a>
+    <a href="#1-4-components-of-an-ai-system">1.4 Components of an AI System</a>
+    <a href="#the-6-key-components" class="sub">The 6 Key Components</a>
+    <a href="#key-concept-training-serving-skew" class="sub">Key Concept: Training-Serving Skew</a>
+    <a href="#1-5-ai-applications-across-industries">1.5 AI Applications Across Industries</a>
+    <a href="#why-you-should-care-about-these-examples" class="sub">Why You Should Care About These Examples</a>
+    <a href="#key-terms-glossary-session-1">Key Terms Glossary (Session 1)</a>
   </nav>
 </aside>
-
 <main class="main">
   <div class="page-header">
-    <span class="badge">Module 1: Foundations of AI Systems</span>
+    <span class="badge">Session 1</span>
     <h1>Session 1: Introduction to AI</h1>
-    <p class="meta">BITS Pilani — SS ZG662: Introduction to AI Systems — Instructor: Chandrasekhar Anantrama<br>References: T1 Chapter 1, T2 Chapter 1, Class Notes</p>
+    <div class="meta">Contact Session 1 | Module 1: Foundations of AI Systems</div>
   </div>
-
-  <!-- 1.1 -->
-  <h2 id="section-1-1">1.1 What is Artificial Intelligence?</h2>
-  <p><strong>Artificial Intelligence (AI)</strong> is the broad field of computer science focused on creating systems that can perform tasks that normally require human intelligence — understanding language, recognising images, making decisions, learning from experience, and solving complex problems.</p>
-  <p>AI is not a single technology but an <strong>umbrella term</strong> covering many techniques, from simple rule-based systems ("if temperature > 100, raise alarm") to complex deep neural networks that generate human-like text and images.</p>
-
-  <h3>A Practical Definition for This Course</h3>
-  <p>In the context of this course (AI <em>Systems</em>), we focus not on the algorithms alone but on the <strong>end-to-end systems</strong> that deliver AI capabilities to users. An AI system includes data pipelines, model training infrastructure, serving infrastructure, monitoring, and the application layer — not just the model.</p>
-  <div class="callout">
-    <p><em>"A machine learning model is only a small part of an ML system. The system also includes the data pipeline, the serving infrastructure, the monitoring, and the business logic."</em> — Chip Huyen (paraphrased)</p>
-  </div>
-
-  <!-- 1.2 -->
-  <h2 id="section-1-2">1.2 AI vs Machine Learning vs Deep Learning</h2>
-  <p>These three terms are often confused. They are <strong>nested concepts</strong> — each is a subset of the previous:</p>
-  <pre><code>┌─────────────────────────────────────────────────┐
+<h1 id="session-1-introduction-to-ai">Session 1: Introduction to AI</h1>
+<div class="callout">
+<p>BITS Pilani — <strong>SS ZG662: Introduction to AI Systems</strong> — Instructor: Chandrasekhar Anantrama</p>
+<p><strong>References:</strong> T1 Chapter 1, T2 Chapter 1, Class Notes</p>
+<p><strong>Contact Session:</strong> 1 (Module 1: Foundations of AI Systems)</p>
+</div>
+<hr />
+<h2 id="table-of-contents">Table of Contents</h2>
+<ul>
+<li><a href="#11-what-is-artificial-intelligence">1.1 What is Artificial Intelligence?</a></li>
+<li><a href="#12-ai-vs-machine-learning-vs-deep-learning">1.2 AI vs Machine Learning vs Deep Learning</a></li>
+<li><a href="#13-the-ai-system-lifecycle">1.3 The AI System Lifecycle</a></li>
+<li><a href="#14-components-of-an-ai-system">1.4 Components of an AI System</a></li>
+<li><a href="#15-ai-applications-across-industries">1.5 AI Applications Across Industries</a></li>
+</ul>
+<hr />
+<h2 id="1-1-what-is-artificial-intelligence">1.1 What is Artificial Intelligence?</h2>
+<h3 id="simple-definition">Simple Definition</h3>
+<p><strong>Artificial Intelligence (AI)</strong> means making computers do things that normally need human brains — like understanding language, recognising faces, making decisions, or learning from past experience.</p>
+<p>Think of it this way: a calculator can add numbers, but it can't look at a photo and tell you "that's a dog." AI is what lets computers do that kind of smart thinking.</p>
+<h3 id="ai-is-not-one-thing-it-s-a-family-of-techniques">AI is Not One Thing — It's a Family of Techniques</h3>
+<p>AI is an <strong>umbrella term</strong> (a big category name) that covers many different approaches:</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Approach</th>
+<th>What it does</th>
+<th>Everyday Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Rule-based systems</strong></td>
+<td>Follow human-written "if-then" rules</td>
+<td>Thermostat: "If temperature &gt; 25°C, turn on AC"</td>
+</tr>
+<tr>
+<td><strong>Machine Learning</strong></td>
+<td>Learn patterns from data automatically</td>
+<td>Gmail separating spam from real emails</td>
+</tr>
+<tr>
+<td><strong>Deep Learning</strong></td>
+<td>Learn complex patterns using brain-inspired neural networks</td>
+<td>Google Photos recognising your friends' faces</td>
+</tr>
+<tr>
+<td><strong>Generative AI</strong></td>
+<td>Create new content (text, images, code)</td>
+<td>ChatGPT writing an essay for you</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="what-makes-this-course-different-focus-on-ai-systems">What Makes This Course Different: Focus on AI <em>Systems</em></h3>
+<p>This course is not just about AI algorithms (the math behind AI). It's about <strong>AI systems</strong> — the complete setup needed to deliver AI to real users.</p>
+<div class="callout">
+<p><strong>Analogy:</strong> Think of a restaurant. The chef's recipe (algorithm) is important, but the restaurant <em>system</em> includes: sourcing ingredients (data pipeline), the kitchen equipment (infrastructure), the menu (application), the waiter serving food (serving layer), and customer feedback cards (monitoring). Without all of these, the recipe alone doesn't feed anyone.</p>
+</div>
+<p>An AI system includes:
+- <strong>Data pipelines</strong> — collecting and cleaning data
+- <strong>Model training</strong> — teaching the AI
+- <strong>Serving infrastructure</strong> — making predictions available to users
+- <strong>Monitoring</strong> — checking if the AI is still working well
+- <strong>Application layer</strong> — the app or website users interact with</p>
+<div class="callout">
+<p>The model (algorithm) is typically less than 5% of the total code in a production AI system. The other 95% is everything around it.</p>
+</div>
+<hr />
+<h2 id="1-2-ai-vs-machine-learning-vs-deep-learning">1.2 AI vs Machine Learning vs Deep Learning</h2>
+<p>These three terms are often used interchangeably, but they're actually <strong>nested</strong> — each one fits inside the previous:</p>
+<pre><code>┌─────────────────────────────────────────────────┐
 │            Artificial Intelligence (AI)          │
-│   Systems that mimic human intelligence          │
+│   Any system that mimics human intelligence      │
 │                                                   │
 │   ┌─────────────────────────────────────────┐   │
 │   │         Machine Learning (ML)            │   │
@@ -137,72 +188,210 @@ li strong{color:var(--accent)}
 │   │   │   ML using deep neural networks  │   │   │
 │   │   └─────────────────────────────────┘   │   │
 │   └─────────────────────────────────────────┘   │
-└─────────────────────────────────────────────────┘</code></pre>
-
-  <h3>Detailed Comparison</h3>
-  <div class="table-wrap"><table>
-    <thead><tr><th>Aspect</th><th>AI</th><th>Machine Learning</th><th>Deep Learning</th></tr></thead>
-    <tbody>
-      <tr><td><strong>Definition</strong></td><td>Any system that exhibits intelligent behaviour — reasoning, learning, perception, language.</td><td>A subset of AI where systems learn patterns from data without being explicitly programmed.</td><td>A subset of ML using multi-layered neural networks to learn hierarchical representations.</td></tr>
-      <tr><td><strong>How it works</strong></td><td>Rules, heuristics, search, logic, or learning algorithms.</td><td>Algorithms learn a function f(x) → y from training data (examples of input-output pairs).</td><td>Deep neural networks with many hidden layers automatically extract features from raw data.</td></tr>
-      <tr><td><strong>Feature engineering</strong></td><td>Manual rules or manual features.</td><td>Requires manual feature engineering (human selects what features to extract from data).</td><td><strong>Automatic feature learning</strong> — the network discovers useful features from raw data.</td></tr>
-      <tr><td><strong>Data requirements</strong></td><td>Varies — rule-based systems need little data.</td><td>Moderate — thousands to millions of labelled examples.</td><td>Large — millions to billions of data points. Benefits enormously from scale.</td></tr>
-      <tr><td><strong>Compute requirements</strong></td><td>Low to moderate.</td><td>Moderate.</td><td>High — requires GPUs/TPUs for training.</td></tr>
-      <tr><td><strong>Examples</strong></td><td>Chess engines (Minimax), expert systems, chatbots.</td><td>Spam filters, recommendation engines, fraud detection.</td><td>Image recognition (CNNs), language models (GPT, BERT), speech recognition.</td></tr>
-      <tr><td><strong>When to use</strong></td><td>When rules are known and data is scarce.</td><td>When data is available and patterns can be learned.</td><td>When data is abundant and features are complex (images, text, audio).</td></tr>
-    </tbody>
-  </table></div>
-
-  <h3>Key Insight: Traditional AI vs ML</h3>
-  <p><strong>Traditional AI (rule-based):</strong> A human expert writes rules. Example: "If email contains 'lottery' AND sender not in contacts → spam." The rules are explicit and handcrafted.</p>
-  <p><strong>Machine Learning:</strong> The system learns rules from data. Example: Show 100,000 emails labelled "spam" or "not spam." The ML algorithm discovers patterns (certain words, sender patterns, link structures) that distinguish spam. No human explicitly writes the rules.</p>
-  <p><strong>Deep Learning:</strong> Same as ML but the system also learns what features to extract. Example: Show 1 million images labelled "cat" or "dog." A deep neural network learns to detect edges, then shapes, then ears/tails, then whole animals — all automatically from raw pixels. No human tells it "look for pointy ears."</p>
-
-  <!-- 1.3 -->
-  <h2 id="section-1-3">1.3 The AI System Lifecycle</h2>
-  <p>Building an AI system is not a one-time process — it's an iterative lifecycle. Understanding this lifecycle is critical because most real-world AI projects fail not due to bad models but due to poor execution of the surrounding system.</p>
-
-  <h3>The Lifecycle Stages</h3>
-  <pre><code>┌──────────┐   ┌──────────────┐   ┌──────────────┐   ┌──────────────┐
-│ 1. Define│──→│ 2. Data      │──→│ 3. Model     │──→│ 4. Deploy    │
-│ Problem  │   │ Collection & │   │ Development  │   │ & Serve      │
-│          │   │ Preparation  │   │ & Training   │   │              │
+└─────────────────────────────────────────────────┘
+</code></pre>
+<p><strong>In plain English:</strong>
+- <strong>AI</strong> = the big goal (make computers smart)
+- <strong>ML</strong> = one way to achieve AI (let computers learn from data instead of writing rules manually)
+- <strong>DL</strong> = one type of ML (use large neural networks that can learn very complex patterns)</p>
+<h3 id="detailed-comparison">Detailed Comparison</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Aspect</th>
+<th>AI (Traditional)</th>
+<th>Machine Learning</th>
+<th>Deep Learning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>What it is</strong></td>
+<td>Any technique that makes machines act smart</td>
+<td>Machines learn patterns from data without being explicitly programmed</td>
+<td>ML using multi-layered neural networks</td>
+</tr>
+<tr>
+<td><strong>How it works</strong></td>
+<td>Human writes rules ("if X then Y")</td>
+<td>Algorithm finds rules automatically from examples</td>
+<td>Neural network discovers features AND rules from raw data</td>
+</tr>
+<tr>
+<td><strong>Who writes the logic?</strong></td>
+<td>Human programmer</td>
+<td>Algorithm learns from data</td>
+<td>Network learns everything</td>
+</tr>
+<tr>
+<td><strong>Data needed</strong></td>
+<td>Little or none</td>
+<td>Thousands to millions of examples</td>
+<td>Millions to billions of examples</td>
+</tr>
+<tr>
+<td><strong>Computing power</strong></td>
+<td>Low</td>
+<td>Medium</td>
+<td>High (needs GPUs/TPUs)</td>
+</tr>
+<tr>
+<td><strong>Best for</strong></td>
+<td>Problems where rules are clear and known</td>
+<td>Problems where patterns exist but are hard to write as rules</td>
+<td>Problems with complex data (images, text, audio)</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="understanding-through-a-spam-detection-example">Understanding Through a Spam Detection Example</h3>
+<p>Let's see how each approach would build an email spam filter:</p>
+<p><strong>Traditional AI (Rule-based):</strong>
+A human expert writes rules manually:</p>
+<pre><code>IF email contains &quot;lottery&quot; AND sender not in contacts → SPAM
+IF email contains &quot;buy now&quot; AND has suspicious link → SPAM
+IF email from known contact AND no suspicious words → NOT SPAM
+</code></pre>
+<p>Problem: Spammers change their words, so you constantly need new rules. This doesn't scale.</p>
+<p><strong>Machine Learning:</strong>
+You show the system 100,000 emails labelled "spam" or "not spam." The ML algorithm automatically discovers patterns:
+- Certain words appear more in spam ("free," "winner," "click here")
+- Spam emails tend to come from certain domains
+- Spam has more links and images</p>
+<p>The system <strong>learned the rules itself</strong> from data — you didn't write them.</p>
+<div class="callout">
+<p><strong>Live Example:</strong> Gmail uses ML to filter 10 million spam emails every minute across all its users. It keeps getting better because it learns from the "Report Spam" button clicks of billions of users.</p>
+</div>
+<p><strong>Deep Learning:</strong>
+Same idea as ML, but the deep neural network can work with the <strong>raw email</strong> (text + HTML + images + metadata) without anyone telling it what features to look for. It automatically discovers that:
+- Layer 1: detects character patterns
+- Layer 2: detects word patterns
+- Layer 3: detects sentence patterns
+- Layer 4: detects overall email intent</p>
+<p>It figures out the features AND the rules, all by itself.</p>
+<h3 id="key-insight-when-to-use-what">Key Insight: When to Use What</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Situation</th>
+<th>Best Approach</th>
+<th>Why</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Rules are clear and simple (age &gt; 18 → allow)</td>
+<td>Traditional AI (rules)</td>
+<td>No need for ML, rules work fine</td>
+</tr>
+<tr>
+<td>Patterns exist but hard to write as rules</td>
+<td>Machine Learning</td>
+<td>Let the data reveal the patterns</td>
+</tr>
+<tr>
+<td>Data is complex (images, speech, text)</td>
+<td>Deep Learning</td>
+<td>Neural networks handle complexity well</td>
+</tr>
+<tr>
+<td>Very little data available</td>
+<td>Traditional AI</td>
+<td>ML/DL need lots of data to learn</td>
+</tr>
+<tr>
+<td>Data is abundant and compute is available</td>
+<td>Deep Learning</td>
+<td>More data + more compute = better DL</td>
+</tr>
+</tbody>
+</table></div>
+<hr />
+<h2 id="1-3-the-ai-system-lifecycle">1.3 The AI System Lifecycle</h2>
+<p>Building an AI system is <strong>not a one-time activity</strong> — it's a repeating cycle. You build, deploy, monitor, learn, and improve continuously.</p>
+<h3 id="why-is-it-a-cycle">Why is it a Cycle?</h3>
+<p>In traditional software, code doesn't degrade over time — a function that calculates tax will calculate tax correctly forever (unless tax rules change).</p>
+<p>But AI models <strong>degrade over time</strong> because the real world changes:
+- Customer preferences change with seasons (winter coats → summer dresses)
+- New types of fraud appear that the model has never seen
+- A pandemic changes all buying patterns overnight</p>
+<p>So AI systems need <strong>continuous retraining and monitoring</strong> — it's an infinite loop, not a one-time project.</p>
+<h3 id="the-6-stages">The 6 Stages</h3>
+<pre><code>┌──────────┐   ┌──────────────┐   ┌──────────────┐   ┌──────────────┐
+│ 1. Define│──→│ 2. Collect &amp;  │──→│ 3. Build &amp;   │──→│ 4. Deploy &amp;  │
+│ Problem  │   │ Prepare Data  │   │ Train Model  │   │ Serve        │
 └──────────┘   └──────────────┘   └──────────────┘   └──────┬───────┘
       ↑                                                       │
       │         ┌──────────────┐   ┌──────────────┐          │
       └─────────│ 6. Iterate   │←──│ 5. Monitor   │←─────────┘
-                │ & Improve    │   │ & Evaluate   │
-                └──────────────┘   └──────────────┘</code></pre>
-
-  <div class="table-wrap"><table>
-    <thead><tr><th>Stage</th><th>What happens</th><th>Key activities</th><th>Common pitfalls</th></tr></thead>
-    <tbody>
-      <tr><td><strong>1. Problem Definition</strong></td><td>Translate a business problem into an ML problem. Define success metrics.</td><td>Identify stakeholders, define the task (classification? regression? generation?), set baselines, define what "good enough" means.</td><td>Solving the wrong problem. No clear success metric. Trying ML when a simple rule-based solution would suffice.</td></tr>
-      <tr><td><strong>2. Data Collection & Preparation</strong></td><td>Gather, clean, label, and prepare the data.</td><td>Source data, handle missing values, remove duplicates, label data (if supervised), split into train/validation/test sets.</td><td>Poor data quality, insufficient labels, biased data, data leakage (test data seen during training).</td></tr>
-      <tr><td><strong>3. Model Development & Training</strong></td><td>Select algorithms, engineer features, train models, tune hyperparameters.</td><td>Feature engineering, model selection, training, hyperparameter tuning, cross-validation.</td><td>Overfitting, underfitting, choosing overly complex models, not establishing a baseline first.</td></tr>
-      <tr><td><strong>4. Deployment & Serving</strong></td><td>Put the model into production to serve real users.</td><td>Package model, create serving API, configure infrastructure, set up load balancing.</td><td>Model works in notebook but fails in production. Latency too high. Memory/cost constraints.</td></tr>
-      <tr><td><strong>5. Monitoring & Evaluation</strong></td><td>Track model performance in production over time.</td><td>Monitor accuracy, latency, data drift, model drift, error rates, user feedback.</td><td>Assuming the model stays accurate forever. Not detecting when data distribution changes.</td></tr>
-      <tr><td><strong>6. Iteration & Improvement</strong></td><td>Improve the model based on production feedback.</td><td>Retrain with new data, fix discovered bugs, update features, handle edge cases.</td><td>Not closing the feedback loop. Not versioning data and models.</td></tr>
-    </tbody>
-  </table></div>
-
-  <h3>Why the Lifecycle is Circular</h3>
-  <p>In traditional software, once you deploy, the code doesn't degrade over time (a function that adds two numbers will always add correctly). In ML systems, <strong>the world changes</strong>:</p>
-  <ul>
-    <li>User behaviour evolves (what people search for changes over seasons).</li>
-    <li>Data distribution shifts (new types of fraud appear, new diseases emerge).</li>
-    <li>Business requirements change (new product categories, new markets).</li>
-  </ul>
-  <p>This means ML systems need <strong>continuous retraining and monitoring</strong> — the lifecycle is an infinite loop, not a one-time waterfall.</p>
-
-  <!-- 1.4 -->
-  <h2 id="section-1-4">1.4 Components of an AI System</h2>
-  <p>An AI system is much more than just a model. The model is typically less than 5% of the total code and effort in a production AI system. The remaining 95% includes:</p>
-  <pre><code>┌─────────────────────────────────────────────────────────────┐
+                │ &amp; Improve    │   │ &amp; Evaluate   │
+                └──────────────┘   └──────────────┘
+</code></pre>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Stage</th>
+<th>What Happens (Simple)</th>
+<th>Live Example (Swiggy Food Delivery)</th>
+<th>Common Mistakes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>1. Define Problem</strong></td>
+<td>Figure out what you're trying to solve. What does "success" look like?</td>
+<td>"We want to predict delivery time accurately so customers know when food arrives." Success = predicted time within 5 min of actual.</td>
+<td>Solving the wrong problem. Using AI where a simple formula would work.</td>
+</tr>
+<tr>
+<td><strong>2. Collect &amp; Prepare Data</strong></td>
+<td>Gather data, clean it, label it, split into training and testing sets.</td>
+<td>Collect: past deliveries (restaurant prep time, distance, traffic, weather, driver speed). Clean: remove cancelled orders, fix missing values.</td>
+<td>Dirty data, biased samples, not enough data.</td>
+</tr>
+<tr>
+<td><strong>3. Build &amp; Train Model</strong></td>
+<td>Choose an algorithm, train it on the data, tune it until it works well.</td>
+<td>Try different models (linear regression, XGBoost, neural network). XGBoost predicts best. Tune parameters.</td>
+<td>Overfitting (model memorises training data but fails on new data). Not testing properly.</td>
+</tr>
+<tr>
+<td><strong>4. Deploy &amp; Serve</strong></td>
+<td>Put the model into production so real users get predictions.</td>
+<td>Deploy model as an API. When user places order, app calls API → gets predicted delivery time → shows on screen.</td>
+<td>Model works in testing but crashes in production. Too slow for real-time use.</td>
+</tr>
+<tr>
+<td><strong>5. Monitor &amp; Evaluate</strong></td>
+<td>Watch how the model performs with real users over time.</td>
+<td>Track: Are actual delivery times matching predictions? Are error rates increasing? Did Diwali traffic mess up predictions?</td>
+<td>Assuming the model stays accurate forever. Not detecting when it starts failing.</td>
+</tr>
+<tr>
+<td><strong>6. Iterate &amp; Improve</strong></td>
+<td>Fix issues, add new data, retrain, deploy improved version.</td>
+<td>Add Diwali/festival traffic data. Retrain model. New version predicts 15% more accurately during festivals.</td>
+<td>Not collecting feedback. Never retraining.</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="live-example-how-netflix-continuously-improves">Live Example: How Netflix Continuously Improves</h3>
+<p>Netflix's recommendation system follows this exact cycle:
+1. <strong>Problem:</strong> Recommend shows users will enjoy (metric: watch time)
+2. <strong>Data:</strong> Viewing history, ratings, what was started but abandoned, time of day, device
+3. <strong>Model:</strong> Multiple ML models for different parts of the UI
+4. <strong>Deploy:</strong> Models serve recommendations to 230+ million users
+5. <strong>Monitor:</strong> Track click-through rate, watch time, user satisfaction surveys
+6. <strong>Iterate:</strong> A/B test new models, retrain weekly with fresh data</p>
+<p>Netflix runs this cycle <strong>continuously</strong> — their models are never "done."</p>
+<hr />
+<h2 id="1-4-components-of-an-ai-system">1.4 Components of an AI System</h2>
+<p>An AI system has many parts working together, just like a car has an engine, wheels, brakes, fuel system, and dashboard — the engine alone doesn't make a car.</p>
+<h3 id="the-6-key-components">The 6 Key Components</h3>
+<pre><code>┌─────────────────────────────────────────────────────────────┐
 │                    AI System Components                       │
 ├────────────┬──────────────┬───────────────┬─────────────────┤
 │ Data       │ Model        │ Application   │ Infrastructure  │
-│ Pipeline   │ Pipeline     │ Layer         │ & Operations    │
+│ Pipeline   │ Pipeline     │ Layer         │ &amp; Operations    │
 ├────────────┼──────────────┼───────────────┼─────────────────┤
 │ Collection │ Feature Eng  │ User Interface│ Compute (GPU)   │
 │ Cleaning   │ Training     │ API/Serving   │ Storage         │
@@ -210,64 +399,228 @@ li strong{color:var(--accent)}
 │ Storage    │ Selection    │ A/B Testing   │ CI/CD Pipeline  │
 │ Versioning │ Registry     │ Feedback Loop │ Monitoring      │
 │ Governance │ Fine-tuning  │ Orchestration │ Logging         │
-└────────────┴──────────────┴───────────────┴─────────────────┘</code></pre>
-
-  <div class="table-wrap"><table>
-    <thead><tr><th>Component</th><th>What it does</th><th>Why it matters</th></tr></thead>
-    <tbody>
-      <tr><td><strong>Data Pipeline</strong></td><td>Collects, cleans, transforms, and stores data. Ensures data quality and consistency.</td><td>"Garbage in, garbage out." The model is only as good as the data it's trained on.</td></tr>
-      <tr><td><strong>Feature Pipeline</strong></td><td>Transforms raw data into features the model can consume. Manages feature store.</td><td>Feature quality directly impacts model accuracy. Feature computation must be consistent between training and serving.</td></tr>
-      <tr><td><strong>Model Pipeline</strong></td><td>Trains, evaluates, selects, and registers models. Manages model versions.</td><td>Reproducibility, experiment tracking, model comparison.</td></tr>
-      <tr><td><strong>Serving Infrastructure</strong></td><td>Hosts the model and serves predictions via APIs. Handles load balancing and scaling.</td><td>Must meet latency SLAs (e.g. &lt;100ms for real-time recommendations).</td></tr>
-      <tr><td><strong>Monitoring</strong></td><td>Tracks model performance, data drift, prediction distribution, latency, errors.</td><td>Without monitoring, you won't know when your model degrades — it silently serves wrong predictions.</td></tr>
-      <tr><td><strong>Application Layer</strong></td><td>Integrates model predictions into the user experience. Implements business logic.</td><td>The model's output must be transformed into something useful for the user (ranked recommendations, yes/no decisions, generated text).</td></tr>
-    </tbody>
-  </table></div>
-
-  <!-- 1.5 -->
-  <h2 id="section-1-5">1.5 AI Applications Across Industries</h2>
-  <p>AI is no longer confined to tech companies. It's transforming every industry:</p>
-  <div class="table-wrap"><table>
-    <thead><tr><th>Industry</th><th>Application</th><th>How AI is used</th><th>Example</th></tr></thead>
-    <tbody>
-      <tr><td><strong>Healthcare</strong></td><td>Medical imaging</td><td>Deep learning analyses X-rays, MRIs, CT scans to detect tumours, fractures, diseases.</td><td>Google's DeepMind detected eye diseases from retinal scans with ophthalmologist-level accuracy.</td></tr>
-      <tr><td><strong>Finance</strong></td><td>Fraud detection</td><td>ML models detect unusual transaction patterns in real-time, flagging potential fraud.</td><td>PayPal uses ML to detect fraud among 10+ million transactions daily.</td></tr>
-      <tr><td><strong>Retail / E-commerce</strong></td><td>Recommendation engines</td><td>Predict what products a user might want based on browsing/purchase history and similar users.</td><td>Amazon's "Customers who bought this also bought..." drives 35% of its revenue.</td></tr>
-      <tr><td><strong>Manufacturing</strong></td><td>Predictive maintenance</td><td>Sensor data from machines is analysed to predict failures before they occur.</td><td>Siemens uses AI to predict turbine failures 20 hours in advance.</td></tr>
-      <tr><td><strong>Transportation</strong></td><td>Autonomous vehicles</td><td>Computer vision, sensor fusion, and reinforcement learning enable self-driving.</td><td>Tesla Autopilot, Waymo robotaxis.</td></tr>
-      <tr><td><strong>Customer Service</strong></td><td>Conversational AI</td><td>Chatbots and virtual assistants handle customer queries 24/7.</td><td>Bank of America's "Erica" handles 10+ million customer interactions monthly.</td></tr>
-      <tr><td><strong>Education</strong></td><td>Adaptive learning</td><td>AI personalises curriculum difficulty based on student performance.</td><td>Khan Academy's AI tutor adapts explanations to each student's level.</td></tr>
-      <tr><td><strong>Agriculture</strong></td><td>Crop monitoring</td><td>Drones + computer vision detect crop diseases, assess yield, and optimise irrigation.</td><td>John Deere's AI-powered tractors identify and spray weeds individually.</td></tr>
-      <tr><td><strong>Legal</strong></td><td>Document analysis</td><td>NLP analyses contracts, discovers relevant case law, predicts litigation outcomes.</td><td>ROSS Intelligence analyses millions of legal documents in seconds.</td></tr>
-      <tr><td><strong>Entertainment</strong></td><td>Content generation</td><td>Generative AI creates music, art, scripts, and personalised content.</td><td>Netflix uses AI for content recommendations, thumbnail personalisation, and script analysis.</td></tr>
-    </tbody>
-  </table></div>
-
-  <p style="text-align:center;color:var(--text-muted);margin-top:3rem;font-size:.85rem"><em>End of Session 1</em></p>
+└────────────┴──────────────┴───────────────┴─────────────────┘
+</code></pre>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Component</th>
+<th>What It Does (Simple)</th>
+<th>Why It Matters</th>
+<th>Live Example (Amazon)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Data Pipeline</strong></td>
+<td>Collects raw data, cleans it, transforms it, and stores it ready for use.</td>
+<td>"Garbage in, garbage out" — if data is bad, the AI will be bad.</td>
+<td>Amazon collects clicks, purchases, searches, reviews from millions of users every second. Data pipelines clean and organise this data.</td>
+</tr>
+<tr>
+<td><strong>Feature Pipeline</strong></td>
+<td>Converts raw data into <strong>features</strong> — the specific inputs the model needs.</td>
+<td>The model can't use raw data directly. Features are the "ingredients" the model actually learns from.</td>
+<td>Raw data: "User clicked product X at 10pm." Feature: "user_click_count_last_7_days = 45, time_of_day = evening, category_preference = electronics."</td>
+</tr>
+<tr>
+<td><strong>Model Pipeline</strong></td>
+<td>Trains, evaluates, and selects the best model. Keeps track of different versions.</td>
+<td>Need to compare models, track experiments, and know which model is live.</td>
+<td>Amazon tests hundreds of recommendation models. The best-performing one gets promoted to production.</td>
+</tr>
+<tr>
+<td><strong>Serving Infrastructure</strong></td>
+<td>Hosts the trained model and answers prediction requests fast.</td>
+<td>Users expect instant results — Amazon product recommendations must load in &lt;100ms.</td>
+<td>When you open Amazon's homepage, a model server computes your personalised recommendations in milliseconds.</td>
+</tr>
+<tr>
+<td><strong>Monitoring</strong></td>
+<td>Watches if the model is still working well in production. Alerts when something goes wrong.</td>
+<td>Without monitoring, a broken model silently serves wrong predictions — you won't know until customers complain.</td>
+<td>Amazon monitors if recommendation click-through rates drop. If they do, an alert fires and the team investigates.</td>
+</tr>
+<tr>
+<td><strong>Application Layer</strong></td>
+<td>The app/website that users interact with. Connects model predictions to the user experience.</td>
+<td>The model's raw output (a number like 0.87) needs to be turned into something useful ("Recommended for you").</td>
+<td>Amazon's website takes model scores and displays products in ranked order with "Recommended" badges.</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="key-concept-training-serving-skew">Key Concept: Training-Serving Skew</h3>
+<p>One of the biggest problems in AI systems is <strong>training-serving skew</strong> — when the data or features used during training are different from what's available during serving.</p>
+<div class="callout">
+<p><strong>Analogy:</strong> Imagine studying for an exam using last year's question paper (training). But this year's exam (serving) has completely different questions. You prepared for the wrong thing.</p>
+</div>
+<p><strong>Live Example:</strong> A fraud detection model is trained using features including "time since last transaction." During training, this is calculated from historical data (exact). During serving, the feature calculation has a bug that rounds to the nearest hour. The model sees different data in production than what it trained on → accuracy drops.</p>
+<hr />
+<h2 id="1-5-ai-applications-across-industries">1.5 AI Applications Across Industries</h2>
+<p>AI is being used in virtually every industry. Here are concrete, real-world examples you should know:</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Industry</th>
+<th>Application</th>
+<th>How AI Helps</th>
+<th>Live Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Healthcare</strong></td>
+<td>Medical image analysis</td>
+<td>DL analyses X-rays, MRIs, CT scans to detect diseases faster and more consistently than humans alone</td>
+<td><strong>Google DeepMind</strong> detected 50+ eye diseases from retinal scans with accuracy matching specialist doctors. Used in NHS hospitals.</td>
+</tr>
+<tr>
+<td><strong>Finance / Banking</strong></td>
+<td>Fraud detection</td>
+<td>ML models spot unusual transaction patterns in real-time, catching fraud that rule-based systems miss</td>
+<td><strong>PayPal</strong> uses ML to evaluate 10+ million transactions daily. Reduced false positives by 50% compared to rule-based systems.</td>
+</tr>
+<tr>
+<td><strong>E-commerce</strong></td>
+<td>Product recommendations</td>
+<td>Predict what products you'll want based on your history and similar users' behaviour</td>
+<td><strong>Amazon's</strong> "Customers who bought this also bought..." drives 35% of total revenue (~$130 billion/year influenced by AI).</td>
+</tr>
+<tr>
+<td><strong>Manufacturing</strong></td>
+<td>Predictive maintenance</td>
+<td>Sensor data from machines predicts failures before they happen, avoiding costly downtime</td>
+<td><strong>Siemens</strong> uses AI on turbine sensor data to predict failures 20 hours before they happen. Saves millions in unplanned downtime.</td>
+</tr>
+<tr>
+<td><strong>Transportation</strong></td>
+<td>Self-driving vehicles</td>
+<td>Computer vision + sensor fusion + path planning enables autonomous driving</td>
+<td><strong>Waymo</strong> robotaxis in San Francisco and Phoenix — fully driverless, no safety driver, carrying paying passengers daily.</td>
+</tr>
+<tr>
+<td><strong>Customer Service</strong></td>
+<td>Chatbots / Virtual assistants</td>
+<td>AI handles common customer questions 24/7, freeing humans for complex issues</td>
+<td><strong>Bank of America's "Erica"</strong> handles 1.5 billion customer interactions. Resolves 90% of queries without human agent.</td>
+</tr>
+<tr>
+<td><strong>Education</strong></td>
+<td>Personalised learning</td>
+<td>AI adapts difficulty and content based on each student's performance</td>
+<td><strong>Khan Academy's Khanmigo</strong> (GPT-4 powered tutor) gives personalised explanations. Adjusts to each student's level.</td>
+</tr>
+<tr>
+<td><strong>Agriculture</strong></td>
+<td>Crop monitoring</td>
+<td>Drones + computer vision detect crop diseases, assess yield, optimise irrigation</td>
+<td><strong>John Deere's</strong> See &amp; Spray technology identifies individual weeds and sprays only them — reduces herbicide use by 77%.</td>
+</tr>
+<tr>
+<td><strong>Legal</strong></td>
+<td>Document review</td>
+<td>NLP reads thousands of contracts/documents in minutes instead of weeks</td>
+<td><strong>JPMorgan's COIN</strong> (Contract Intelligence) reviews commercial loan agreements. Does in seconds what took lawyers 360,000 hours/year.</td>
+</tr>
+<tr>
+<td><strong>Entertainment</strong></td>
+<td>Content personalisation</td>
+<td>AI recommends movies, songs, videos based on your taste</td>
+<td><strong>Spotify's Discover Weekly</strong> uses ML to create a personalised 30-song playlist every Monday for 400+ million users.</td>
+</tr>
+<tr>
+<td><strong>Telecom</strong></td>
+<td>Network optimisation</td>
+<td>AI predicts network congestion and optimises traffic routing</td>
+<td><strong>Jio</strong> uses AI to manage network traffic across 400+ million subscribers, predicting congestion and rerouting automatically.</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="why-you-should-care-about-these-examples">Why You Should Care About These Examples</h3>
+<p>For exams and interviews, knowing <strong>specific company examples</strong> with <strong>concrete numbers</strong> is far more impressive than vague statements like "AI is used in healthcare." The examples above give you ammunition for any question about AI applications.</p>
+<hr />
+<h2 id="key-terms-glossary-session-1">Key Terms Glossary (Session 1)</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Term</th>
+<th>Simple Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>AI (Artificial Intelligence)</strong></td>
+<td>Making computers do tasks that normally need human intelligence</td>
+</tr>
+<tr>
+<td><strong>ML (Machine Learning)</strong></td>
+<td>A type of AI where computers learn patterns from data instead of being manually programmed</td>
+</tr>
+<tr>
+<td><strong>DL (Deep Learning)</strong></td>
+<td>A type of ML using deep neural networks (many layers) for complex tasks like image/text understanding</td>
+</tr>
+<tr>
+<td><strong>Neural Network</strong></td>
+<td>A computing system inspired by the brain — layers of connected nodes that process information</td>
+</tr>
+<tr>
+<td><strong>Training</strong></td>
+<td>The process of teaching a model by showing it many examples</td>
+</tr>
+<tr>
+<td><strong>Inference / Serving</strong></td>
+<td>Using a trained model to make predictions on new, unseen data</td>
+</tr>
+<tr>
+<td><strong>Feature</strong></td>
+<td>A measurable property used as input to a model (e.g., age, income, number of clicks)</td>
+</tr>
+<tr>
+<td><strong>Overfitting</strong></td>
+<td>When a model memorises training data too well and fails on new data (like memorising answers vs understanding concepts)</td>
+</tr>
+<tr>
+<td><strong>Data Drift</strong></td>
+<td>When real-world data changes over time, making the model's training data outdated</td>
+</tr>
+<tr>
+<td><strong>Training-Serving Skew</strong></td>
+<td>When data or features differ between training and production, causing unexpected errors</td>
+</tr>
+<tr>
+<td><strong>A/B Testing</strong></td>
+<td>Comparing two versions (A and B) on real users to see which performs better</td>
+</tr>
+</tbody>
+</table></div>
+<hr />
+<p><em>End of Session 1</em></p>
 </main>
-
-<button class="back-top" id="backTop" aria-label="Back to top">↑</button>
-
+<button class="back-top" id="backTop" title="Back to top">&#8593;</button>
 <script>
-// Progress bar
+const bar=document.getElementById('progress');
+const btn=document.getElementById('backTop');
+const toggle=document.getElementById('sidebarToggle');
+const sidebar=document.getElementById('sidebar');
 window.addEventListener('scroll',()=>{
-  const h=document.documentElement;
-  const pct=h.scrollTop/(h.scrollHeight-h.clientHeight)*100;
-  document.getElementById('progressBar').style.width=pct+'%';
-  document.getElementById('backTop').classList.toggle('show',h.scrollTop>400);
+  const s=document.documentElement.scrollTop;
+  const h=document.documentElement.scrollHeight-document.documentElement.clientHeight;
+  bar.style.width=(s/h*100)+'%';
+  btn.classList.toggle('show',s>400);
 });
-// Back to top
-document.getElementById('backTop').addEventListener('click',()=>window.scrollTo({top:0,behavior:'smooth'}));
-// Sidebar toggle
-document.getElementById('sidebarToggle').addEventListener('click',()=>document.getElementById('sidebar').classList.toggle('open'));
-// Active nav highlight
-const sections=document.querySelectorAll('h2[id]');
-const navLinks=document.querySelectorAll('.sidebar nav a[href^="#"]');
-window.addEventListener('scroll',()=>{
-  let current='';
-  sections.forEach(s=>{if(window.scrollY>=s.offsetTop-100)current=s.id});
-  navLinks.forEach(a=>{a.classList.toggle('active',a.getAttribute('href')==='#'+current)});
-});
+btn.onclick=()=>window.scrollTo({top:0,behavior:'smooth'});
+toggle.onclick=()=>sidebar.classList.toggle('open');
+// Active sidebar link
+const links=document.querySelectorAll('.sidebar nav a');
+const obs=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{if(e.isIntersecting){
+    links.forEach(l=>l.classList.remove('active'));
+    const a=document.querySelector('.sidebar nav a[href="#'+e.target.id+'"]');
+    if(a)a.classList.add('active');
+  }});
+},{rootMargin:'-20% 0px -70% 0px'});
+document.querySelectorAll('h2[id],h3[id]').forEach(h=>obs.observe(h));
 </script>
 </body>
 </html>

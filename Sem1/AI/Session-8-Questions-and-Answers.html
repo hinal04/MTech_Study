@@ -1,0 +1,1851 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Session 8: Questions and Answers</title>
+<style>
+:root{--bg:#0f172a;--surface:#1e293b;--surface2:#334155;--border:#475569;--text:#e2e8f0;--text-muted:#94a3b8;--code-bg:#0d1117;--accent:#ec4899;--accent-dim:rgba(236,72,153,.15);--accent-border:rgba(236,72,153,.3);--header-gradient:linear-gradient(135deg,#831843,#db2777,#ec4899)}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);line-height:1.7;display:flex;min-height:100vh}
+.progress-bar{position:fixed;top:0;left:0;height:4px;background:var(--accent);z-index:1000;transition:width .2s}
+.sidebar{position:fixed;top:0;left:0;width:280px;height:100vh;background:var(--surface);border-right:1px solid var(--border);overflow-y:auto;padding:1.5rem 0;z-index:100;transition:transform .3s}
+.sidebar-header{padding:0 1.5rem 1.5rem;border-bottom:1px solid var(--border);margin-bottom:1rem}
+.sidebar-header h2{font-size:1rem;color:var(--accent);margin-bottom:.25rem}
+.sidebar-header p{font-size:.75rem;color:var(--text-muted)}
+.sidebar nav a{display:block;padding:.55rem 1.5rem;color:var(--text-muted);text-decoration:none;font-size:.85rem;border-left:3px solid transparent;transition:all .2s}
+.sidebar nav a:hover,.sidebar nav a.active{color:var(--accent);background:var(--accent-dim);border-left-color:var(--accent)}
+.sidebar nav a.sub{padding-left:2.5rem;font-size:.8rem}
+.sidebar-toggle{display:none;position:fixed;top:1rem;left:1rem;z-index:200;background:var(--surface);border:1px solid var(--border);color:var(--text);width:40px;height:40px;border-radius:8px;cursor:pointer;font-size:1.2rem}
+.main{margin-left:280px;flex:1;max-width:900px;padding:2rem 3rem 4rem}
+.page-header{background:var(--header-gradient);border-radius:16px;padding:2.5rem;margin-bottom:2.5rem;position:relative;overflow:hidden}
+.page-header::after{content:'';position:absolute;top:0;right:0;width:200px;height:100%;background:radial-gradient(circle at 80% 50%,rgba(255,255,255,.1),transparent);pointer-events:none}
+.page-header .badge{display:inline-block;background:rgba(0,0,0,.3);color:#fff;padding:.25rem .75rem;border-radius:20px;font-size:.75rem;margin-bottom:.75rem}
+.page-header h1{font-size:2rem;color:#fff;margin-bottom:.5rem}
+.page-header .meta{color:rgba(255,255,255,.8);font-size:.85rem}
+h2{font-size:1.5rem;color:var(--accent);margin:2.5rem 0 1rem;padding-bottom:.5rem;border-bottom:2px solid var(--accent-border)}
+h3{font-size:1.15rem;color:var(--text);margin:1.8rem 0 .8rem}
+h4{font-size:1rem;color:var(--accent);margin:1.2rem 0 .6rem}
+p{margin-bottom:1rem;color:var(--text)}
+strong{color:var(--text)}
+.table-wrap{overflow-x:auto;margin:1.2rem 0;border-radius:10px;border:1px solid var(--border)}
+table{width:100%;border-collapse:collapse;font-size:.88rem}
+thead th{background:var(--accent);color:#000;padding:.75rem 1rem;text-align:left;font-weight:600;white-space:nowrap}
+tbody tr:nth-child(even){background:var(--surface)}
+tbody tr:nth-child(odd){background:var(--surface2)}
+tbody tr:hover{background:var(--accent-dim)}
+td{padding:.7rem 1rem;border-top:1px solid var(--border);color:var(--text)}
+pre{background:var(--code-bg);border:1px solid var(--border);border-radius:10px;padding:1.2rem;overflow-x:auto;margin:1.2rem 0;font-size:.85rem;line-height:1.6}
+code{font-family:'Cascadia Code','Fira Code','Consolas',monospace;color:#e6edf3}
+p code,li code,td code{background:var(--code-bg);padding:.15rem .4rem;border-radius:4px;font-size:.85em;color:var(--accent)}
+.callout{background:var(--accent-dim);border-left:4px solid var(--accent);border-radius:0 10px 10px 0;padding:1rem 1.2rem;margin:1.2rem 0;font-size:.92rem}
+.callout p{margin:0;color:var(--text)}
+.callout em{color:var(--text-muted)}
+ul,ol{margin:0 0 1rem 1.5rem;color:var(--text)}
+li{margin-bottom:.4rem}
+li strong{color:var(--accent)}
+.back-top{position:fixed;bottom:2rem;right:2rem;width:44px;height:44px;background:var(--accent);color:#000;border:none;border-radius:50%;cursor:pointer;font-size:1.3rem;display:none;align-items:center;justify-content:center;box-shadow:0 4px 15px rgba(236,72,153,.3);transition:transform .2s,opacity .2s;z-index:100}
+.back-top:hover{transform:scale(1.1)}
+.back-top.show{display:flex}
+@media(max-width:900px){
+  .sidebar{transform:translateX(-100%)}
+  .sidebar.open{transform:translateX(0)}
+  .sidebar-toggle{display:flex;align-items:center;justify-content:center}
+  .main{margin-left:0;padding:2rem 1.2rem 4rem}
+}
+@media print{
+  .sidebar,.sidebar-toggle,.back-top,.progress-bar{display:none!important}
+  .main{margin-left:0;max-width:100%}
+  body{background:#fff;color:#000}
+  h2{color:#831843}
+  thead th{background:#ec4899;color:#000;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  tbody tr:nth-child(even){background:#f8f8f8}
+  tbody tr:nth-child(odd){background:#fff}
+  pre{border:1px solid #ccc;background:#f5f5f5}
+  code{color:#333}
+  .callout{background:#fce4ec;border-left-color:#ec4899}
+  .page-header{background:#ec4899!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+}
+</style>
+</head>
+<body>
+<div class="progress-bar" id="progress"></div>
+<button class="sidebar-toggle" id="sidebarToggle">&#9776;</button>
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <h2>SS ZG662</h2>
+    <p>Introduction to AI Systems</p>
+  </div>
+  <nav>
+    <a href="#q1-what-is-a-feature-store-why-do-we-need-one">Q1: What is a Feature Store? Why do we need one?</a>
+    <a href="#q2-explain-the-architecture-of-a-feature-store-what-are-its-key-components">Q2: Explain the architecture of a Feature Store. W...</a>
+    <a href="#q3-compare-offline-features-and-online-features-give-examples-of-each">Q3: Compare Offline Features and Online Features. ...</a>
+    <a href="#q4-what-are-batch-and-streaming-feature-pipelines-compare-them">Q4: What are Batch and Streaming Feature Pipelines...</a>
+    <a href="#batch-feature-pipeline" class="sub">Batch Feature Pipeline</a>
+    <a href="#streaming-feature-pipeline" class="sub">Streaming Feature Pipeline</a>
+    <a href="#q5-what-is-training-serving-skew-why-is-it-the-biggest-enemy-of-production-ml">Q5: What is Training-Serving Skew? Why is it the b...</a>
+    <a href="#q6-explain-the-4-types-of-training-serving-skew-with-examples">Q6: Explain the 4 types of Training-Serving Skew w...</a>
+    <a href="#type-1-feature-computation-skew" class="sub">Type 1: Feature Computation Skew</a>
+    <a href="#type-2-feature-freshness-skew" class="sub">Type 2: Feature Freshness Skew</a>
+    <a href="#type-3-data-distribution-skew" class="sub">Type 3: Data Distribution Skew</a>
+    <a href="#type-4-feature-leakage-skew" class="sub">Type 4: Feature Leakage Skew</a>
+    <a href="#q7-how-does-a-feature-store-prevent-training-serving-skew-explain-the-mechanism">Q7: How does a Feature Store prevent Training-Serv...</a>
+    <a href="#1-single-feature-definition" class="sub">1. Single Feature Definition</a>
+    <a href="#2-point-in-time-joins" class="sub">2. Point-in-Time Joins</a>
+    <a href="#3-feature-freshness-guarantees" class="sub">3. Feature Freshness Guarantees</a>
+    <a href="#4-feature-monitoring-and-drift-detection" class="sub">4. Feature Monitoring and Drift Detection</a>
+    <a href="#5-feature-versioning" class="sub">5. Feature Versioning</a>
+    <a href="#q8-what-happened-with-zillow-s-ibuying-failure-explain-the-case-study">Q8: What happened with Zillow's iBuying failure? E...</a>
+    <a href="#1-training-serving-skew-feature-freshness" class="sub">1. Training-Serving Skew (Feature Freshness)</a>
+    <a href="#2-feature-quality-issues" class="sub">2. Feature Quality Issues</a>
+    <a href="#3-distribution-shift" class="sub">3. Distribution Shift</a>
+    <a href="#4-feedback-loop-problem" class="sub">4. Feedback Loop Problem</a>
+    <a href="#q9-list-the-major-feature-store-tools-and-compare-them">Q9: List the major Feature Store tools and compare...</a>
+    <a href="#q10-what-is-a-real-time-recommendation-system-explain-the-two-stage-architecture">Q10: What is a Real-Time Recommendation System? Ex...</a>
+    <a href="#stage-1-candidate-generation-narrow-down-10m-1000" class="sub">Stage 1: Candidate Generation (narrow down 10M → 1...</a>
+    <a href="#stage-2-ranking-rank-1000-top-20" class="sub">Stage 2: Ranking (rank 1000 → top 20)</a>
+    <a href="#q11-what-is-ann-approximate-nearest-neighbour-search-why-is-it-used-in-recommendations">Q11: What is ANN (Approximate Nearest Neighbour) S...</a>
+    <a href="#q12-explain-the-spotify-discover-weekly-case-study-how-does-it-work">Q12: Explain the Spotify Discover Weekly case stud...</a>
+    <a href="#step-1-build-user-taste-profiles" class="sub">Step 1: Build User Taste Profiles</a>
+    <a href="#step-2-build-song-embeddings" class="sub">Step 2: Build Song Embeddings</a>
+    <a href="#step-3-candidate-generation" class="sub">Step 3: Candidate Generation</a>
+    <a href="#step-4-ranking-and-filtering" class="sub">Step 4: Ranking and Filtering</a>
+    <a href="#step-5-feedback-loop" class="sub">Step 5: Feedback Loop</a>
+    <a href="#q13-scenario-identify-the-type-of-training-serving-skew-in-each-situation">Q13: Scenario — Identify the type of Training-Serv...</a>
+    <a href="#situation-1-swiggy-s-delivery-time-model-was-92-accurate-last-month-but-dropped-to-75-this-month-without-any-code-changes" class="sub">Situation 1: "Swiggy's delivery time model was 92%...</a>
+    <a href="#situation-2-hdfc-bank-s-fraud-model-catches-95-of-fraud-in-offline-testing-but-only-60-in-production" class="sub">Situation 2: "HDFC Bank's fraud model catches 95% ...</a>
+    <a href="#situation-3-flipkart-s-recommendation-model-works-great-on-weekdays-but-poorly-during-big-billion-days" class="sub">Situation 3: "Flipkart's recommendation model work...</a>
+    <a href="#situation-4-a-model-to-predict-stock-price-direction-was-trained-using-yesterday-s-closing-price-as-a-feature-but-in-production-yesterday-s-price-isn-t-available-until-30-minutes-after-market-open" class="sub">Situation 4: "A model to predict stock price direc...</a>
+    <a href="#situation-5-a-customer-churn-model-used-number_of_complaints_resolved-as-a-feature-which-was-98-accurate-in-testing-but-useless-in-production" class="sub">Situation 5: "A customer churn model used 'number_...</a>
+    <a href="#q14-how-does-point-in-time-join-work-in-a-feature-store-why-is-it-critical">Q14: How does Point-in-Time Join work in a Feature...</a>
+    <a href="#q15-design-a-real-time-recommendation-system-for-swiggy-food-delivery-what-features-go-in-the-offline-vs-online-store">Q15: Design a real-time recommendation system for ...</a>
+    <a href="#system-architecture" class="sub">System Architecture</a>
+    <a href="#offline-store-features-updated-daily-hourly" class="sub">Offline Store Features (updated daily/hourly)</a>
+    <a href="#online-store-features-updated-in-real-time" class="sub">Online Store Features (updated in real-time)</a>
+    <a href="#model-features-for-ranking" class="sub">Model Features for Ranking</a>
+    <a href="#q16-what-is-the-cold-start-problem-in-recommendation-systems-how-is-it-solved">Q16: What is the Cold Start problem in recommendat...</a>
+    <a href="#1-new-user-cold-start" class="sub">1. New User Cold Start</a>
+    <a href="#2-new-item-cold-start" class="sub">2. New Item Cold Start</a>
+    <a href="#q17-explain-the-two-stage-candidate-generation-ranking-architecture-with-a-flipkart-example">Q17: Explain the two-stage Candidate Generation + ...</a>
+    <a href="#stage-1-candidate-generation-10m-500-items-50ms" class="sub">Stage 1: Candidate Generation (10M → 500 items, &l...</a>
+    <a href="#stage-2-ranking-500-top-20-50ms" class="sub">Stage 2: Ranking (500 → Top 20, &lt;50ms)</a>
+    <a href="#q18-scenario-design-a-feature-store-implementation-for-cred-s-credit-card-bill-payment-platform">Q18: Scenario — Design a Feature Store implementat...</a>
+    <a href="#feature-registry-what-features-exist" class="sub">Feature Registry (what features exist)</a>
+    <a href="#architecture" class="sub">Architecture</a>
+    <a href="#how-it-prevents-training-serving-skew-at-cred" class="sub">How it prevents Training-Serving Skew at CRED:</a>
+    <a href="#q19-what-is-feature-drift-how-do-you-detect-and-handle-it">Q19: What is Feature Drift? How do you detect and ...</a>
+    <a href="#q20-scenario-you-re-building-a-real-time-fraud-detection-system-for-paytm-using-a-feature-store-design-the-complete-system">Q20: Scenario — You're building a real-time fraud ...</a>
+    <a href="#requirements" class="sub">Requirements:</a>
+    <a href="#architecture_1" class="sub">Architecture:</a>
+    <a href="#feature-store-implementation" class="sub">Feature Store Implementation:</a>
+    <a href="#model-scoring-within-flink" class="sub">Model Scoring (within Flink):</a>
+    <a href="#preventing-training-serving-skew" class="sub">Preventing Training-Serving Skew:</a>
+    <a href="#monitoring" class="sub">Monitoring:</a>
+  </nav>
+</aside>
+<main class="main">
+  <div class="page-header">
+    <span class="badge">Session 8 — Q&A</span>
+    <h1>Session 8: Questions and Answers</h1>
+    <div class="meta">Contact Session 8 | Module 2: Data and Feature Engineering</div>
+  </div>
+<h1 id="session-8-questions-and-answers">Session 8: Questions and Answers</h1>
+<div class="callout">
+<p>BITS Pilani — SS ZG662: Introduction to AI Systems</p>
+</div>
+<hr />
+<h2 id="q1-what-is-a-feature-store-why-do-we-need-one">Q1: What is a Feature Store? Why do we need one?</h2>
+<p><strong>Answer:</strong>
+A Feature Store is a centralised platform that manages, stores, and serves machine learning features for both model training and production inference.</p>
+<p><strong>Simple analogy:</strong> A Feature Store is like a well-organised kitchen pantry. Instead of every cook (data scientist) going to the farm (raw data) to pick vegetables (extract features) every time they want to cook (train a model), the pantry (feature store) has pre-washed, pre-cut, ready-to-use ingredients (features) that any cook can grab.</p>
+<p><strong>Problems without a Feature Store:</strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Problem</th>
+<th>What Happens</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Duplicate work</strong></td>
+<td>5 data scientists at Flipkart independently write code to calculate <code>user_avg_order_value</code>. Each writes it slightly differently.</td>
+</tr>
+<tr>
+<td><strong>Training-serving skew</strong></td>
+<td>Features calculated one way in Python for training, but differently in Java for production → model performance degrades.</td>
+</tr>
+<tr>
+<td><strong>No feature reuse</strong></td>
+<td>Team A builds great features for fraud detection. Team B, building a recommendation system, doesn't know these features exist and builds from scratch.</td>
+</tr>
+<tr>
+<td><strong>Inconsistent features</strong></td>
+<td>Same feature defined differently by different teams. <code>avg_order_value</code> calculated over 30 days by one team, 90 days by another.</td>
+</tr>
+<tr>
+<td><strong>Slow model deployment</strong></td>
+<td>Data scientist creates features in Jupyter notebook → production engineer has to re-implement in Java/Scala → takes weeks.</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>What a Feature Store provides:</strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Capability</th>
+<th>How It Helps</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Centralised feature repository</strong></td>
+<td>All features stored in one place with documentation, owner, and version</td>
+</tr>
+<tr>
+<td><strong>Feature reuse</strong></td>
+<td>Any team can search and reuse existing features</td>
+</tr>
+<tr>
+<td><strong>Consistent features</strong></td>
+<td>Same code computes features for both training and serving</td>
+</tr>
+<tr>
+<td><strong>Offline + Online serving</strong></td>
+<td>Provides features for batch training (offline) AND real-time inference (online)</td>
+</tr>
+<tr>
+<td><strong>Feature versioning</strong></td>
+<td>Track changes to feature definitions over time</td>
+</tr>
+<tr>
+<td><strong>Monitoring</strong></td>
+<td>Detect data drift, feature quality issues, staleness</td>
+</tr>
+</tbody>
+</table></div>
+<hr />
+<h2 id="q2-explain-the-architecture-of-a-feature-store-what-are-its-key-components">Q2: Explain the architecture of a Feature Store. What are its key components?</h2>
+<p><strong>Answer:</strong></p>
+<pre><code>                     ┌────────────────────────────┐
+                     │      Feature Registry       │ (metadata, definitions, owners)
+                     └────────────────────────────┘
+                                   │
+         ┌─────────────────────────┼─────────────────────────┐
+         │                         │                         │
+         ▼                         ▼                         ▼
+┌──────────────┐         ┌──────────────┐         ┌──────────────────┐
+│ Feature       │         │ Offline       │         │ Online            │
+│ Pipelines     │         │ Store         │         │ Store             │
+│ (Compute)     │────────→│ (Historical)  │         │ (Real-time)       │
+│ Batch/Stream  │         │ S3, BigQuery  │────────→│ Redis, DynamoDB   │
+└──────────────┘         └──────────────┘         └──────────────────┘
+                                │                         │
+                                ▼                         ▼
+                         ┌──────────────┐         ┌──────────────────┐
+                         │ Model         │         │ Model Serving     │
+                         │ Training      │         │ (Real-time        │
+                         │ (Batch)       │         │  Inference)       │
+                         └──────────────┘         └──────────────────┘
+</code></pre>
+<p><strong>Key components:</strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Component</th>
+<th>What It Does</th>
+<th>Tools</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Feature Registry</strong></td>
+<td>Catalog of all features — name, description, owner, version, data type, how it's computed</td>
+<td>Part of Feast, Tecton, Hopsworks</td>
+</tr>
+<tr>
+<td><strong>Feature Pipelines</strong></td>
+<td>Code that computes features from raw data — can be batch (Spark) or streaming (Flink)</td>
+<td>Spark, Flink, Python scripts</td>
+</tr>
+<tr>
+<td><strong>Offline Store</strong></td>
+<td>Stores historical feature values for model training. Optimised for bulk reads.</td>
+<td>S3, BigQuery, Hive, Redshift</td>
+</tr>
+<tr>
+<td><strong>Online Store</strong></td>
+<td>Stores the latest feature values for real-time inference. Optimised for low-latency lookups.</td>
+<td>Redis, DynamoDB, Bigtable</td>
+</tr>
+<tr>
+<td><strong>Feature Serving API</strong></td>
+<td>Provides features to models during training (offline) and inference (online)</td>
+<td>REST API, gRPC</td>
+</tr>
+<tr>
+<td><strong>Monitoring</strong></td>
+<td>Tracks feature freshness, drift, quality, and usage</td>
+<td>Grafana, custom dashboards</td>
+</tr>
+</tbody>
+</table></div>
+<hr />
+<h2 id="q3-compare-offline-features-and-online-features-give-examples-of-each">Q3: Compare Offline Features and Online Features. Give examples of each.</h2>
+<p><strong>Answer:</strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Aspect</th>
+<th>Offline Features</th>
+<th>Online Features</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>What</strong></td>
+<td>Historical feature values computed in batch</td>
+<td>Latest feature values served in real-time</td>
+</tr>
+<tr>
+<td><strong>Latency</strong></td>
+<td>Minutes to hours (batch computation)</td>
+<td>Milliseconds (must serve instantly)</td>
+</tr>
+<tr>
+<td><strong>Storage</strong></td>
+<td>Data lake/warehouse (S3, BigQuery)</td>
+<td>In-memory stores (Redis, DynamoDB)</td>
+</tr>
+<tr>
+<td><strong>Updated</strong></td>
+<td>Periodically (hourly, daily, weekly)</td>
+<td>Continuously or near-real-time</td>
+</tr>
+<tr>
+<td><strong>Used for</strong></td>
+<td>Model training</td>
+<td>Model inference (production predictions)</td>
+</tr>
+<tr>
+<td><strong>Volume</strong></td>
+<td>Large — entire history (millions/billions of rows)</td>
+<td>Small — only latest values (one row per entity)</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Examples for Swiggy:</strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Type</th>
+<th>Why</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>user_total_orders_all_time = 250</code></td>
+<td>Offline</td>
+<td>Doesn't change by the minute. Computed nightly. Used for training.</td>
+</tr>
+<tr>
+<td><code>user_avg_order_value_90d = ₹380</code></td>
+<td>Offline</td>
+<td>Aggregated over 90 days. Updated daily.</td>
+</tr>
+<tr>
+<td><code>user_orders_last_30_days = 12</code></td>
+<td>Offline → Online</td>
+<td>Computed daily (batch) and materialised to Redis for fast serving.</td>
+</tr>
+<tr>
+<td><code>restaurant_current_active_orders = 15</code></td>
+<td>Online</td>
+<td>Changes every second. Must be real-time for accurate ETA.</td>
+</tr>
+<tr>
+<td><code>rider_current_location = (12.91, 77.61)</code></td>
+<td>Online</td>
+<td>GPS updates every few seconds.</td>
+</tr>
+<tr>
+<td><code>current_weather_is_raining = 1</code></td>
+<td>Online</td>
+<td>Must be real-time — weather affects delivery time NOW.</td>
+</tr>
+<tr>
+<td><code>user_favourite_cuisine = "Biryani"</code></td>
+<td>Offline</td>
+<td>Computed weekly from order history. Doesn't change often.</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Key insight:</strong> Most systems use BOTH:
+- Train the model using offline features (historical data with labels)
+- Serve the model using online features (latest values for real-time prediction)
+- The feature store ensures the SAME feature logic is used in both contexts → prevents training-serving skew.</p>
+<hr />
+<h2 id="q4-what-are-batch-and-streaming-feature-pipelines-compare-them">Q4: What are Batch and Streaming Feature Pipelines? Compare them.</h2>
+<p><strong>Answer:</strong></p>
+<h3 id="batch-feature-pipeline">Batch Feature Pipeline</h3>
+<ul>
+<li><strong>What:</strong> Computes features from historical data at scheduled intervals (hourly, daily, weekly).</li>
+<li><strong>How:</strong> Spark/SQL job reads from data warehouse → computes features → writes to offline store (and optionally materialises to online store).</li>
+<li><strong>Example:</strong> Every night at 2 AM, compute <code>user_avg_order_value_30d</code> for all Flipkart users from the orders table.</li>
+</ul>
+<h3 id="streaming-feature-pipeline">Streaming Feature Pipeline</h3>
+<ul>
+<li><strong>What:</strong> Computes features in real-time as events arrive.</li>
+<li><strong>How:</strong> Flink/Kafka Streams reads from Kafka → computes features on-the-fly → writes to online store.</li>
+<li><strong>Example:</strong> Every time a new order event arrives on Kafka, update <code>user_orders_today_count</code> in Redis immediately.</li>
+</ul>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Aspect</th>
+<th>Batch Pipeline</th>
+<th>Streaming Pipeline</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Freshness</strong></td>
+<td>Stale (hours/days old)</td>
+<td>Fresh (seconds old)</td>
+</tr>
+<tr>
+<td><strong>Complexity</strong></td>
+<td>Simple — read, compute, write</td>
+<td>Complex — handle late events, out-of-order data, failures</td>
+</tr>
+<tr>
+<td><strong>Cost</strong></td>
+<td>Lower — runs periodically</td>
+<td>Higher — runs 24/7</td>
+</tr>
+<tr>
+<td><strong>Use case</strong></td>
+<td>Features that don't change fast</td>
+<td>Features that must be up-to-the-minute</td>
+</tr>
+<tr>
+<td><strong>Tools</strong></td>
+<td>Spark, Airflow, dbt</td>
+<td>Flink, Kafka Streams, Spark Structured Streaming</td>
+</tr>
+<tr>
+<td><strong>Example features</strong></td>
+<td><code>lifetime_order_count</code>, <code>avg_rating</code>, <code>favourite_category</code></td>
+<td><code>orders_in_last_1_hour</code>, <code>current_cart_value</code>, <code>last_viewed_product</code></td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>In practice, most companies use both:</strong>
+- Batch pipeline computes 80% of features (historical aggregations)
+- Streaming pipeline computes 20% of features (real-time context)
+- Feature store serves both to the model seamlessly</p>
+<hr />
+<h2 id="q5-what-is-training-serving-skew-why-is-it-the-biggest-enemy-of-production-ml">Q5: What is Training-Serving Skew? Why is it the biggest enemy of production ML?</h2>
+<p><strong>Answer:</strong>
+Training-Serving Skew occurs when the features a model receives during production inference are different from what it received during training. The model was trained on one "version" of reality but serves predictions on a different version.</p>
+<p><strong>Simple analogy:</strong> Imagine studying for a Hindi exam using an English textbook. Your preparation (training) was in a different language (feature set) than the actual test (serving). Your performance will be terrible — not because you're dumb, but because the input was different.</p>
+<p><strong>Why it's so dangerous:</strong>
+- The model doesn't crash or throw errors — it silently produces bad predictions.
+- Accuracy in offline testing (98%) hides the problem. Production accuracy might be 70%, but nobody notices until business metrics drop.
+- It's the #1 cause of ML models failing in production.</p>
+<p><strong>Real impact:</strong> Google's paper "Hidden Technical Debt in Machine Learning Systems" identified training-serving skew as one of the most common and costly issues in production ML.</p>
+<hr />
+<h2 id="q6-explain-the-4-types-of-training-serving-skew-with-examples">Q6: Explain the 4 types of Training-Serving Skew with examples.</h2>
+<p><strong>Answer:</strong></p>
+<h3 id="type-1-feature-computation-skew">Type 1: Feature Computation Skew</h3>
+<ul>
+<li><strong>What:</strong> Same feature is computed differently during training vs serving.</li>
+<li><strong>Example:</strong> During training (in Python/Pandas), <code>avg_order_value</code> is calculated as <code>mean(order_values)</code>, which handles NaN by ignoring them. During serving (in Java), the production code uses a different function that includes NaN as 0 → different average → different prediction.</li>
+<li><strong>How Feature Store prevents it:</strong> Same feature computation code used for both training and serving.</li>
+</ul>
+<h3 id="type-2-feature-freshness-skew">Type 2: Feature Freshness Skew</h3>
+<ul>
+<li><strong>What:</strong> Features used during training were fresh, but in production they're stale.</li>
+<li><strong>Example:</strong> During training, <code>user_last_login_days_ago</code> was computed from the actual last login date. In production, this feature is only updated daily (batch pipeline), so a user who logged in 1 hour ago still has <code>last_login_days_ago = 1</code> instead of <code>0.04</code>.</li>
+<li><strong>Impact:</strong> Model was trained with precise values but sees rounded/stale values in production.</li>
+<li><strong>How Feature Store prevents it:</strong> Online store maintains fresh values. Streaming pipelines update real-time features.</li>
+</ul>
+<h3 id="type-3-data-distribution-skew">Type 3: Data Distribution Skew</h3>
+<ul>
+<li><strong>What:</strong> The statistical distribution of features changes between training and serving.</li>
+<li><strong>Example:</strong> A Flipkart recommendation model was trained on data from January-June (no sale season). In production during Big Billion Days (October), user behaviour is completely different — higher spending, more electronics, bulk buying. The model's training data doesn't represent this distribution.</li>
+<li><strong>How Feature Store prevents it:</strong> Feature monitoring detects distribution drift and triggers retraining alerts.</li>
+</ul>
+<h3 id="type-4-feature-leakage-skew">Type 4: Feature Leakage Skew</h3>
+<ul>
+<li><strong>What:</strong> Features available during training are not available at prediction time.</li>
+<li><strong>Example:</strong> Training data has <code>order_status = cancelled</code> as a feature. This is used to predict customer churn. But at prediction time, you're predicting churn for a customer who hasn't cancelled yet — <code>order_status</code> is unknown.</li>
+<li><strong>How Feature Store prevents it:</strong> Feature registry documents which features are available at serving time. Point-in-time joins prevent leakage during training data creation.</li>
+</ul>
+<p><strong>Summary table:</strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Skew Type</th>
+<th>Cause</th>
+<th>Symptom</th>
+<th>Prevention</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Computation</strong></td>
+<td>Different code in training vs serving</td>
+<td>Subtle accuracy drop</td>
+<td>Same feature code in Feature Store</td>
+</tr>
+<tr>
+<td><strong>Freshness</strong></td>
+<td>Stale features in production</td>
+<td>Predictions lag reality</td>
+<td>Online store + streaming pipelines</td>
+</tr>
+<tr>
+<td><strong>Distribution</strong></td>
+<td>World changes, model doesn't</td>
+<td>Model works well sometimes, badly at other times</td>
+<td>Drift monitoring + retraining triggers</td>
+</tr>
+<tr>
+<td><strong>Leakage</strong></td>
+<td>Using future information during training</td>
+<td>Inflated training accuracy, poor production accuracy</td>
+<td>Point-in-time joins, feature availability documentation</td>
+</tr>
+</tbody>
+</table></div>
+<hr />
+<h2 id="q7-how-does-a-feature-store-prevent-training-serving-skew-explain-the-mechanism">Q7: How does a Feature Store prevent Training-Serving Skew? Explain the mechanism.</h2>
+<p><strong>Answer:</strong>
+A Feature Store prevents skew through several mechanisms:</p>
+<h3 id="1-single-feature-definition">1. Single Feature Definition</h3>
+<ul>
+<li>Feature is defined ONCE in the feature store.</li>
+<li>Same code computes the feature for both offline (training) and online (serving) stores.</li>
+<li><strong>Before feature store:</strong> Training team computes <code>avg_order_value</code> in Python. Production team re-implements in Java. Subtle differences creep in.</li>
+<li><strong>With feature store:</strong> <code>avg_order_value</code> is defined once. Feature pipeline computes it and writes to both stores.</li>
+</ul>
+<h3 id="2-point-in-time-joins">2. Point-in-Time Joins</h3>
+<ul>
+<li><strong>Problem:</strong> When creating training data, you must ensure features represent what was known AT THAT TIME, not today's values.</li>
+<li><strong>Example:</strong> Training to predict if a Flipkart order from January 15 would be returned. The feature <code>user_total_orders</code> should be the count AS OF January 15, not today's count.</li>
+<li><strong>Without feature store:</strong> Data scientist queries the current database → gets today's count → future leakage.</li>
+<li><strong>With feature store:</strong> The offline store has time-stamped feature values. Point-in-time join automatically retrieves features as they existed on January 15.</li>
+</ul>
+<h3 id="3-feature-freshness-guarantees">3. Feature Freshness Guarantees</h3>
+<ul>
+<li>Feature store tracks when each feature was last updated.</li>
+<li>If an online feature hasn't been updated in 2 hours (SLA breach), an alert fires.</li>
+<li>This ensures the model never serves predictions on stale features without awareness.</li>
+</ul>
+<h3 id="4-feature-monitoring-and-drift-detection">4. Feature Monitoring and Drift Detection</h3>
+<ul>
+<li>Feature store monitors the statistical distribution of each feature over time.</li>
+<li>If <code>avg_order_value</code> suddenly shifts from ₹500 to ₹2000 (Big Billion Days), the monitoring system detects drift.</li>
+<li>Teams can then decide: retrain the model or add this distribution to training data.</li>
+</ul>
+<h3 id="5-feature-versioning">5. Feature Versioning</h3>
+<ul>
+<li>When a feature definition changes (e.g., <code>avg_order_value</code> now includes cancelled orders), the feature store creates a new version.</li>
+<li>Models are pinned to specific feature versions → no surprise changes.</li>
+</ul>
+<hr />
+<h2 id="q8-what-happened-with-zillow-s-ibuying-failure-explain-the-case-study">Q8: What happened with Zillow's iBuying failure? Explain the case study.</h2>
+<p><strong>Answer:</strong>
+Zillow's iBuying program (Zillow Offers) is one of the most famous ML failure case studies. Zillow lost over <strong>$500 million</strong> and laid off 25% of its workforce.</p>
+<p><strong>What Zillow Did:</strong>
+- Zillow Offers was an "instant buying" program where Zillow would buy your house directly (instead of you listing it and waiting for a buyer).
+- They used an ML model called "Zestimate" to predict house prices and decide how much to offer.
+- The idea: buy houses at predicted price → do minor renovations → sell at profit.</p>
+<p><strong>What Went Wrong:</strong></p>
+<h3 id="1-training-serving-skew-feature-freshness">1. Training-Serving Skew (Feature Freshness)</h3>
+<ul>
+<li>The model was trained on historical housing data from 2019-2020 (relatively stable market).</li>
+<li>By 2021, the housing market was wildly different — prices were rising 15-20% per year due to low interest rates and COVID-era demand.</li>
+<li><strong>Freshness skew:</strong> The model's training data didn't reflect current market dynamics.</li>
+</ul>
+<h3 id="2-feature-quality-issues">2. Feature Quality Issues</h3>
+<ul>
+<li>The model relied on features like <code>comparable_sale_prices</code> (recent sales of similar homes nearby).</li>
+<li>In fast-moving markets, "comparable" sales from even 3 months ago were outdated — prices had jumped significantly.</li>
+<li>The model consistently UNDERPREDICTED how much prices would rise → Zillow overpaid.</li>
+</ul>
+<h3 id="3-distribution-shift">3. Distribution Shift</h3>
+<ul>
+<li>Training data represented a stable market. Production data was an abnormally hot market.</li>
+<li>When the market started cooling in late 2021, the model was still calibrated for the hot market → now it was overpaying for houses in a declining market.</li>
+</ul>
+<h3 id="4-feedback-loop-problem">4. Feedback Loop Problem</h3>
+<ul>
+<li>Zillow was buying so many houses (hundreds per week) that it was actually affecting local market prices.</li>
+<li>The model's predictions influenced the market it was trying to predict — a self-fulfilling prophecy that inflated prices.</li>
+</ul>
+<p><strong>Financial Impact:</strong>
+- Zillow bought ~27,000 homes in 2021
+- Had to sell many at a loss — sometimes $20,000-$50,000 below purchase price
+- Total loss: <strong>$569 million</strong> in Q3 2021 alone
+- Shut down iBuying division entirely in November 2021
+- Laid off ~2,000 employees (25% of workforce)</p>
+<p><strong>Lessons for ML practitioners:</strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Lesson</th>
+<th>What to Do</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Feature freshness matters</strong></td>
+<td>Features must reflect current reality, not last quarter</td>
+</tr>
+<tr>
+<td><strong>Monitor for distribution shift</strong></td>
+<td>Set up automated drift detection</td>
+</tr>
+<tr>
+<td><strong>Don't trust offline metrics alone</strong></td>
+<td>A model with 95% test accuracy can still fail in production</td>
+</tr>
+<tr>
+<td><strong>Understand feedback loops</strong></td>
+<td>Your model's predictions can change the world it's predicting</td>
+</tr>
+<tr>
+<td><strong>Have human oversight</strong></td>
+<td>Don't let a model make $500M decisions autonomously</td>
+</tr>
+<tr>
+<td><strong>Use a feature store</strong></td>
+<td>Would have detected feature staleness and distribution drift</td>
+</tr>
+</tbody>
+</table></div>
+<hr />
+<h2 id="q9-list-the-major-feature-store-tools-and-compare-them">Q9: List the major Feature Store tools and compare them.</h2>
+<p><strong>Answer:</strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Tool</th>
+<th>Type</th>
+<th>Best For</th>
+<th>Key Feature</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Feast</strong></td>
+<td>Open-source</td>
+<td>Teams wanting flexibility and no vendor lock-in</td>
+<td>Most popular open-source option. Works with any cloud.</td>
+</tr>
+<tr>
+<td><strong>Tecton</strong></td>
+<td>Managed (cloud)</td>
+<td>Companies wanting a managed solution with real-time capabilities</td>
+<td>Built by the creators of Uber's Michelangelo. Strong real-time features.</td>
+</tr>
+<tr>
+<td><strong>Hopsworks</strong></td>
+<td>Open-source + managed</td>
+<td>Teams wanting both batch and streaming in one platform</td>
+<td>Integrated ML platform with feature store, training, and serving.</td>
+</tr>
+<tr>
+<td><strong>Databricks Feature Store</strong></td>
+<td>Integrated with Databricks</td>
+<td>Teams already using Databricks/Delta Lake</td>
+<td>Native integration with Spark and MLflow.</td>
+</tr>
+<tr>
+<td><strong>Amazon SageMaker Feature Store</strong></td>
+<td>AWS managed</td>
+<td>Teams on AWS ecosystem</td>
+<td>Tight integration with SageMaker for training and deployment.</td>
+</tr>
+<tr>
+<td><strong>Google Vertex AI Feature Store</strong></td>
+<td>GCP managed</td>
+<td>Teams on GCP ecosystem</td>
+<td>Integration with BigQuery and Vertex AI.</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Choosing a Feature Store:</strong></p>
+<pre><code>Are you on a single cloud (AWS/GCP)?
+├── Yes, AWS → SageMaker Feature Store
+├── Yes, GCP → Vertex AI Feature Store
+└── No / Multi-cloud / On-prem
+    ├── Want open-source? → Feast
+    ├── Need real-time streaming features? → Tecton
+    └── Already using Databricks? → Databricks Feature Store
+</code></pre>
+<p><strong>Indian company examples:</strong>
+- Flipkart, Swiggy (AWS-heavy) → SageMaker Feature Store or Feast on AWS
+- Razorpay (multi-cloud) → Feast (open-source, cloud-agnostic)
+- Large enterprises (TCS, Infosys building for clients) → Feast or Tecton depending on client's cloud</p>
+<hr />
+<h2 id="q10-what-is-a-real-time-recommendation-system-explain-the-two-stage-architecture">Q10: What is a Real-Time Recommendation System? Explain the two-stage architecture.</h2>
+<p><strong>Answer:</strong>
+A real-time recommendation system generates personalised recommendations for each user within milliseconds when they open an app or browse a page.</p>
+<p><strong>The challenge:</strong> Flipkart has 100 million users and 10 million products. You can't score all 10 million products for every user in real-time — it would take hours. Solution: <strong>two-stage architecture</strong>.</p>
+<h3 id="stage-1-candidate-generation-narrow-down-10m-1000">Stage 1: Candidate Generation (narrow down 10M → 1000)</h3>
+<ul>
+<li><strong>Goal:</strong> Quickly narrow down millions of items to a few hundred/thousand candidates.</li>
+<li><strong>Latency budget:</strong> 10-50ms</li>
+<li><strong>Methods:</strong></li>
+<li><strong>Collaborative Filtering:</strong> "Users who bought what you bought also bought these" → retrieve 200 items</li>
+<li><strong>Content-based:</strong> "Items similar to what you recently viewed" → retrieve 200 items</li>
+<li><strong>ANN (Approximate Nearest Neighbour) Search:</strong> Convert all products to embeddings. Find 500 products closest to the user's embedding in vector space. → fast, millisecond-level</li>
+<li><strong>Popularity-based:</strong> Add top trending items as candidates → 100 items</li>
+<li><strong>Result:</strong> ~1000 candidates from multiple sources</li>
+</ul>
+<h3 id="stage-2-ranking-rank-1000-top-20">Stage 2: Ranking (rank 1000 → top 20)</h3>
+<ul>
+<li><strong>Goal:</strong> Score and rank the 1000 candidates precisely. Show the top 20.</li>
+<li><strong>Latency budget:</strong> 20-50ms</li>
+<li><strong>Method:</strong> A sophisticated ML model (typically a neural network or gradient-boosted tree) scores each candidate.</li>
+<li><strong>Features used:</strong></li>
+<li>User features (from feature store online): preferences, demographics, purchase history</li>
+<li>Item features (from feature store): price, rating, category, recency</li>
+<li>Context features: time of day, device, current session behaviour</li>
+<li>User-item interaction features: has the user viewed this item? Has the user bought from this brand?</li>
+<li><strong>Result:</strong> Top 20 items ranked by predicted relevance/purchase probability</li>
+</ul>
+<p><strong>Architecture diagram:</strong></p>
+<pre><code>User opens Flipkart app
+         │
+         ▼
+┌─────────────────────┐
+│ Candidate Generation │ (10M items → 1000 candidates)
+│   - ANN Search       │ (50ms)
+│   - Collaborative    │
+│   - Trending         │
+└────────┬────────────┘
+         │ 1000 items
+         ▼
+┌─────────────────────┐         ┌──────────────┐
+│    Ranking Model     │←───────│ Feature Store │ (user + item features)
+│  (Neural Network)    │         │  (Online)     │
+│  Score each item     │         └──────────────┘
+└────────┬────────────┘
+         │ Top 20 items (ranked)
+         ▼
+    User's home page / &quot;Recommended for you&quot;
+</code></pre>
+<p><strong>Why two stages?</strong>
+- Stage 1 is fast but rough (uses simple signals)
+- Stage 2 is precise but slow (uses rich features and complex model)
+- Together: fast enough for real-time AND accurate enough for good recommendations</p>
+<hr />
+<h2 id="q11-what-is-ann-approximate-nearest-neighbour-search-why-is-it-used-in-recommendations">Q11: What is ANN (Approximate Nearest Neighbour) Search? Why is it used in recommendations?</h2>
+<p><strong>Answer:</strong>
+ANN search finds the most similar items to a query in a large dataset without checking every single item.</p>
+<p><strong>The problem:</strong>
+- Flipkart has 10 million products, each represented as a 128-dimensional embedding vector.
+- To find the 100 most similar products to what a user likes, you'd need to calculate distance to ALL 10 million products → takes seconds (too slow for real-time).
+- <strong>Exact nearest neighbour</strong> is O(n) — check every item. Not feasible in real-time.</p>
+<p><strong>ANN solution:</strong>
+- Build an index structure that organises vectors into clusters/partitions.
+- When a query comes in, only search the nearby clusters — check ~1% of items instead of 100%.
+- Result is approximate (might miss a few truly nearest items) but 100-1000x faster.
+- Accuracy: typically 95-99% (finds 95 of the true top 100).</p>
+<p><strong>Popular ANN algorithms:</strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Algorithm</th>
+<th>How It Works</th>
+<th>Used By</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>HNSW (Hierarchical Navigable Small World)</strong></td>
+<td>Builds a graph where similar items are connected. Navigate the graph to find neighbours.</td>
+<td>Spotify, Pinterest</td>
+</tr>
+<tr>
+<td><strong>IVF (Inverted File Index)</strong></td>
+<td>Clusters vectors using K-means. Only searches the nearest clusters.</td>
+<td>Facebook (FAISS library)</td>
+</tr>
+<tr>
+<td><strong>LSH (Locality Sensitive Hashing)</strong></td>
+<td>Hashes similar vectors to the same bucket. Only compares within buckets.</td>
+<td>Google</td>
+</tr>
+<tr>
+<td><strong>ScaNN</strong></td>
+<td>Google's algorithm combining quantisation and search. Very fast on large scale.</td>
+<td>Google, YouTube</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Libraries/Tools:</strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Tool</th>
+<th>Creator</th>
+<th>Key Feature</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>FAISS</strong></td>
+<td>Meta (Facebook)</td>
+<td>Most popular. GPU-accelerated. Handles billions of vectors.</td>
+</tr>
+<tr>
+<td><strong>Annoy</strong></td>
+<td>Spotify</td>
+<td>Lightweight. Used by Spotify for song recommendations.</td>
+</tr>
+<tr>
+<td><strong>ScaNN</strong></td>
+<td>Google</td>
+<td>Optimised for Google-scale (billions of items).</td>
+</tr>
+<tr>
+<td><strong>Pinecone</strong></td>
+<td>Pinecone</td>
+<td>Managed vector database (cloud service).</td>
+</tr>
+<tr>
+<td><strong>Milvus</strong></td>
+<td>Open-source</td>
+<td>Full-featured vector database.</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Real-world example — Myntra "Similar Products":</strong>
+1. All 10M products have 128-dimensional image embeddings (from CNN).
+2. FAISS index built on all 10M embeddings.
+3. User views a red kurta → get its embedding → query FAISS → find 100 visually similar products in &lt;10ms.
+4. Show these as "Similar Products You May Like."</p>
+<hr />
+<h2 id="q12-explain-the-spotify-discover-weekly-case-study-how-does-it-work">Q12: Explain the Spotify Discover Weekly case study. How does it work?</h2>
+<p><strong>Answer:</strong>
+Discover Weekly is Spotify's most successful recommendation feature — a personalised playlist of 30 songs delivered every Monday to each of its 500+ million users. It's responsible for billions of streams.</p>
+<p><strong>How it works (simplified architecture):</strong></p>
+<h3 id="step-1-build-user-taste-profiles">Step 1: Build User Taste Profiles</h3>
+<ul>
+<li>Represent each user as a vector based on their listening history.</li>
+<li><strong>Method:</strong> Collaborative filtering using matrix factorisation.</li>
+<li>If User A and User B listen to 80% of the same songs, they have similar taste vectors.</li>
+</ul>
+<h3 id="step-2-build-song-embeddings">Step 2: Build Song Embeddings</h3>
+<ul>
+<li>Each song is represented as a 128-dimensional embedding vector.</li>
+<li><strong>Method 1:</strong> Collaborative filtering — songs listened to by similar users get similar vectors.</li>
+<li><strong>Method 2:</strong> NLP on playlists — treat playlists like "sentences" and songs like "words." Use Word2Vec-style training to learn song embeddings. Songs that appear in the same playlists get similar embeddings.</li>
+<li><strong>Method 3:</strong> Audio features — CNN on the raw audio waveform to capture tempo, key, energy, danceability.</li>
+</ul>
+<h3 id="step-3-candidate-generation">Step 3: Candidate Generation</h3>
+<ul>
+<li>For each user, find songs that are:</li>
+<li>Similar to songs they've listened to (ANN search on song embeddings)</li>
+<li>Listened to by users with similar taste (collaborative filtering)</li>
+<li>NOT songs they've already heard (filter out known songs)</li>
+<li>This generates ~1000 candidates per user.</li>
+</ul>
+<h3 id="step-4-ranking-and-filtering">Step 4: Ranking and Filtering</h3>
+<ul>
+<li>Rank candidates by predicted enjoyment score.</li>
+<li>Apply diversity rules: not all from the same artist, mix of genres, include some exploration.</li>
+<li>Select top 30 songs.</li>
+</ul>
+<h3 id="step-5-feedback-loop">Step 5: Feedback Loop</h3>
+<ul>
+<li>Monday: Playlist delivered</li>
+<li>All week: Track which songs user plays, skips, saves, or adds to playlist</li>
+<li>This feedback becomes training data for next week's model</li>
+<li>Model continuously improves based on user reactions</li>
+</ul>
+<p><strong>Key technical details:</strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Component</th>
+<th>Technology</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>User embeddings</td>
+<td>Collaborative filtering (matrix factorisation)</td>
+</tr>
+<tr>
+<td>Song embeddings</td>
+<td>Word2Vec-style on playlists + audio CNN</td>
+</tr>
+<tr>
+<td>Candidate retrieval</td>
+<td>ANN search using Annoy library</td>
+</tr>
+<tr>
+<td>Ranking</td>
+<td>Gradient-boosted trees / neural network</td>
+</tr>
+<tr>
+<td>Feature store</td>
+<td>Stores user preferences, listening history, song features</td>
+</tr>
+<tr>
+<td>Scale</td>
+<td>500M+ users × 100M+ songs, 30 recommendations each, every Monday</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Why it works so well:</strong>
+1. <strong>Freshness:</strong> Updated weekly with new songs
+2. <strong>Serendipity:</strong> Surfaces songs the user wouldn't discover on their own
+3. <strong>Personalisation:</strong> Every user gets a unique playlist
+4. <strong>Feedback loop:</strong> Gets better every week based on user behaviour</p>
+<hr />
+<h2 id="q13-scenario-identify-the-type-of-training-serving-skew-in-each-situation">Q13: Scenario — Identify the type of Training-Serving Skew in each situation.</h2>
+<p><strong>Answer:</strong></p>
+<h3 id="situation-1-swiggy-s-delivery-time-model-was-92-accurate-last-month-but-dropped-to-75-this-month-without-any-code-changes">Situation 1: "Swiggy's delivery time model was 92% accurate last month but dropped to 75% this month without any code changes."</h3>
+<ul>
+<li><strong>Skew type:</strong> Distribution Shift</li>
+<li><strong>Why:</strong> The real world changed (maybe monsoon season started, or a new festival week), but the model's training data doesn't include these patterns. The statistical distribution of features like <code>is_raining</code>, <code>order_volume</code> has shifted.</li>
+<li><strong>Fix:</strong> Retrain with recent data including monsoon patterns. Set up drift monitoring.</li>
+</ul>
+<h3 id="situation-2-hdfc-bank-s-fraud-model-catches-95-of-fraud-in-offline-testing-but-only-60-in-production">Situation 2: "HDFC Bank's fraud model catches 95% of fraud in offline testing but only 60% in production."</h3>
+<ul>
+<li><strong>Skew type:</strong> Feature Computation Skew</li>
+<li><strong>Why:</strong> Most likely, features are computed differently in training (Python/Pandas with specific NaN handling) vs production (Java with different NaN handling). Also possible: feature leakage — training features include information not available at prediction time.</li>
+<li><strong>Fix:</strong> Use a feature store to ensure same computation. Audit all features for availability at serving time.</li>
+</ul>
+<h3 id="situation-3-flipkart-s-recommendation-model-works-great-on-weekdays-but-poorly-during-big-billion-days">Situation 3: "Flipkart's recommendation model works great on weekdays but poorly during Big Billion Days."</h3>
+<ul>
+<li><strong>Skew type:</strong> Distribution Shift</li>
+<li><strong>Why:</strong> User behaviour during sale events (higher spending, bulk buying, electronics-heavy) is completely different from normal weekdays. Training data is mostly from normal periods.</li>
+<li><strong>Fix:</strong> Include sale-period data in training. Add <code>is_sale_period</code> as a feature. Consider a separate model for sale events.</li>
+</ul>
+<h3 id="situation-4-a-model-to-predict-stock-price-direction-was-trained-using-yesterday-s-closing-price-as-a-feature-but-in-production-yesterday-s-price-isn-t-available-until-30-minutes-after-market-open">Situation 4: "A model to predict stock price direction was trained using yesterday's closing price as a feature, but in production, yesterday's price isn't available until 30 minutes after market open."</h3>
+<ul>
+<li><strong>Skew type:</strong> Feature Freshness Skew</li>
+<li><strong>Why:</strong> During training, yesterday's close is always available (historical data). In production, there's a 30-minute delay in data pipeline → feature is stale or missing.</li>
+<li><strong>Fix:</strong> Ensure feature pipeline delivers yesterday's close before market opens. Or use the feature as of the previous available point.</li>
+</ul>
+<h3 id="situation-5-a-customer-churn-model-used-number_of_complaints_resolved-as-a-feature-which-was-98-accurate-in-testing-but-useless-in-production">Situation 5: "A customer churn model used 'number_of_complaints_resolved' as a feature, which was 98% accurate in testing but useless in production."</h3>
+<ul>
+<li><strong>Skew type:</strong> Feature Leakage</li>
+<li><strong>Why:</strong> <code>complaints_resolved</code> can only be counted AFTER the resolution period. At prediction time (predicting if a customer will churn next month), you don't know how many complaints will be resolved.</li>
+<li><strong>Fix:</strong> Remove this feature. Replace with <code>number_of_open_complaints</code> (available at prediction time).</li>
+</ul>
+<hr />
+<h2 id="q14-how-does-point-in-time-join-work-in-a-feature-store-why-is-it-critical">Q14: How does Point-in-Time Join work in a Feature Store? Why is it critical?</h2>
+<p><strong>Answer:</strong>
+Point-in-Time Join ensures that when creating training data, features reflect what was known at the TIME of the event — not what we know today.</p>
+<p><strong>The problem without Point-in-Time Join:</strong></p>
+<p>Imagine training a model to predict if a Swiggy order placed on <strong>January 15 at 7 PM</strong> would be delayed.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Wrong way (no point-in-time)</th>
+<th>Right way (point-in-time)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>restaurant_avg_prep_time</code></td>
+<td>25 min (today's average, including post-January data)</td>
+<td>22 min (average as of January 15)</td>
+</tr>
+<tr>
+<td><code>user_total_orders</code></td>
+<td>150 (total as of today)</td>
+<td>120 (total as of January 15)</td>
+</tr>
+<tr>
+<td><code>restaurant_rating</code></td>
+<td>4.2 (today's rating)</td>
+<td>4.5 (rating as of January 15 — it dropped later)</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Without point-in-time:</strong> The training data contains future information. The model learns from data that wouldn't have been available on January 15 → <strong>leakage</strong> → inflated training accuracy → poor production performance.</p>
+<p><strong>How Point-in-Time Join works:</strong></p>
+<pre><code>Training Examples:                    Feature Store (time-stamped values):
+
+Order_ID | Event_Time           |    User_ID | Feature      | Timestamp      | Value
+---------|------------------    |    --------|----------    |-------------   |------
+1001     | Jan 15, 7:00 PM      |    U1      | total_orders | Jan 10         | 118
+1002     | Jan 20, 8:30 PM      |    U1      | total_orders | Jan 15         | 120
+1003     | Feb 1, 6:00 PM       |    U1      | total_orders | Jan 20         | 122
+                                |    U1      | total_orders | Feb 1          | 125
+
+Point-in-Time Join:
+- Order 1001 (Jan 15) → gets total_orders = 118 (latest value BEFORE Jan 15)
+- Order 1002 (Jan 20) → gets total_orders = 120 (latest value BEFORE Jan 20)
+- Order 1003 (Feb 1) → gets total_orders = 122 (latest value BEFORE Feb 1)
+</code></pre>
+<p><strong>The feature store automatically matches each training example with feature values from BEFORE that example's timestamp.</strong> This prevents any future leakage.</p>
+<p><strong>Why it's critical:</strong>
+- Without it, training accuracy is inflated (maybe 95%)
+- With it, training accuracy is honest (maybe 88%) — but this 88% actually holds in production
+- Feature stores like Feast and Tecton have built-in point-in-time join functionality</p>
+<hr />
+<h2 id="q15-design-a-real-time-recommendation-system-for-swiggy-food-delivery-what-features-go-in-the-offline-vs-online-store">Q15: Design a real-time recommendation system for Swiggy (food delivery). What features go in the offline vs online store?</h2>
+<p><strong>Answer:</strong></p>
+<h3 id="system-architecture">System Architecture</h3>
+<pre><code>User opens Swiggy → API call with (user_id, location, time)
+         │
+         ▼
+┌──────────────────────┐
+│ Candidate Generation  │
+│ - Nearby restaurants  │ (location-based filter)
+│ - User's past orders  │ (collaborative filtering)
+│ - Trending in area    │ (popularity)
+│ → 200 restaurants     │
+└──────────┬───────────┘
+           │
+           ▼
+┌──────────────────────┐      ┌─────────────────────┐
+│   Ranking Model      │←─────│    Feature Store     │
+│ (Score each of 200)  │      │ Offline + Online     │
+│ Neural network       │      └─────────────────────┘
+└──────────┬───────────┘
+           │
+           ▼
+    Top 20 restaurants on home screen
+</code></pre>
+<h3 id="offline-store-features-updated-daily-hourly">Offline Store Features (updated daily/hourly)</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Update Frequency</th>
+<th>Why Offline</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>user_favourite_cuisine</code></td>
+<td>Daily</td>
+<td>Doesn't change often</td>
+</tr>
+<tr>
+<td><code>user_avg_order_value</code></td>
+<td>Daily</td>
+<td>Aggregation over history</td>
+</tr>
+<tr>
+<td><code>user_preferred_meal_time</code></td>
+<td>Weekly</td>
+<td>Long-term preference</td>
+</tr>
+<tr>
+<td><code>user_dietary_preference = veg/non-veg</code></td>
+<td>Monthly</td>
+<td>Rarely changes</td>
+</tr>
+<tr>
+<td><code>restaurant_avg_rating</code></td>
+<td>Hourly</td>
+<td>Changes slowly</td>
+</tr>
+<tr>
+<td><code>restaurant_avg_prep_time</code></td>
+<td>Hourly</td>
+<td>Historical average</td>
+</tr>
+<tr>
+<td><code>restaurant_cuisine_type</code></td>
+<td>Daily</td>
+<td>Catalog data, rarely changes</td>
+</tr>
+<tr>
+<td><code>restaurant_price_range</code></td>
+<td>Daily</td>
+<td>Menu pricing</td>
+</tr>
+<tr>
+<td><code>user_restaurant_order_count</code> (per restaurant)</td>
+<td>Daily</td>
+<td>How often user orders from each restaurant</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="online-store-features-updated-in-real-time">Online Store Features (updated in real-time)</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Update Frequency</th>
+<th>Why Online</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>restaurant_is_open = 1/0</code></td>
+<td>Real-time</td>
+<td>Can't show closed restaurants</td>
+</tr>
+<tr>
+<td><code>restaurant_current_active_orders</code></td>
+<td>Real-time</td>
+<td>Affects prep time NOW</td>
+</tr>
+<tr>
+<td><code>estimated_delivery_time</code></td>
+<td>Real-time</td>
+<td>Must reflect current traffic/weather</td>
+</tr>
+<tr>
+<td><code>rider_availability_in_area</code></td>
+<td>Real-time</td>
+<td>No riders = longer delivery</td>
+</tr>
+<tr>
+<td><code>is_raining</code></td>
+<td>Real-time (weather API)</td>
+<td>Affects delivery time and food choice</td>
+</tr>
+<tr>
+<td><code>current_hour_of_day</code></td>
+<td>Real-time</td>
+<td>Lunch vs dinner recommendations</td>
+</tr>
+<tr>
+<td><code>user_current_location</code></td>
+<td>Real-time (GPS)</td>
+<td>Determines nearby restaurants</td>
+</tr>
+<tr>
+<td><code>restaurant_current_offers</code></td>
+<td>Real-time</td>
+<td>Discounts drive clicks</td>
+</tr>
+<tr>
+<td><code>user_last_session_viewed_restaurants</code></td>
+<td>Real-time (streaming)</td>
+<td>What they just browsed (session-level personalisation)</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="model-features-for-ranking">Model Features for Ranking</h3>
+<p>The ranking model combines offline + online features:</p>
+<pre><code>Score(user, restaurant) = f(
+    user_favourite_cuisine,            // offline
+    user_avg_order_value,              // offline
+    restaurant_avg_rating,             // offline
+    restaurant_cuisine_type,           // offline
+    estimated_delivery_time,           // online
+    is_raining,                        // online
+    restaurant_current_offers,         // online
+    user_restaurant_order_count,       // offline
+    distance_user_to_restaurant        // online (computed from GPS)
+)
+</code></pre>
+<hr />
+<h2 id="q16-what-is-the-cold-start-problem-in-recommendation-systems-how-is-it-solved">Q16: What is the Cold Start problem in recommendation systems? How is it solved?</h2>
+<p><strong>Answer:</strong>
+The Cold Start problem occurs when the recommendation system has no data about a new user or a new item, making it impossible to generate personalised recommendations.</p>
+<p><strong>Two types:</strong></p>
+<h3 id="1-new-user-cold-start">1. New User Cold Start</h3>
+<ul>
+<li><strong>Problem:</strong> A new user just signed up on Flipkart. No purchase history, no browsing data, no preferences known.</li>
+<li><strong>Solutions:</strong></li>
+</ul>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Solution</th>
+<th>How It Works</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Ask preferences</strong></td>
+<td>During onboarding, ask user to select interests</td>
+<td>Spotify asks "Choose 3 artists you like" during signup</td>
+</tr>
+<tr>
+<td><strong>Popularity-based</strong></td>
+<td>Show globally popular items until personal data is available</td>
+<td>Swiggy shows "Popular in your area" for new users</td>
+</tr>
+<tr>
+<td><strong>Demographic-based</strong></td>
+<td>Use age, location, gender for initial recommendations</td>
+<td>25-year-old in Bangalore → show trending cafes and biryani places</td>
+</tr>
+<tr>
+<td><strong>Contextual</strong></td>
+<td>Use time, location, device for initial signals</td>
+<td>12 PM in Koramangala → show lunch restaurants</td>
+</tr>
+<tr>
+<td><strong>Explore-exploit</strong></td>
+<td>Initially explore (show diverse items), then exploit (personalise as data accumulates)</td>
+<td>First 10 sessions: diverse. After that: personalised.</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="2-new-item-cold-start">2. New Item Cold Start</h3>
+<ul>
+<li><strong>Problem:</strong> A new restaurant just joined Swiggy. No ratings, no order history.</li>
+<li><strong>Solutions:</strong></li>
+</ul>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Solution</th>
+<th>How It Works</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Content-based</strong></td>
+<td>Use item attributes (cuisine, price range) to match with users</td>
+<td>New pizza place → show to users who order pizza often</td>
+</tr>
+<tr>
+<td><strong>Similar items</strong></td>
+<td>Find items with similar features and bootstrap from their data</td>
+<td>New Chinese restaurant → assume similar patterns to existing Chinese restaurants</td>
+</tr>
+<tr>
+<td><strong>Boosted exposure</strong></td>
+<td>Artificially promote new items to gather initial data</td>
+<td>Swiggy gives new restaurants extra visibility for first 2 weeks</td>
+</tr>
+<tr>
+<td><strong>Hybrid approach</strong></td>
+<td>Combine content features with limited collaborative signals</td>
+<td>As orders come in, blend content-based (attributes) with collaborative (user behaviour)</td>
+</tr>
+</tbody>
+</table></div>
+<hr />
+<h2 id="q17-explain-the-two-stage-candidate-generation-ranking-architecture-with-a-flipkart-example">Q17: Explain the two-stage Candidate Generation + Ranking architecture with a Flipkart example.</h2>
+<p><strong>Answer:</strong></p>
+<p><strong>The math problem:</strong> Flipkart has 100M users and 10M products. Scoring every product for every user = 10^15 computations. Impossible in real-time.</p>
+<p><strong>Solution: Two stages.</strong></p>
+<h3 id="stage-1-candidate-generation-10m-500-items-50ms">Stage 1: Candidate Generation (10M → 500 items, &lt;50ms)</h3>
+<p>Multiple candidate sources run in parallel:</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Source</th>
+<th>Method</th>
+<th>Items Retrieved</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Collaborative Filtering</strong></td>
+<td>"Users like you bought these"</td>
+<td>100</td>
+<td>Users who bought iPhone cases also bought AirPods</td>
+</tr>
+<tr>
+<td><strong>Content-Based</strong></td>
+<td>"Similar to what you viewed"</td>
+<td>100</td>
+<td>You viewed Nike shoes → show similar Adidas shoes</td>
+</tr>
+<tr>
+<td><strong>ANN Search</strong></td>
+<td>Find nearest products in embedding space</td>
+<td>200</td>
+<td>User embedding → FAISS → 200 nearest products</td>
+</tr>
+<tr>
+<td><strong>Trending</strong></td>
+<td>Top sellers in user's category interest</td>
+<td>50</td>
+<td>Trending in Electronics this week</td>
+</tr>
+<tr>
+<td><strong>Recently Viewed</strong></td>
+<td>Items user saw but didn't buy</td>
+<td>50</td>
+<td>The laptop you viewed 3 times but didn't purchase</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>After deduplication: ~500 unique candidate items.</strong></p>
+<h3 id="stage-2-ranking-500-top-20-50ms">Stage 2: Ranking (500 → Top 20, &lt;50ms)</h3>
+<p>A sophisticated ML model scores each of the 500 candidates:</p>
+<pre><code>For each candidate product:
+    score = RankingModel(
+        user_features,     // from Feature Store (online)
+        item_features,     // from Feature Store (online)
+        context_features,  // real-time: time, device, location
+        interaction_features // user-item: has_viewed, has_carted
+    )
+
+Sort by score → return top 20
+</code></pre>
+<p><strong>Ranking model features:</strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Feature Type</th>
+<th>Examples</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>User features</strong></td>
+<td>avg_order_value, favourite_category, price_sensitivity, account_age</td>
+</tr>
+<tr>
+<td><strong>Item features</strong></td>
+<td>price, rating, num_reviews, category, discount_pct, return_rate</td>
+</tr>
+<tr>
+<td><strong>User-Item features</strong></td>
+<td>has_viewed (1/0), view_count, has_carted (1/0), category_match_score</td>
+</tr>
+<tr>
+<td><strong>Context features</strong></td>
+<td>hour_of_day, is_weekend, device_type, is_sale_period</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Final pipeline:</strong></p>
+<pre><code>Time breakdown for a single request:
+  - Candidate Generation: 30ms (parallel sources)
+  - Feature retrieval from online store: 5ms
+  - Ranking model scoring (500 items): 15ms
+  - Post-processing (diversity, business rules): 5ms
+  - Total: ~55ms (well within 100ms SLA)
+</code></pre>
+<hr />
+<h2 id="q18-scenario-design-a-feature-store-implementation-for-cred-s-credit-card-bill-payment-platform">Q18: Scenario — Design a Feature Store implementation for CRED's credit card bill payment platform.</h2>
+<p><strong>Answer:</strong></p>
+<p><strong>CRED's ML use cases:</strong>
+1. Personalised reward recommendations
+2. Credit card offer matching
+3. Cashback prediction
+4. User engagement scoring
+5. Payment behaviour prediction</p>
+<p><strong>Feature Store Design:</strong></p>
+<h3 id="feature-registry-what-features-exist">Feature Registry (what features exist)</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Feature Name</th>
+<th>Entity</th>
+<th>Type</th>
+<th>Pipeline</th>
+<th>Freshness</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>user_credit_score_band</code></td>
+<td>User</td>
+<td>Offline</td>
+<td>Batch (monthly from CIBIL)</td>
+<td>Monthly</td>
+</tr>
+<tr>
+<td><code>user_total_cards</code></td>
+<td>User</td>
+<td>Offline</td>
+<td>Batch (daily)</td>
+<td>Daily</td>
+</tr>
+<tr>
+<td><code>user_avg_monthly_spend</code></td>
+<td>User</td>
+<td>Offline</td>
+<td>Batch (daily from transactions)</td>
+<td>Daily</td>
+</tr>
+<tr>
+<td><code>user_reward_preference</code></td>
+<td>User</td>
+<td>Offline</td>
+<td>Batch (weekly ML model)</td>
+<td>Weekly</td>
+</tr>
+<tr>
+<td><code>user_payment_streak</code></td>
+<td>User</td>
+<td>Offline</td>
+<td>Batch (daily)</td>
+<td>Daily</td>
+</tr>
+<tr>
+<td><code>user_days_before_due_date</code></td>
+<td>User</td>
+<td>Online</td>
+<td>Streaming (real-time)</td>
+<td>Real-time</td>
+</tr>
+<tr>
+<td><code>user_current_outstanding</code></td>
+<td>User</td>
+<td>Online</td>
+<td>Streaming (event-driven)</td>
+<td>Real-time</td>
+</tr>
+<tr>
+<td><code>user_last_app_open</code></td>
+<td>User</td>
+<td>Online</td>
+<td>Streaming (app events)</td>
+<td>Real-time</td>
+</tr>
+<tr>
+<td><code>offer_discount_pct</code></td>
+<td>Offer</td>
+<td>Offline</td>
+<td>Batch (daily from partners)</td>
+<td>Daily</td>
+</tr>
+<tr>
+<td><code>offer_category</code></td>
+<td>Offer</td>
+<td>Offline</td>
+<td>Catalog data</td>
+<td>Daily</td>
+</tr>
+<tr>
+<td><code>offer_popularity_score</code></td>
+<td>Offer</td>
+<td>Offline</td>
+<td>Batch (daily from clicks)</td>
+<td>Daily</td>
+</tr>
+<tr>
+<td><code>user_offer_click_history</code></td>
+<td>User×Offer</td>
+<td>Offline</td>
+<td>Batch (daily)</td>
+<td>Daily</td>
+</tr>
+<tr>
+<td><code>user_current_session_views</code></td>
+<td>User</td>
+<td>Online</td>
+<td>Streaming (Kafka)</td>
+<td>Real-time</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="architecture">Architecture</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Component</th>
+<th>Tool</th>
+<th>Why</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Offline Store</strong></td>
+<td>Amazon S3 + Delta Lake</td>
+<td>Cost-effective for historical features. Delta Lake for ACID transactions.</td>
+</tr>
+<tr>
+<td><strong>Online Store</strong></td>
+<td>Amazon DynamoDB</td>
+<td>Low-latency key-value lookups (&lt;5ms). Scales automatically.</td>
+</tr>
+<tr>
+<td><strong>Feature Pipeline (Batch)</strong></td>
+<td>Apache Spark on EMR</td>
+<td>Nightly computation of aggregated features from the data warehouse.</td>
+</tr>
+<tr>
+<td><strong>Feature Pipeline (Streaming)</strong></td>
+<td>Apache Flink on Kinesis</td>
+<td>Real-time feature updates from app events (bill payments, app opens, offer clicks).</td>
+</tr>
+<tr>
+<td><strong>Feature Registry</strong></td>
+<td>Feast</td>
+<td>Open-source. Manages feature definitions, versions, and lineage.</td>
+</tr>
+<tr>
+<td><strong>Orchestration</strong></td>
+<td>Apache Airflow</td>
+<td>Schedules nightly batch feature computation.</td>
+</tr>
+<tr>
+<td><strong>Monitoring</strong></td>
+<td>Grafana + custom alerts</td>
+<td>Monitor feature freshness, drift, and serving latency.</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="how-it-prevents-training-serving-skew-at-cred">How it prevents Training-Serving Skew at CRED:</h3>
+<ol>
+<li><strong>Same feature definitions:</strong> <code>user_avg_monthly_spend</code> computed by the same Spark job for both training data (offline store) and production (materialised to online store).</li>
+<li><strong>Point-in-time joins:</strong> When training the reward recommendation model, features are joined based on the timestamp of each user-reward interaction — not current values.</li>
+<li><strong>Freshness monitoring:</strong> Alert if <code>user_current_outstanding</code> in online store is &gt;5 minutes stale.</li>
+<li><strong>Drift detection:</strong> If <code>user_avg_monthly_spend</code> distribution shifts significantly (e.g., festive season), trigger retraining alert.</li>
+</ol>
+<hr />
+<h2 id="q19-what-is-feature-drift-how-do-you-detect-and-handle-it">Q19: What is Feature Drift? How do you detect and handle it?</h2>
+<p><strong>Answer:</strong>
+Feature Drift (also called Data Drift) occurs when the statistical distribution of input features changes over time, causing model performance to degrade.</p>
+<p><strong>Types of drift:</strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Type</th>
+<th>What Changes</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Feature Drift (Data Drift)</strong></td>
+<td>Distribution of input features</td>
+<td>During COVID, Swiggy's <code>avg_order_value</code> jumped 40% as people ordered more from home.</td>
+</tr>
+<tr>
+<td><strong>Concept Drift</strong></td>
+<td>Relationship between features and target</td>
+<td>Before COVID, high <code>order_frequency</code> predicted loyalty. During COVID, even disloyal users ordered frequently (no choice). Same features, different meaning.</td>
+</tr>
+<tr>
+<td><strong>Label Drift</strong></td>
+<td>Distribution of the target variable</td>
+<td>Fraud rate at HDFC Bank increases from 0.5% to 2% during a data breach — the baseline changes.</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>How to detect drift:</strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Method</th>
+<th>How It Works</th>
+<th>Tool</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Population Stability Index (PSI)</strong></td>
+<td>Compare feature distribution between training data and current production data. PSI &gt; 0.2 = significant drift.</td>
+<td>Custom Python, Evidently AI</td>
+</tr>
+<tr>
+<td><strong>Kolmogorov-Smirnov Test</strong></td>
+<td>Statistical test comparing two distributions. Low p-value = distributions are different.</td>
+<td>SciPy, Evidently AI</td>
+</tr>
+<tr>
+<td><strong>Jensen-Shannon Divergence</strong></td>
+<td>Measures how different two probability distributions are. Higher = more drift.</td>
+<td>Custom code</td>
+</tr>
+<tr>
+<td><strong>Performance monitoring</strong></td>
+<td>Track model accuracy/F1 over time. Declining performance = likely drift.</td>
+<td>MLflow, Grafana</td>
+</tr>
+<tr>
+<td><strong>Feature monitoring dashboards</strong></td>
+<td>Visualise feature distributions over time. Manual inspection.</td>
+<td>Grafana, Evidently AI</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>How to handle drift:</strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Strategy</th>
+<th>When to Use</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Scheduled retraining</strong></td>
+<td>Retrain model every week/month with latest data. Simple and effective.</td>
+</tr>
+<tr>
+<td><strong>Triggered retraining</strong></td>
+<td>Automatically retrain when drift exceeds threshold (PSI &gt; 0.2).</td>
+</tr>
+<tr>
+<td><strong>Online learning</strong></td>
+<td>Model continuously updates with new data (incremental learning). For rapidly changing environments.</td>
+</tr>
+<tr>
+<td><strong>Feature store monitoring</strong></td>
+<td>Feature store detects drift and alerts teams before model performance drops.</td>
+</tr>
+<tr>
+<td><strong>Windowed training</strong></td>
+<td>Only train on recent data (last 3 months) instead of all historical data. Recent data is more relevant.</td>
+</tr>
+<tr>
+<td><strong>Model ensemble</strong></td>
+<td>Run old model and new model in parallel. Gradually shift traffic to new model (A/B testing).</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Indian example — Zomato during COVID:</strong>
+- Pre-COVID: Model trained on dine-in + delivery data. <code>is_dine_in</code> was a feature.
+- During COVID: Dine-in dropped to zero. Distribution of multiple features shifted dramatically.
+- Model performance degraded because it had never seen "all orders are delivery" patterns.
+- Fix: Retrained with COVID-era data, removed dine-in features, added <code>is_lockdown</code> feature.</p>
+<hr />
+<h2 id="q20-scenario-you-re-building-a-real-time-fraud-detection-system-for-paytm-using-a-feature-store-design-the-complete-system">Q20: Scenario — You're building a real-time fraud detection system for Paytm using a Feature Store. Design the complete system.</h2>
+<p><strong>Answer:</strong></p>
+<h3 id="requirements">Requirements:</h3>
+<ul>
+<li>Detect fraud within 100ms of transaction</li>
+<li>Handle 10,000+ transactions per second</li>
+<li>Use both historical patterns and real-time signals</li>
+<li>Minimise false positives (don't block legitimate transactions)</li>
+</ul>
+<h3 id="architecture_1">Architecture:</h3>
+<pre><code>User initiates payment on Paytm
+         │
+         ▼
+    ┌─────────┐
+    │  Kafka   │  (Transaction event published)
+    └────┬────┘
+         │
+         ▼
+┌──────────────────┐     ┌──────────────────────────┐
+│  Fraud Detection  │←───│      Feature Store         │
+│  Service (Flink)  │     │                            │
+│                   │     │  Online Store (Redis):     │
+│  1. Get features  │     │  - user_avg_txn_amount     │
+│  2. Score with    │     │  - user_txn_last_1hr       │
+│     model         │     │  - user_last_location      │
+│  3. Decide        │     │  - device_fingerprint      │
+│                   │     │  - merchant_fraud_rate      │
+└────────┬─────────┘     │                            │
+         │               │  Offline Store (S3):       │
+         │               │  - historical patterns      │
+    ┌────▼────┐          │  - (used for training)      │
+    │ Decision │          └──────────────────────────┘
+    │          │
+    ├── APPROVE → Payment proceeds
+    ├── DECLINE → Transaction blocked, user notified
+    └── REVIEW → Sent to manual review queue
+</code></pre>
+<h3 id="feature-store-implementation">Feature Store Implementation:</h3>
+<p><strong>Online Features (served in &lt;5ms):</strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Pipeline</th>
+<th>Update Frequency</th>
+<th>Why Online</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>user_txn_count_last_1hr</code></td>
+<td>Streaming (Flink)</td>
+<td>Every transaction</td>
+<td>Velocity check — 20 transactions in 1 hour is suspicious</td>
+</tr>
+<tr>
+<td><code>user_txn_amount_last_1hr</code></td>
+<td>Streaming (Flink)</td>
+<td>Every transaction</td>
+<td>Total amount spent recently</td>
+</tr>
+<tr>
+<td><code>user_last_transaction_location</code></td>
+<td>Streaming (Flink)</td>
+<td>Every transaction</td>
+<td>Distance check — Delhi then Mumbai in 1 hour = impossible</td>
+</tr>
+<tr>
+<td><code>user_last_transaction_time</code></td>
+<td>Streaming (Flink)</td>
+<td>Every transaction</td>
+<td>Time gap between transactions</td>
+</tr>
+<tr>
+<td><code>device_is_new = 1/0</code></td>
+<td>Streaming (Flink)</td>
+<td>Every transaction</td>
+<td>First time using this device</td>
+</tr>
+<tr>
+<td><code>merchant_fraud_rate_7d</code></td>
+<td>Batch → materialised to online</td>
+<td>Hourly</td>
+<td>Some merchants have higher fraud rates</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Offline Features (used for training):</strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Pipeline</th>
+<th>Update Frequency</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>user_avg_txn_amount_90d</code></td>
+<td>Batch (Spark)</td>
+<td>Daily</td>
+</tr>
+<tr>
+<td><code>user_max_single_txn_ever</code></td>
+<td>Batch (Spark)</td>
+<td>Daily</td>
+</tr>
+<tr>
+<td><code>user_unique_merchants_30d</code></td>
+<td>Batch (Spark)</td>
+<td>Daily</td>
+</tr>
+<tr>
+<td><code>user_international_txn_pct</code></td>
+<td>Batch (Spark)</td>
+<td>Daily</td>
+</tr>
+<tr>
+<td><code>user_declined_txn_30d</code></td>
+<td>Batch (Spark)</td>
+<td>Daily</td>
+</tr>
+<tr>
+<td><code>merchant_category_fraud_history</code></td>
+<td>Batch (Spark)</td>
+<td>Weekly</td>
+</tr>
+<tr>
+<td><code>user_device_history</code></td>
+<td>Batch (Spark)</td>
+<td>Daily</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="model-scoring-within-flink">Model Scoring (within Flink):</h3>
+<pre><code>For each transaction:
+    1. Read online features from Redis (5ms)
+    2. Compute real-time features in Flink:
+       - distance_from_last_txn
+       - time_since_last_txn
+       - amount_ratio = txn_amount / user_avg_txn_amount
+       - is_new_merchant = 1/0
+    3. Score with ML model (XGBoost loaded in Flink): (5ms)
+       fraud_score = model.predict(all_features)
+    4. Decision:
+       - fraud_score &lt; 0.3 → APPROVE
+       - fraud_score 0.3-0.7 → REVIEW (send to human analyst)
+       - fraud_score &gt; 0.7 → DECLINE
+    Total time: ~15ms
+</code></pre>
+<h3 id="preventing-training-serving-skew">Preventing Training-Serving Skew:</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Skew Type</th>
+<th>How Feature Store Prevents It</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Computation</strong></td>
+<td><code>user_avg_txn_amount_90d</code> computed by same Spark job for training and materialised to Redis for serving</td>
+</tr>
+<tr>
+<td><strong>Freshness</strong></td>
+<td>Real-time features updated via Flink streaming pipeline. Redis TTL ensures stale features are flagged.</td>
+</tr>
+<tr>
+<td><strong>Leakage</strong></td>
+<td>Point-in-time joins ensure training data doesn't use future transaction information</td>
+</tr>
+<tr>
+<td><strong>Distribution</strong></td>
+<td>Weekly drift report compares feature distributions. Alert if fraud rate or transaction patterns shift (e.g., festival season).</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="monitoring">Monitoring:</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Metric</th>
+<th>Threshold</th>
+<th>Action</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Feature serving latency</td>
+<td>&gt; 10ms</td>
+<td>Alert engineering team</td>
+</tr>
+<tr>
+<td>Feature freshness (online)</td>
+<td>&gt; 5 minutes stale</td>
+<td>Alert on-call</td>
+</tr>
+<tr>
+<td>Model accuracy (daily)</td>
+<td>&lt; 90% precision</td>
+<td>Trigger retraining</td>
+</tr>
+<tr>
+<td>False positive rate</td>
+<td>&gt; 5%</td>
+<td>Review threshold settings</td>
+</tr>
+<tr>
+<td>Feature drift (PSI)</td>
+<td>&gt; 0.2</td>
+<td>Alert data science team</td>
+</tr>
+</tbody>
+</table></div>
+</main>
+<button class="back-top" id="backTop" title="Back to top">&#8593;</button>
+<script>
+const bar=document.getElementById('progress');
+const btn=document.getElementById('backTop');
+const toggle=document.getElementById('sidebarToggle');
+const sidebar=document.getElementById('sidebar');
+window.addEventListener('scroll',()=>{
+  const s=document.documentElement.scrollTop;
+  const h=document.documentElement.scrollHeight-document.documentElement.clientHeight;
+  bar.style.width=(s/h*100)+'%';
+  btn.classList.toggle('show',s>400);
+});
+btn.onclick=()=>window.scrollTo({top:0,behavior:'smooth'});
+toggle.onclick=()=>sidebar.classList.toggle('open');
+// Active sidebar link
+const links=document.querySelectorAll('.sidebar nav a');
+const obs=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{if(e.isIntersecting){
+    links.forEach(l=>l.classList.remove('active'));
+    const a=document.querySelector('.sidebar nav a[href="#'+e.target.id+'"]');
+    if(a)a.classList.add('active');
+  }});
+},{rootMargin:'-20% 0px -70% 0px'});
+document.querySelectorAll('h2[id],h3[id]').forEach(h=>obs.observe(h));
+</script>
+</body>
+</html>

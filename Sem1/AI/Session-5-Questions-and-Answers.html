@@ -3,9 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Session 5: Q&A — Data and Feature Engineering</title>
+<title>Session 5: Questions and Answers</title>
 <style>
-:root{--bg:#0f172a;--surface:#1e293b;--surface2:#334155;--border:#475569;--text:#e2e8f0;--text-muted:#94a3b8;--code-bg:#0d1117;--accent:#ec4899;--accent-dim:rgba(236,72,153,.15);--accent-border:rgba(236,72,153,.3);--header-gradient:linear-gradient(135deg,#831843,#db2777,#ec4899)}
+:root{--bg:#0f172a;--surface:#1e293b;--surface2:#334155;--border:#475569;--text:#e2e8f0;--text-muted:#94a3b8;--code-bg:#0d1117;--accent:#ef4444;--accent-dim:rgba(239,68,68,.15);--accent-border:rgba(239,68,68,.3);--header-gradient:linear-gradient(135deg,#7f1d1d,#dc2626,#ef4444)}
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth}
 body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);line-height:1.7;display:flex;min-height:100vh}
@@ -14,430 +14,995 @@ body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--
 .sidebar-header{padding:0 1.5rem 1.5rem;border-bottom:1px solid var(--border);margin-bottom:1rem}
 .sidebar-header h2{font-size:1rem;color:var(--accent);margin-bottom:.25rem}
 .sidebar-header p{font-size:.75rem;color:var(--text-muted)}
-.sidebar nav a{display:block;padding:.45rem 1.5rem;color:var(--text-muted);text-decoration:none;font-size:.78rem;border-left:3px solid transparent;transition:all .2s}
+.sidebar nav a{display:block;padding:.55rem 1.5rem;color:var(--text-muted);text-decoration:none;font-size:.85rem;border-left:3px solid transparent;transition:all .2s}
 .sidebar nav a:hover,.sidebar nav a.active{color:var(--accent);background:var(--accent-dim);border-left-color:var(--accent)}
+.sidebar nav a.sub{padding-left:2.5rem;font-size:.8rem}
 .sidebar-toggle{display:none;position:fixed;top:1rem;left:1rem;z-index:200;background:var(--surface);border:1px solid var(--border);color:var(--text);width:40px;height:40px;border-radius:8px;cursor:pointer;font-size:1.2rem}
 .main{margin-left:280px;flex:1;max-width:900px;padding:2rem 3rem 4rem}
-.page-header{background:var(--header-gradient);border-radius:16px;padding:2.5rem;margin-bottom:2rem;position:relative;overflow:hidden}
+.page-header{background:var(--header-gradient);border-radius:16px;padding:2.5rem;margin-bottom:2.5rem;position:relative;overflow:hidden}
 .page-header::after{content:'';position:absolute;top:0;right:0;width:200px;height:100%;background:radial-gradient(circle at 80% 50%,rgba(255,255,255,.1),transparent);pointer-events:none}
 .page-header .badge{display:inline-block;background:rgba(0,0,0,.3);color:#fff;padding:.25rem .75rem;border-radius:20px;font-size:.75rem;margin-bottom:.75rem}
 .page-header h1{font-size:2rem;color:#fff;margin-bottom:.5rem}
 .page-header .meta{color:rgba(255,255,255,.8);font-size:.85rem}
-.controls{display:flex;flex-wrap:wrap;gap:.75rem;align-items:center;margin-bottom:2rem;padding:1rem 1.2rem;background:var(--surface);border:1px solid var(--border);border-radius:12px}
-.score-display{font-size:.95rem;color:var(--text);margin-right:auto}
-.score-display span{color:var(--accent);font-weight:700;font-size:1.1rem}
-.btn{padding:.5rem 1rem;border:1px solid var(--accent);background:transparent;color:var(--accent);border-radius:8px;cursor:pointer;font-size:.85rem;transition:all .2s}
-.btn:hover{background:var(--accent);color:#fff}
-.qa-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;margin-bottom:1.2rem;overflow:hidden;transition:border-color .3s}
-.qa-card:hover{border-color:var(--accent-border)}
-.qa-question{display:flex;align-items:flex-start;gap:.75rem;padding:1.2rem;cursor:pointer;user-select:none}
-.qa-question input[type="checkbox"]{margin-top:.35rem;width:18px;height:18px;accent-color:var(--accent);flex-shrink:0;cursor:pointer}
-.qa-question .q-text{flex:1;font-weight:600;font-size:.95rem}
-.qa-question .q-num{color:var(--accent);font-weight:700;flex-shrink:0;min-width:32px}
-.qa-toggle{color:var(--accent);font-size:1.2rem;flex-shrink:0;transition:transform .3s;margin-top:.1rem}
-.qa-card.open .qa-toggle{transform:rotate(180deg)}
-.qa-answer{max-height:0;overflow:hidden;transition:max-height .4s ease}
-.qa-card.open .qa-answer{max-height:6000px}
-.qa-answer-inner{padding:0 1.2rem 1.2rem;border-top:1px solid var(--border);padding-top:1rem}
-.qa-answer-inner p{margin-bottom:.8rem}
-.table-wrap{overflow-x:auto;margin:1rem 0;border-radius:10px;border:1px solid var(--border)}
-table{width:100%;border-collapse:collapse;font-size:.83rem}
-thead th{background:var(--accent);color:#fff;padding:.6rem .8rem;text-align:left;font-weight:600;white-space:nowrap}
+h2{font-size:1.5rem;color:var(--accent);margin:2.5rem 0 1rem;padding-bottom:.5rem;border-bottom:2px solid var(--accent-border)}
+h3{font-size:1.15rem;color:var(--text);margin:1.8rem 0 .8rem}
+h4{font-size:1rem;color:var(--accent);margin:1.2rem 0 .6rem}
+p{margin-bottom:1rem;color:var(--text)}
+strong{color:var(--text)}
+.table-wrap{overflow-x:auto;margin:1.2rem 0;border-radius:10px;border:1px solid var(--border)}
+table{width:100%;border-collapse:collapse;font-size:.88rem}
+thead th{background:var(--accent);color:#000;padding:.75rem 1rem;text-align:left;font-weight:600;white-space:nowrap}
 tbody tr:nth-child(even){background:var(--surface)}
 tbody tr:nth-child(odd){background:var(--surface2)}
 tbody tr:hover{background:var(--accent-dim)}
-td{padding:.5rem .8rem;border-top:1px solid var(--border)}
-pre{background:var(--code-bg);border:1px solid var(--border);border-radius:10px;padding:1rem;overflow-x:auto;margin:1rem 0;font-size:.83rem;line-height:1.5}
+td{padding:.7rem 1rem;border-top:1px solid var(--border);color:var(--text)}
+pre{background:var(--code-bg);border:1px solid var(--border);border-radius:10px;padding:1.2rem;overflow-x:auto;margin:1.2rem 0;font-size:.85rem;line-height:1.6}
 code{font-family:'Cascadia Code','Fira Code','Consolas',monospace;color:#e6edf3}
 p code,li code,td code{background:var(--code-bg);padding:.15rem .4rem;border-radius:4px;font-size:.85em;color:var(--accent)}
-ul,ol{margin:0 0 .8rem 1.5rem}
-li{margin-bottom:.3rem}
+.callout{background:var(--accent-dim);border-left:4px solid var(--accent);border-radius:0 10px 10px 0;padding:1rem 1.2rem;margin:1.2rem 0;font-size:.92rem}
+.callout p{margin:0;color:var(--text)}
+.callout em{color:var(--text-muted)}
+ul,ol{margin:0 0 1rem 1.5rem;color:var(--text)}
+li{margin-bottom:.4rem}
 li strong{color:var(--accent)}
-.back-top{position:fixed;bottom:2rem;right:2rem;width:44px;height:44px;background:var(--accent);color:#fff;border:none;border-radius:50%;cursor:pointer;font-size:1.3rem;display:none;align-items:center;justify-content:center;box-shadow:0 4px 15px rgba(236,72,153,.3);transition:transform .2s;z-index:100}
+.back-top{position:fixed;bottom:2rem;right:2rem;width:44px;height:44px;background:var(--accent);color:#000;border:none;border-radius:50%;cursor:pointer;font-size:1.3rem;display:none;align-items:center;justify-content:center;box-shadow:0 4px 15px rgba(239,68,68,.3);transition:transform .2s,opacity .2s;z-index:100}
 .back-top:hover{transform:scale(1.1)}
 .back-top.show{display:flex}
-@media(max-width:900px){.sidebar{transform:translateX(-100%)}.sidebar.open{transform:translateX(0)}.sidebar-toggle{display:flex;align-items:center;justify-content:center}.main{margin-left:0;padding:2rem 1.2rem 4rem}}
-@media print{.sidebar,.sidebar-toggle,.back-top,.progress-bar,.controls{display:none!important}.main{margin-left:0;max-width:100%}body{background:#fff;color:#000}.qa-answer{max-height:none!important}.qa-card{border:1px solid #ccc;break-inside:avoid}thead th{background:#ec4899;color:#fff;-webkit-print-color-adjust:exact;print-color-adjust:exact}tbody tr:nth-child(even){background:#f8f8f8}tbody tr:nth-child(odd){background:#fff}pre{background:#f5f5f5;border:1px solid #ccc}code{color:#333}.page-header{background:#ec4899!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}}
+@media(max-width:900px){
+  .sidebar{transform:translateX(-100%)}
+  .sidebar.open{transform:translateX(0)}
+  .sidebar-toggle{display:flex;align-items:center;justify-content:center}
+  .main{margin-left:0;padding:2rem 1.2rem 4rem}
+}
+@media print{
+  .sidebar,.sidebar-toggle,.back-top,.progress-bar{display:none!important}
+  .main{margin-left:0;max-width:100%}
+  body{background:#fff;color:#000}
+  h2{color:#7f1d1d}
+  thead th{background:#ef4444;color:#000;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  tbody tr:nth-child(even){background:#f8f8f8}
+  tbody tr:nth-child(odd){background:#fff}
+  pre{border:1px solid #ccc;background:#f5f5f5}
+  code{color:#333}
+  .callout{background:#fce4ec;border-left-color:#ef4444}
+  .page-header{background:#ef4444!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+}
 </style>
 </head>
 <body>
-
-<div class="progress-bar" id="progressBar"></div>
-<button class="sidebar-toggle" id="sidebarToggle" aria-label="Toggle sidebar">☰</button>
-
+<div class="progress-bar" id="progress"></div>
+<button class="sidebar-toggle" id="sidebarToggle">&#9776;</button>
 <aside class="sidebar" id="sidebar">
   <div class="sidebar-header">
-    <h2>Session 5 Q&A</h2>
-    <p>Data & Feature Engineering</p>
+    <h2>SS ZG662</h2>
+    <p>Introduction to AI Systems</p>
   </div>
   <nav>
-    <a href="#q1">Q1. Structured vs unstructured</a>
-    <a href="#q2">Q2. Data > model</a>
-    <a href="#q3">Q3. Data sources</a>
-    <a href="#q4">Q4. Six dimensions of quality</a>
-    <a href="#q5">Q5. Data leakage</a>
-    <a href="#q6">Q6. Class imbalance</a>
-    <a href="#q7">Q7. Data governance</a>
-    <a href="#q8">Q8. Governance lifecycle</a>
-    <a href="#q9">Q9. Sampling bias</a>
-    <a href="#q10">Q10. Right to be forgotten</a>
-    <a href="#q11">Q11. Traditional vs ML data</a>
-    <a href="#q12">Q12. Bank loan AI issues</a>
-    <a href="Session-5-Data-and-Feature-Engineering.html" style="margin-top:1rem;color:var(--accent);">📖 Session 5 Notes →</a>
+    <a href="#q1-what-are-the-three-types-of-data-compare-them-with-real-world-examples">Q1: What are the three types of data? Compare them...</a>
+    <a href="#q2-what-is-multimodal-ai-why-is-it-important">Q2: What is Multimodal AI? Why is it important?</a>
+    <a href="#q3-compare-internal-vs-external-data-sources-with-examples-why-do-ai-systems-need-both">Q3: Compare Internal vs External data sources with...</a>
+    <a href="#q4-what-are-the-6-dimensions-of-data-quality-explain-each-with-an-example">Q4: What are the 6 dimensions of data quality? Exp...</a>
+    <a href="#q5-what-are-the-common-data-quality-issues-in-machine-learning-explain-each">Q5: What are the common data quality issues in Mac...</a>
+    <a href="#1-missing-values" class="sub">1. Missing Values</a>
+    <a href="#2-outliers" class="sub">2. Outliers</a>
+    <a href="#3-data-leakage" class="sub">3. Data Leakage</a>
+    <a href="#4-class-imbalance" class="sub">4. Class Imbalance</a>
+    <a href="#5-label-noise" class="sub">5. Label Noise</a>
+    <a href="#q6-scenario-a-swiggy-data-scientist-notices-their-delivery-time-prediction-model-has-95-accuracy-on-test-data-but-performs-terribly-in-production-what-could-be-wrong">Q6: Scenario — A Swiggy data scientist notices the...</a>
+    <a href="#q7-what-is-data-governance-list-its-7-key-components">Q7: What is Data Governance? List its 7 key compon...</a>
+    <a href="#q8-what-is-gdpr-list-its-key-principles-and-rights">Q8: What is GDPR? List its key principles and righ...</a>
+    <a href="#q9-what-is-india-s-dpdp-act-2023-how-is-it-different-from-gdpr">Q9: What is India's DPDP Act 2023? How is it diffe...</a>
+    <a href="#q10-what-are-the-ai-specific-governance-challenges-explain-consent-right-to-be-forgotten-bias-auditing-and-machine-unlearning">Q10: What are the AI-specific governance challenge...</a>
+    <a href="#1-consent-in-ai" class="sub">1. Consent in AI</a>
+    <a href="#2-right-to-be-forgotten-in-ai" class="sub">2. Right to be Forgotten in AI</a>
+    <a href="#3-machine-unlearning" class="sub">3. Machine Unlearning</a>
+    <a href="#4-bias-auditing" class="sub">4. Bias Auditing</a>
+    <a href="#q11-explain-the-facebook-cambridge-analytica-data-scandal-what-governance-failures-occurred">Q11: Explain the Facebook/Cambridge Analytica data...</a>
+    <a href="#q12-scenario-a-healthcare-startup-collects-patient-data-for-diagnosis-recommendations-they-later-want-to-use-the-same-data-to-train-an-ai-model-and-sell-insights-to-pharma-companies-what-governance-issues-arise">Q12: Scenario — A healthcare startup collects pati...</a>
+    <a href="#q13-what-is-data-leakage-in-ml-give-three-different-types-with-examples">Q13: What is Data Leakage in ML? Give three differ...</a>
+    <a href="#q14-a-bank-s-credit-scoring-model-rejects-80-of-loan-applications-from-women-but-only-40-from-men-is-this-necessarily-bias-how-should-they-investigate">Q14: A bank's credit scoring model rejects 80% of ...</a>
+    <a href="#q15-scenario-zomato-trains-an-ai-model-to-predict-restaurant-ratings-which-data-quality-issues-should-they-check-for">Q15: Scenario — Zomato trains an AI model to predi...</a>
+    <a href="#q16-what-is-the-difference-between-data-privacy-and-data-security-why-are-both-important-for-ai">Q16: What is the difference between Data Privacy a...</a>
+    <a href="#q17-how-does-class-imbalance-affect-different-types-of-ml-problems-give-indian-examples-for-each">Q17: How does class imbalance affect different typ...</a>
+    <a href="#fraud-detection-hdfc-bank" class="sub">Fraud Detection (HDFC Bank)</a>
+    <a href="#disease-detection-apollo-hospitals" class="sub">Disease Detection (Apollo Hospitals)</a>
+    <a href="#spam-detection-gmail-indian-email-users" class="sub">Spam Detection (Gmail/Indian email users)</a>
+    <a href="#customer-churn-jio" class="sub">Customer Churn (Jio)</a>
+    <a href="#q18-what-is-the-right-to-be-forgotten-and-why-is-it-technically-challenging-for-ai-systems">Q18: What is the "Right to be Forgotten" and why i...</a>
+    <a href="#q19-compare-data-governance-requirements-for-gdpr-vs-dpdp-act-in-a-table-format">Q19: Compare data governance requirements for GDPR...</a>
+    <a href="#q20-scenario-an-indian-ed-tech-company-collects-children-s-learning-data-what-compliance-steps-must-they-follow-under-the-dpdp-act">Q20: Scenario — An Indian ed-tech company collects...</a>
   </nav>
 </aside>
-
 <main class="main">
   <div class="page-header">
-    <span class="badge">Session 5 — 12 Questions</span>
-    <h1>Questions & Answers</h1>
-    <p class="meta">Data and Feature Engineering — Self-Assessment</p>
+    <span class="badge">Session 5 — Q&A</span>
+    <h1>Session 5: Questions and Answers</h1>
+    <div class="meta">Contact Session 5 | Module 2: Data and Feature Engineering</div>
   </div>
-
-  <div class="controls">
-    <div class="score-display">Score: <span id="score">0</span> / <span id="total">12</span></div>
-    <button class="btn" onclick="toggleAll(true)">Show All</button>
-    <button class="btn" onclick="toggleAll(false)">Hide All</button>
-  </div>
-
-  <!-- Q1 -->
-  <div class="qa-card" id="q1">
-    <div class="qa-question" onclick="toggleCard(this)">
-      <input type="checkbox" onclick="event.stopPropagation();updateScore()">
-      <span class="q-num">Q1.</span>
-      <span class="q-text">Compare structured, semi-structured, and unstructured data with examples relevant to AI.</span>
-      <span class="qa-toggle">▼</span>
-    </div>
-    <div class="qa-answer"><div class="qa-answer-inner">
-      <div class="table-wrap"><table>
-        <thead><tr><th>Aspect</th><th>Structured</th><th>Semi-Structured</th><th>Unstructured</th></tr></thead>
-        <tbody>
-          <tr><td><strong>Schema</strong></td><td>Fixed, predefined (rows/columns)</td><td>Flexible, self-describing (tags/keys)</td><td>None</td></tr>
-          <tr><td><strong>Storage</strong></td><td>RDBMS, columnar stores</td><td>Document DBs, data lakes</td><td>Object storage, media servers</td></tr>
-          <tr><td><strong>Query method</strong></td><td>SQL</td><td>JSON queries, path expressions</td><td>AI models, vector search, full-text search</td></tr>
-          <tr><td><strong>Feature engineering</strong></td><td>Straightforward (aggregations, ratios)</td><td>Requires parsing and flattening</td><td>Requires AI to extract features</td></tr>
-          <tr><td><strong>% of enterprise data</strong></td><td>~20%</td><td>~10%</td><td>~70%</td></tr>
-          <tr><td><strong>AI example</strong></td><td>Customer transactions → fraud detection (XGBoost)</td><td>JSON event logs → user behaviour prediction</td><td>Medical images → tumour detection (CNN)</td></tr>
-        </tbody>
-      </table></div>
-      <p><strong>Key insight:</strong> Modern AI increasingly uses <strong>multimodal data</strong> — combining structured (patient records) + unstructured (medical images) + semi-structured (doctor's notes in JSON) in a single system.</p>
-    </div></div>
-  </div>
-
-  <!-- Q2 -->
-  <div class="qa-card" id="q2">
-    <div class="qa-question" onclick="toggleCard(this)">
-      <input type="checkbox" onclick="event.stopPropagation();updateScore()">
-      <span class="q-num">Q2.</span>
-      <span class="q-text">Why is data considered more important than the model in AI systems?</span>
-      <span class="qa-toggle">▼</span>
-    </div>
-    <div class="qa-answer"><div class="qa-answer-inner">
-      <p>"Better data almost always beats a better model." Here's why:</p>
-      <ol>
-        <li><strong>Data defines behaviour:</strong> In ML, the model learns FROM the data. The data IS the logic. A simple logistic regression on clean, relevant data will outperform a complex neural network on noisy, irrelevant data.</li>
-        <li><strong>80% rule:</strong> Approximately 80% of a typical ML project's time goes to data collection, cleaning, labelling, and preparation — not model building.</li>
-        <li><strong>Google's finding:</strong> Research at Google showed that fixing data quality issues improved model performance more than switching to more complex architectures.</li>
-        <li><strong>Silent failures:</strong> Unlike code bugs (which crash), data bugs cause the model to produce subtly wrong predictions that are hard to detect. A training set with 5% wrong labels doesn't crash — it silently produces a model that's 5% less accurate.</li>
-        <li><strong>Data compounds:</strong> More high-quality data continuously improves the model. A better algorithm with the same bad data hits a ceiling.</li>
-      </ol>
-    </div></div>
-  </div>
-
-  <!-- Q3 -->
-  <div class="qa-card" id="q3">
-    <div class="qa-question" onclick="toggleCard(this)">
-      <input type="checkbox" onclick="event.stopPropagation();updateScore()">
-      <span class="q-num">Q3.</span>
-      <span class="q-text">List 5 internal and 5 external data sources for AI systems.</span>
-      <span class="qa-toggle">▼</span>
-    </div>
-    <div class="qa-answer"><div class="qa-answer-inner">
-      <p><strong>Internal sources (from within the organisation):</strong></p>
-      <div class="table-wrap"><table>
-        <thead><tr><th>Source</th><th>What it provides</th></tr></thead>
-        <tbody>
-          <tr><td>Transactional databases</td><td>Orders, payments, customer records, inventory</td></tr>
-          <tr><td>Application logs</td><td>User behaviour, errors, performance metrics</td></tr>
-          <tr><td>CRM systems</td><td>Customer interactions, support tickets, sales data</td></tr>
-          <tr><td>Data warehouse/lake</td><td>Historical, aggregated, transformed analytics data</td></tr>
-          <tr><td>IoT/sensor data</td><td>Real-time readings from connected devices</td></tr>
-        </tbody>
-      </table></div>
-      <p><strong>External sources (from outside):</strong></p>
-      <div class="table-wrap"><table>
-        <thead><tr><th>Source</th><th>What it provides</th></tr></thead>
-        <tbody>
-          <tr><td>Public datasets</td><td>ImageNet, Common Crawl, Wikipedia, government open data</td></tr>
-          <tr><td>Third-party providers</td><td>Demographics (Experian), weather (AccuWeather), location (Foursquare)</td></tr>
-          <tr><td>APIs</td><td>Social media (Twitter/X), maps (Google), stock markets</td></tr>
-          <tr><td>Web scraping</td><td>Competitor prices, job postings, news (legal/ethical considerations apply)</td></tr>
-          <tr><td>Pre-trained model outputs</td><td>Embeddings from CLIP, synthetic data from GPT-4</td></tr>
-        </tbody>
-      </table></div>
-    </div></div>
-  </div>
-
-  <!-- Q4 -->
-  <div class="qa-card" id="q4">
-    <div class="qa-question" onclick="toggleCard(this)">
-      <input type="checkbox" onclick="event.stopPropagation();updateScore()">
-      <span class="q-num">Q4.</span>
-      <span class="q-text">Explain the six dimensions of data quality. Give an AI-specific example for each.</span>
-      <span class="qa-toggle">▼</span>
-    </div>
-    <div class="qa-answer"><div class="qa-answer-inner">
-      <div class="table-wrap"><table>
-        <thead><tr><th>Dimension</th><th>Definition</th><th>AI-Specific Example</th></tr></thead>
-        <tbody>
-          <tr><td><strong>Accuracy</strong></td><td>Values correctly represent reality.</td><td>Customer age recorded as 150 → model learns wrong demographic patterns.</td></tr>
-          <tr><td><strong>Completeness</strong></td><td>No missing values where they should exist.</td><td>30% of rows missing "income" → model either drops these rows (losing data) or imputes incorrectly.</td></tr>
-          <tr><td><strong>Consistency</strong></td><td>Same fact represented the same way everywhere.</td><td>"United States" in one table, "US" in another → join failures, duplicate features.</td></tr>
-          <tr><td><strong>Timeliness</strong></td><td>Data reflects current reality.</td><td>Inventory data 24 hours old → recommendation model suggests out-of-stock items.</td></tr>
-          <tr><td><strong>Validity</strong></td><td>Data conforms to defined formats and constraints.</td><td>Phone number field containing email addresses → feature parsing produces garbage.</td></tr>
-          <tr><td><strong>Uniqueness</strong></td><td>No unintended duplicates.</td><td>Same customer appears 3 times → model over-weights their behaviour, training data inflated.</td></tr>
-        </tbody>
-      </table></div>
-    </div></div>
-  </div>
-
-  <!-- Q5 -->
-  <div class="qa-card" id="q5">
-    <div class="qa-question" onclick="toggleCard(this)">
-      <input type="checkbox" onclick="event.stopPropagation();updateScore()">
-      <span class="q-num">Q5.</span>
-      <span class="q-text">What is data leakage? Why is it one of the most dangerous data quality issues in ML?</span>
-      <span class="qa-toggle">▼</span>
-    </div>
-    <div class="qa-answer"><div class="qa-answer-inner">
-      <p><strong>Data leakage</strong> occurs when information from the test set or from the future "leaks" into the training data, giving the model access to information it wouldn't have at prediction time.</p>
-      <p><strong>Why it's dangerous:</strong></p>
-      <ul>
-        <li>The model appears to perform amazingly during evaluation (high accuracy on test set).</li>
-        <li>But it completely fails in production because the leaked feature doesn't exist at prediction time.</li>
-        <li>It's hard to detect because metrics look great — you only discover it when the deployed model underperforms.</li>
-      </ul>
-      <p><strong>Example:</strong></p>
-      <pre><code>Credit scoring model:
-Feature: "credit_bureau_score"
-
-Problem: The credit bureau updates the score AFTER the loan 
-decision is made. During training, this score reflects the 
-outcome, not the input.
-
-Training: Model learns "high bureau score → no default" → 99% accuracy!
-Production: Bureau score not available at decision time → model fails.</code></pre>
-      <p><strong>How to prevent:</strong></p>
-      <ul>
-        <li>Strict temporal ordering — only use features available at prediction time.</li>
-        <li>Careful train/test splitting — split by time, not randomly, for temporal data.</li>
-        <li>Feature audit — for each feature, ask "would this be available when making a real prediction?"</li>
-      </ul>
-    </div></div>
-  </div>
-
-  <!-- Q6 -->
-  <div class="qa-card" id="q6">
-    <div class="qa-question" onclick="toggleCard(this)">
-      <input type="checkbox" onclick="event.stopPropagation();updateScore()">
-      <span class="q-num">Q6.</span>
-      <span class="q-text">What is class imbalance? How does it affect ML models and how can it be addressed?</span>
-      <span class="qa-toggle">▼</span>
-    </div>
-    <div class="qa-answer"><div class="qa-answer-inner">
-      <p><strong>Class imbalance</strong> occurs when one class has far more examples than others in the training data.</p>
-      <p><strong>Example:</strong> In fraud detection, 98% of transactions are legitimate and only 2% are fraudulent.</p>
-      <p><strong>How it affects models:</strong></p>
-      <ul>
-        <li>The model learns to predict the majority class for everything — "not fraud" for every transaction.</li>
-        <li>This gives 98% accuracy but catches zero actual fraud — completely useless.</li>
-        <li>Standard metrics (accuracy) are misleading. 98% accuracy sounds great but the model is worthless.</li>
-      </ul>
-      <p><strong>Solutions:</strong></p>
-      <div class="table-wrap"><table>
-        <thead><tr><th>Technique</th><th>How it works</th></tr></thead>
-        <tbody>
-          <tr><td><strong>Oversampling (SMOTE)</strong></td><td>Synthetically generate more examples of the minority class.</td></tr>
-          <tr><td><strong>Undersampling</strong></td><td>Randomly remove examples from the majority class.</td></tr>
-          <tr><td><strong>Class weights</strong></td><td>Tell the model that misclassifying a fraud case costs 50x more than misclassifying a legitimate one.</td></tr>
-          <tr><td><strong>Threshold tuning</strong></td><td>Instead of using 0.5 as the classification threshold, use a lower value (e.g. 0.1) to catch more positives.</td></tr>
-          <tr><td><strong>Better metrics</strong></td><td>Use precision, recall, F1, AUC-PR instead of accuracy.</td></tr>
-          <tr><td><strong>Ensemble methods</strong></td><td>Train multiple models on balanced subsets.</td></tr>
-        </tbody>
-      </table></div>
-    </div></div>
-  </div>
-
-  <!-- Q7 -->
-  <div class="qa-card" id="q7">
-    <div class="qa-question" onclick="toggleCard(this)">
-      <input type="checkbox" onclick="event.stopPropagation();updateScore()">
-      <span class="q-num">Q7.</span>
-      <span class="q-text">What is data governance? Why does it matter specifically for AI systems?</span>
-      <span class="qa-toggle">▼</span>
-    </div>
-    <div class="qa-answer"><div class="qa-answer-inner">
-      <p><strong>Data governance</strong> is the framework of policies, processes, and standards ensuring data is managed securely, consistently, and in compliance with regulations.</p>
-      <p><strong>Why it matters specifically for AI:</strong></p>
-      <div class="table-wrap"><table>
-        <thead><tr><th>AI-Specific Concern</th><th>Why governance is needed</th></tr></thead>
-        <tbody>
-          <tr><td><strong>Models trained on unauthorized data</strong></td><td>Legal liability. GDPR fines up to 4% of global revenue.</td></tr>
-          <tr><td><strong>Models reproducing biases</strong></td><td>Discriminatory predictions (denying loans based on race proxies). Reputational and legal risk.</td></tr>
-          <tr><td><strong>No audit trail</strong></td><td>Can't explain or defend model decisions to regulators. Required in finance (Basel) and healthcare (HIPAA).</td></tr>
-          <tr><td><strong>Inconsistent data across teams</strong></td><td>Different teams train on different "truth," producing contradictory models.</td></tr>
-          <tr><td><strong>Model memorises PII</strong></td><td>LLMs can memorise and regurgitate personal data from training. Privacy violation.</td></tr>
-        </tbody>
-      </table></div>
-      <p>In traditional analytics, poor governance means wrong reports. In AI, poor governance means wrong automated decisions affecting real people at scale.</p>
-    </div></div>
-  </div>
-
-  <!-- Q8 -->
-  <div class="qa-card" id="q8">
-    <div class="qa-question" onclick="toggleCard(this)">
-      <input type="checkbox" onclick="event.stopPropagation();updateScore()">
-      <span class="q-num">Q8.</span>
-      <span class="q-text">Explain the data governance lifecycle for AI systems.</span>
-      <span class="qa-toggle">▼</span>
-    </div>
-    <div class="qa-answer"><div class="qa-answer-inner">
-      <pre><code>1. DISCOVER  → What data exists? Where? Who owns it?        (Data Catalog)
-2. CLASSIFY  → Is it PII? Sensitive? Regulated?              (Classification)
-3. PROTECT   → Encrypt, anonymise, control access.           (Security)
-4. COMPLY    → GDPR, HIPAA, India's DPDP Act. Consent mgmt. (Compliance)
-5. MONITOR   → Quality checks, access audit logs, lineage.   (Observability)
-6. GOVERN    → Policies, standards, ownership, stewardship.  (People + Process)</code></pre>
-      <p><strong>Key components:</strong></p>
-      <div class="table-wrap"><table>
-        <thead><tr><th>Component</th><th>Purpose</th></tr></thead>
-        <tbody>
-          <tr><td><strong>Data ownership</strong></td><td>Who is responsible for each dataset. Accountability for quality.</td></tr>
-          <tr><td><strong>Access control</strong></td><td>Who can access what, for what purpose. Prevent unauthorized ML training.</td></tr>
-          <tr><td><strong>Data lineage</strong></td><td>Where data came from, how transformed, where used. Trace bad predictions to root cause.</td></tr>
-          <tr><td><strong>Data cataloging</strong></td><td>Central inventory of all data assets. Data scientists discover data without asking 10 people.</td></tr>
-          <tr><td><strong>Privacy compliance</strong></td><td>GDPR, HIPAA, CCPA, DPDP Act. Consent, anonymisation, right to deletion.</td></tr>
-          <tr><td><strong>Retention policies</strong></td><td>How long data kept. Regulatory requirements. Stale data degrades models.</td></tr>
-          <tr><td><strong>Quality standards</strong></td><td>Defined thresholds: "Completeness > 95%, Freshness &lt; 1 hour."</td></tr>
-        </tbody>
-      </table></div>
-    </div></div>
-  </div>
-
-  <!-- Q9 -->
-  <div class="qa-card" id="q9">
-    <div class="qa-question" onclick="toggleCard(this)">
-      <input type="checkbox" onclick="event.stopPropagation();updateScore()">
-      <span class="q-num">Q9.</span>
-      <span class="q-text">What is sampling bias? Give an example of how it affects AI systems.</span>
-      <span class="qa-toggle">▼</span>
-    </div>
-    <div class="qa-answer"><div class="qa-answer-inner">
-      <p><strong>Sampling bias</strong> occurs when training data is not representative of the real-world population the model will serve.</p>
-      <p><strong>Classic example — Facial recognition:</strong></p>
-      <ul>
-        <li>Training data contained mostly light-skinned faces (majority from Western internet datasets).</li>
-        <li>The model performed well on light-skinned faces (90%+ accuracy) but poorly on dark-skinned faces (65% accuracy).</li>
-        <li>When deployed in a diverse population, the model systematically failed for underrepresented groups.</li>
-      </ul>
-      <p><strong>Why it happens:</strong></p>
-      <ul>
-        <li>Data collected from convenience sources (internet scraping favours certain demographics).</li>
-        <li>Historical biases in data (loan approval data from an era when certain groups were discriminated against).</li>
-        <li>Survivorship bias (only successful cases are recorded, failures are lost).</li>
-      </ul>
-      <p><strong>How to mitigate:</strong></p>
-      <ul>
-        <li>Audit training data for demographic representation.</li>
-        <li>Collect data intentionally from underrepresented groups.</li>
-        <li>Evaluate model performance per subgroup (not just overall accuracy).</li>
-        <li>Use fairness metrics (equal opportunity, demographic parity).</li>
-      </ul>
-    </div></div>
-  </div>
-
-  <!-- Q10 -->
-  <div class="qa-card" id="q10">
-    <div class="qa-question" onclick="toggleCard(this)">
-      <input type="checkbox" onclick="event.stopPropagation();updateScore()">
-      <span class="q-num">Q10.</span>
-      <span class="q-text">What is the "right to be forgotten" and how does it affect AI systems?</span>
-      <span class="qa-toggle">▼</span>
-    </div>
-    <div class="qa-answer"><div class="qa-answer-inner">
-      <p>Under <strong>GDPR Article 17</strong>, individuals can request that an organisation delete all their personal data. This is the "right to be forgotten" (right to erasure).</p>
-      <p><strong>The AI challenge:</strong> If a user's data was used to train an ML model, the model has already "learned" from that data. Simply deleting the data from the database doesn't remove its influence from the model's weights.</p>
-      <p><strong>Solutions:</strong></p>
-      <div class="table-wrap"><table>
-        <thead><tr><th>Approach</th><th>How it works</th><th>Trade-off</th></tr></thead>
-        <tbody>
-          <tr><td><strong>Full retraining</strong></td><td>Delete the data, retrain the model from scratch without it.</td><td>Expensive (days/weeks of GPU compute for large models). But guaranteed.</td></tr>
-          <tr><td><strong>Machine unlearning</strong></td><td>Approximate techniques to remove a data point's influence without full retraining.</td><td>Faster but imperfect — influence may not be fully removed. Active research area.</td></tr>
-          <tr><td><strong>Data sharding</strong></td><td>Train on shards. To "forget" a user, retrain only their shard.</td><td>Faster retraining. But shard boundaries must be designed upfront.</td></tr>
-          <tr><td><strong>Differential privacy</strong></td><td>Add noise during training so no individual data point significantly influences the model.</td><td>Prevents memorisation proactively. But reduces model accuracy.</td></tr>
-        </tbody>
-      </table></div>
-    </div></div>
-  </div>
-
-  <!-- Q11 -->
-  <div class="qa-card" id="q11">
-    <div class="qa-question" onclick="toggleCard(this)">
-      <input type="checkbox" onclick="event.stopPropagation();updateScore()">
-      <span class="q-num">Q11.</span>
-      <span class="q-text">Compare the data needs of traditional software vs AI/ML systems.</span>
-      <span class="qa-toggle">▼</span>
-    </div>
-    <div class="qa-answer"><div class="qa-answer-inner">
-      <div class="table-wrap"><table>
-        <thead><tr><th>Aspect</th><th>Traditional Software</th><th>AI/ML System</th></tr></thead>
-        <tbody>
-          <tr><td><strong>Role of data</strong></td><td>Data is input to be processed by code.</td><td>Data IS the logic — model learns from data.</td></tr>
-          <tr><td><strong>Data quality impact</strong></td><td>Bad data → wrong output for that input.</td><td>Bad data → wrong model → wrong output for ALL inputs.</td></tr>
-          <tr><td><strong>Data volume</strong></td><td>Moderate — process what's needed.</td><td>Large — more data generally improves the model.</td></tr>
-          <tr><td><strong>Data freshness</strong></td><td>Real-time data needed for current transactions.</td><td>Training data can be historical. Serving data must be fresh.</td></tr>
-          <tr><td><strong>Data versioning</strong></td><td>Rarely version data (version code instead).</td><td>Critical — must version data AND code to reproduce results.</td></tr>
-          <tr><td><strong>Testing</strong></td><td>Test with known inputs and expected outputs.</td><td>Test with held-out data, but can't enumerate all edge cases.</td></tr>
-          <tr><td><strong>Failure mode</strong></td><td>Crashes, errors, wrong output for specific input.</td><td>Silently degrades — wrong predictions without obvious errors.</td></tr>
-        </tbody>
-      </table></div>
-    </div></div>
-  </div>
-
-  <!-- Q12 -->
-  <div class="qa-card" id="q12">
-    <div class="qa-question" onclick="toggleCard(this)">
-      <input type="checkbox" onclick="event.stopPropagation();updateScore()">
-      <span class="q-num">Q12.</span>
-      <span class="q-text">A bank is building a loan approval AI system. Identify 4 data quality issues that could arise and explain their impact.</span>
-      <span class="qa-toggle">▼</span>
-    </div>
-    <div class="qa-answer"><div class="qa-answer-inner">
-      <div class="table-wrap"><table>
-        <thead><tr><th>Issue</th><th>What happens</th><th>Impact on loan model</th></tr></thead>
-        <tbody>
-          <tr><td><strong>1. Missing values (completeness)</strong></td><td>15% of applicants missing "employment_years." Imputed with median (5 years).</td><td>But missing likely means unemployed → should be 0. Model underestimates risk for unemployed applicants. Approves risky loans.</td></tr>
-          <tr><td><strong>2. Data leakage</strong></td><td>"credit_bureau_score" included as a feature. But it's updated AFTER the loan decision.</td><td>Model uses future information → looks amazing in testing (99% accuracy) → completely fails in production (feature unavailable at decision time).</td></tr>
-          <tr><td><strong>3. Sampling bias</strong></td><td>Training data from 2018-2023. Bank only served urban professionals until 2022, then expanded to rural areas.</td><td>Rural applicants underrepresented → model performs poorly for rural customers. Unfair denials or risky approvals for new segment.</td></tr>
-          <tr><td><strong>4. Class imbalance</strong></td><td>Only 2% of loans default.</td><td>Model predicts "no default" for everyone → 98% accuracy but catches zero actual defaults. Useless for risk management. Need to use class weights, oversampling, or precision/recall metrics.</td></tr>
-        </tbody>
-      </table></div>
-      <p>Each issue silently degrades the model without obvious errors — the model doesn't crash, it just makes wrong decisions that affect real people's lives.</p>
-    </div></div>
-  </div>
-
-  <p style="text-align:center;color:var(--text-muted);margin-top:3rem;font-size:.85rem"><em>End of Session 5 Questions & Answers</em></p>
+<h1 id="session-5-questions-and-answers">Session 5: Questions and Answers</h1>
+<div class="callout">
+<p>BITS Pilani — SS ZG662: Introduction to AI Systems</p>
+</div>
+<hr />
+<h2 id="q1-what-are-the-three-types-of-data-compare-them-with-real-world-examples">Q1: What are the three types of data? Compare them with real-world examples.</h2>
+<p><strong>Answer:</strong>
+All data in the world falls into three categories based on how it is organised:</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Aspect</th>
+<th>Structured Data</th>
+<th>Semi-Structured Data</th>
+<th>Unstructured Data</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>What it is</strong></td>
+<td>Data in fixed rows and columns with a defined schema</td>
+<td>Data with some organisation (tags/keys) but no rigid table structure</td>
+<td>Data with no predefined format</td>
+</tr>
+<tr>
+<td><strong>Storage</strong></td>
+<td>Relational databases (MySQL, PostgreSQL)</td>
+<td>Document databases (MongoDB), data lakes</td>
+<td>Object storage (S3), media servers</td>
+</tr>
+<tr>
+<td><strong>How to query</strong></td>
+<td>SQL queries</td>
+<td>JSON path queries, parsing</td>
+<td>AI models, vector search</td>
+</tr>
+<tr>
+<td><strong>% of enterprise data</strong></td>
+<td>~20%</td>
+<td>~10%</td>
+<td>~70%</td>
+</tr>
+<tr>
+<td><strong>Example — Banking</strong></td>
+<td>HDFC Bank customer table: Name, Account No, Balance</td>
+<td>JSON transaction logs with nested payment details</td>
+<td>Customer call recordings to the helpline</td>
+</tr>
+<tr>
+<td><strong>Example — E-commerce</strong></td>
+<td>Flipkart orders table: Order ID, Product, Price, Date</td>
+<td>Product catalog in JSON with variable attributes</td>
+<td>Customer review photos and videos</td>
+</tr>
+<tr>
+<td><strong>Example — Healthcare</strong></td>
+<td>Patient records: Age, Blood Group, Test Results</td>
+<td>HL7/FHIR medical data exchange files</td>
+<td>X-ray images, MRI scans, doctor's handwritten notes</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Key insight for exams:</strong> ~70% of all enterprise data is unstructured. This is why AI is so valuable — only AI models (CNNs, transformers) can extract useful information from unstructured data at scale. Traditional software cannot.</p>
+<hr />
+<h2 id="q2-what-is-multimodal-ai-why-is-it-important">Q2: What is Multimodal AI? Why is it important?</h2>
+<p><strong>Answer:</strong>
+Multimodal AI refers to AI systems that can understand, process, and combine multiple types of data (text, images, audio, video) simultaneously in a single model.</p>
+<p><strong>Simple analogy:</strong> A human doctor doesn't just read the blood report (structured data). They also look at the X-ray (image), listen to the patient describe symptoms (audio/text), and observe the patient's physical appearance (video). Multimodal AI does the same thing.</p>
+<p><strong>Real examples:</strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Multimodal System</th>
+<th>Data Types Combined</th>
+<th>What It Does</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Google Gemini</strong></td>
+<td>Text + Images + Audio + Video</td>
+<td>Can watch a video and answer questions about it</td>
+</tr>
+<tr>
+<td><strong>GPT-4o</strong></td>
+<td>Text + Images + Audio</td>
+<td>Can see a photo of a math problem and solve it</td>
+</tr>
+<tr>
+<td><strong>Tesla Autopilot</strong></td>
+<td>Camera images + LIDAR + GPS + Sensor data</td>
+<td>Combines multiple sensor inputs to drive safely</td>
+</tr>
+<tr>
+<td><strong>Apollo Hospitals AI</strong></td>
+<td>Patient records (structured) + CT scans (images) + doctor notes (text)</td>
+<td>Better diagnosis by combining all patient information</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Why it matters:</strong>
+- Real-world problems are never single-type. A fraud detection system needs transaction data (structured) + user behaviour patterns (semi-structured) + voice recordings of customer calls (unstructured).
+- Multimodal models outperform single-modal ones because they see the complete picture.</p>
+<hr />
+<h2 id="q3-compare-internal-vs-external-data-sources-with-examples-why-do-ai-systems-need-both">Q3: Compare Internal vs External data sources with examples. Why do AI systems need both?</h2>
+<p><strong>Answer:</strong></p>
+<p><strong>Internal Data Sources</strong> — data generated within the organisation:</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Source</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Transactional databases</td>
+<td>Swiggy's order history — what you ordered, when, from where</td>
+</tr>
+<tr>
+<td>CRM systems</td>
+<td>Salesforce records of customer interactions at HDFC Bank</td>
+</tr>
+<tr>
+<td>Application logs</td>
+<td>Zomato app logs — which restaurants you browsed, how long you spent on each</td>
+</tr>
+<tr>
+<td>IoT/Sensor data</td>
+<td>Tata Steel factory sensors — temperature, pressure, vibration readings</td>
+</tr>
+<tr>
+<td>Employee data</td>
+<td>HR systems at TCS — attendance, performance reviews</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>External Data Sources</strong> — data from outside the organisation:</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Source</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Public datasets</td>
+<td>Census of India data, government open data portal (data.gov.in)</td>
+</tr>
+<tr>
+<td>Third-party APIs</td>
+<td>Google Maps API for location data, AccuWeather for weather data</td>
+</tr>
+<tr>
+<td>Social media</td>
+<td>Twitter/X sentiment about a brand, Reddit discussions</td>
+</tr>
+<tr>
+<td>Web scraping</td>
+<td>Competitor pricing from Amazon/Flipkart</td>
+</tr>
+<tr>
+<td>Purchased data</td>
+<td>Nielsen market research data, credit bureau (CIBIL) scores</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Why both are needed:</strong>
+- Swiggy uses internal data (your past orders) + external data (weather, traffic, local events) to predict delivery time. On a rainy day during an IPL match, delivery times go up — the model needs weather and event data (external) combined with restaurant preparation times (internal) to predict accurately.</p>
+<hr />
+<h2 id="q4-what-are-the-6-dimensions-of-data-quality-explain-each-with-an-example">Q4: What are the 6 dimensions of data quality? Explain each with an example.</h2>
+<p><strong>Answer:</strong>
+Data quality is measured on 6 dimensions. Think of them as a health checkup for your data:</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Dimension</th>
+<th>What It Means</th>
+<th>Good Example</th>
+<th>Bad Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Accuracy</strong></td>
+<td>Data correctly represents reality</td>
+<td>Customer age = 28 (actual age is 28)</td>
+<td>Customer age = 280 (typo — clearly wrong)</td>
+</tr>
+<tr>
+<td><strong>Completeness</strong></td>
+<td>No missing values in critical fields</td>
+<td>All Aadhaar records have name + address + photo</td>
+<td>30% of patient records missing blood group</td>
+</tr>
+<tr>
+<td><strong>Consistency</strong></td>
+<td>Same fact stored the same way everywhere</td>
+<td>Customer name is "Rahul Sharma" in all systems</td>
+<td>"Rahul Sharma" in CRM, "R. Sharma" in billing, "RAHUL" in support tickets</td>
+</tr>
+<tr>
+<td><strong>Timeliness</strong></td>
+<td>Data is up-to-date and available when needed</td>
+<td>Stock prices updated every second on Zerodha</td>
+<td>Using 3-month-old inventory data for demand prediction</td>
+</tr>
+<tr>
+<td><strong>Validity</strong></td>
+<td>Data follows defined rules and formats</td>
+<td>Phone number has exactly 10 digits</td>
+<td>Phone number field contains "call me later"</td>
+</tr>
+<tr>
+<td><strong>Uniqueness</strong></td>
+<td>No duplicate records</td>
+<td>Each PAN card maps to one person</td>
+<td>Same customer appears 5 times in database with slightly different spellings</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Exam tip:</strong> Remember with the mnemonic <strong>"ACCTVU"</strong> — Accuracy, Completeness, Consistency, Timeliness, Validity, Uniqueness.</p>
+<hr />
+<h2 id="q5-what-are-the-common-data-quality-issues-in-machine-learning-explain-each">Q5: What are the common data quality issues in Machine Learning? Explain each.</h2>
+<p><strong>Answer:</strong></p>
+<h3 id="1-missing-values">1. Missing Values</h3>
+<ul>
+<li><strong>What:</strong> Some fields in the dataset are empty.</li>
+<li><strong>Example:</strong> In an HDFC Bank loan prediction dataset, 15% of applicants didn't provide their income. If you drop those rows, you lose data. If you fill with average, you introduce noise.</li>
+<li><strong>Impact:</strong> Model either loses training data (if rows are dropped) or learns incorrect patterns (if imputed badly).</li>
+</ul>
+<h3 id="2-outliers">2. Outliers</h3>
+<ul>
+<li><strong>What:</strong> Extreme values that don't represent normal behaviour.</li>
+<li><strong>Example:</strong> In a Zomato delivery time dataset, most deliveries take 20-45 minutes. But one entry shows 720 minutes (12 hours) because the rider's app crashed and the order was reassigned. This outlier will distort the model's average prediction.</li>
+<li><strong>Impact:</strong> Models like linear regression are very sensitive to outliers — one extreme value can shift the entire prediction line.</li>
+</ul>
+<h3 id="3-data-leakage">3. Data Leakage</h3>
+<ul>
+<li><strong>What:</strong> Information from the future or from the target variable accidentally leaks into training features.</li>
+<li><strong>Example:</strong> You're building a model to predict if a Flipkart customer will return a product. You accidentally include the feature "refund_amount" — but this field is only filled AFTER the return happens. The model gets 99% accuracy in training but fails completely in production because refund_amount won't be available at prediction time.</li>
+<li><strong>Impact:</strong> Artificially inflated accuracy during training, complete failure in production. This is the most dangerous data quality issue.</li>
+</ul>
+<h3 id="4-class-imbalance">4. Class Imbalance</h3>
+<ul>
+<li><strong>What:</strong> One category vastly outnumbers others in the dataset.</li>
+<li><strong>Example:</strong> In HDFC Bank's fraud detection data, 99.5% of transactions are legitimate, only 0.5% are fraud. A lazy model that predicts "not fraud" for every transaction gets 99.5% accuracy but catches zero frauds.</li>
+<li><strong>Fixes:</strong> Oversampling (SMOTE), undersampling, cost-sensitive learning, using metrics like F1-score instead of accuracy.</li>
+</ul>
+<h3 id="5-label-noise">5. Label Noise</h3>
+<ul>
+<li><strong>What:</strong> Incorrect labels in supervised learning data.</li>
+<li><strong>Example:</strong> In a product categorisation task for Amazon India, a "laptop bag" is mistakenly labelled as "laptop." The model learns that bags are laptops.</li>
+<li><strong>Impact:</strong> Silently reduces model quality — doesn't crash, just makes the model subtly wrong.</li>
+</ul>
+<hr />
+<h2 id="q6-scenario-a-swiggy-data-scientist-notices-their-delivery-time-prediction-model-has-95-accuracy-on-test-data-but-performs-terribly-in-production-what-could-be-wrong">Q6: Scenario — A Swiggy data scientist notices their delivery time prediction model has 95% accuracy on test data but performs terribly in production. What could be wrong?</h2>
+<p><strong>Answer:</strong>
+This is a classic symptom of <strong>data leakage</strong>. Here's the likely diagnosis:</p>
+<p><strong>Most probable cause — Data Leakage:</strong>
+- The training dataset likely includes features that are only available AFTER the delivery is complete. For example:
+  - <code>actual_delivery_time</code> — this IS the answer, and a derivative of it may have leaked in
+  - <code>rider_rating_for_this_order</code> — only available after delivery
+  - <code>customer_feedback_score</code> — only available after delivery
+- In training, the model uses this future information and gets 95% accuracy. In production, these features don't exist yet, so the model fails.</p>
+<p><strong>Other possibilities:</strong>
+1. <strong>Distribution shift:</strong> Training data was from Bangalore (short distances, good roads) but production includes Tier-2 cities with different traffic patterns.
+2. <strong>Temporal leakage:</strong> Model was trained on data sorted by time, and the train-test split wasn't done chronologically — so the model "saw" future patterns during training.
+3. <strong>Feature staleness:</strong> Features like "restaurant_avg_prep_time" were calculated on old data but restaurant changed their menu/process.</p>
+<p><strong>How to fix:</strong>
+- Audit every feature: "Would this feature be available at prediction time?"
+- Use time-based train-test splits (not random splits)
+- Monitor model performance in production using shadow deployment</p>
+<hr />
+<h2 id="q7-what-is-data-governance-list-its-7-key-components">Q7: What is Data Governance? List its 7 key components.</h2>
+<p><strong>Answer:</strong>
+Data Governance is the set of policies, processes, and standards that ensure data is managed properly, securely, and in compliance with regulations throughout its lifecycle.</p>
+<p><strong>Simple analogy:</strong> Just like a company has HR policies for managing employees (hiring rules, leave policies, exit procedures), data governance is the "HR policy for data" — rules for how data is collected, stored, used, shared, and deleted.</p>
+<p><strong>7 Components of Data Governance:</strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Component</th>
+<th>What It Does</th>
+<th>Real Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>1. Data Ownership</strong></td>
+<td>Assigns responsibility — who owns which data</td>
+<td>At HDFC Bank, the "Customer Data" owner is the Head of Retail Banking. They decide who can access it.</td>
+</tr>
+<tr>
+<td><strong>2. Data Stewardship</strong></td>
+<td>Day-to-day management and quality monitoring</td>
+<td>A data steward at Flipkart monitors product catalog quality — fixing wrong prices, duplicate listings.</td>
+</tr>
+<tr>
+<td><strong>3. Data Quality Management</strong></td>
+<td>Processes to measure and improve data quality</td>
+<td>Aadhaar system validates biometric data quality — rejects blurry fingerprints, asks for re-scan.</td>
+</tr>
+<tr>
+<td><strong>4. Data Security &amp; Privacy</strong></td>
+<td>Protects data from unauthorised access</td>
+<td>PhonePe encrypts all UPI transaction data. Only authorised systems can decrypt.</td>
+</tr>
+<tr>
+<td><strong>5. Data Lifecycle Management</strong></td>
+<td>Manages data from creation to deletion</td>
+<td>IRCTC deletes PNR data after 2 years. Old booking data is archived and eventually purged.</td>
+</tr>
+<tr>
+<td><strong>6. Metadata Management</strong></td>
+<td>Maintains information about data (data about data)</td>
+<td>A data catalog at Infosys that tells you: this table has 50 columns, updated daily, owned by Finance team, contains PII.</td>
+</tr>
+<tr>
+<td><strong>7. Regulatory Compliance</strong></td>
+<td>Ensures all legal requirements are met</td>
+<td>Ensuring Aadhaar data handling complies with India's DPDP Act 2023.</td>
+</tr>
+</tbody>
+</table></div>
+<hr />
+<h2 id="q8-what-is-gdpr-list-its-key-principles-and-rights">Q8: What is GDPR? List its key principles and rights.</h2>
+<p><strong>Answer:</strong>
+<strong>GDPR</strong> (General Data Protection Regulation) is the European Union's data protection law, effective since May 2018. It is considered the gold standard for data privacy worldwide and has influenced India's own DPDP Act.</p>
+<p><strong>Key Principles:</strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Principle</th>
+<th>What It Means</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Lawfulness &amp; Consent</strong></td>
+<td>Must have legal basis to collect data; explicit consent required</td>
+<td>Google must ask EU users "Do you consent to data collection?" — can't just bury it in terms.</td>
+</tr>
+<tr>
+<td><strong>Purpose Limitation</strong></td>
+<td>Data collected for one purpose can't be used for another</td>
+<td>If Zara collects email for order updates, they can't use it for marketing without separate consent.</td>
+</tr>
+<tr>
+<td><strong>Data Minimisation</strong></td>
+<td>Collect only what you need</td>
+<td>A food delivery app shouldn't ask for your Aadhaar number — it only needs your address and phone.</td>
+</tr>
+<tr>
+<td><strong>Accuracy</strong></td>
+<td>Keep data correct and up-to-date</td>
+<td>If a customer changes their address, the company must update it.</td>
+</tr>
+<tr>
+<td><strong>Storage Limitation</strong></td>
+<td>Don't keep data longer than necessary</td>
+<td>Delete customer data after account closure (within defined period).</td>
+</tr>
+<tr>
+<td><strong>Integrity &amp; Confidentiality</strong></td>
+<td>Protect data with appropriate security</td>
+<td>Encrypt personal data, use access controls.</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Key Rights of Individuals:</strong>
+1. <strong>Right to Access</strong> — "Show me all data you have about me"
+2. <strong>Right to Rectification</strong> — "Fix my incorrect data"
+3. <strong>Right to Erasure (Right to be Forgotten)</strong> — "Delete all my data"
+4. <strong>Right to Data Portability</strong> — "Give me my data in a downloadable format so I can move to a competitor"
+5. <strong>Right to Object</strong> — "Stop processing my data for marketing"</p>
+<p><strong>Penalty:</strong> Up to €20 million or 4% of global annual revenue, whichever is higher.</p>
+<hr />
+<h2 id="q9-what-is-india-s-dpdp-act-2023-how-is-it-different-from-gdpr">Q9: What is India's DPDP Act 2023? How is it different from GDPR?</h2>
+<p><strong>Answer:</strong>
+The <strong>Digital Personal Data Protection Act (DPDP Act)</strong> 2023 is India's first comprehensive data protection law. It was passed by Parliament in August 2023.</p>
+<p><strong>Key features:</strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>DPDP Act (India)</th>
+<th>GDPR (EU)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Scope</strong></td>
+<td>Applies to processing of digital personal data in India</td>
+<td>Applies to processing of personal data in the EU</td>
+</tr>
+<tr>
+<td><strong>Consent</strong></td>
+<td>Requires "free, specific, informed, and unambiguous" consent</td>
+<td>Same — explicit consent required</td>
+</tr>
+<tr>
+<td><strong>Data Principal</strong></td>
+<td>The person whose data it is (called "Data Principal" in DPDP)</td>
+<td>Called "Data Subject" in GDPR</td>
+</tr>
+<tr>
+<td><strong>Data Fiduciary</strong></td>
+<td>The organisation processing data (called "Data Fiduciary")</td>
+<td>Called "Data Controller" in GDPR</td>
+</tr>
+<tr>
+<td><strong>Right to Erasure</strong></td>
+<td>Yes — you can ask any company to delete your data</td>
+<td>Yes — Right to be Forgotten</td>
+</tr>
+<tr>
+<td><strong>Children's data</strong></td>
+<td>Extra protections — verifiable parental consent required for under-18</td>
+<td>Extra protections for under-16</td>
+</tr>
+<tr>
+<td><strong>Penalties</strong></td>
+<td>Up to ₹250 crore per violation</td>
+<td>Up to €20 million or 4% of global revenue</td>
+</tr>
+<tr>
+<td><strong>Data Localisation</strong></td>
+<td>Government can restrict transfer to certain countries (blacklist approach)</td>
+<td>Can transfer to "adequate" countries (whitelist approach)</td>
+</tr>
+<tr>
+<td><strong>Right to Data Portability</strong></td>
+<td>Not explicitly included</td>
+<td>Included</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Impact on Indian companies:</strong>
+- Zomato, Swiggy, Flipkart must now get explicit consent before collecting personal data
+- CRED must allow users to request deletion of all their financial data
+- Byju's must get parental consent before collecting data from children under 18</p>
+<hr />
+<h2 id="q10-what-are-the-ai-specific-governance-challenges-explain-consent-right-to-be-forgotten-bias-auditing-and-machine-unlearning">Q10: What are the AI-specific governance challenges? Explain consent, right to be forgotten, bias auditing, and machine unlearning.</h2>
+<p><strong>Answer:</strong>
+AI systems create unique governance challenges that traditional data governance wasn't designed to handle:</p>
+<h3 id="1-consent-in-ai">1. Consent in AI</h3>
+<ul>
+<li><strong>Problem:</strong> When you give consent for your data to be collected, did you consent for it to be used to train an AI model? Probably not.</li>
+<li><strong>Example:</strong> You uploaded photos to Instagram. Meta used those photos to train their image generation AI (Stable Diffusion competitor). You consented to "sharing photos" — not to "training an AI model with your face."</li>
+<li><strong>Governance challenge:</strong> Consent must be specific to AI training, not just data collection.</li>
+</ul>
+<h3 id="2-right-to-be-forgotten-in-ai">2. Right to be Forgotten in AI</h3>
+<ul>
+<li><strong>Problem:</strong> You can delete someone's data from a database. But if an AI model was already trained on that data, the knowledge is embedded in the model's weights. Deleting the original data doesn't remove it from the model's memory.</li>
+<li><strong>Example:</strong> A person asks CRED to delete their financial data. CRED deletes from the database. But their credit score model was already trained on that person's data — the model still "remembers" the patterns.</li>
+<li><strong>Challenge:</strong> How do you make an AI model "forget" specific data?</li>
+</ul>
+<h3 id="3-machine-unlearning">3. Machine Unlearning</h3>
+<ul>
+<li><strong>What:</strong> A technique to remove the influence of specific data points from a trained model WITHOUT retraining from scratch.</li>
+<li><strong>Why needed:</strong> Retraining a large model costs crores of rupees. You can't retrain every time someone asks to be forgotten.</li>
+<li><strong>Current state:</strong> This is an active research area. Google published research on approximate unlearning in 2023, but no perfect solution exists yet.</li>
+<li><strong>Practical workaround:</strong> Companies maintain "do-not-use" lists and retrain periodically, excluding flagged data.</li>
+</ul>
+<h3 id="4-bias-auditing">4. Bias Auditing</h3>
+<ul>
+<li><strong>Problem:</strong> AI models can learn biases from historical data and make discriminatory decisions.</li>
+<li><strong>Example:</strong> Amazon built an AI hiring tool trained on past hiring data. Since the company had historically hired more men, the model learned to penalise resumes with the word "women's" (e.g., "women's chess club"). Amazon had to scrap the system.</li>
+<li><strong>Indian context:</strong> If HDFC Bank's loan approval AI is trained on historical data where fewer loans were approved for certain communities/regions, the model may perpetuate that bias.</li>
+<li><strong>Governance requirement:</strong> Regular bias audits — test the model on different demographic groups and ensure similar outcomes.</li>
+</ul>
+<hr />
+<h2 id="q11-explain-the-facebook-cambridge-analytica-data-scandal-what-governance-failures-occurred">Q11: Explain the Facebook/Cambridge Analytica data scandal. What governance failures occurred?</h2>
+<p><strong>Answer:</strong>
+This is the most important data governance case study in modern history.</p>
+<p><strong>What happened (timeline):</strong></p>
+<ol>
+<li><strong>2013:</strong> A Cambridge University researcher named Aleksandr Kogan created a personality quiz app on Facebook called "thisisyourdigitallife."</li>
+<li><strong>~270,000 people</strong> took the quiz and gave the app permission to access their profile data.</li>
+<li><strong>The loophole:</strong> Facebook's API at the time also gave the app access to all the quiz-taker's FRIENDS' data — without the friends' consent.</li>
+<li><strong>Result:</strong> Data of <strong>87 million users</strong> was harvested — from just 270,000 who took the quiz.</li>
+<li><strong>Kogan shared this data</strong> with Cambridge Analytica (a political consulting firm) — violating Facebook's terms.</li>
+<li><strong>Cambridge Analytica used the data</strong> to build psychological profiles and target political ads during the 2016 US Presidential Election and the Brexit referendum.</li>
+<li><strong>2018:</strong> Whistleblower Christopher Wylie exposed the scandal. Facebook's stock dropped $120 billion.</li>
+</ol>
+<p><strong>Governance failures:</strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Failure</th>
+<th>What Went Wrong</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Consent violation</strong></td>
+<td>87M users never consented — only 270K did. Friends' data was collected without any consent.</td>
+</tr>
+<tr>
+<td><strong>Purpose limitation breach</strong></td>
+<td>Data collected for "academic research" was used for political advertising.</td>
+</tr>
+<tr>
+<td><strong>Third-party data sharing</strong></td>
+<td>Facebook allowed apps to harvest friends' data — massive over-sharing.</td>
+</tr>
+<tr>
+<td><strong>No data audit</strong></td>
+<td>Facebook never checked what Kogan did with the data.</td>
+</tr>
+<tr>
+<td><strong>No enforcement</strong></td>
+<td>Facebook asked Cambridge Analytica to "delete the data" — but never verified they actually did.</td>
+</tr>
+<tr>
+<td><strong>Delayed disclosure</strong></td>
+<td>Facebook knew about the breach in 2015 but didn't inform users until 2018.</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Consequences:</strong>
+- Facebook fined <strong>$5 billion</strong> by the US FTC (largest privacy fine in history)
+- Cambridge Analytica shut down
+- Led to acceleration of GDPR enforcement and global privacy laws
+- India's DPDP Act was partly influenced by this scandal</p>
+<p><strong>Exam relevance:</strong> This case study perfectly illustrates failures across ALL 7 governance components — ownership (who was responsible?), security (data leaked to third party), consent (friends never consented), purpose limitation (research → political ads), compliance (violated existing rules).</p>
+<hr />
+<h2 id="q12-scenario-a-healthcare-startup-collects-patient-data-for-diagnosis-recommendations-they-later-want-to-use-the-same-data-to-train-an-ai-model-and-sell-insights-to-pharma-companies-what-governance-issues-arise">Q12: Scenario — A healthcare startup collects patient data for diagnosis recommendations. They later want to use the same data to train an AI model and sell insights to pharma companies. What governance issues arise?</h2>
+<p><strong>Answer:</strong>
+Multiple governance violations are at play:</p>
+<p><strong>1. Purpose Limitation Violation (GDPR Article 5, DPDP Act Section 4):</strong>
+- Data was collected for "diagnosis recommendations" — using it to train AI and sell to pharma companies is a completely different purpose.
+- This requires fresh, explicit consent from every patient.</p>
+<p><strong>2. Consent Issue:</strong>
+- Original consent was for "helping with MY diagnosis." Patients didn't agree to their data being used to train models or being shared with pharma companies.
+- Under DPDP Act, this is a violation — consent must be "specific" to each purpose.</p>
+<p><strong>3. Data Minimisation:</strong>
+- For diagnosis, you need the patient's relevant medical data. For pharma insights, you might be using ALL medical data — this exceeds what's necessary for the original purpose.</p>
+<p><strong>4. Anonymisation Requirement:</strong>
+- If they must share with pharma companies, data MUST be anonymised (remove name, Aadhaar, phone number, etc.).
+- But research shows that even "anonymised" health data can be re-identified using combinations of age + location + condition (k-anonymity attacks).</p>
+<p><strong>5. DPDP Act Penalties:</strong>
+- If the startup operates in India, penalties can be up to ₹250 crore.</p>
+<p><strong>What they should do:</strong>
+1. Go back to patients and get fresh consent specifically for AI training and pharma data sharing
+2. Offer clear opt-out option
+3. Anonymise data using differential privacy techniques before sharing
+4. Conduct a Data Protection Impact Assessment (DPIA)
+5. Appoint a Data Protection Officer (DPO)</p>
+<hr />
+<h2 id="q13-what-is-data-leakage-in-ml-give-three-different-types-with-examples">Q13: What is Data Leakage in ML? Give three different types with examples.</h2>
+<p><strong>Answer:</strong>
+Data leakage occurs when information that would not be available at prediction time is used during model training. It's the #1 reason models perform great in testing but fail in production.</p>
+<p><strong>Type 1: Target Leakage (most common)</strong>
+- A feature is directly derived from or strongly correlated with the target variable.
+- <strong>Example:</strong> Predicting loan default. Feature: "number_of_collection_calls." But collection calls only happen AFTER a person defaults. At prediction time (when the loan is being approved), this feature is zero for everyone.</p>
+<p><strong>Type 2: Temporal Leakage</strong>
+- Future information leaks into past records because data isn't split by time.
+- <strong>Example:</strong> Predicting Sensex movement. If you randomly split data into train/test, the model may train on October data and test on September data — it's learning from the future. Fix: always use time-based splits for time-series problems.</p>
+<p><strong>Type 3: Train-Test Contamination</strong>
+- Test data leaks into the training process.
+- <strong>Example:</strong> You normalise (scale) your entire dataset BEFORE splitting into train/test. The scaling parameters (mean, standard deviation) now include information from the test set. Fix: fit the scaler on training data only, then apply to test data.</p>
+<p><strong>How to detect leakage:</strong>
+- If your model accuracy is "too good to be true" (99%+), suspect leakage
+- Check if any feature has near-perfect correlation with the target
+- Validate that every feature would be available in a real production scenario
+- Use time-based cross-validation for temporal data</p>
+<hr />
+<h2 id="q14-a-bank-s-credit-scoring-model-rejects-80-of-loan-applications-from-women-but-only-40-from-men-is-this-necessarily-bias-how-should-they-investigate">Q14: A bank's credit scoring model rejects 80% of loan applications from women but only 40% from men. Is this necessarily bias? How should they investigate?</h2>
+<p><strong>Answer:</strong>
+This is NOT necessarily bias, but it absolutely requires investigation. Here's a systematic approach:</p>
+<p><strong>Step 1: Check for legitimate explanations</strong>
+- Are the income levels, employment history, and credit scores actually different between the two groups in the data?
+- If women applicants genuinely have lower incomes (due to societal factors), the model may be accurately reflecting the data — but it's still a fairness problem.</p>
+<p><strong>Step 2: Check for proxy variables</strong>
+- Even if "gender" isn't a direct input, the model might use proxy features that correlate with gender:
+  - Part-time employment status (more common for women)
+  - Certain job titles
+  - Age gaps in employment (maternity leave)
+- These proxies effectively encode gender into the model.</p>
+<p><strong>Step 3: Conduct a bias audit</strong>
+- Compare model predictions across demographic groups (this is what "disparate impact analysis" means)
+- Use the <strong>80% rule (four-fifths rule):</strong> if the selection rate for a protected group is less than 80% of the rate for the most favoured group, there's evidence of adverse impact
+- Here: Women approval rate = 20%, Men = 60%. 20/60 = 33%. This is well below 80% — clear adverse impact.</p>
+<p><strong>Step 4: Remediation options</strong>
+1. <strong>Remove proxy features</strong> that encode gender
+2. <strong>Rebalance training data</strong> to have equal representation
+3. <strong>Apply fairness constraints</strong> during training (e.g., equalised odds)
+4. <strong>Use different thresholds</strong> for different groups (controversial but legally used)
+5. <strong>Regular monitoring</strong> — run bias reports monthly</p>
+<p><strong>Regulatory requirement under DPDP Act:</strong> While the Act doesn't explicitly mandate bias auditing, the principles of fairness and preventing harm apply. RBI guidelines for lending are also increasingly focusing on algorithmic fairness.</p>
+<hr />
+<h2 id="q15-scenario-zomato-trains-an-ai-model-to-predict-restaurant-ratings-which-data-quality-issues-should-they-check-for">Q15: Scenario — Zomato trains an AI model to predict restaurant ratings. Which data quality issues should they check for?</h2>
+<p><strong>Answer:</strong>
+Here's a systematic data quality audit for this use case:</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Quality Issue</th>
+<th>What to Check</th>
+<th>Example Problem</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Missing Values</strong></td>
+<td>Are there restaurants with no ratings? Restaurants with missing cuisine type?</td>
+<td>New restaurants have zero reviews — model can't predict for them (cold start).</td>
+</tr>
+<tr>
+<td><strong>Outliers</strong></td>
+<td>Extreme rating patterns</td>
+<td>A restaurant has 10,000 five-star ratings in one day — likely fake/bot reviews.</td>
+</tr>
+<tr>
+<td><strong>Class Imbalance</strong></td>
+<td>Is the rating distribution balanced?</td>
+<td>70% of ratings are 4-5 stars (people only review when happy). Model under-predicts low ratings.</td>
+</tr>
+<tr>
+<td><strong>Label Noise</strong></td>
+<td>Are ratings accurate?</td>
+<td>Competitor restaurants post fake 1-star reviews. Users rate 1-star because of late delivery (Zomato's fault, not restaurant's).</td>
+</tr>
+<tr>
+<td><strong>Data Leakage</strong></td>
+<td>Features that shouldn't be available at prediction time</td>
+<td>Using "total_orders_this_month" to predict today's rating — future orders leak in.</td>
+</tr>
+<tr>
+<td><strong>Consistency</strong></td>
+<td>Same restaurant data across systems</td>
+<td>Restaurant name is "Biryani House" in one table, "Biryani House - Koramangala" in another.</td>
+</tr>
+<tr>
+<td><strong>Timeliness</strong></td>
+<td>Is data fresh?</td>
+<td>Restaurant changed its chef 3 months ago. Old ratings don't reflect current quality.</td>
+</tr>
+<tr>
+<td><strong>Selection Bias</strong></td>
+<td>Does data represent all users?</td>
+<td>Only tech-savvy users who use the app rate restaurants. Older customers who order by phone are not represented.</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Recommended approach:</strong>
+1. Profile the data first — check distributions, missing percentages, duplicates
+2. Remove fake reviews using anomaly detection
+3. Separate delivery experience from food quality in ratings
+4. Use time-weighted ratings (recent ratings matter more)
+5. Handle cold-start restaurants separately (use restaurant features, not past ratings)</p>
+<hr />
+<h2 id="q16-what-is-the-difference-between-data-privacy-and-data-security-why-are-both-important-for-ai">Q16: What is the difference between Data Privacy and Data Security? Why are both important for AI?</h2>
+<p><strong>Answer:</strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Aspect</th>
+<th>Data Privacy</th>
+<th>Data Security</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Focus</strong></td>
+<td>WHO can access data and FOR WHAT purpose</td>
+<td>HOW data is protected from unauthorised access</td>
+</tr>
+<tr>
+<td><strong>Concern</strong></td>
+<td>Rights of individuals over their personal data</td>
+<td>Protecting data from breaches, theft, hacking</td>
+</tr>
+<tr>
+<td><strong>Example</strong></td>
+<td>Deciding that only the doctor (not the receptionist) should see patient diagnosis</td>
+<td>Encrypting the patient database so hackers can't read it</td>
+</tr>
+<tr>
+<td><strong>Regulation</strong></td>
+<td>GDPR, DPDP Act</td>
+<td>ISO 27001, PCI DSS</td>
+</tr>
+<tr>
+<td><strong>Violation example</strong></td>
+<td>PhonePe sharing your transaction data with advertisers without consent</td>
+<td>PhonePe's database getting hacked and transaction data being leaked</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Why both matter for AI:</strong>
+- <strong>Privacy in AI:</strong> If you train a language model on private emails, the model might memorise and reveal personal information. Samsung employees accidentally leaked company secrets through ChatGPT — a privacy failure.
+- <strong>Security in AI:</strong> An attacker can perform "model inversion attacks" — querying the model repeatedly to reconstruct training data. If the model was trained on medical records, attackers could extract patient information.</p>
+<p><strong>Key point:</strong> You can have security without privacy (data is encrypted but shared with everyone) and privacy without security (access rules exist but data is unencrypted). You need BOTH.</p>
+<hr />
+<h2 id="q17-how-does-class-imbalance-affect-different-types-of-ml-problems-give-indian-examples-for-each">Q17: How does class imbalance affect different types of ML problems? Give Indian examples for each.</h2>
+<p><strong>Answer:</strong></p>
+<h3 id="fraud-detection-hdfc-bank">Fraud Detection (HDFC Bank)</h3>
+<ul>
+<li><strong>Imbalance:</strong> 99.5% legitimate, 0.5% fraud</li>
+<li><strong>Problem:</strong> Model predicts "not fraud" for everything → 99.5% accuracy but zero fraud caught</li>
+<li><strong>Solution:</strong> Use SMOTE oversampling, cost-sensitive learning, measure F1-score not accuracy</li>
+</ul>
+<h3 id="disease-detection-apollo-hospitals">Disease Detection (Apollo Hospitals)</h3>
+<ul>
+<li><strong>Imbalance:</strong> 98% healthy, 2% diseased (e.g., cancer screening)</li>
+<li><strong>Problem:</strong> Model predicts "healthy" for everyone → misses critical cancer cases</li>
+<li><strong>Solution:</strong> Use recall-focused metrics (catching all true positives matters more than precision)</li>
+</ul>
+<h3 id="spam-detection-gmail-indian-email-users">Spam Detection (Gmail/Indian email users)</h3>
+<ul>
+<li><strong>Imbalance:</strong> 80% spam, 20% legitimate</li>
+<li><strong>Problem:</strong> Reverse imbalance — model might classify everything as spam, causing important emails to be missed</li>
+<li><strong>Solution:</strong> Precision-focused metrics (not marking legitimate emails as spam is critical)</li>
+</ul>
+<h3 id="customer-churn-jio">Customer Churn (Jio)</h3>
+<ul>
+<li><strong>Imbalance:</strong> 95% stay, 5% churn</li>
+<li><strong>Problem:</strong> Model predicts everyone stays → misses the 5% who leave</li>
+<li><strong>Solution:</strong> Stratified sampling, ensemble methods, adjust decision threshold from 0.5 to a lower value</li>
+</ul>
+<p><strong>General solutions for class imbalance:</strong>
+1. <strong>Oversampling minority class</strong> — SMOTE creates synthetic examples
+2. <strong>Undersampling majority class</strong> — randomly remove majority samples
+3. <strong>Cost-sensitive learning</strong> — penalise misclassification of minority class more
+4. <strong>Ensemble methods</strong> — use balanced random forests
+5. <strong>Change the metric</strong> — use F1, AUC-ROC, precision-recall instead of accuracy</p>
+<hr />
+<h2 id="q18-what-is-the-right-to-be-forgotten-and-why-is-it-technically-challenging-for-ai-systems">Q18: What is the "Right to be Forgotten" and why is it technically challenging for AI systems?</h2>
+<p><strong>Answer:</strong>
+The Right to be Forgotten (GDPR Article 17, also in DPDP Act) gives individuals the right to request that an organisation delete ALL their personal data.</p>
+<p><strong>For traditional databases — simple:</strong>
+- Customer requests deletion from Flipkart
+- Flipkart runs <code>DELETE FROM customers WHERE id = 12345</code> across all databases
+- Done — data is removed</p>
+<p><strong>For AI systems — extremely difficult:</strong>
+1. <strong>Model memorisation:</strong> Large language models memorise training data. Researchers have extracted phone numbers, email addresses, and code snippets from GPT-2's training data just by prompting it cleverly.
+2. <strong>Feature engineering:</strong> The customer's data may have been used to create aggregate features ("average spending of customers in Mumbai"). Deleting the individual record doesn't remove their contribution to the aggregate.
+3. <strong>Model weights:</strong> The model's neural network weights were shaped by this person's data during training. You can't simply "subtract" one person's influence.
+4. <strong>Cost of retraining:</strong> Retraining GPT-4 costs ~$100M. You can't retrain every time someone requests deletion.</p>
+<p><strong>Current approaches:</strong>
+- <strong>Machine Unlearning:</strong> Research area focused on surgically removing data influence without full retraining. Google and Apple are actively researching this.
+- <strong>Differential Privacy:</strong> Add noise during training so no individual's data significantly influences the model — makes unlearning unnecessary.
+- <strong>Periodic retraining with exclusion lists:</strong> Maintain a list of "do not use" data points, retrain the model periodically excluding this data.
+- <strong>Data sharding:</strong> Train sub-models on different data shards. To "forget" a person, retrain only the shard containing their data.</p>
+<hr />
+<h2 id="q19-compare-data-governance-requirements-for-gdpr-vs-dpdp-act-in-a-table-format">Q19: Compare data governance requirements for GDPR vs DPDP Act in a table format.</h2>
+<p><strong>Answer:</strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Aspect</th>
+<th>GDPR (EU)</th>
+<th>DPDP Act 2023 (India)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Effective since</strong></td>
+<td>May 2018</td>
+<td>Rules still being finalised (Act passed August 2023)</td>
+</tr>
+<tr>
+<td><strong>Applies to</strong></td>
+<td>Any organisation processing EU residents' data</td>
+<td>Any organisation processing digital personal data in India</td>
+</tr>
+<tr>
+<td><strong>Terminology</strong></td>
+<td>Data Subject, Data Controller, Data Processor</td>
+<td>Data Principal, Data Fiduciary, Data Processor</td>
+</tr>
+<tr>
+<td><strong>Consent</strong></td>
+<td>Explicit, freely given, specific, informed</td>
+<td>Free, specific, informed, unambiguous</td>
+</tr>
+<tr>
+<td><strong>Children's data</strong></td>
+<td>Below 16 (member states can lower to 13)</td>
+<td>Below 18 — parental consent required</td>
+</tr>
+<tr>
+<td><strong>Right to Access</strong></td>
+<td>Yes</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><strong>Right to Erasure</strong></td>
+<td>Yes (Right to be Forgotten)</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><strong>Right to Portability</strong></td>
+<td>Yes (can take data to competitor)</td>
+<td>Not explicitly included</td>
+</tr>
+<tr>
+<td><strong>DPO requirement</strong></td>
+<td>Mandatory for certain organisations</td>
+<td>Data Protection Board of India to be established</td>
+</tr>
+<tr>
+<td><strong>Cross-border transfer</strong></td>
+<td>Allowed to "adequate" countries (whitelist)</td>
+<td>Government can block specific countries (blacklist)</td>
+</tr>
+<tr>
+<td><strong>Max penalty</strong></td>
+<td>€20M or 4% of global revenue</td>
+<td>₹250 crore (~€28M)</td>
+</tr>
+<tr>
+<td><strong>Breach notification</strong></td>
+<td>Within 72 hours</td>
+<td>Timeline to be specified in rules</td>
+</tr>
+<tr>
+<td><strong>Algorithmic decision-making</strong></td>
+<td>Right to explanation of automated decisions (Article 22)</td>
+<td>Not explicitly covered</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Key exam takeaway:</strong> DPDP Act is heavily inspired by GDPR but is simpler and less detailed. It lacks some GDPR provisions like data portability and algorithmic transparency rights.</p>
+<hr />
+<h2 id="q20-scenario-an-indian-ed-tech-company-collects-children-s-learning-data-what-compliance-steps-must-they-follow-under-the-dpdp-act">Q20: Scenario — An Indian ed-tech company collects children's learning data. What compliance steps must they follow under the DPDP Act?</h2>
+<p><strong>Answer:</strong>
+Under the DPDP Act 2023, children (below 18 years) receive special protection. Here's what the ed-tech company MUST do:</p>
+<p><strong>1. Verifiable Parental Consent:</strong>
+- Cannot collect ANY data from a child without verifiable consent from a parent/guardian
+- The "I agree" checkbox clicked by a 10-year-old is NOT valid consent
+- Must implement age-gating mechanisms — verify the user's age before data collection</p>
+<p><strong>2. No Behavioural Tracking of Children:</strong>
+- Section 9 prohibits tracking, behavioural monitoring, or targeted advertising directed at children
+- This means: NO personalised ads based on a child's learning patterns
+- A company like Byju's cannot use a child's usage data to show them targeted ads</p>
+<p><strong>3. No Detrimental Processing:</strong>
+- Data processing must not cause harm to the child's well-being
+- Gamification that creates addiction patterns could be argued as "detrimental processing"</p>
+<p><strong>4. Data Minimisation:</strong>
+- Collect only what's needed for the educational service
+- Don't collect parent's income, family details, or other irrelevant data</p>
+<p><strong>5. Purpose Limitation:</strong>
+- Data collected for "education" cannot be used for marketing or sold to third parties</p>
+<p><strong>6. Compliance Steps:</strong>
+1. Implement robust age verification
+2. Build a parental consent flow (verified, not just a checkbox)
+3. Audit all data collection points — remove anything not essential for education
+4. Disable behavioural tracking and targeted ads for child users
+5. Appoint a Data Protection Officer
+6. Maintain records of all consent obtained
+7. Build a mechanism for parents to access/delete their child's data
+8. Conduct regular Data Protection Impact Assessments (DPIA)</p>
+<p><strong>Penalties for non-compliance:</strong> Up to ₹200 crore for processing children's data without proper safeguards.</p>
 </main>
-
-<button class="back-top" id="backTop" aria-label="Back to top">↑</button>
-
+<button class="back-top" id="backTop" title="Back to top">&#8593;</button>
 <script>
-function toggleCard(el){const card=el.closest('.qa-card');card.classList.toggle('open')}
-function toggleAll(show){document.querySelectorAll('.qa-card').forEach(c=>{show?c.classList.add('open'):c.classList.remove('open')})}
-function updateScore(){const checks=document.querySelectorAll('.qa-question input[type="checkbox"]');let s=0;checks.forEach(c=>{if(c.checked)s++});document.getElementById('score').textContent=s}
-window.addEventListener('scroll',()=>{const h=document.documentElement;const pct=h.scrollTop/(h.scrollHeight-h.clientHeight)*100;document.getElementById('progressBar').style.width=pct+'%';document.getElementById('backTop').classList.toggle('show',h.scrollTop>400)});
-document.getElementById('backTop').addEventListener('click',()=>window.scrollTo({top:0,behavior:'smooth'}));
-document.getElementById('sidebarToggle').addEventListener('click',()=>document.getElementById('sidebar').classList.toggle('open'));
+const bar=document.getElementById('progress');
+const btn=document.getElementById('backTop');
+const toggle=document.getElementById('sidebarToggle');
+const sidebar=document.getElementById('sidebar');
+window.addEventListener('scroll',()=>{
+  const s=document.documentElement.scrollTop;
+  const h=document.documentElement.scrollHeight-document.documentElement.clientHeight;
+  bar.style.width=(s/h*100)+'%';
+  btn.classList.toggle('show',s>400);
+});
+btn.onclick=()=>window.scrollTo({top:0,behavior:'smooth'});
+toggle.onclick=()=>sidebar.classList.toggle('open');
+// Active sidebar link
+const links=document.querySelectorAll('.sidebar nav a');
+const obs=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{if(e.isIntersecting){
+    links.forEach(l=>l.classList.remove('active'));
+    const a=document.querySelector('.sidebar nav a[href="#'+e.target.id+'"]');
+    if(a)a.classList.add('active');
+  }});
+},{rootMargin:'-20% 0px -70% 0px'});
+document.querySelectorAll('h2[id],h3[id]').forEach(h=>obs.observe(h));
 </script>
 </body>
 </html>
