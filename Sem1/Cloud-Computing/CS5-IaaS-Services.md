@@ -14,10 +14,19 @@
 
 - [3.5 Identity and Access Management (IAM)](#35-identity-and-access-management-iam)
 - [3.6 Compute Services](#36-compute-services)
+  - [EC2 Instance Types](#361-amazon-ec2-elastic-compute-cloud)
+  - [AMI Types](#ami-types)
+  - [EC2 Instance Lifecycle](#ec2-instance-lifecycle)
+  - [EC2 Tenancy Options](#ec2-tenancy-options)
+  - [Auto Scaling](#362-auto-scaling)
+  - [Elastic Load Balancing](#363-elastic-load-balancing-elb)
+  - [Amazon VPC](#364-amazon-vpc-virtual-private-cloud)
 - [3.7 Storage Services](#37-storage-services)
+  - [EBS vs EFS vs S3 Comparison](#ebs-vs-efs-vs-s3--comparison-table)
 - [3.8 Data Services](#38-data-services)
 - [3.9 Big Data and Analytics Services](#39-big-data-and-analytics-services)
 - [Additional AWS Services (from Lecture Notes)](#additional-aws-services)
+- [Case Study: Zomato on AWS](#case-study-zomato-on-aws)
 
 ---
 
@@ -103,6 +112,54 @@ EC2 is the core IaaS compute service — it provides resizable virtual machines 
 | **Memory Optimised (r6i)** | Large memory | In-memory databases (Redis), real-time analytics | r6i.2xlarge (8 vCPU, 64 GB RAM) |
 | **Storage Optimised (i3)** | High sequential I/O | Data warehousing, distributed file systems | i3.xlarge (4 vCPU, 30.5 GB RAM, NVMe SSD) |
 | **Accelerated (p4d, g5)** | GPU-powered | Machine learning training, video encoding, 3D rendering | p4d.24xlarge (8 NVIDIA A100 GPUs) |
+
+### AMI Types
+
+An **Amazon Machine Image (AMI)** is a template that contains the OS, application server, and applications required to launch an instance. There are four ways to obtain an AMI:
+
+| AMI Type | Description | When to use |
+|---|---|---|
+| **AWS Published AMIs** | Default OS images provided by AWS (Amazon Linux, Ubuntu, Windows Server, etc.). Clean, minimal installations. | Starting fresh — you install and configure everything yourself. |
+| **AWS Marketplace AMIs** | Pre-configured images with licensed software (e.g. WordPress, SAP, Cisco). **Incur additional per-hour or per-month fees** on top of the EC2 instance cost. | You need commercial or pre-built software stacks without manual setup. |
+| **Generated from Existing Instances** | Create a custom AMI from a running EC2 instance. Captures the OS, installed software, configurations, and data at that point in time. | **Common for corporate standards** — configure one "golden image" with approved software and security settings, then launch all future instances from it. |
+| **Uploaded Virtual Servers (VM Import/Export)** | Import virtual machine images from your on-premises environment into AWS. **Supported formats:** RAW, VHD, VMDK, OVA. | Migrating existing on-premises workloads to AWS without rebuilding from scratch. |
+
+### EC2 Instance Lifecycle
+
+Every EC2 instance moves through a defined set of **states** from creation to termination:
+
+```
+  ┌──────────┐     ┌─────────┐     ┌─────────┐     ┌────────────┐
+  │ Pending  │────▶│ Running │────▶│ Stopped │────▶│ Terminated │
+  │(launching)│     │         │◀────│         │     │            │
+  └──────────┘     └─────────┘     └─────────┘     └────────────┘
+                        │                                 ▲
+                        └─────────────────────────────────┘
+                              (can terminate directly)
+```
+
+| State | Description | Billing |
+|---|---|---|
+| **Pending** | Instance is being launched and provisioned. | Not billed. |
+| **Running** | Instance is active and accessible. | **Billed** (per-second or per-hour). |
+| **Stopped** | Instance is shut down. EBS volumes are preserved, but instance store data is lost. | **Not billed** for compute (EBS storage still billed). |
+| **Terminated** | Instance is permanently deleted. **Cannot be restarted.** All instance store volumes are erased. | Not billed. |
+
+**Key lifecycle concepts:**
+
+- **Bootstrapping:** The process of providing code (shell scripts, configuration commands) to run on an instance **at launch time**. Done via **User Data** — a script that executes automatically when the instance first boots. Example: installing packages, pulling application code from Git, starting services.
+- **Tags:** Key-value pairs attached to instances for **management and organisation**. Essential for cost allocation, automation, and identifying resources. Example: `Environment: Production`, `Team: Backend`, `Project: OrderService`.
+- **Terminated ≠ Stopped:** A stopped instance can be restarted. A **terminated instance is gone forever** — all associated instance store data is permanently lost. EBS volumes may persist if configured with "Delete on Termination = No".
+
+### EC2 Tenancy Options
+
+Tenancy defines how EC2 instances are placed on **physical hardware** in AWS data centres.
+
+| Tenancy Model | Description | Cost | Use case |
+|---|---|---|---|
+| **Shared Tenancy** (default) | A single physical host machine may house instances from **different AWS customers**. Each instance is **fully isolated** at the hypervisor level — no customer can access another's data or resources. | Lowest cost | Most workloads. The isolation is strong enough for the vast majority of applications. |
+| **Dedicated Instances** | Your instances run on hardware that is **dedicated to your AWS account**. No other customer's instances share the same physical host. However, different instances from your own account may share the host. | Higher cost | Compliance or regulatory requirements that mandate single-tenant hardware (e.g. HIPAA, government workloads). |
+| **Dedicated Host** | An entire **physical server** is fully dedicated to your use. You get visibility into sockets, cores, and host ID. You control instance placement on the host. | Highest cost | **Server-bound software licenses** (e.g. Windows Server, SQL Server, Oracle) that require licensing per physical socket or core. Also used for strict compliance needs. |
 
 ### 3.6.2 Auto Scaling
 
@@ -224,6 +281,19 @@ CloudFront is a **Content Delivery Network** — it caches content at 600+ edge 
 
 **How it works:** User requests content → CloudFront routes to nearest edge location → if cached, return immediately (cache hit) → if not cached, fetch from origin (S3/EC2), cache it, then return.
 
+### EBS vs EFS vs S3 — Comparison Table
+
+| Aspect | **EBS** | **EFS** | **S3** |
+|---|---|---|---|
+| **Storage type** | Block storage | File storage (NFS) | Object storage |
+| **Access pattern** | Attached to a **single EC2 instance** at a time (like a virtual hard drive). | **Shared** across multiple EC2 instances simultaneously via NFS mount. | Accessed via **HTTP/REST API** from anywhere (no mount required). |
+| **Performance** | Lowest latency. Provisioned IOPS SSD (io2) delivers up to 64,000 IOPS. Best for transactional workloads. | Scales throughput automatically. Good for parallel workloads. Higher latency than EBS. | High throughput for large objects. Not suited for low-latency transactional access. |
+| **Pricing model** | Pay for **provisioned capacity** (GB/month) + IOPS (for io2). You pay even if the volume is empty. | Pay for **storage used** (GB/month). No pre-provisioning needed. | Pay for **storage used** + **requests** (GET, PUT) + **data transfer out**. Cheapest at scale. |
+| **Durability** | 99.999% (replicated within a single AZ). Snapshots stored in S3 for cross-AZ protection. | 99.999999999% (11 9s). Data replicated across **multiple AZs** automatically. | 99.999999999% (11 9s). Data replicated across **≥3 AZs** automatically. |
+| **Availability Zone scope** | **Single AZ** — an EBS volume can only be attached to instances in the same AZ. | **Regional** — accessible from any AZ within the region. | **Regional** — accessible from anywhere via API. |
+| **Max object/file size** | Volume up to 64 TB | Petabyte-scale filesystem, no per-file limit | 5 TB per object |
+| **Use cases** | Boot volumes, databases (MySQL, PostgreSQL), transactional applications | Shared home directories, content management, media processing, ML training data | Backups, static website hosting, data lakes, media distribution, archival |
+
 ---
 
 ## 3.8 Data Services
@@ -340,6 +410,42 @@ CloudTrail       SNS               KMS                Elastic Beanstalk
                  SES               Shield             CodeDeploy
                                    WAF                CodePipeline
 ```
+
+---
+
+## Case Study: Zomato on AWS
+
+### Company Overview
+
+**Zomato** is India's leading restaurant-discovery and food-delivery platform, serving **70+ million daily users** across **24 countries**. At this scale, even small efficiency improvements in infrastructure translate into massive cost savings.
+
+### The Challenge
+
+Zomato's data analytics platform relied on **Trino** (distributed SQL query engine) and **Druid** (real-time analytics database) clusters running on traditional **x86-based EC2 instances**. As the user base grew, compute costs scaled linearly — the analytics infrastructure was becoming a significant expense.
+
+### The Solution
+
+Zomato migrated their Trino and Druid clusters from **x86 EC2 instances** to **AWS Graviton2-based (Arm architecture) EC2 instances**:
+
+| Strategy | What Zomato did |
+|---|---|
+| **Graviton2 migration** | Switched compute workloads from x86 (Intel/AMD) instances to Graviton2 (Arm) instances, which offer better price-performance. |
+| **EC2 Spot Instances** | Used Spot Instances (spare AWS capacity at up to 90% discount) for fault-tolerant analytics workloads to further reduce costs. |
+
+### Results
+
+| Metric | Improvement |
+|---|---|
+| **Compute cost reduction** | **30%** lower compute costs after Graviton2 migration |
+| **Query performance** | **25%** improvement in query performance (Graviton2's architecture is more efficient for analytics workloads) |
+| **Annual savings (Trino alone)** | **~$300,000/year** saved on the Trino cluster alone |
+
+### Key Takeaway for Exam
+
+This case study demonstrates several IaaS concepts in action:
+- **Instance type selection matters** — choosing Graviton2 (Arm) over x86 delivered both cost and performance benefits.
+- **Spot Instances** are a powerful cost-optimisation tool for workloads that can tolerate interruptions.
+- Cloud migration isn't just lift-and-shift — **re-evaluating instance types** after migration can yield significant additional savings.
 
 ---
 

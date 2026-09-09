@@ -35,6 +35,14 @@ The x86 architecture uses four privilege levels (Ring 0-3). The OS kernel needs 
 | **Hardware-Assisted (VT-x/AMD-V)** | CPU adds VMX root mode (hypervisor) and non-root mode (guest). Hardware traps privileged instructions automatically. | KVM, ESXi, Hyper-V — **dominant today** |
 | **Extended Page Tables (EPT/RVI)** | Hardware handles two-level address translation (guest virtual → guest physical → host physical) without software shadow page tables. | All modern hypervisors |
 
+### BOCHS — Pure Emulation (Contrast with Virtualization)
+
+**BOCHS** is an open-source **x86 PC emulator** that takes a fundamentally different approach from hypervisors. Instead of using hardware-assisted virtualization (VT-x/AMD-V), BOCHS uses **pure interpretation** — it emulates the entire x86 hardware stack (CPU, memory, I/O devices, BIOS) in software, translating every single guest instruction at runtime.
+
+This makes BOCHS **extremely slow** compared to hypervisor-based virtualization (orders of magnitude slower), but it is invaluable for **OS development, debugging, and education**. Because BOCHS emulates hardware entirely in software, it can run on any host architecture and provides deep introspection into guest behaviour — you can step through individual CPU instructions, inspect register state, and debug boot sequences that would be opaque on a real hypervisor.
+
+**Why it matters for this course:** BOCHS illustrates the spectrum from pure emulation (interpret every instruction → portable but slow) to hardware-assisted virtualization (trap-and-emulate with VT-x → near-native speed). Modern cloud hypervisors (KVM, ESXi) sit at the fast end of this spectrum because they let the CPU execute guest instructions directly in hardware, only trapping on privileged operations.
+
 ### Hypervisor Deep-Dive
 
 #### Type 1 Hypervisors in Production
@@ -178,6 +186,73 @@ From lecture notes: *"Amazon launched AWS so that other organizations could bene
 | **CDN** | CloudFront | Content delivery via global edge locations. |
 | **Management** | CloudWatch | Monitoring for cloud resources and applications. |
 | **Deployment** | Elastic Beanstalk | PaaS-like deployment for web apps (deploys on EC2 behind the scenes). |
+
+### AWS IAM (Identity and Access Management)
+
+**IAM** is the AWS service that controls **who** (authentication) can do **what** (authorization) in your AWS account. Every API call to AWS is checked against IAM policies. It is a global service — not tied to any single region.
+
+#### Authentication — "Who are you?"
+
+| Method | Used for | How it works |
+|---|---|---|
+| **Username + Password** | AWS Management Console (web UI) | Human users sign in via browser. |
+| **Access Key ID + Secret Access Key** | AWS CLI and SDKs (programmatic access) | Long-lived credentials used in scripts and applications. |
+| **MFA (Multi-Factor Authentication)** | Added security layer on top of password or keys | Requires a second factor (virtual MFA app, hardware token) in addition to credentials. |
+
+#### Authorization — "What are you allowed to do?"
+
+Permissions are defined by **IAM Policies** and evaluated every time an API call is made. By default, all actions are **denied** — you must explicitly grant access.
+
+#### IAM Identities
+
+| Identity | Description | Use case |
+|---|---|---|
+| **User** | A person or application with permanent credentials (password, access keys). | Individual developers, CI/CD service accounts. |
+| **Group** | A collection of users. Policies attached to the group apply to all its members. | `Developers` group, `Admins` group. |
+| **Role** | An identity **without permanent credentials**. Provides temporary security credentials via AWS STS. No username/password — assumed by whoever or whatever needs it. | EC2 instances accessing S3, Lambda functions calling DynamoDB, cross-account access. |
+
+**Key insight:** Roles are preferred over access keys for services. An EC2 instance assumes a role and receives short-lived credentials that rotate automatically — no risk of leaked long-term keys.
+
+#### IAM Policies
+
+Policies are **JSON documents** that define permissions. They specify:
+- **Effect** — `Allow` or `Deny`
+- **Action** — the AWS API action (e.g. `s3:GetObject`, `ec2:StartInstances`)
+- **Resource** — the specific AWS resource (identified by ARN)
+
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": [
+        "s3:GetObject",
+        "s3:PutObject"
+      ],
+      "Resource": "arn:aws:s3:::my-bucket/*"
+    },
+    {
+      "Effect": "Deny",
+      "Action": "s3:DeleteObject",
+      "Resource": "arn:aws:s3:::my-bucket/*"
+    }
+  ]
+}
+```
+
+This policy allows reading and writing objects in `my-bucket` but explicitly denies deletion. Policies are attached to users, groups, or roles.
+
+#### IAM Best Practices
+
+| Practice | Why |
+|---|---|
+| **Use root account only for initial setup** | Root has unrestricted access — too dangerous for daily use. |
+| **Enable MFA on root account** | Protects against compromised root credentials. |
+| **Use roles, not access keys, for services** | Roles provide temporary credentials that rotate automatically. Access keys are long-lived and can be leaked. |
+| **Principle of least privilege** | Grant only the minimum permissions needed. Start with zero access and add permissions as required. |
+| **Use groups for permission assignment** | Attach policies to groups, then add users to groups. Easier to manage than per-user policies. |
+| **Rotate credentials regularly** | Minimises exposure if keys are compromised. |
 
 ---
 

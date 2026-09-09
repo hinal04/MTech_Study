@@ -30,6 +30,60 @@ A **distributed transaction** spans multiple nodes — parts of the transaction 
 
 In a single-server system, atomicity is straightforward: one transaction manager makes the commit/abort decision and applies it locally. In a distributed system, multiple independent transaction managers must reach the **same** decision despite the possibility of network failures, node crashes, and message delays. This is the distributed commit problem.
 
+### Anatomy of a Distributed Transaction
+
+A distributed transaction involves three key components working together:
+
+| Component | Role | Responsibilities |
+|---|---|---|
+| **Transaction Coordinator** | Central orchestrator of the global transaction. | Coordinates execution across all participating sites. Communicates with each site to track progress. Makes and communicates the final commit or abort decision. |
+| **Participating Sites** | Sites that hold data required by the transaction. | Execute their respective sub-transactions (the local portion of the global transaction). Report local success or failure back to the coordinator. |
+| **Local Transaction Manager** | Manages transaction execution at an individual site. | Handles local concurrency control and locking. Maintains the local write-ahead log. Executes local recovery if the site crashes. Responds to coordinator's prepare/commit/abort requests. |
+
+**How these components interact:**
+
+```
+                    ┌──────────────────────┐
+   Client ────────→ │ Transaction          │
+   (initiates       │ Coordinator          │
+    transaction)    │ - Splits transaction │
+                    │ - Tracks votes       │
+                    │ - Decides commit/    │
+                    │   abort              │
+                    └──┬──────────┬────────┘
+                       │          │
+            PREPARE /  │          │  PREPARE /
+            COMMIT /   │          │  COMMIT /
+            ABORT      │          │  ABORT
+                       ▼          ▼
+          ┌────────────────┐  ┌────────────────┐
+          │ Participating  │  │ Participating  │
+          │ Site A         │  │ Site B         │
+          │ ┌────────────┐ │  │ ┌────────────┐ │
+          │ │ Local TM   │ │  │ │ Local TM   │ │
+          │ │ - Locks    │ │  │ │ - Locks    │ │
+          │ │ - WAL      │ │  │ │ - WAL      │ │
+          │ │ - Recovery │ │  │ │ - Recovery │ │
+          │ └────────────┘ │  │ └────────────┘ │
+          │   Local Data   │  │   Local Data   │
+          └────────────────┘  └────────────────┘
+```
+
+The coordinator does **not** hold any data itself — it only manages the protocol. Each participating site's local transaction manager is independently responsible for ensuring local ACID properties on its portion of the data.
+
+### Challenges in Distributed Transactions
+
+Before examining the protocols that solve distributed commit, it's important to understand the specific failure modes they must handle:
+
+| Challenge | Description | Why it's hard |
+|---|---|---|
+| **Atomicity across sites** | All participating sites must agree on the final outcome. A transaction must not be partially committed (committed at some sites but aborted at others). | No single component has full authority — the decision must be **coordinated**, not dictated. |
+| **Site failures** | A participating site may crash during transaction execution while other sites remain operational. | The remaining sites cannot simply proceed — the failed site may hold locks or have uncommitted changes that affect the global outcome. |
+| **Communication failures** | Messages between sites may be delayed, lost, or arrive out of order. | A site that sends a YES vote but doesn't receive the coordinator's decision cannot distinguish "message lost" from "coordinator crashed." |
+| **Network partitions** | The network may split into disconnected segments, with some sites unable to communicate with others. | Sites on opposite sides of a partition may independently try to resolve the transaction, potentially reaching conflicting decisions. |
+
+These challenges explain why simple approaches (e.g. "just have everyone commit independently") fail — and why formal protocols like 2PC are necessary.
+
 ### 4.1.1 Two-Phase Commit (2PC)
 
 The **Two-Phase Commit** protocol is the most widely used solution for atomic distributed commits. It ensures that all participating nodes either commit together or abort together.
@@ -131,7 +185,59 @@ In a distributed system, a single SQL query may need data from multiple sites. T
 
 The key cost factor is **network transfer** — moving data between nodes is orders of magnitude slower than local disk I/O or CPU processing. A good distributed query optimizer minimises total data transfer.
 
-### 4.2.2 Query Processing Steps
+### 4.2.2 Distributed Query Execution Strategies
+
+There are three fundamental strategies for executing a query that needs data from a remote site:
+
+**a) Data Shipping**
+
+Move the required data **to the node** where the query is being executed. The receiving node performs all processing locally after the data arrives.
+
+```
+Query Node                          Remote Node
+    │                                   │
+    │──── "Send me table R" ──────────→│
+    │                                   │
+    │←──── [entire table R shipped] ───│
+    │                                   │
+    │  (process query locally           │
+    │   using shipped data)             │
+```
+
+**b) Query Shipping**
+
+Send the query (or sub-query) **to the node where the data resides**. That node processes the data locally and returns only the final result.
+
+```
+Query Node                          Remote Node
+    │                                   │
+    │──── "Run this query on R" ──────→│
+    │                                   │
+    │                          (process query locally)
+    │                                   │
+    │←──── [only matching rows] ───────│
+    │                                   │
+    │  (merge with local results)       │
+```
+
+**c) Hybrid Approach**
+
+Combine data shipping and query shipping — ship data for some operations and ship queries for others, depending on data sizes, selectivity, and network cost. Most real-world distributed databases use this approach.
+
+**Comparison:**
+
+| Strategy | How it works | Pros | Cons | Best when |
+|---|---|---|---|---|
+| **Data Shipping** | Move data to the query node; process locally. | Simple to implement. Query node has full control over execution plan. | Expensive if the remote table is large — transfers entire dataset over the network. | Remote data is small, or needed for multiple queries (caching benefit). |
+| **Query Shipping** | Send query to the data node; return only results. | Minimises network traffic — only results travel over the wire. Leverages local indexes at the data node. | Data node must have enough compute. Complex queries involving multiple remote sites are hard to decompose. | Data is large but query is selective (few rows match). |
+| **Hybrid** | Ship data for some operations, ship queries for others. Optimizer decides per-operation. | Best overall performance — adapts to each operation's characteristics. | More complex optimizer logic. Harder to predict and debug execution plans. | Most real-world workloads with mixed data sizes and selectivities. |
+
+**Example:** Consider a query joining a large `Orders` table (10M rows, at Site A) with a small `Regions` table (50 rows, at Site B):
+- **Data shipping:** Ship `Regions` (50 rows) to Site A → cheap. Ship `Orders` to Site B → very expensive.
+- **Query shipping:** Send the join query to Site A, but Site A doesn't have `Regions`.
+- **Hybrid (optimal):** Ship the small `Regions` table to Site A (data shipping for the small table), then execute the join locally at Site A (query shipping logic for the large table). Only 50 rows travel over the network.
+
+### 4.2.3 Query Processing Steps
 
 ```
 SQL Query
@@ -149,7 +255,7 @@ Distributed Execution (execute sub-queries at relevant sites, transfer intermedi
 Result Assembly (combine partial results at the query site)
 ```
 
-### 4.2.3 Strategies for Distributed Joins
+### 4.2.4 Strategies for Distributed Joins
 
 When a join involves data at two different sites, several strategies exist:
 
@@ -160,7 +266,7 @@ When a join involves data at two different sites, several strategies exist:
 | **Bloom-filter join** | Site A sends a compact **Bloom filter** (probabilistic data structure) of its join keys. Site B uses it to pre-filter, then sends matching rows. | Very large tables where even sending join columns is expensive. | Bloom filter (small) + matching rows. |
 | **Parallel execution** | Break the query into independent sub-queries that execute simultaneously at different sites. Merge results. | Multiple partitions can be scanned in parallel. | Depends on partition scheme. |
 
-### 4.2.4 Cost Factors
+### 4.2.5 Cost Factors
 
 | Factor | Relative importance |
 |---|---|

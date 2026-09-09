@@ -9,9 +9,66 @@
 
 ---
 
+## Why Containers? — The Motivation
+
+### The "Works on My Machine" Problem
+
+A developer builds an application on their laptop: macOS, Python 3.9, `numpy 1.24`, `flask 2.3`. Everything works. They deploy to production: Ubuntu 22.04, Python 3.8, `numpy 1.21`, `flask 2.1`. The app crashes with cryptic import errors.
+
+This happens because the **application is separate from its environment**. The code depends on a specific OS, language version, and library versions — but those are never guaranteed to match across machines.
+
+**Containers solve this** by packaging the application **together with** its exact runtime environment — OS libraries, language runtime, dependencies, configuration — into a single portable artifact. If it runs in a container on your laptop, it runs the same in production. The environment travels with the application.
+
+### The VM Overhead Problem
+
+Before containers, the answer was virtual machines: one VM per service. But VMs carry a full OS each:
+
+```
+100 microservices × 100 VMs = 100 OS kernels (each consuming CPU, memory, disk)
+```
+
+Containers share the host kernel, eliminating that redundancy:
+
+```
+100 microservices × 100 containers = 1 shared OS kernel
+```
+
+This makes containers far lighter (MBs vs GBs), faster to start (milliseconds vs minutes), and denser (hundreds per host vs tens).
+
+---
+
 ## 2.7 Docker
 
 **Docker** is the most widely used containerization platform. It provides the tools to build, ship, and run containers.
+
+### 2.7.0 Docker Architecture
+
+Docker uses a **client-server architecture** with three main components:
+
+```
+┌──────────────┐         REST API         ┌──────────────────────────────┐
+│ Docker Client│ ──────────────────────── │      Docker Daemon (dockerd) │
+│ (docker CLI) │                          │                              │
+│              │  docker build            │  Manages:                    │
+│              │  docker run              │  • Images                    │
+│              │  docker pull             │  • Containers                │
+│              │  docker push             │  • Networks                  │
+│              │                          │  • Volumes                   │
+└──────────────┘                          └──────────┬───────────────────┘
+                                                     │ pull / push
+                                                     ▼
+                                          ┌──────────────────────┐
+                                          │   Docker Registry     │
+                                          │  (Docker Hub, ECR,    │
+                                          │   ACR, private)       │
+                                          └──────────────────────┘
+```
+
+| Component | Role |
+|---|---|
+| **Docker Daemon (`dockerd`)** | The background service that runs on the host. It manages all Docker objects — images, containers, networks, and volumes. Listens for Docker API requests on a Unix socket or TCP port. Does the heavy lifting of building, running, and distributing containers. |
+| **Docker Client (`docker` CLI)** | The command-line tool users interact with. Every command (`docker run`, `docker build`, `docker ps`) sends a REST API request to the daemon. The client and daemon can run on the same machine or the client can connect to a remote daemon. |
+| **Docker Registry** | A storage and distribution service for Docker images. **Docker Hub** is the default public registry (like GitHub for container images). Organisations use **private registries** (Amazon ECR, Azure ACR, self-hosted) for proprietary images. When you `docker pull`, the daemon fetches the image from a registry. When you `docker push`, it uploads to one. |
 
 ### 2.7.1 Docker Images
 
@@ -214,6 +271,28 @@ An **application container** runs a **single process** (or a small group of rela
 ## 2.10 Virtual Machines vs Containers
 
 This is one of the most important comparisons in cloud computing. VMs and containers are not competitors — they're complementary tools for different use cases.
+
+**The key insight:** VMs virtualise **hardware** (each VM gets its own virtual CPU, memory, disk, and runs its own OS kernel). Containers virtualise the **operating system** (each container gets its own process space, filesystem, and network stack but shares the host kernel).
+
+```
+Virtual Machines:                        Containers:
+┌─────────┐ ┌─────────┐                ┌─────────┐ ┌─────────┐
+│  App A  │ │  App B  │                │  App A  │ │  App B  │
+│  Bins/  │ │  Bins/  │                │  Bins/  │ │  Bins/  │
+│  Libs   │ │  Libs   │                │  Libs   │ │  Libs   │
+│ Guest OS│ │ Guest OS│                └────┬────┘ └────┬────┘
+└────┬────┘ └────┬────┘                     │           │
+     │           │                     ┌────┴───────────┴────┐
+┌────┴───────────┴────┐                │   Container Runtime  │
+│     Hypervisor      │                │   (Docker/containerd)│
+├─────────────────────┤                ├──────────────────────┤
+│     Host OS         │                │      Host OS         │
+├─────────────────────┤                │   (shared kernel)    │
+│     Hardware        │                ├──────────────────────┤
+└─────────────────────┘                │      Hardware        │
+                                       └──────────────────────┘
+Each VM: own kernel                    All containers: shared kernel
+```
 
 ### Detailed Comparison
 
