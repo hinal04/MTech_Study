@@ -22,6 +22,10 @@
 - [2.5 Resource Management for SaaS, PaaS, and IaaS Models](#25-resource-management-for-saas-paas-and-iaas-models)
 - [2.6 Storage Virtualization](#26-storage-virtualization)
 - [2.7 Containers and Containerization Concepts](#27-containers-and-containerization-concepts)
+- [2.8 Emulation](#28-emulation)
+- [2.9 Other Types of Virtualization (Network, Memory, Device)](#29-other-types-of-virtualization)
+- [2.10 CPU and Memory Overcommitment](#210-cpu-and-memory-overcommitment)
+- [2.11 Practical Considerations](#211-practical-considerations)
 
 ---
 
@@ -495,6 +499,148 @@ Each container is a **process** (or group of processes) running on the host OS, 
 
 ---
 
+## 2.8 Emulation (from class slides P19-20)
+
+**Emulation** is the process by which software reproduces the behaviour of hardware — CPU instruction set, memory, and I/O devices — presenting the guest OS with a virtual hardware profile that is completely **decoupled** from the physical hardware underneath.
+
+### Emulation vs Virtualization — Key Difference
+
+| Aspect | Emulation | Virtualization |
+|---|---|---|
+| **ISA (Instruction Set Architecture)** | **Cross-ISA** — can run ARM guest on x86 host | **Same-ISA only** — x86 guest on x86 host |
+| **How it works** | Software reproduces entire hardware behaviour | Hypervisor intercepts privileged instructions, runs rest natively |
+| **Performance** | Slow (10-100x overhead) | Near-native (2-10% overhead) |
+| **Guest awareness** | Guest OS completely unaware | Guest may or may not be aware (depends on type) |
+| **Use case** | Cross-platform (ARM on x86), legacy hardware, architecture migration | Cloud computing, server consolidation, multi-tenancy |
+| **Examples** | QEMU, Apple Rosetta 2, Android emulator | KVM, VMware ESXi, Hyper-V |
+
+### Two Emulation Techniques
+
+| Technique | How It Works | Performance | Example |
+|---|---|---|---|
+| **Interpretation** | Fetch, decode, and execute each guest instruction **one at a time, every time** | Slow — no reuse. Every instruction is re-decoded each time. | Simple emulators, early QEMU |
+| **Dynamic Binary Translation (DBT)** | Translate a block of guest instructions to equivalent host instructions **once**, cache the result, and jump directly to it on repeat execution | Much faster — translated blocks are reused | QEMU's TCG engine, Apple Rosetta 2 |
+
+> **Key insight from class slides:** Full emulation is reserved for cases where ISAs genuinely differ (cross-platform, legacy hardware). For standard same-ISA cloud virtualization, hardware-assisted virtualization (VT-x/AMD-V) dominates instead.
+
+---
+
+## 2.9 Other Types of Virtualization (from class slides P39-41)
+
+### Network Virtualization
+
+**Network virtualization** creates a logical, software-defined network on top of physical network infrastructure. It allows logical segmentation without physical changes.
+
+| Type | What It Does | Example |
+|---|---|---|
+| **VLAN (Virtual LAN)** | Logically segments a LAN into several broadcast domains. Defined on a switch, port-by-port. Ports in the same VLAN don't need to be physically contiguous — users on different floors or buildings can be in the same VLAN. | Ports 1-10 = VLAN 1 (HR), Ports 11-20 = VLAN 2 (Engineering) |
+| **VRF (Virtual Routing and Forwarding)** | Allows **multiple instances of a routing table** to coexist within the same physical router simultaneously. Used in MPLS (Multi-Protocol Label Switching) networks. | ISP uses one physical router to serve multiple customers, each with isolated routing |
+| **SDN (Software-Defined Networking)** | Separates the control plane (routing decisions) from the data plane (actual packet forwarding). Network behaviour is controlled by software. | VMware NSX, Cisco ACI |
+
+### Memory Virtualization (from class slides P40)
+
+Beyond CPU virtualization, the hypervisor must also virtualise memory.
+
+- Involves **sharing physical system memory** and dynamically allocating it to VMs
+- Very similar to virtual memory in modern OSes — applications see a contiguous address space not necessarily tied to physical memory
+- The OS maintains **page tables** mapping virtual page numbers to physical page numbers
+- All modern x86 CPUs include:
+  - **MMU (Memory Management Unit)** — handles virtual-to-physical address translation
+  - **TLB (Translation Lookaside Buffer)** — caches recent translations for faster lookup
+
+In a virtualised environment, there are **two levels of translation:**
+```
+Guest Virtual Address → Guest Physical Address → Host Physical Address
+    (managed by guest OS)     (managed by hypervisor)
+```
+
+This is handled efficiently by **Extended Page Tables (EPT)** on Intel or **Nested Page Tables (NPT)** on AMD (see Section 2.4).
+
+### Device Virtualization (from class slides P41)
+
+**Device virtualization** presents each VM with a virtualised version of peripheral devices — network adapters, disk controllers, video adapters, USB controllers, etc.
+
+- The guest OS interacts with what it believes is a **real device**
+- The hypervisor is the one actually talking to the physical hardware underneath
+- Enables remote work — users can access their VM from any location and any device
+- Protects confidential data by keeping it on central servers (not on endpoint devices)
+- Involves managing the **routing of I/O requests** between virtual devices and shared physical hardware
+
+---
+
+## 2.10 CPU and Memory Overcommitment (from class slides P42-46)
+
+### CPU Overcommitment
+
+The hypervisor can allocate **more virtual CPUs (vCPUs) across VMs than physical cores (pCPUs)** exist on the host. This works because CPU time is **time-sliced** — the scheduler hands out short slices of physical core time, the same way an OS multiplexes processes onto cores.
+
+**Overcommit Ratio = Total vCPUs / Total pCPUs**
+
+| Ratio | Suitable For |
+|---|---|
+| **1:1** | Latency-sensitive workloads (databases, real-time systems) |
+| **3:1 to 5:1** | Workable for mixed workloads |
+| **> 8:1** | High risk — performance degradation likely |
+
+**CPU Ready Time** — Time a vCPU is ready to run but **waiting** for a physical core to free up. Rising CPU Ready (flagged above ~5%) signals the host is oversubscribed.
+
+**Example (from class slides):**
+```
+Setup:  Host has 4 physical cores (pCPUs), no hyperthreading.
+        6 VMs deployed, each with 2 vCPUs.
+
+Total vCPUs = 6 VMs × 2 vCPUs = 12 vCPUs
+Overcommit ratio = 12 / 4 = 3:1
+
+Is this safe?
+3:1 sits at the edge of "safe zone" (3:1–5:1) — acceptable but watch closely.
+
+Subtlety: If 3 of 6 VMs simultaneously peg both vCPUs to 100%,
+that's 6 vCPUs of demand against 4 pCPUs — effective contention = 1.5:1 
+for that subset. The aggregate ratio is a planning heuristic, not a guarantee.
+```
+
+### Memory Overcommitment
+
+Unlike CPU (which can be time-sliced), **memory cannot be time-sliced** — a page of RAM is either allocated to a VM or it isn't. The hypervisor must actively reclaim or deduplicate memory.
+
+**Overcommit Ratio = Configured Memory / Physical RAM**
+
+**Reclamation techniques (from least to most invasive):**
+
+| Technique | How It Works | Performance Impact |
+|---|---|---|
+| **1. Page Sharing (TPS / KSM)** | Merges **identical memory pages** across VMs. If 10 VMs run the same OS, many memory pages are identical — share them instead of duplicating. (Note: Inter-VM sharing disabled by default in vSphere 6.0+ for security — only intra-VM sharing is on.) | Minimal — transparent to VMs |
+| **2. Ballooning** | A **guest-side driver** reclaims memory from the guest's own processes. The guest OS decides what to page out — better than hypervisor guessing. | Low-moderate — guest OS handles it gracefully |
+| **3. Compression** | Hypervisor **compresses pages** in memory instead of writing to disk. Slower than RAM but much faster than disk. | Moderate — decompression adds CPU overhead |
+| **4. Host-level Swapping** | **Last resort** — pages swapped to disk without guest cooperation. | **Severe** — disk is ~100,000× slower than RAM |
+
+**Example (from class slides):**
+```
+Setup: Host has 64 GB physical RAM.
+       10 VMs, each configured with 8 GB = 80 GB total.
+       Overcommit ratio = 80/64 = 1.25:1
+
+Reclamation order if memory is tight:
+1. TPS/KSM finds 5 GB of identical pages across VMs → freed
+2. Balloon driver reclaims 3 GB from idle VMs → freed
+3. Compression saves another 2 GB → still in memory but compressed
+4. If still short → host swapping kicks in → severe performance hit
+```
+
+---
+
+## 2.11 Practical Considerations (from class slides P49)
+
+### Points to Note About Virtualization
+
+| Consideration | Details |
+|---|---|
+| **Software Licensing** | Each VM requires its own separate software license. Virtualization makes it easy to create new servers, but organisations could pay large amounts in license fees if they don't control server sprawl. Some licenses are per-socket, per-VM, or per-core — all add cost. |
+| **IT Training** | Staff used to physical systems need training on virtualization. Essential for debugging issues in virtual environments, securing and managing VMs, and effectively planning capacity. |
+| **Hardware Investment** | Server virtualization is most effective on **powerful physical machines**. Organisations with existing weak hardware may still need upfront investment in new physical servers to harvest virtualization benefits. |
+
+---
 
 ---
 

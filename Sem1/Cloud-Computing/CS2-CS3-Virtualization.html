@@ -58,6 +58,18 @@ pre{background:var(--code-bg);border:1px solid var(--border);border-radius:10px;
     <a href="#how-containers-differ-from-vms" class="sub">How Containers Differ from VMs</a>
     <a href="#why-containers" class="sub">Why Containers?</a>
     <a href="#container-architecture" class="sub">Container Architecture</a>
+    <a href="#28-emulation-from-class-slides-p19-20">2.8 Emulation (from class slides P19-20)</a>
+    <a href="#emulation-vs-virtualization-key-difference" class="sub">Emulation vs Virtualization — Key Difference</a>
+    <a href="#two-emulation-techniques" class="sub">Two Emulation Techniques</a>
+    <a href="#29-other-types-of-virtualization-from-class-slides-p39-41">2.9 Other Types of Virtualization (from class slid...</a>
+    <a href="#network-virtualization" class="sub">Network Virtualization</a>
+    <a href="#memory-virtualization-from-class-slides-p40" class="sub">Memory Virtualization (from class slides P40)</a>
+    <a href="#device-virtualization-from-class-slides-p41" class="sub">Device Virtualization (from class slides P41)</a>
+    <a href="#210-cpu-and-memory-overcommitment-from-class-slides-p42-46">2.10 CPU and Memory Overcommitment (from class sli...</a>
+    <a href="#cpu-overcommitment" class="sub">CPU Overcommitment</a>
+    <a href="#memory-overcommitment" class="sub">Memory Overcommitment</a>
+    <a href="#211-practical-considerations-from-class-slides-p49">2.11 Practical Considerations (from class slides P...</a>
+    <a href="#points-to-note-about-virtualization" class="sub">Points to Note About Virtualization</a>
 </nav></aside>
 <main class="main"><div class="page-header"><span class="badge">CS2-CS3</span><h1>CS2-CS3: Virtualization</h1><div class="meta">Contact Sessions 2-3 | Virtualization</div></div>
 <h1 id="cs2-cs3-virtualization">CS2-CS3: Virtualization</h1>
@@ -81,6 +93,10 @@ pre{background:var(--code-bg);border:1px solid var(--border);border-radius:10px;
 <li><a href="#25-resource-management-for-saas-paas-and-iaas-models">2.5 Resource Management for SaaS, PaaS, and IaaS Models</a></li>
 <li><a href="#26-storage-virtualization">2.6 Storage Virtualization</a></li>
 <li><a href="#27-containers-and-containerization-concepts">2.7 Containers and Containerization Concepts</a></li>
+<li><a href="#28-emulation">2.8 Emulation</a></li>
+<li><a href="#29-other-types-of-virtualization">2.9 Other Types of Virtualization (Network, Memory, Device)</a></li>
+<li><a href="#210-cpu-and-memory-overcommitment">2.10 CPU and Memory Overcommitment</a></li>
+<li><a href="#211-practical-considerations">2.11 Practical Considerations</a></li>
 </ul>
 <hr />
 <h2 id="21-introduction-to-virtualization">2.1 Introduction to Virtualization</h2>
@@ -760,14 +776,254 @@ Host → Virtualization → Storage    Host → Metadata Server (location query)
 </code></pre>
 <p>Each container is a <strong>process</strong> (or group of processes) running on the host OS, isolated using kernel features (namespaces and cgroups — see Section 2.8).</p>
 <hr />
+<h2 id="28-emulation-from-class-slides-p19-20">2.8 Emulation (from class slides P19-20)</h2>
+<p><strong>Emulation</strong> is the process by which software reproduces the behaviour of hardware — CPU instruction set, memory, and I/O devices — presenting the guest OS with a virtual hardware profile that is completely <strong>decoupled</strong> from the physical hardware underneath.</p>
+<h3 id="emulation-vs-virtualization-key-difference">Emulation vs Virtualization — Key Difference</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Aspect</th>
+<th>Emulation</th>
+<th>Virtualization</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>ISA (Instruction Set Architecture)</strong></td>
+<td><strong>Cross-ISA</strong> — can run ARM guest on x86 host</td>
+<td><strong>Same-ISA only</strong> — x86 guest on x86 host</td>
+</tr>
+<tr>
+<td><strong>How it works</strong></td>
+<td>Software reproduces entire hardware behaviour</td>
+<td>Hypervisor intercepts privileged instructions, runs rest natively</td>
+</tr>
+<tr>
+<td><strong>Performance</strong></td>
+<td>Slow (10-100x overhead)</td>
+<td>Near-native (2-10% overhead)</td>
+</tr>
+<tr>
+<td><strong>Guest awareness</strong></td>
+<td>Guest OS completely unaware</td>
+<td>Guest may or may not be aware (depends on type)</td>
+</tr>
+<tr>
+<td><strong>Use case</strong></td>
+<td>Cross-platform (ARM on x86), legacy hardware, architecture migration</td>
+<td>Cloud computing, server consolidation, multi-tenancy</td>
+</tr>
+<tr>
+<td><strong>Examples</strong></td>
+<td>QEMU, Apple Rosetta 2, Android emulator</td>
+<td>KVM, VMware ESXi, Hyper-V</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="two-emulation-techniques">Two Emulation Techniques</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Technique</th>
+<th>How It Works</th>
+<th>Performance</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Interpretation</strong></td>
+<td>Fetch, decode, and execute each guest instruction <strong>one at a time, every time</strong></td>
+<td>Slow — no reuse. Every instruction is re-decoded each time.</td>
+<td>Simple emulators, early QEMU</td>
+</tr>
+<tr>
+<td><strong>Dynamic Binary Translation (DBT)</strong></td>
+<td>Translate a block of guest instructions to equivalent host instructions <strong>once</strong>, cache the result, and jump directly to it on repeat execution</td>
+<td>Much faster — translated blocks are reused</td>
+<td>QEMU's TCG engine, Apple Rosetta 2</td>
+</tr>
+</tbody>
+</table></div>
+<div class="callout">
+<p><strong>Key insight from class slides:</strong> Full emulation is reserved for cases where ISAs genuinely differ (cross-platform, legacy hardware). For standard same-ISA cloud virtualization, hardware-assisted virtualization (VT-x/AMD-V) dominates instead.</p>
+</div>
+<hr />
+<h2 id="29-other-types-of-virtualization-from-class-slides-p39-41">2.9 Other Types of Virtualization (from class slides P39-41)</h2>
+<h3 id="network-virtualization">Network Virtualization</h3>
+<p><strong>Network virtualization</strong> creates a logical, software-defined network on top of physical network infrastructure. It allows logical segmentation without physical changes.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Type</th>
+<th>What It Does</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>VLAN (Virtual LAN)</strong></td>
+<td>Logically segments a LAN into several broadcast domains. Defined on a switch, port-by-port. Ports in the same VLAN don't need to be physically contiguous — users on different floors or buildings can be in the same VLAN.</td>
+<td>Ports 1-10 = VLAN 1 (HR), Ports 11-20 = VLAN 2 (Engineering)</td>
+</tr>
+<tr>
+<td><strong>VRF (Virtual Routing and Forwarding)</strong></td>
+<td>Allows <strong>multiple instances of a routing table</strong> to coexist within the same physical router simultaneously. Used in MPLS (Multi-Protocol Label Switching) networks.</td>
+<td>ISP uses one physical router to serve multiple customers, each with isolated routing</td>
+</tr>
+<tr>
+<td><strong>SDN (Software-Defined Networking)</strong></td>
+<td>Separates the control plane (routing decisions) from the data plane (actual packet forwarding). Network behaviour is controlled by software.</td>
+<td>VMware NSX, Cisco ACI</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="memory-virtualization-from-class-slides-p40">Memory Virtualization (from class slides P40)</h3>
+<p>Beyond CPU virtualization, the hypervisor must also virtualise memory.</p>
+<ul>
+<li>Involves <strong>sharing physical system memory</strong> and dynamically allocating it to VMs</li>
+<li>Very similar to virtual memory in modern OSes — applications see a contiguous address space not necessarily tied to physical memory</li>
+<li>The OS maintains <strong>page tables</strong> mapping virtual page numbers to physical page numbers</li>
+<li>All modern x86 CPUs include:</li>
+<li><strong>MMU (Memory Management Unit)</strong> — handles virtual-to-physical address translation</li>
+<li><strong>TLB (Translation Lookaside Buffer)</strong> — caches recent translations for faster lookup</li>
+</ul>
+<p>In a virtualised environment, there are <strong>two levels of translation:</strong></p>
+<pre><code>Guest Virtual Address → Guest Physical Address → Host Physical Address
+    (managed by guest OS)     (managed by hypervisor)
+</code></pre>
+<p>This is handled efficiently by <strong>Extended Page Tables (EPT)</strong> on Intel or <strong>Nested Page Tables (NPT)</strong> on AMD (see Section 2.4).</p>
+<h3 id="device-virtualization-from-class-slides-p41">Device Virtualization (from class slides P41)</h3>
+<p><strong>Device virtualization</strong> presents each VM with a virtualised version of peripheral devices — network adapters, disk controllers, video adapters, USB controllers, etc.</p>
+<ul>
+<li>The guest OS interacts with what it believes is a <strong>real device</strong></li>
+<li>The hypervisor is the one actually talking to the physical hardware underneath</li>
+<li>Enables remote work — users can access their VM from any location and any device</li>
+<li>Protects confidential data by keeping it on central servers (not on endpoint devices)</li>
+<li>Involves managing the <strong>routing of I/O requests</strong> between virtual devices and shared physical hardware</li>
+</ul>
+<hr />
+<h2 id="210-cpu-and-memory-overcommitment-from-class-slides-p42-46">2.10 CPU and Memory Overcommitment (from class slides P42-46)</h2>
+<h3 id="cpu-overcommitment">CPU Overcommitment</h3>
+<p>The hypervisor can allocate <strong>more virtual CPUs (vCPUs) across VMs than physical cores (pCPUs)</strong> exist on the host. This works because CPU time is <strong>time-sliced</strong> — the scheduler hands out short slices of physical core time, the same way an OS multiplexes processes onto cores.</p>
+<p><strong>Overcommit Ratio = Total vCPUs / Total pCPUs</strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Ratio</th>
+<th>Suitable For</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>1:1</strong></td>
+<td>Latency-sensitive workloads (databases, real-time systems)</td>
+</tr>
+<tr>
+<td><strong>3:1 to 5:1</strong></td>
+<td>Workable for mixed workloads</td>
+</tr>
+<tr>
+<td><strong>&gt; 8:1</strong></td>
+<td>High risk — performance degradation likely</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>CPU Ready Time</strong> — Time a vCPU is ready to run but <strong>waiting</strong> for a physical core to free up. Rising CPU Ready (flagged above ~5%) signals the host is oversubscribed.</p>
+<p><strong>Example (from class slides):</strong></p>
+<pre><code>Setup:  Host has 4 physical cores (pCPUs), no hyperthreading.
+        6 VMs deployed, each with 2 vCPUs.
+
+Total vCPUs = 6 VMs × 2 vCPUs = 12 vCPUs
+Overcommit ratio = 12 / 4 = 3:1
+
+Is this safe?
+3:1 sits at the edge of &quot;safe zone&quot; (3:1–5:1) — acceptable but watch closely.
+
+Subtlety: If 3 of 6 VMs simultaneously peg both vCPUs to 100%,
+that's 6 vCPUs of demand against 4 pCPUs — effective contention = 1.5:1 
+for that subset. The aggregate ratio is a planning heuristic, not a guarantee.
+</code></pre>
+<h3 id="memory-overcommitment">Memory Overcommitment</h3>
+<p>Unlike CPU (which can be time-sliced), <strong>memory cannot be time-sliced</strong> — a page of RAM is either allocated to a VM or it isn't. The hypervisor must actively reclaim or deduplicate memory.</p>
+<p><strong>Overcommit Ratio = Configured Memory / Physical RAM</strong></p>
+<p><strong>Reclamation techniques (from least to most invasive):</strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Technique</th>
+<th>How It Works</th>
+<th>Performance Impact</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>1. Page Sharing (TPS / KSM)</strong></td>
+<td>Merges <strong>identical memory pages</strong> across VMs. If 10 VMs run the same OS, many memory pages are identical — share them instead of duplicating. (Note: Inter-VM sharing disabled by default in vSphere 6.0+ for security — only intra-VM sharing is on.)</td>
+<td>Minimal — transparent to VMs</td>
+</tr>
+<tr>
+<td><strong>2. Ballooning</strong></td>
+<td>A <strong>guest-side driver</strong> reclaims memory from the guest's own processes. The guest OS decides what to page out — better than hypervisor guessing.</td>
+<td>Low-moderate — guest OS handles it gracefully</td>
+</tr>
+<tr>
+<td><strong>3. Compression</strong></td>
+<td>Hypervisor <strong>compresses pages</strong> in memory instead of writing to disk. Slower than RAM but much faster than disk.</td>
+<td>Moderate — decompression adds CPU overhead</td>
+</tr>
+<tr>
+<td><strong>4. Host-level Swapping</strong></td>
+<td><strong>Last resort</strong> — pages swapped to disk without guest cooperation.</td>
+<td><strong>Severe</strong> — disk is ~100,000× slower than RAM</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Example (from class slides):</strong></p>
+<pre><code>Setup: Host has 64 GB physical RAM.
+       10 VMs, each configured with 8 GB = 80 GB total.
+       Overcommit ratio = 80/64 = 1.25:1
+
+Reclamation order if memory is tight:
+1. TPS/KSM finds 5 GB of identical pages across VMs → freed
+2. Balloon driver reclaims 3 GB from idle VMs → freed
+3. Compression saves another 2 GB → still in memory but compressed
+4. If still short → host swapping kicks in → severe performance hit
+</code></pre>
+<hr />
+<h2 id="211-practical-considerations-from-class-slides-p49">2.11 Practical Considerations (from class slides P49)</h2>
+<h3 id="points-to-note-about-virtualization">Points to Note About Virtualization</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Consideration</th>
+<th>Details</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Software Licensing</strong></td>
+<td>Each VM requires its own separate software license. Virtualization makes it easy to create new servers, but organisations could pay large amounts in license fees if they don't control server sprawl. Some licenses are per-socket, per-VM, or per-core — all add cost.</td>
+</tr>
+<tr>
+<td><strong>IT Training</strong></td>
+<td>Staff used to physical systems need training on virtualization. Essential for debugging issues in virtual environments, securing and managing VMs, and effectively planning capacity.</td>
+</tr>
+<tr>
+<td><strong>Hardware Investment</strong></td>
+<td>Server virtualization is most effective on <strong>powerful physical machines</strong>. Organisations with existing weak hardware may still need upfront investment in new physical servers to harvest virtualization benefits.</td>
+</tr>
+</tbody>
+</table></div>
+<hr />
 <hr />
 <p><em>End of CS2-CS3</em></p>
 </main>
 <button class="back-top" id="backTop">&#8593;</button>
 <script>
-const bar=document.getElementById("progress");const btn=document.getElementById("backTop");const toggle=document.getElementById("sidebarToggle");const sidebar=document.getElementById("sidebar");
-window.addEventListener("scroll",function(){var s=document.documentElement.scrollTop;var h=document.documentElement.scrollHeight-document.documentElement.clientHeight;bar.style.width=(s/h*100)+"%";btn.classList.toggle("show",s>400);});
+var bar=document.getElementById("progress"),btn=document.getElementById("backTop"),toggle=document.getElementById("sidebarToggle"),sidebar=document.getElementById("sidebar");
+window.addEventListener("scroll",function(){var s=document.documentElement.scrollTop,h=document.documentElement.scrollHeight-document.documentElement.clientHeight;bar.style.width=(s/h*100)+"%";btn.classList.toggle("show",s>400)});
 btn.onclick=function(){window.scrollTo({top:0,behavior:"smooth"})};toggle.onclick=function(){sidebar.classList.toggle("open")};
-var links=document.querySelectorAll(".sidebar nav a");var obs=new IntersectionObserver(function(entries){entries.forEach(function(e){if(e.isIntersecting){links.forEach(function(l){l.classList.remove("active")});var a=document.querySelector(".sidebar nav a[href=\"#"+e.target.id+"\"]");if(a)a.classList.add("active")}})},{rootMargin:"-20% 0px -70% 0px"});
+var links=document.querySelectorAll(".sidebar nav a"),obs=new IntersectionObserver(function(entries){entries.forEach(function(e){if(e.isIntersecting){links.forEach(function(l){l.classList.remove("active")});var a=document.querySelector(".sidebar nav a[href=\"#"+e.target.id+"\"]");if(a)a.classList.add("active")}})},{rootMargin:"-20% 0px -70% 0px"});
 document.querySelectorAll("h2[id],h3[id]").forEach(function(h){obs.observe(h)});
 </script></body></html>
