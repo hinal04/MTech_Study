@@ -59,6 +59,29 @@ More formally, an algorithm must satisfy these five properties:
 | **Finiteness** | The algorithm terminates after a finite number of steps | A loop must have a valid termination condition |
 | **Effectiveness** | Every instruction is basic enough to be carried out by a person using pencil and paper | Arithmetic operations, comparisons |
 
+### Why Algorithms Matter
+
+Algorithms are the **backbone of virtually all software** we use daily:
+- **Search engines** use ranking algorithms to sift through billions of web pages in milliseconds
+- **GPS navigation** uses shortest-path algorithms (Dijkstra, A*) to find optimal routes in real time
+- **Social media feeds** use recommendation algorithms to decide what content to show you
+- **E-commerce** uses collaborative filtering and sorting algorithms for product recommendations
+
+The difference between a **good algorithm and a bad one** can be the difference between a program that finishes in **seconds** versus one that would take **years**.
+
+#### Concrete Example: Sorting 1 Million Numbers
+
+Suppose we need to sort an array of n = 1,000,000 (10⁶) numbers on a machine that performs 10⁹ operations per second:
+
+| Algorithm | Time Complexity | Operations (n = 10⁶) | Wall-Clock Time |
+|-----------|----------------|----------------------|-----------------|
+| **Bubble Sort** | O(n²) | (10⁶)² = 10¹² | ~1,000 sec (~16.7 min) |
+| **Merge Sort** | O(n log n) | 10⁶ × 20 ≈ 2 × 10⁷ | ~0.02 sec |
+
+> Merge Sort is roughly **50,000× faster** than Bubble Sort for this input size. As n grows, the gap widens even further. This is why algorithm analysis matters — choosing the right algorithm is often more impactful than buying faster hardware.
+
+---
+
 ### Experimental Studies vs Theoretical Analysis (T1: 1.1)
 
 Goodrich & Tamassia emphasize two approaches to studying algorithm performance:
@@ -171,6 +194,156 @@ Algorithm arrayMax(A, n)
 **Best case** (maximum is at A[0]): Line 4 never executes → **4n** operations
 
 **Key insight:** The exact count doesn't matter much. What matters is that the running time is some **linear function of n**. Whether it is 6n - 2 or 4n, it grows linearly. This motivates asymptotic notation.
+
+---
+
+### Exercise: Electricity Bill Calculation (Step Counting for Non-Loop Algorithms)
+
+Not every algorithm has loops. Consider this problem to see how step counting works for a purely conditional algorithm.
+
+**Problem:** Calculate the electricity bill based on tiered pricing:
+- First 100 units: ₹1.5 per unit
+- Next 200 units (101–300): ₹2.5 per unit
+- Above 300 units: ₹4.0 per unit
+
+```
+Algorithm ElectricityBill(units)
+    Input:  An integer units ≥ 0 (number of units consumed)
+    Output: The total bill amount
+
+1.  if units ≤ 100 then                                    // 1 comparison
+2.      bill ← units × 1.5                                 // 1 multiply + 1 assign = 2 ops
+3.  else if units ≤ 300 then                                // 1 comparison
+4.      bill ← 100 × 1.5 + (units - 100) × 2.5            // 2 multiply + 1 subtract + 1 add + 1 assign = 5 ops
+5.  else                                                    
+6.      bill ← 100 × 1.5 + 200 × 2.5 + (units - 300) × 4.0  // 3 multiply + 1 subtract + 2 add + 1 assign = 7 ops
+7.  print bill                                              // 1 op
+```
+
+**Step Count Analysis:**
+
+| Case | Condition | Operations Executed | Total Count |
+|------|-----------|-------------------|-------------|
+| units ≤ 100 | Line 1 (true) → Line 2, 7 | 1 + 2 + 1 = **4** |
+| 101 ≤ units ≤ 300 | Line 1 (false) → Line 3 (true) → Line 4, 7 | 1 + 1 + 5 + 1 = **8** |
+| units > 300 | Line 1 (false) → Line 3 (false) → Line 6, 7 | 1 + 1 + 7 + 1 = **10** |
+
+**Complexity:** T(n) = O(1) — constant time.
+
+**Key insight:** There are **no loops and no recursion**. Regardless of the value of `units`, the algorithm executes a fixed (bounded) number of primitive operations. The input size doesn't affect the number of steps — this is the hallmark of **O(1)** algorithms.
+
+---
+
+### Step-Counting Exercises: SumArray, SecondLargest, IsSorted
+
+Practice counting primitive operations on three common array algorithms. Each includes a detailed execution count table.
+
+---
+
+#### Exercise 1: SumArray
+
+```
+Algorithm SumArray(A, n)
+    Input:  An array A of n numbers
+    Output: The sum of all elements in A
+
+1.  sum ← 0                        // 1 assignment
+2.  for i ← 0 to n-1 do           // 1 init + n comparisons + (n-1) increments = 2n
+3.      sum ← sum + A[i]           // 1 add + 1 index + 1 assign = 3 ops × n iterations
+4.  return sum                     // 1 op
+```
+
+**Execution Count Table:**
+
+| Line | Operation | Frequency | Cost |
+|------|-----------|-----------|------|
+| 1 | `sum ← 0` (assignment) | 1 | 1 |
+| 2 | `i ← 0` (init) | 1 | 1 |
+| 2 | `i ≤ n-1` (comparison) | n + 1 | n + 1 |
+| 2 | `i++` (increment) | n | n |
+| 3 | `A[i]` (array index) | n | n |
+| 3 | `sum + A[i]` (addition) | n | n |
+| 3 | `sum ← ...` (assignment) | n | n |
+| 4 | `return sum` | 1 | 1 |
+| | **Total** | | **5n + 4** |
+
+**Simplified:** T(n) = 5n + 4 → drop constants → **T(n) = O(n)**
+
+---
+
+#### Exercise 2: SecondLargest
+
+```
+Algorithm SecondLargest(A, n)
+    Input:  An array A of n ≥ 2 numbers
+    Output: The second largest element in A
+
+1.  max ← A[0]                     // 1 index + 1 assign = 2 ops
+2.  sec ← -∞                       // 1 assign
+3.  for i ← 1 to n-1 do           // 1 init + (n-1) comparisons + (n-2) increments
+4.      if A[i] > max then         // 1 index + 1 compare = 2 ops × (n-1) iterations
+5.          sec ← max              // 1 assign (at most n-1 times)
+6.          max ← A[i]            // 1 index + 1 assign = 2 ops (at most n-1 times)
+7.      else if A[i] > sec then   // 1 index + 1 compare = 2 ops (runs when line 4 is false)
+8.          sec ← A[i]            // 1 index + 1 assign = 2 ops
+9.  return sec                     // 1 op
+```
+
+**Execution Count Table (Worst Case — array sorted in ascending order, line 5–6 execute every iteration):**
+
+| Line | Operation | Frequency | Cost |
+|------|-----------|-----------|------|
+| 1 | Index + assign | 1 | 2 |
+| 2 | Assign | 1 | 1 |
+| 3 | Init + comparisons + increments | 1 + (n-1) + (n-2) | 2n - 2 |
+| 4 | Index + compare | n - 1 | 2(n-1) |
+| 5 | Assign | n - 1 | n - 1 |
+| 6 | Index + assign | n - 1 | 2(n-1) |
+| 7 | (not reached in worst case) | 0 | 0 |
+| 8 | (not reached in worst case) | 0 | 0 |
+| 9 | Return | 1 | 1 |
+| | **Total** | | **7n - 5** |
+
+**Best Case** (max is at A[0], all others need only the else-if check): Lines 5–6 never execute, line 7 runs n-1 times → T(n) ≈ 6n - 3.
+
+**Simplified:** T(n) = O(n) in all cases — the algorithm makes a **single pass** through the array.
+
+---
+
+#### Exercise 3: IsSorted
+
+```
+Algorithm IsSorted(A, n)
+    Input:  An array A of n numbers
+    Output: TRUE if A is sorted in non-decreasing order, FALSE otherwise
+
+1.  for i ← 0 to n-2 do           // 1 init + up to (n-1) comparisons + (n-2) increments
+2.      if A[i] > A[i+1] then     // 2 index + 1 compare = 3 ops per iteration
+3.          return FALSE           // 1 op (early exit)
+4.  return TRUE                    // 1 op
+```
+
+**Execution Count Table (Worst Case — array IS sorted, loop runs fully):**
+
+| Line | Operation | Frequency | Cost |
+|------|-----------|-----------|------|
+| 1 | `i ← 0` (init) | 1 | 1 |
+| 1 | `i ≤ n-2` (comparison) | n | n |
+| 1 | `i++` (increment) | n - 1 | n - 1 |
+| 2 | `A[i]` (index) | n - 1 | n - 1 |
+| 2 | `A[i+1]` (index + add) | n - 1 | 2(n-1) |
+| 2 | `>` (comparison) | n - 1 | n - 1 |
+| 3 | (never reached) | 0 | 0 |
+| 4 | `return TRUE` | 1 | 1 |
+| | **Total** | | **6n - 4** |
+
+**Best Case** (first pair is out of order — A[0] > A[1]): Loop runs once, returns FALSE immediately → T(n) = O(1).
+
+**Worst Case:** T(n) = 6n - 4 → **T(n) = O(n)**
+
+**Key insight across all three exercises:** All single-loop array algorithms are O(n). The constant factor (5n vs 7n vs 6n) varies by how much work the loop body does, but asymptotically they are all **linear**.
+
+---
 
 ### Seven Important Functions (T1: 1.2)
 

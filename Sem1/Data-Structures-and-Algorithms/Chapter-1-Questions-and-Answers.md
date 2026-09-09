@@ -1499,6 +1499,432 @@ Case 3: f(n) = Ω(n^(log_b a + ε))       → T(n) = Θ(f(n))   [+ regularity]
 ```
 
 ---
+---
+
+# Section K: Practice Problems — Algorithm Writing, Time Complexity & Recurrences
+
+> Additional practice questions based on class material: algorithm writing, execution count tables, and recurrence solving.
+
+---
+
+### Q51. Write an algorithm to find the sum of first N natural numbers. Analyze its time complexity using an execution count table.
+
+**Answer:**
+
+```
+Algorithm SumOfN(N)
+    sum ← 0
+    for i ← 1 to N do
+        sum ← sum + i
+    return sum
+```
+
+**Execution count table:**
+
+| Line | Statement | Execution Count |
+|------|-----------|----------------|
+| 1 | `sum ← 0` | 1 |
+| 2 | `for i ← 1 to N` (init + N+1 tests + N increments) | 2N + 2 |
+| 3 | `sum ← sum + i` | N |
+| 4 | `return sum` | 1 |
+| **Total** | | **3N + 4** |
+
+**T(N) = Θ(N)** — linear time.
+
+**Note:** A closed-form solution exists: Sum = N(N+1)/2, which is O(1). The iterative version is O(N).
+
+---
+
+### Q52. Write an algorithm to compute N! (factorial). Analyze the recursive and iterative versions.
+
+**Answer:**
+
+**Iterative version:**
+```
+Algorithm Factorial_Iter(N)
+    result ← 1
+    for i ← 2 to N do
+        result ← result × i
+    return result
+```
+
+| Line | Statement | Count |
+|------|-----------|-------|
+| 1 | `result ← 1` | 1 |
+| 2 | `for i ← 2 to N` | N |
+| 3 | `result ← result × i` | N − 1 |
+| 4 | `return result` | 1 |
+| **Total** | | **2N + 1** → **Θ(N)** |
+
+**Recursive version:**
+```
+Algorithm Factorial_Rec(N)
+    if N ≤ 1 then return 1
+    return N × Factorial_Rec(N − 1)
+```
+
+**Recurrence:** T(N) = T(N−1) + O(1), T(1) = O(1)
+
+By unrolling: T(N) = T(N−1) + c = T(N−2) + 2c = ... = T(1) + (N−1)c = **Θ(N)**
+
+Both versions are Θ(N), but the recursive version uses O(N) stack space while the iterative uses O(1).
+
+---
+
+### Q53. Write an algorithm to check if a given year is a leap year.
+
+**Answer:**
+
+```
+Algorithm IsLeapYear(year)
+    if (year mod 400 = 0) then
+        return TRUE
+    else if (year mod 100 = 0) then
+        return FALSE
+    else if (year mod 4 = 0) then
+        return TRUE
+    else
+        return FALSE
+```
+
+**Execution count table:**
+
+| Line | Statement | Best Case | Worst Case |
+|------|-----------|-----------|------------|
+| 1 | `year mod 400 = 0` | 1 | 1 |
+| 2 | return TRUE | 1 (if divisible by 400) | 0 |
+| 3 | `year mod 100 = 0` | 0 | 1 |
+| 4 | return FALSE | 0 | 0 or 1 |
+| 5 | `year mod 4 = 0` | 0 | 1 |
+| 6 | return TRUE/FALSE | 0 | 1 |
+
+**T = O(1)** — constant time regardless of input (fixed number of comparisons).
+
+**Examples:** 2000 → TRUE (÷400), 1900 → FALSE (÷100 but not ÷400), 2024 → TRUE (÷4), 2023 → FALSE.
+
+---
+
+### Q54. Write an algorithm to determine loan eligibility: a person is eligible if (a) salary ≥ ₹50,000 AND credit score ≥ 700, OR (b) salary ≥ ₹30,000 AND has a guarantor.
+
+**Answer:**
+
+```
+Algorithm CheckLoanEligibility(salary, creditScore, hasGuarantor)
+    if salary ≥ 50000 AND creditScore ≥ 700 then
+        return "ELIGIBLE — meets salary and credit criteria"
+    else if salary ≥ 30000 AND hasGuarantor = TRUE then
+        return "ELIGIBLE — meets salary with guarantor"
+    else
+        return "NOT ELIGIBLE"
+```
+
+**Time complexity:** O(1) — fixed number of comparisons.
+
+**Trace examples:**
+
+| salary | creditScore | hasGuarantor | Result |
+|--------|-------------|-------------|--------|
+| 60000 | 750 | No | ELIGIBLE (condition a) |
+| 40000 | 600 | Yes | ELIGIBLE (condition b) |
+| 40000 | 600 | No | NOT ELIGIBLE |
+| 25000 | 800 | Yes | NOT ELIGIBLE (salary < 30000) |
+
+---
+
+### Q55. Write an algorithm to check scholarship eligibility: eligible if GPA ≥ 3.5 AND attendance ≥ 85% AND no disciplinary record. Determine the scholarship tier (Gold: GPA ≥ 3.9, Silver: GPA ≥ 3.7, Bronze: otherwise).
+
+**Answer:**
+
+```
+Algorithm CheckScholarship(gpa, attendance, hasDisciplinaryRecord)
+    if gpa < 3.5 OR attendance < 85 OR hasDisciplinaryRecord = TRUE then
+        return "NOT ELIGIBLE"
+    
+    // Eligible — determine tier
+    if gpa ≥ 3.9 then
+        return "GOLD SCHOLARSHIP"
+    else if gpa ≥ 3.7 then
+        return "SILVER SCHOLARSHIP"
+    else
+        return "BRONZE SCHOLARSHIP"
+```
+
+**Time complexity:** O(1) — constant number of checks.
+
+---
+
+### Q56. Write an algorithm to determine if a social media user qualifies for a verified badge (Instagram-style): eligible if followers ≥ 10,000 AND account age ≥ 1 year AND identity verified.
+
+**Answer:**
+
+```
+Algorithm CheckVerifiedBadge(followers, accountAgeMonths, identityVerified)
+    if followers < 10000 then
+        return "NOT ELIGIBLE — need at least 10,000 followers"
+    if accountAgeMonths < 12 then
+        return "NOT ELIGIBLE — account must be at least 1 year old"
+    if identityVerified = FALSE then
+        return "NOT ELIGIBLE — identity verification required"
+    return "ELIGIBLE FOR VERIFIED BADGE"
+```
+
+**Time complexity:** O(1).
+
+---
+
+### Q57. Analyze the time complexity of this vowel-counting algorithm using an execution count table.
+
+```
+Algorithm CountVowels(S, n)
+    count ← 0
+    for i ← 0 to n-1 do
+        if S[i] = 'a' OR S[i] = 'e' OR S[i] = 'i' OR S[i] = 'o' OR S[i] = 'u' then
+            count ← count + 1
+    return count
+```
+
+**Answer:**
+
+**Execution count table:**
+
+| Line | Statement | Count |
+|------|-----------|-------|
+| `count ← 0` | 1 assignment | 1 |
+| `for i ← 0 to n-1` | 1 init + n+1 tests + n increments | 2n + 2 |
+| `S[i]` comparisons (up to 5 per iteration) | 5 comparisons × n iterations (worst case) | 5n |
+| `count ← count + 1` | At most n times (best: 0, worst: n) | 0 to n |
+| `return count` | 1 | 1 |
+
+**Worst case total: 1 + (2n+2) + 5n + n + 1 = 8n + 4**
+
+**T(n) = Θ(n)** — must check every character.
+
+---
+
+### Q58. Analyze the following algorithm that finds the highest marks among students in each of C courses.
+
+```
+Algorithm HighestMarks(Marks, S, C)
+    // Marks[c][s] = marks of student s in course c
+    for c ← 0 to C-1 do
+        max ← Marks[c][0]
+        for s ← 1 to S-1 do
+            if Marks[c][s] > max then
+                max ← Marks[c][s]
+        print("Course", c, "highest:", max)
+```
+
+**Answer:**
+
+**Execution count table:**
+
+| Line | Statement | Count |
+|------|-----------|-------|
+| Outer `for c` | C iterations | C |
+| `max ← Marks[c][0]` | 1 per outer iteration | C |
+| Inner `for s` | (S−1) iterations per outer | C · (S−1) |
+| `if Marks[c][s] > max` | 1 comparison per inner | C · (S−1) |
+| `max ← Marks[c][s]` (worst) | at most (S−1) per outer | C · (S−1) |
+| `print(...)` | 1 per outer | C |
+
+**Total ≈ C · (3S − 2) + 2C = 3CS − 2C + 2C = 3CS**
+
+**T(S, C) = Θ(C × S)** — linear in total number of marks entries.
+
+---
+
+### Q59. Analyze this algorithm that prints multiplication tables from 1 to N, each up to M.
+
+```
+Algorithm MultiplicationTables(N, M)
+    for i ← 1 to N do
+        for j ← 1 to M do
+            print(i, "×", j, "=", i*j)
+```
+
+**Answer:**
+
+**Execution count table:**
+
+| Line | Statement | Count |
+|------|-----------|-------|
+| Outer `for i` | N iterations | N |
+| Inner `for j` | M iterations per outer | N × M |
+| `print(i × j = i*j)` | 1 multiply + 1 print per inner | N × M |
+
+**Total operations ≈ 2NM + N**
+
+**T(N, M) = Θ(N × M)**
+
+For the standard case (N = M = 10): T = Θ(100) = O(1) since input is fixed. But in general, it's Θ(NM).
+
+---
+
+### Q60. Analyze this algorithm that finds all three-product combinations from an array.
+
+```
+Algorithm ThreeProductCombinations(A, n)
+    for i ← 0 to n-3 do
+        for j ← i+1 to n-2 do
+            for k ← j+1 to n-1 do
+                print(A[i] × A[j] × A[k])
+```
+
+**Answer:**
+
+**Counting iterations:**
+
+The total number of times the innermost statement executes is exactly C(n, 3) — choosing 3 elements from n:
+
+```
+Total = C(n, 3) = n! / (3!(n-3)!) = n(n-1)(n-2) / 6
+```
+
+**Detailed counting:**
+```
+Outer loop: i from 0 to n-3 → (n-2) iterations
+Middle loop: j from i+1 to n-2 → (n-2-i) iterations for each i
+Inner loop: k from j+1 to n-1 → (n-1-j) iterations for each j
+
+Total = Σᵢ₌₀ⁿ⁻³ Σⱼ₌ᵢ₊₁ⁿ⁻² (n-1-j) = n(n-1)(n-2)/6
+```
+
+**T(n) = Θ(n³)** (the cubic coefficient is 1/6, but constants are absorbed)
+
+---
+
+### Q61. Perform binary search on the sorted array [3, 7, 11, 15, 22, 28, 35, 42, 50] to find key = 28 and key = 20. Show the execution count for each comparison.
+
+**Answer:**
+
+**Array (0-indexed):** [3, 7, 11, 15, 22, 28, 35, 42, 50], n = 9
+
+**Search for key = 28:**
+
+| Step | lo | hi | mid | A[mid] | Comparison | Action |
+|------|----|----|-----|--------|------------|--------|
+| 1 | 0 | 8 | 4 | 22 | 28 > 22 | lo = 5 |
+| 2 | 5 | 8 | 6 | 35 | 28 < 35 | hi = 5 |
+| 3 | 5 | 5 | 5 | 28 | 28 = 28 | **Found at index 5** ✓ |
+
+**Comparisons: 3** (equals ⌈log₂ 9⌉ − 1 + 1 checks)
+
+**Search for key = 20 (not present):**
+
+| Step | lo | hi | mid | A[mid] | Comparison | Action |
+|------|----|----|-----|--------|------------|--------|
+| 1 | 0 | 8 | 4 | 22 | 20 < 22 | hi = 3 |
+| 2 | 0 | 3 | 1 | 7 | 20 > 7 | lo = 2 |
+| 3 | 2 | 3 | 2 | 11 | 20 > 11 | lo = 3 |
+| 4 | 3 | 3 | 3 | 15 | 20 > 15 | lo = 4 |
+| 5 | 4 | 3 | — | — | lo > hi | **Not found** ✗ |
+
+**Comparisons: 4** (maximum for n = 9 is ⌈log₂ 10⌉ = 4)
+
+---
+
+### Q62. Solve the recurrence T(n) = 2T(n/2) + n using the substitution method (step by step).
+
+**Answer:**
+
+**Step 1: Guess** — From Master Theorem or intuition: T(n) = O(n log n). Let's prove T(n) ≤ cn lg n.
+
+**Step 2: Assume** T(k) ≤ ck lg k for all k < n (inductive hypothesis).
+
+**Step 3: Substitute:**
+```
+T(n) = 2T(n/2) + n
+     ≤ 2 · c(n/2) · lg(n/2) + n          (by inductive hypothesis)
+     = cn · lg(n/2) + n
+     = cn · (lg n − lg 2) + n
+     = cn · (lg n − 1) + n
+     = cn lg n − cn + n
+     = cn lg n + n(1 − c)
+```
+
+**Step 4: Show ≤ cn lg n:**
+```
+cn lg n + n(1 − c) ≤ cn lg n
+⟺ n(1 − c) ≤ 0
+⟺ c ≥ 1          ✓
+```
+
+**Step 5: Base case:** T(2) = 2T(1) + 2. If T(1) = 1, then T(2) = 4.
+Need 4 ≤ c · 2 · lg 2 = 2c → c ≥ 2. ✓
+
+**Conclusion:** T(n) ≤ 2n lg n, so **T(n) = O(n log n)**.
+
+Combined with lower bound (Ω(n log n) from the n work at each level): **T(n) = Θ(n log n)**.
+
+---
+
+### Q63. Solve the recurrence T(n) = 4T(n/2) + n² using the recursion tree method. Show each level's cost.
+
+**Answer:**
+
+```
+Level 0:                    cn²                           Total: cn²
+                        /  |  |  \
+Level 1:         c(n/2)²  ×4 nodes                       Total: 4·c(n²/4) = cn²
+                 /  |  |  \  (each splits into 4)
+Level 2:        c(n/4)²  ×16 nodes                       Total: 16·c(n²/16) = cn²
+                        ...
+Level i:        c(n/2ⁱ)²  ×4ⁱ nodes                     Total: 4ⁱ · c(n/2ⁱ)² = cn²
+                        ...
+Level lg n:     c · 1  ×4^(lg n) = n² leaves             Total: cn²
+```
+
+**Key observation:** Every level costs exactly cn².
+
+**Number of levels:** lg n + 1 (from level 0 to level lg n).
+
+**Total cost:**
+```
+T(n) = cn² · (lg n + 1)
+     = cn² lg n + cn²
+     = Θ(n² log n)
+```
+
+This matches **Master Theorem Case 2**: a = 4, b = 2, f(n) = n², n^(log₂ 4) = n². Since f(n) = Θ(n²), T(n) = Θ(n² log n). ✓
+
+---
+
+### Q64. Solve T(n) = T(n/2) + 1 using the tree method and verify with substitution.
+
+**Answer:**
+
+**Tree method:**
+```
+Level 0:    c         (1 unit of work)
+            |
+Level 1:    c         (1 unit of work on n/2)
+            |
+Level 2:    c         (1 unit on n/4)
+            |
+           ...
+Level k:    c         (1 unit on n/2ᵏ)
+            |
+Level lg n: c         (base case at n/2^(lg n) = 1)
+```
+
+Each level does O(1) work. Total levels = lg n + 1.
+
+**T(n) = Θ(log n)**
+
+**Verification by substitution:**
+
+Guess: T(n) ≤ c lg n.
+```
+T(n) = T(n/2) + 1
+     ≤ c lg(n/2) + 1
+     = c(lg n − 1) + 1
+     = c lg n − c + 1
+     ≤ c lg n          (when c ≥ 1)  ✓
+```
+
+This is the recurrence for **binary search**: T(n) = Θ(log n). ✓
+
+---
 
 *Q&A prepared for Chapter 1: Analyzing Algorithms — BITS Pilani*
 *References: Goodrich & Tamassia (2006) Ch 1.1, 1.2; CLRS (2009) Ch 4.3, 4.4, 4.5*

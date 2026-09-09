@@ -1,0 +1,3750 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Chapter 3: Non-Linear Data Structures</title>
+<style>:root{--bg:#0f172a;--surface:#1e293b;--surface2:#334155;--border:#475569;--text:#e2e8f0;--text-muted:#94a3b8;--code-bg:#0d1117;--accent:#10b981;--accent-dim:rgba(16,185,129,.15);--accent-border:rgba(16,185,129,.3);--header-gradient:linear-gradient(135deg,#064e3b,#059669,#10b981)}*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}html{scroll-behavior:smooth}body{font-family:"Segoe UI",system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.7;display:flex;min-height:100vh}.sidebar{position:fixed;top:0;left:0;width:280px;height:100vh;background:var(--surface);border-right:1px solid var(--border);overflow-y:auto;padding:1.5rem 0;z-index:100}.sidebar-header{padding:0 1.5rem 1.5rem;border-bottom:1px solid var(--border);margin-bottom:1rem}.sidebar-header h2{font-size:1rem;color:var(--accent)}.sidebar nav a{display:block;padding:.55rem 1.5rem;color:var(--text-muted);text-decoration:none;font-size:.85rem;border-left:3px solid transparent}.sidebar nav a:hover,.sidebar nav a.active{color:var(--accent);background:var(--accent-dim);border-left-color:var(--accent)}.sidebar nav a.sub{padding-left:2.5rem;font-size:.8rem}.main{margin-left:280px;flex:1;max-width:900px;padding:2rem 3rem 4rem}.page-header{background:var(--header-gradient);border-radius:16px;padding:2.5rem;margin-bottom:2.5rem}.page-header .badge{display:inline-block;background:rgba(0,0,0,.3);color:#fff;padding:.25rem .75rem;border-radius:20px;font-size:.75rem;margin-bottom:.75rem}.page-header h1{font-size:2rem;color:#fff}h2{font-size:1.5rem;color:var(--accent);margin:2.5rem 0 1rem;padding-bottom:.5rem;border-bottom:2px solid var(--accent-border)}h3{font-size:1.15rem;color:var(--text);margin:1.8rem 0 .8rem}p{margin-bottom:1rem}strong{color:var(--text)}.table-wrap{overflow-x:auto;margin:1.2rem 0;border-radius:10px;border:1px solid var(--border)}table{width:100%;border-collapse:collapse;font-size:.88rem}thead th{background:var(--accent);color:#000;padding:.75rem 1rem;text-align:left;font-weight:600}tbody tr:nth-child(even){background:var(--surface)}tbody tr:nth-child(odd){background:var(--surface2)}tbody tr:hover{background:var(--accent-dim)}td{padding:.7rem 1rem;border-top:1px solid var(--border)}pre{background:var(--code-bg);border:1px solid var(--border);border-radius:10px;padding:1.2rem;overflow-x:auto;margin:1.2rem 0;font-size:.85rem;line-height:1.6}code{font-family:"Cascadia Code","Fira Code",monospace;color:#e6edf3}p code,li code,td code{background:var(--code-bg);padding:.15rem .4rem;border-radius:4px;font-size:.85em;color:var(--accent)}.callout{background:var(--accent-dim);border-left:4px solid var(--accent);border-radius:0 10px 10px 0;padding:1rem 1.2rem;margin:1.2rem 0}.callout p{margin:0}ul,ol{margin:0 0 1rem 1.5rem}li{margin-bottom:.4rem}li strong{color:var(--accent)}.back-top{position:fixed;bottom:2rem;right:2rem;width:44px;height:44px;background:var(--accent);color:#000;border:none;border-radius:50%;cursor:pointer;font-size:1.3rem;display:none;align-items:center;justify-content:center;z-index:100}.back-top.show{display:flex}@media(max-width:900px){.sidebar{display:none}.main{margin-left:0;padding:2rem 1.2rem}}</style></head><body>
+<aside class="sidebar"><div class="sidebar-header"><h2>DSA</h2></div><nav>
+    <a href="#prescribed-textbooks" class="sub">Prescribed Textbooks</a>
+    <a href="#reading-map" class="sub">Reading Map</a>
+    <a href="#table-of-contents">Table of Contents</a>
+    <a href="#-">---</a>
+    <a href="#311-linear-vs-non-linear-data-structures">3.1.1 Linear vs Non-Linear Data Structures</a>
+    <a href="#312-tree-terminology">3.1.2 Tree Terminology</a>
+    <a href="#labelled-tree-diagram-example" class="sub">Labelled Tree Diagram Example</a>
+    <a href="#terminology-table" class="sub">Terminology Table</a>
+    <a href="#313-tree-applications">3.1.3 Tree Applications</a>
+    <a href="#-_1">---</a>
+    <a href="#321-properties-and-types">3.2.1 Properties and Types</a>
+    <a href="#definition" class="sub">Definition</a>
+    <a href="#types-of-binary-trees" class="sub">Types of Binary Trees</a>
+    <a href="#types-comparison-table" class="sub">Types Comparison Table</a>
+    <a href="#322-important-mathematical-properties">3.2.2 Important Mathematical Properties</a>
+    <a href="#property-1-maximum-nodes-at-level-i-2i" class="sub">Property 1: Maximum nodes at level i = 2^i</a>
+    <a href="#property-2-maximum-nodes-in-a-binary-tree-of-height-h-2h1-1" class="sub">Property 2: Maximum nodes in a binary tree of heig...</a>
+    <a href="#property-3-minimum-height-for-n-nodes-log2n" class="sub">Property 3: Minimum height for n nodes = ⌊log₂(n)⌋</a>
+    <a href="#property-4-in-a-full-binary-tree-leaf-nodes-internal-nodes-with-2-children-1" class="sub">Property 4: In a full binary tree, leaf nodes = in...</a>
+    <a href="#summary-of-properties" class="sub">Summary of Properties</a>
+    <a href="#323-representations">3.2.3 Representations</a>
+    <a href="#array-based-representation" class="sub">Array-Based Representation</a>
+    <a href="#linked-representation" class="sub">Linked Representation</a>
+    <a href="#representation-comparison" class="sub">Representation Comparison</a>
+    <a href="#324-binary-search-tree-bst-operations">3.2.4 Binary Search Tree (BST) Operations</a>
+    <a href="#search-in-bst" class="sub">Search in BST</a>
+    <a href="#insert-in-bst" class="sub">Insert in BST</a>
+    <a href="#delete-in-bst" class="sub">Delete in BST</a>
+    <a href="#find-minimum-and-maximum-in-bst" class="sub">Find Minimum and Maximum in BST</a>
+    <a href="#bst-operations-complexity-summary" class="sub">BST Operations Complexity Summary</a>
+    <a href="#325-tree-traversals">3.2.5 Tree Traversals</a>
+    <a href="#sample-tree-for-all-traversals" class="sub">Sample Tree for All Traversals</a>
+    <a href="#preorder-traversal-nlr-node-left-right" class="sub">Preorder Traversal (NLR — Node, Left, Right)</a>
+    <a href="#inorder-traversal-lnr-left-node-right" class="sub">Inorder Traversal (LNR — Left, Node, Right)</a>
+    <a href="#postorder-traversal-lrn-left-right-node" class="sub">Postorder Traversal (LRN — Left, Right, Node)</a>
+    <a href="#level-order-traversal-bfs-breadth-first" class="sub">Level-Order Traversal (BFS — Breadth-First)</a>
+    <a href="#traversal-summary" class="sub">Traversal Summary</a>
+    <a href="#326-expression-trees">3.2.6 Expression Trees</a>
+    <a href="#traversals-and-expression-notations" class="sub">Traversals and Expression Notations</a>
+    <a href="#building-an-expression-tree-from-postfix" class="sub">Building an Expression Tree from Postfix</a>
+    <a href="#327-constructing-a-tree-from-traversals">3.2.7 Constructing a Tree from Traversals</a>
+    <a href="#method-1-preorder-inorder" class="sub">Method 1: Preorder + Inorder</a>
+    <a href="#method-2-postorder-inorder" class="sub">Method 2: Postorder + Inorder</a>
+    <a href="#-_2">---</a>
+    <a href="#331-heap-concept-and-types">3.3.1 Heap Concept and Types</a>
+    <a href="#max-heap" class="sub">Max-Heap</a>
+    <a href="#min-heap" class="sub">Min-Heap</a>
+    <a href="#332-heap-representation">3.3.2 Heap Representation</a>
+    <a href="#array-representation-standard" class="sub">Array Representation (Standard)</a>
+    <a href="#linked-representation_1" class="sub">Linked Representation</a>
+    <a href="#333-heap-operations">3.3.3 Heap Operations</a>
+    <a href="#insert-percolate-up-bubble-up-sift-up" class="sub">Insert (Percolate Up / Bubble Up / Sift Up)</a>
+    <a href="#delete-max-extract-max-percolate-down-bubble-down-sift-down" class="sub">Delete Max / Extract Max (Percolate Down / Bubble ...</a>
+    <a href="#334-building-a-heap-heapify">3.3.4 Building a Heap — Heapify</a>
+    <a href="#naive-approach-repeated-insertion" class="sub">Naive Approach: Repeated Insertion</a>
+    <a href="#optimal-approach-bottom-up-build-floyds-algorithm" class="sub">Optimal Approach: Bottom-Up Build (Floyd's Algorit...</a>
+    <a href="#335-heap-sort">3.3.5 Heap Sort</a>
+    <a href="#heap-sort-complexity-analysis" class="sub">Heap Sort Complexity Analysis</a>
+    <a href="#336-priority-queue-using-heap">3.3.6 Priority Queue using Heap</a>
+    <a href="#-_3">---</a>
+    <a href="#341-terms-and-definitions">3.4.1 Terms and Definitions</a>
+    <a href="#fundamental-terms" class="sub">Fundamental Terms</a>
+    <a href="#path-related-terms" class="sub">Path-Related Terms</a>
+    <a href="#connectivity-terms" class="sub">Connectivity Terms</a>
+    <a href="#special-graph-types" class="sub">Special Graph Types</a>
+    <a href="#graph-diagrams" class="sub">Graph Diagrams</a>
+    <a href="#342-graph-properties">3.4.2 Graph Properties</a>
+    <a href="#handshaking-lemma" class="sub">Handshaking Lemma</a>
+    <a href="#for-directed-graphs" class="sub">For Directed Graphs</a>
+    <a href="#maximum-edges" class="sub">Maximum Edges</a>
+    <a href="#343-graph-representations">3.4.3 Graph Representations</a>
+    <a href="#adjacency-matrix" class="sub">Adjacency Matrix</a>
+    <a href="#adjacency-list" class="sub">Adjacency List</a>
+    <a href="#representation-comparison_1" class="sub">Representation Comparison</a>
+    <a href="#344-breadth-first-search-bfs">3.4.4 Breadth-First Search (BFS)</a>
+    <a href="#pseudocode" class="sub">Pseudocode</a>
+    <a href="#worked-example" class="sub">Worked Example</a>
+    <a href="#bfs-properties" class="sub">BFS Properties</a>
+    <a href="#345-depth-first-search-dfs">3.4.5 Depth-First Search (DFS)</a>
+    <a href="#pseudocode-recursive" class="sub">Pseudocode (Recursive)</a>
+    <a href="#pseudocode-iterative-using-explicit-stack" class="sub">Pseudocode (Iterative — using explicit stack)</a>
+    <a href="#worked-example_1" class="sub">Worked Example</a>
+    <a href="#dfs-properties" class="sub">DFS Properties</a>
+    <a href="#bfs-vs-dfs-comparison" class="sub">BFS vs DFS Comparison</a>
+    <a href="#edge-classification-in-dfs" class="sub">Edge Classification in DFS</a>
+    <a href="#-_4">---</a>
+    <a href="#351-reachability">3.5.1 Reachability</a>
+    <a href="#352-warshalls-algorithm-for-transitive-closure">3.5.2 Warshall's Algorithm for Transitive Closure</a>
+    <a href="#pseudocode_1" class="sub">Pseudocode</a>
+    <a href="#worked-example_2" class="sub">Worked Example</a>
+    <a href="#complexity-analysis" class="sub">Complexity Analysis</a>
+    <a href="#-_5">---</a>
+    <a href="#data-structure-operations-comparison">Data Structure Operations Comparison</a>
+    <a href="#sorting-algorithm-comparison-including-heap-sort">Sorting Algorithm Comparison (Including Heap Sort)</a>
+    <a href="#traversal-comparison">Traversal Comparison</a>
+    <a href="#tree-types-quick-reference">Tree Types Quick Reference</a>
+</nav></aside>
+<main class="main"><div class="page-header"><span class="badge">Chapter 3 Non Linear Data Structures</span><h1>Chapter 3: Non-Linear Data Structures</h1></div>
+<h1 id="chapter-3-non-linear-data-structures">Chapter 3: Non-Linear Data Structures</h1>
+<div class="callout">
+<p>BITS Pilani — Department of Computer Science and Information Systems</p>
+</div>
+<h3 id="prescribed-textbooks">Prescribed Textbooks</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Code</th>
+<th>Book</th>
+<th>Authors</th>
+<th>Edition</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>T1</strong></td>
+<td>Algorithm Design: Foundations, Analysis and Internet Examples</td>
+<td>Michael T. Goodrich, Roberto Tamassia</td>
+<td>2006, Wiley</td>
+</tr>
+<tr>
+<td><strong>R1</strong></td>
+<td>Introduction to Algorithms (CLRS)</td>
+<td>T.H. Cormen, C.E. Leiserson, R.L. Rivest, C. Stein</td>
+<td>3rd Ed, 2009, PHI</td>
+</tr>
+<tr>
+<td><strong>R2</strong></td>
+<td>Data Structures, Algorithms and Applications in Java</td>
+<td>Sartaj Sahni</td>
+<td>2nd Ed, 2005, Universities Press</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="reading-map">Reading Map</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Syllabus Topic</th>
+<th>R1 Reference</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>3.1 Trees — Terminology, Properties</td>
+<td>R1: B.5</td>
+</tr>
+<tr>
+<td>3.2 Binary Trees — BST, Traversals</td>
+<td>R1: 12.1–12.3</td>
+</tr>
+<tr>
+<td>3.3 Heaps — Operations, Heap Sort</td>
+<td>R1: 6.1–6.5</td>
+</tr>
+<tr>
+<td>3.4 Graphs — BFS, DFS</td>
+<td>R1: 22.1–22.3</td>
+</tr>
+<tr>
+<td>3.5 Transitive Closure — Warshall's Algorithm</td>
+<td>R1: 25.2</td>
+</tr>
+</tbody>
+</table></div>
+<hr />
+<h2 id="table-of-contents">Table of Contents</h2>
+<ul>
+<li><a href="#31-trees">3.1 Trees</a></li>
+<li><a href="#311-linear-vs-non-linear-data-structures">3.1.1 Linear vs Non-Linear Data Structures</a></li>
+<li><a href="#312-tree-terminology">3.1.2 Tree Terminology</a></li>
+<li><a href="#313-tree-applications">3.1.3 Tree Applications</a></li>
+<li><a href="#32-binary-trees">3.2 Binary Trees</a></li>
+<li><a href="#321-properties-and-types">3.2.1 Properties and Types</a></li>
+<li><a href="#322-important-mathematical-properties">3.2.2 Important Mathematical Properties</a></li>
+<li><a href="#323-representations">3.2.3 Representations</a></li>
+<li><a href="#324-binary-search-tree-bst-operations">3.2.4 Binary Search Tree (BST) Operations</a></li>
+<li><a href="#325-tree-traversals">3.2.5 Tree Traversals</a></li>
+<li><a href="#326-expression-trees">3.2.6 Expression Trees</a></li>
+<li><a href="#327-constructing-a-tree-from-traversals">3.2.7 Constructing a Tree from Traversals</a></li>
+<li><a href="#33-heaps">3.3 Heaps</a></li>
+<li><a href="#331-heap-concept-and-types">3.3.1 Heap Concept and Types</a></li>
+<li><a href="#332-heap-representation">3.3.2 Heap Representation</a></li>
+<li><a href="#333-heap-operations">3.3.3 Heap Operations</a></li>
+<li><a href="#334-building-a-heap--heapify">3.3.4 Building a Heap — Heapify</a></li>
+<li><a href="#335-heap-sort">3.3.5 Heap Sort</a></li>
+<li><a href="#336-priority-queue-using-heap">3.3.6 Priority Queue using Heap</a></li>
+<li><a href="#34-graphs">3.4 Graphs</a></li>
+<li><a href="#341-terms-and-definitions">3.4.1 Terms and Definitions</a></li>
+<li><a href="#342-graph-properties">3.4.2 Graph Properties</a></li>
+<li><a href="#343-graph-representations">3.4.3 Graph Representations</a></li>
+<li><a href="#344-breadth-first-search-bfs">3.4.4 Breadth-First Search (BFS)</a></li>
+<li><a href="#345-depth-first-search-dfs">3.4.5 Depth-First Search (DFS)</a></li>
+<li><a href="#35-directed-graphs-reachability-and-transitive-closure">3.5 Directed Graphs, Reachability, and Transitive Closure</a></li>
+<li><a href="#351-reachability">3.5.1 Reachability</a></li>
+<li><a href="#352-warshalls-algorithm-for-transitive-closure">3.5.2 Warshall's Algorithm for Transitive Closure</a></li>
+<li><a href="#key-comparisons-table">Key Comparisons Table</a></li>
+<li><a href="#glossary-of-key-terms">Glossary of Key Terms</a></li>
+</ul>
+<h2 id="-">---</h2>
+<h1 id="31-trees">3.1 Trees</h1>
+<div class="callout">
+<p><strong>R1 Reference: Appendix B.5 — Trees</strong></p>
+</div>
+<h2 id="311-linear-vs-non-linear-data-structures">3.1.1 Linear vs Non-Linear Data Structures</h2>
+<p>In Chapters 1 and 2, we studied <strong>linear data structures</strong> — arrays, stacks, queues, and linked lists — where elements are arranged in a sequential, one-after-another fashion. Each element has exactly one predecessor and one successor (except the first and last). This linearity makes traversal straightforward but limits how we can represent relationships between data.</p>
+<p>Many real-world relationships are <strong>hierarchical</strong> or <strong>networked</strong>, not sequential. A company's reporting structure, a file system's directory layout, the structure of an HTML document — none of these fit neatly into a line. This is where <strong>non-linear data structures</strong> come in.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Aspect</th>
+<th>Linear Data Structures</th>
+<th>Non-Linear Data Structures</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Arrangement</strong></td>
+<td>Elements in a sequence</td>
+<td>Elements in hierarchical or network form</td>
+</tr>
+<tr>
+<td><strong>Levels</strong></td>
+<td>Single level</td>
+<td>Multiple levels</td>
+</tr>
+<tr>
+<td><strong>Traversal</strong></td>
+<td>Single run (one pass)</td>
+<td>Multiple approaches (pre/in/post/level order)</td>
+</tr>
+<tr>
+<td><strong>Examples</strong></td>
+<td>Array, Stack, Queue, Linked List</td>
+<td>Tree, Graph, Heap</td>
+</tr>
+<tr>
+<td><strong>Memory utilisation</strong></td>
+<td>Often inefficient for hierarchical data</td>
+<td>Efficient for hierarchical/relational data</td>
+</tr>
+<tr>
+<td><strong>Relationships</strong></td>
+<td>One-to-one (predecessor → successor)</td>
+<td>One-to-many (tree) or many-to-many (graph)</td>
+</tr>
+<tr>
+<td><strong>Implementation complexity</strong></td>
+<td>Simpler</td>
+<td>More complex</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="312-tree-terminology">3.1.2 Tree Terminology</h2>
+<p>A <strong>tree</strong> is a non-linear hierarchical data structure consisting of a collection of <strong>nodes</strong> connected by <strong>edges</strong>. A tree with n nodes has exactly n − 1 edges.</p>
+<h3 id="labelled-tree-diagram-example">Labelled Tree Diagram Example</h3>
+<pre><code>                    A  ← Root (depth 0, level 0)
+                  / | \
+                B   C   D  ← Children of A (depth 1)
+               / \     / \
+              E   F   G   H  ← depth 2
+             /       / \
+            I       J   K  ← depth 3 (leaves)
+</code></pre>
+<h3 id="terminology-table">Terminology Table</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Term</th>
+<th>Definition</th>
+<th>Example (from diagram above)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Root</strong></td>
+<td>The topmost node with no parent</td>
+<td>A</td>
+</tr>
+<tr>
+<td><strong>Parent</strong></td>
+<td>A node that has one or more children</td>
+<td>B is parent of E, F</td>
+</tr>
+<tr>
+<td><strong>Child</strong></td>
+<td>A node directly connected below another node</td>
+<td>E, F are children of B</td>
+</tr>
+<tr>
+<td><strong>Sibling</strong></td>
+<td>Nodes that share the same parent</td>
+<td>E and F are siblings</td>
+</tr>
+<tr>
+<td><strong>Leaf (External node)</strong></td>
+<td>A node with no children (degree 0)</td>
+<td>F, C, H, I, J, K</td>
+</tr>
+<tr>
+<td><strong>Internal node</strong></td>
+<td>A node with at least one child</td>
+<td>A, B, D, E, G</td>
+</tr>
+<tr>
+<td><strong>Ancestor</strong></td>
+<td>Any node on the path from a node to the root</td>
+<td>Ancestors of J: G, D, A</td>
+</tr>
+<tr>
+<td><strong>Descendant</strong></td>
+<td>Any node in the subtree rooted at a node</td>
+<td>Descendants of D: G, H, J, K</td>
+</tr>
+<tr>
+<td><strong>Depth</strong></td>
+<td>Number of edges from the root to the node</td>
+<td>depth(G) = 2, depth(I) = 3</td>
+</tr>
+<tr>
+<td><strong>Height</strong></td>
+<td>Number of edges on the longest path from node to a leaf</td>
+<td>height(A) = 3, height(D) = 2</td>
+</tr>
+<tr>
+<td><strong>Degree</strong></td>
+<td>Number of children a node has</td>
+<td>degree(A) = 3, degree(B) = 2, degree(C) = 0</td>
+</tr>
+<tr>
+<td><strong>Level</strong></td>
+<td>Set of all nodes at a given depth</td>
+<td>Level 2: {E, F, G, H}</td>
+</tr>
+<tr>
+<td><strong>Subtree</strong></td>
+<td>A tree formed by a node and all its descendants</td>
+<td>Subtree rooted at D: {D, G, H, J, K}</td>
+</tr>
+<tr>
+<td><strong>Forest</strong></td>
+<td>A collection of disjoint trees</td>
+<td>Removing root A gives forest: {B,E,F,I}, {C}, {D,G,H,J,K}</td>
+</tr>
+<tr>
+<td><strong>Edge</strong></td>
+<td>Connection between a parent and child</td>
+<td>(A,B), (A,C), (B,E), etc.</td>
+</tr>
+<tr>
+<td><strong>Path</strong></td>
+<td>Sequence of nodes connected by edges</td>
+<td>Path A→D→G→J</td>
+</tr>
+<tr>
+<td><strong>Height of tree</strong></td>
+<td>Height of the root node</td>
+<td>3</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Key relationships:</strong>
+- A tree with n nodes has exactly <strong>n − 1 edges</strong>
+- <strong>Height of tree</strong> = maximum depth of any node
+- <strong>Depth of root</strong> = 0, <strong>Height of leaf</strong> = 0</p>
+<h2 id="313-tree-applications">3.1.3 Tree Applications</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Application</th>
+<th>How Trees Are Used</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>File Systems</strong></td>
+<td>Directories and files form a tree; root directory at top, subdirectories as children</td>
+</tr>
+<tr>
+<td><strong>HTML DOM</strong></td>
+<td>HTML tags form a tree; <code>&lt;html&gt;</code> is root, <code>&lt;head&gt;</code> and <code>&lt;body&gt;</code> are children</td>
+</tr>
+<tr>
+<td><strong>Organisation Charts</strong></td>
+<td>CEO at root, VPs as children, managers below them</td>
+</tr>
+<tr>
+<td><strong>Decision Trees</strong></td>
+<td>Each internal node is a decision, branches are outcomes, leaves are final decisions</td>
+</tr>
+<tr>
+<td><strong>Compiler Parse Trees</strong></td>
+<td>Source code is parsed into a syntax tree for analysis and code generation</td>
+</tr>
+<tr>
+<td><strong>Database Indexes</strong></td>
+<td>B-trees and B+ trees enable efficient searching in databases</td>
+</tr>
+<tr>
+<td><strong>Network Routing</strong></td>
+<td>Spanning trees determine efficient routes in computer networks</td>
+</tr>
+<tr>
+<td><strong>Game Trees</strong></td>
+<td>Possible moves in games like chess are represented as trees for AI search</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="-_1">---</h2>
+<h1 id="32-binary-trees">3.2 Binary Trees</h1>
+<div class="callout">
+<p><strong>R1 Reference: Chapter 12 — Binary Search Trees</strong></p>
+</div>
+<h2 id="321-properties-and-types">3.2.1 Properties and Types</h2>
+<h3 id="definition">Definition</h3>
+<p>A <strong>binary tree</strong> is a tree in which each node has <strong>at most two children</strong>, referred to as the <strong>left child</strong> and the <strong>right child</strong>. This is the most commonly studied tree structure because of its simplicity and the rich set of algorithms it supports.</p>
+<p>A <strong>Binary Search Tree (BST)</strong> is a binary tree with an additional ordering property:
+- For every node x:
+  - All values in x's <strong>left subtree</strong> are <strong>less than</strong> x's value
+  - All values in x's <strong>right subtree</strong> are <strong>greater than</strong> x's value</p>
+<pre><code>         BST Example:
+              8
+            /   \
+           3     10
+          / \      \
+         1   6     14
+            / \    /
+           4   7  13
+</code></pre>
+<p><strong>Verify BST property:</strong> Take node 3 — left subtree has {1} (all &lt; 3 ✓), right subtree has {6, 4, 7} (all &gt; 3 ✓). Take node 10 — left subtree is empty, right subtree has {14, 13} (all &gt; 10 ✓).</p>
+<h3 id="types-of-binary-trees">Types of Binary Trees</h3>
+<p><strong>1. Full Binary Tree (Proper / Strictly Binary Tree)</strong></p>
+<p>Every node has <strong>0 or 2 children</strong> — no node has exactly one child.</p>
+<pre><code>        1               1
+       / \             / \
+      2   3           2   3
+     / \             / \
+    4   5           4   5
+                   / \
+                  6   7
+
+  Full ✓           Full ✓
+</code></pre>
+<pre><code>        1
+       / \
+      2   3
+     /
+    4
+
+  NOT Full ✗ (node 2 has only 1 child)
+</code></pre>
+<p><strong>2. Complete Binary Tree</strong></p>
+<p>All levels are completely filled <strong>except possibly the last level</strong>, which is filled <strong>from left to right</strong>.</p>
+<pre><code>        1               1
+       / \             / \
+      2   3           2   3
+     / \ /           / \
+    4  5 6          4   5
+
+  Complete ✓       Complete ✓
+</code></pre>
+<pre><code>        1
+       / \
+      2   3
+       \
+        5
+
+  NOT Complete ✗ (level 2 not filled left to right)
+</code></pre>
+<p><strong>3. Perfect Binary Tree</strong></p>
+<p>All internal nodes have <strong>exactly 2 children</strong> AND all leaf nodes are at the <strong>same level</strong>.</p>
+<pre><code>        1
+       / \
+      2   3
+     / \ / \
+    4  5 6  7
+
+  Perfect ✓ (all leaves at level 2, all internal nodes have 2 children)
+</code></pre>
+<p>A perfect binary tree of height h has exactly 2^(h+1) − 1 nodes.</p>
+<p><strong>4. Balanced Binary Tree (Height-Balanced)</strong></p>
+<p>For every node, the height of its left subtree and right subtree differ by <strong>at most 1</strong>.</p>
+<pre><code>        1                   1
+       / \                 / \
+      2   3               2   3
+     / \                 /
+    4   5               4
+                       /
+  Balanced ✓          5
+
+  |h(left) - h(right)| ≤ 1    NOT Balanced ✗
+  for every node               (node 1: left height=2, right height=1 → diff=1 ✓
+                                but node 2: left height=2, right height=0 → diff=2 ✗)
+</code></pre>
+<h3 id="types-comparison-table">Types Comparison Table</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Rule</th>
+<th>Nodes at height h</th>
+<th>Key Property</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Full</td>
+<td>Every node has 0 or 2 children</td>
+<td>Variable</td>
+<td>No single-child nodes</td>
+</tr>
+<tr>
+<td>Complete</td>
+<td>All levels filled except last (left-to-right)</td>
+<td>Between 2^h and 2^(h+1)−1</td>
+<td>Can be stored efficiently in array</td>
+</tr>
+<tr>
+<td>Perfect</td>
+<td>All internals have 2 children, leaves at same level</td>
+<td>Exactly 2^(h+1)−1</td>
+<td>Both full AND complete</td>
+</tr>
+<tr>
+<td>Balanced</td>
+<td>Height difference of subtrees ≤ 1 at every node</td>
+<td>Variable</td>
+<td>Guarantees O(log n) height</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="322-important-mathematical-properties">3.2.2 Important Mathematical Properties</h2>
+<h3 id="property-1-maximum-nodes-at-level-i-2i">Property 1: Maximum nodes at level i = 2^i</h3>
+<p><strong>Proof by induction:</strong>
+- <strong>Base case (i = 0):</strong> Level 0 has just the root = 1 node = 2^0 = 1 ✓
+- <strong>Inductive step:</strong> Assume level k has at most 2^k nodes. Each node at level k can have at most 2 children at level k+1. So level k+1 has at most 2 × 2^k = 2^(k+1) nodes. ✓</p>
+<h3 id="property-2-maximum-nodes-in-a-binary-tree-of-height-h-2h1-1">Property 2: Maximum nodes in a binary tree of height h = 2^(h+1) − 1</h3>
+<p><strong>Proof:</strong>
+Total nodes = sum of maximum nodes at each level from 0 to h</p>
+<pre><code>= 2^0 + 2^1 + 2^2 + ... + 2^h
+= Σ(i=0 to h) 2^i
+= 2^(h+1) − 1          (geometric series formula)
+</code></pre>
+<p><strong>Example:</strong> Height 3 → max nodes = 2^4 − 1 = 15</p>
+<h3 id="property-3-minimum-height-for-n-nodes-log2n">Property 3: Minimum height for n nodes = ⌊log₂(n)⌋</h3>
+<p><strong>Proof:</strong>
+A binary tree of height h has at most 2^(h+1) − 1 nodes.
+So n ≤ 2^(h+1) − 1 → n + 1 ≤ 2^(h+1) → h + 1 ≥ log₂(n+1) → h ≥ log₂(n+1) − 1 = ⌊log₂(n)⌋</p>
+<p><strong>Maximum height</strong> for n nodes = n − 1 (degenerate/skewed tree — each node has one child).</p>
+<h3 id="property-4-in-a-full-binary-tree-leaf-nodes-internal-nodes-with-2-children-1">Property 4: In a full binary tree, leaf nodes = internal nodes with 2 children + 1</h3>
+<p><strong>Statement:</strong> If L = number of leaf nodes and I = number of internal nodes (with 2 children), then L = I + 1.</p>
+<p><strong>Proof:</strong>
+Let n = total nodes, L = leaves, I = internal nodes with 2 children.
+- n = L + I (in a full binary tree, every node has 0 or 2 children)
+- Total edges = n − 1 (every node except root has one incoming edge)
+- Each internal node contributes 2 edges (to its 2 children): total edges = 2I
+- So n − 1 = 2I → n = 2I + 1
+- But n = L + I → L + I = 2I + 1 → <strong>L = I + 1</strong> ✓</p>
+<p><strong>Example:</strong> A full binary tree with 4 internal nodes has 5 leaves.</p>
+<h3 id="summary-of-properties">Summary of Properties</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Formula</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Max nodes at level i</td>
+<td>2^i</td>
+</tr>
+<tr>
+<td>Max nodes for height h</td>
+<td>2^(h+1) − 1</td>
+</tr>
+<tr>
+<td>Min height for n nodes</td>
+<td>⌊log₂(n)⌋</td>
+</tr>
+<tr>
+<td>Max height for n nodes</td>
+<td>n − 1</td>
+</tr>
+<tr>
+<td>Leaves in full binary tree</td>
+<td>I + 1 (where I = internal nodes)</td>
+</tr>
+<tr>
+<td>Nodes in perfect tree of height h</td>
+<td>2^(h+1) − 1</td>
+</tr>
+<tr>
+<td>Height of complete tree with n nodes</td>
+<td>⌊log₂(n)⌋</td>
+</tr>
+</tbody>
+</table></div>
+<hr />
+<h2 id="323-representations">3.2.3 Representations</h2>
+<h3 id="array-based-representation">Array-Based Representation</h3>
+<p>For a node stored at index <strong>i</strong> (0-indexed):
+- <strong>Left child</strong> is at index <strong>2i + 1</strong>
+- <strong>Right child</strong> is at index <strong>2i + 2</strong>
+- <strong>Parent</strong> is at index <strong>⌊(i − 1) / 2⌋</strong></p>
+<pre><code>Tree:        1
+           /   \
+          2     3
+         / \   /
+        4   5 6
+
+Array (0-indexed):
+Index:  0   1   2   3   4   5
+Value: [1] [2] [3] [4] [5] [6]
+
+Verify: Node at index 1 (value 2)
+  Left child:  2(1)+1 = 3 → value 4 ✓
+  Right child: 2(1)+2 = 4 → value 5 ✓
+  Parent:      (1-1)/2 = 0 → value 1 ✓
+</code></pre>
+<p><strong>Pseudocode — Array-Based Operations:</strong></p>
+<pre><code>PARENT(i):
+    return ⌊(i - 1) / 2⌋
+
+LEFT_CHILD(i):
+    return 2i + 1
+
+RIGHT_CHILD(i):
+    return 2i + 2
+
+FIND_HEIGHT_ARRAY(tree[], n):
+    // Height = ⌊log₂(n)⌋ for a complete binary tree
+    // For general tree stored in array:
+    h = 0
+    i = n - 1                    // last node index
+    while i &gt; 0:
+        i = PARENT(i)
+        h = h + 1
+    return h
+
+FIND_DEGREE_ARRAY(tree[], n, i):
+    degree = 0
+    left = 2i + 1
+    right = 2i + 2
+    if left &lt; n and tree[left] ≠ NULL:
+        degree = degree + 1
+    if right &lt; n and tree[right] ≠ NULL:
+        degree = degree + 1
+    return degree
+</code></pre>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Advantage</th>
+<th>Disadvantage</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>O(1) parent/child access via arithmetic</td>
+<td>Wastes space for non-complete trees</td>
+</tr>
+<tr>
+<td>Cache-friendly (contiguous memory)</td>
+<td>Skewed tree of height h needs 2^(h+1)−1 array size</td>
+</tr>
+<tr>
+<td>Simple implementation</td>
+<td>Insertion/deletion may require shifting</td>
+</tr>
+<tr>
+<td>Ideal for complete binary trees (heaps)</td>
+<td>Empty positions waste memory</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="linked-representation">Linked Representation</h3>
+<p>Each node is a structure with three fields: data, a pointer to the left child, and a pointer to the right child.</p>
+<pre><code>struct Node:
+    data
+    left  → Node (or NULL)
+    right → Node (or NULL)
+</code></pre>
+<pre><code>Tree:        8
+           /   \
+          3     10
+
+Linked Representation:
+  [3|•|•] ← [8|•|•] → [10|/|/]
+   ↓   ↓                  (no children)
+  NULL NULL
+</code></pre>
+<p><strong>Pseudocode — Linked Representation Operations:</strong></p>
+<pre><code>FIND_HEIGHT_LINKED(node):
+    if node == NULL:
+        return -1
+    leftHeight = FIND_HEIGHT_LINKED(node.left)
+    rightHeight = FIND_HEIGHT_LINKED(node.right)
+    return 1 + max(leftHeight, rightHeight)
+
+FIND_DEGREE_LINKED(node):
+    if node == NULL:
+        return 0
+    degree = 0
+    if node.left ≠ NULL:
+        degree = degree + 1
+    if node.right ≠ NULL:
+        degree = degree + 1
+    return degree
+
+FIND_PARENT_LINKED(root, target):
+    if root == NULL or root == target:
+        return NULL
+    if root.left == target or root.right == target:
+        return root
+    leftResult = FIND_PARENT_LINKED(root.left, target)
+    if leftResult ≠ NULL:
+        return leftResult
+    return FIND_PARENT_LINKED(root.right, target)
+
+FIND_CHILDREN_LINKED(node):
+    if node == NULL:
+        return (NULL, NULL)
+    return (node.left, node.right)
+</code></pre>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Advantage</th>
+<th>Disadvantage</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Space-efficient for any tree shape</td>
+<td>Extra memory for 2 pointers per node</td>
+</tr>
+<tr>
+<td>Easy insertion/deletion</td>
+<td>No O(1) parent access (need traversal or parent pointer)</td>
+</tr>
+<tr>
+<td>Dynamic — grows/shrinks as needed</td>
+<td>Not cache-friendly (nodes scattered in memory)</td>
+</tr>
+<tr>
+<td>Works well for sparse/skewed trees</td>
+<td>Slightly more complex to implement</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="representation-comparison">Representation Comparison</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Aspect</th>
+<th>Array-Based</th>
+<th>Linked</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Space for complete tree of n nodes</td>
+<td>O(n)</td>
+<td>O(n) but with pointer overhead</td>
+</tr>
+<tr>
+<td>Space for skewed tree of n nodes</td>
+<td>O(2^n) wasted</td>
+<td>O(n)</td>
+</tr>
+<tr>
+<td>Parent access</td>
+<td>O(1) — ⌊(i−1)/2⌋</td>
+<td>O(n) without parent pointer</td>
+</tr>
+<tr>
+<td>Child access</td>
+<td>O(1) — 2i+1, 2i+2</td>
+<td>O(1) — follow pointer</td>
+</tr>
+<tr>
+<td>Best use case</td>
+<td>Heaps, complete trees</td>
+<td>General binary trees, BSTs</td>
+</tr>
+</tbody>
+</table></div>
+<hr />
+<h2 id="324-binary-search-tree-bst-operations">3.2.4 Binary Search Tree (BST) Operations</h2>
+<h3 id="search-in-bst">Search in BST</h3>
+<p><strong>Idea:</strong> Start at the root. If the target equals the current node, found. If target is smaller, go left. If larger, go right. Repeat until found or reach NULL.</p>
+<p><strong>Pseudocode (Recursive):</strong></p>
+<pre><code>BST_SEARCH(node, key):
+    if node == NULL:
+        return NULL                  // key not found
+    if key == node.data:
+        return node                  // found
+    else if key &lt; node.data:
+        return BST_SEARCH(node.left, key)
+    else:
+        return BST_SEARCH(node.right, key)
+</code></pre>
+<p><strong>Pseudocode (Iterative):</strong></p>
+<pre><code>BST_SEARCH_ITERATIVE(root, key):
+    current = root
+    while current ≠ NULL:
+        if key == current.data:
+            return current
+        else if key &lt; current.data:
+            current = current.left
+        else:
+            current = current.right
+    return NULL                      // not found
+</code></pre>
+<p><strong>Worked Example:</strong> Search for 6 in the BST:</p>
+<pre><code>         8
+       /   \
+      3     10
+     / \      \
+    1   6     14
+       / \    /
+      4   7  13
+</code></pre>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Step</th>
+<th>Current Node</th>
+<th>Comparison</th>
+<th>Action</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>8</td>
+<td>6 &lt; 8</td>
+<td>Go left</td>
+</tr>
+<tr>
+<td>2</td>
+<td>3</td>
+<td>6 &gt; 3</td>
+<td>Go right</td>
+</tr>
+<tr>
+<td>3</td>
+<td>6</td>
+<td>6 == 6</td>
+<td><strong>Found!</strong> ✓</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Complexity:</strong>
+- <strong>Best case:</strong> O(1) — target is at root
+- <strong>Average case:</strong> O(log n) — balanced BST
+- <strong>Worst case:</strong> O(n) — skewed tree (degenerate, looks like a linked list)</p>
+<h3 id="insert-in-bst">Insert in BST</h3>
+<p><strong>Idea:</strong> Search for the position where the new key should go. When you reach NULL, that's the insertion point. The new node is always inserted as a <strong>leaf</strong>.</p>
+<p><strong>Pseudocode (Recursive):</strong></p>
+<pre><code>BST_INSERT(node, key):
+    if node == NULL:
+        return CREATE_NODE(key)      // create new leaf node
+    if key &lt; node.data:
+        node.left = BST_INSERT(node.left, key)
+    else if key &gt; node.data:
+        node.right = BST_INSERT(node.right, key)
+    // if key == node.data, duplicate — do nothing (or handle as needed)
+    return node
+</code></pre>
+<p><strong>Pseudocode (Iterative):</strong></p>
+<pre><code>BST_INSERT_ITERATIVE(root, key):
+    newNode = CREATE_NODE(key)
+    if root == NULL:
+        return newNode
+    current = root
+    parent = NULL
+    while current ≠ NULL:
+        parent = current
+        if key &lt; current.data:
+            current = current.left
+        else if key &gt; current.data:
+            current = current.right
+        else:
+            return root              // duplicate, no insert
+    if key &lt; parent.data:
+        parent.left = newNode
+    else:
+        parent.right = newNode
+    return root
+</code></pre>
+<p><strong>Worked Example:</strong> Insert 5 into the BST:</p>
+<pre><code>         8                          8
+       /   \                      /   \
+      3     10        →          3     10
+     / \      \                 / \      \
+    1   6     14               1   6     14
+       / \    /                   / \    /
+      4   7  13                  4   7  13
+                                /
+                               5  ← new leaf
+</code></pre>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Step</th>
+<th>Current</th>
+<th>Comparison</th>
+<th>Action</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>8</td>
+<td>5 &lt; 8</td>
+<td>Go left</td>
+</tr>
+<tr>
+<td>2</td>
+<td>3</td>
+<td>5 &gt; 3</td>
+<td>Go right</td>
+</tr>
+<tr>
+<td>3</td>
+<td>6</td>
+<td>5 &lt; 6</td>
+<td>Go left</td>
+</tr>
+<tr>
+<td>4</td>
+<td>4</td>
+<td>5 &gt; 4</td>
+<td>Go right</td>
+</tr>
+<tr>
+<td>5</td>
+<td>NULL</td>
+<td>—</td>
+<td>Insert 5 as right child of 4</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Complexity:</strong> O(h) where h = height of the tree. O(log n) average, O(n) worst case.</p>
+<h3 id="delete-in-bst">Delete in BST</h3>
+<p>Deletion is the most complex BST operation because removing a node must preserve the BST property. There are <strong>three cases</strong>:</p>
+<p><strong>Case 1: Node is a leaf (no children)</strong>
+Simply remove the node.</p>
+<p><strong>Case 2: Node has one child</strong>
+Replace the node with its single child.</p>
+<p><strong>Case 3: Node has two children</strong>
+Find the <strong>inorder successor</strong> (smallest node in the right subtree) OR the <strong>inorder predecessor</strong> (largest node in the left subtree). Copy the successor's value into the node, then delete the successor (which will be Case 1 or Case 2).</p>
+<p><strong>Pseudocode:</strong></p>
+<pre><code>BST_DELETE(node, key):
+    if node == NULL:
+        return NULL
+
+    if key &lt; node.data:
+        node.left = BST_DELETE(node.left, key)
+    else if key &gt; node.data:
+        node.right = BST_DELETE(node.right, key)
+    else:
+        // Found the node to delete
+        // Case 1: Leaf node
+        if node.left == NULL and node.right == NULL:
+            free(node)
+            return NULL
+        // Case 2: One child
+        else if node.left == NULL:
+            temp = node.right
+            free(node)
+            return temp
+        else if node.right == NULL:
+            temp = node.left
+            free(node)
+            return temp
+        // Case 3: Two children
+        else:
+            successor = FIND_MIN(node.right)    // inorder successor
+            node.data = successor.data
+            node.right = BST_DELETE(node.right, successor.data)
+    return node
+
+FIND_MIN(node):
+    while node.left ≠ NULL:
+        node = node.left
+    return node
+</code></pre>
+<p><strong>Worked Example — Delete 3 (Case 3: two children):</strong></p>
+<pre><code>         8                          8
+       /   \                      /   \
+      3     10        →          4     10
+     / \      \                 / \      \
+    1   6     14               1   6     14
+       / \    /                   / \    /
+      4   7  13                  5   7  13
+
+Step 1: Find node 3 — it has two children
+Step 2: Find inorder successor = smallest in right subtree of 3
+        Right subtree root = 6, go left → 4 (no left child) → successor = 4
+Step 3: Replace 3's data with 4
+Step 4: Delete 4 from right subtree (Case 1: leaf) — but wait, if 4 had a
+        right child 5, it becomes Case 2: replace 4 with 5
+</code></pre>
+<p><strong>Detailed trace for deleting 3:</strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Step</th>
+<th>Action</th>
+<th>Tree State</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>Search: 3 &lt; 8, go left</td>
+<td>At node 3</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Node 3 has two children → Case 3</td>
+<td>—</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Find min in right subtree of 3: 6→4</td>
+<td>Inorder successor = 4</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Copy 4 into node 3's position</td>
+<td>Node becomes 4</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Delete 4 from right subtree</td>
+<td>4 was leaf → removed</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Complexity:</strong> O(h). Average O(log n), worst O(n).</p>
+<h3 id="find-minimum-and-maximum-in-bst">Find Minimum and Maximum in BST</h3>
+<p><strong>Minimum:</strong> The leftmost node in the tree (keep going left from root).
+<strong>Maximum:</strong> The rightmost node in the tree (keep going right from root).</p>
+<pre><code>FIND_MIN(node):
+    if node == NULL:
+        return NULL
+    while node.left ≠ NULL:
+        node = node.left
+    return node
+
+FIND_MAX(node):
+    if node == NULL:
+        return NULL
+    while node.right ≠ NULL:
+        node = node.right
+    return node
+</code></pre>
+<p><strong>Example:</strong> In the BST below, min = 1 (leftmost), max = 14 (rightmost).</p>
+<pre><code>         8
+       /   \
+      3     10
+     / \      \
+    1   6     14
+</code></pre>
+<p><strong>Complexity:</strong> O(h) for both operations.</p>
+<h3 id="bst-operations-complexity-summary">BST Operations Complexity Summary</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Operation</th>
+<th>Best Case</th>
+<th>Average Case</th>
+<th>Worst Case (Skewed)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Search</td>
+<td>O(1)</td>
+<td>O(log n)</td>
+<td>O(n)</td>
+</tr>
+<tr>
+<td>Insert</td>
+<td>O(1)</td>
+<td>O(log n)</td>
+<td>O(n)</td>
+</tr>
+<tr>
+<td>Delete</td>
+<td>O(log n)</td>
+<td>O(log n)</td>
+<td>O(n)</td>
+</tr>
+<tr>
+<td>Find Min</td>
+<td>O(1)*</td>
+<td>O(log n)</td>
+<td>O(n)</td>
+</tr>
+<tr>
+<td>Find Max</td>
+<td>O(1)*</td>
+<td>O(log n)</td>
+<td>O(n)</td>
+</tr>
+</tbody>
+</table></div>
+<p>*O(1) if tree is right-skewed (min) or left-skewed (max); practically O(log n) for balanced trees.</p>
+<hr />
+<h2 id="325-tree-traversals">3.2.5 Tree Traversals</h2>
+<p>Traversal means visiting every node in the tree exactly once. There are four standard traversals, and they are among the <strong>most important topics in this chapter</strong>.</p>
+<h3 id="sample-tree-for-all-traversals">Sample Tree for All Traversals</h3>
+<pre><code>            1
+          /   \
+         2     3
+        / \   / \
+       4   5 6   7
+</code></pre>
+<h3 id="preorder-traversal-nlr-node-left-right">Preorder Traversal (NLR — Node, Left, Right)</h3>
+<p>Visit the <strong>current node first</strong>, then traverse the left subtree, then the right subtree.</p>
+<p><strong>Recursive Pseudocode:</strong></p>
+<pre><code>PREORDER(node):
+    if node == NULL:
+        return
+    VISIT(node)                    // process current node
+    PREORDER(node.left)            // traverse left subtree
+    PREORDER(node.right)           // traverse right subtree
+</code></pre>
+<p><strong>Iterative Pseudocode (using stack):</strong></p>
+<pre><code>PREORDER_ITERATIVE(root):
+    if root == NULL:
+        return
+    create Stack S
+    S.push(root)
+    while S is not empty:
+        node = S.pop()
+        VISIT(node)
+        if node.right ≠ NULL:      // push right FIRST (so left is processed first)
+            S.push(node.right)
+        if node.left ≠ NULL:
+            S.push(node.left)
+</code></pre>
+<p><strong>Step-by-step trace on sample tree:</strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Step</th>
+<th>Action</th>
+<th>Output So Far</th>
+<th>Stack (iterative)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>Visit 1</td>
+<td>1</td>
+<td>[3, 2]</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Visit 2</td>
+<td>1, 2</td>
+<td>[3, 5, 4]</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Visit 4</td>
+<td>1, 2, 4</td>
+<td>[3, 5]</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Visit 5</td>
+<td>1, 2, 4, 5</td>
+<td>[3]</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Visit 3</td>
+<td>1, 2, 4, 5, 3</td>
+<td>[7, 6]</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Visit 6</td>
+<td>1, 2, 4, 5, 3, 6</td>
+<td>[7]</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Visit 7</td>
+<td>1, 2, 4, 5, 3, 6, 7</td>
+<td>[]</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Preorder: 1, 2, 4, 5, 3, 6, 7</strong></p>
+<h3 id="inorder-traversal-lnr-left-node-right">Inorder Traversal (LNR — Left, Node, Right)</h3>
+<p>Traverse the left subtree, then <strong>visit the current node</strong>, then traverse the right subtree. For a BST, this produces nodes in <strong>sorted (ascending) order</strong>.</p>
+<p><strong>Recursive Pseudocode:</strong></p>
+<pre><code>INORDER(node):
+    if node == NULL:
+        return
+    INORDER(node.left)             // traverse left subtree
+    VISIT(node)                    // process current node
+    INORDER(node.right)            // traverse right subtree
+</code></pre>
+<p><strong>Iterative Pseudocode (using stack):</strong></p>
+<pre><code>INORDER_ITERATIVE(root):
+    create Stack S
+    current = root
+    while current ≠ NULL or S is not empty:
+        // Go as far left as possible
+        while current ≠ NULL:
+            S.push(current)
+            current = current.left
+        // Backtrack
+        current = S.pop()
+        VISIT(current)
+        current = current.right
+</code></pre>
+<p><strong>Step-by-step trace on sample tree:</strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Step</th>
+<th>Action</th>
+<th>Output So Far</th>
+<th>Stack (iterative)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>Push 1, push 2, push 4</td>
+<td>—</td>
+<td>[1, 2, 4]</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Pop 4, visit 4, right=NULL</td>
+<td>4</td>
+<td>[1, 2]</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Pop 2, visit 2, right=5</td>
+<td>4, 2</td>
+<td>[1]</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Push 5, left=NULL</td>
+<td>4, 2</td>
+<td>[1, 5]</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Pop 5, visit 5, right=NULL</td>
+<td>4, 2, 5</td>
+<td>[1]</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Pop 1, visit 1, right=3</td>
+<td>4, 2, 5, 1</td>
+<td>[]</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Push 3, push 6, left=NULL</td>
+<td>4, 2, 5, 1</td>
+<td>[3, 6]</td>
+</tr>
+<tr>
+<td>8</td>
+<td>Pop 6, visit 6, right=NULL</td>
+<td>4, 2, 5, 1, 6</td>
+<td>[3]</td>
+</tr>
+<tr>
+<td>9</td>
+<td>Pop 3, visit 3, right=7</td>
+<td>4, 2, 5, 1, 6, 3</td>
+<td>[]</td>
+</tr>
+<tr>
+<td>10</td>
+<td>Push 7, left=NULL</td>
+<td>4, 2, 5, 1, 6, 3</td>
+<td>[7]</td>
+</tr>
+<tr>
+<td>11</td>
+<td>Pop 7, visit 7, right=NULL</td>
+<td>4, 2, 5, 1, 6, 3, 7</td>
+<td>[]</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Inorder: 4, 2, 5, 1, 6, 3, 7</strong></p>
+<p><strong>BST Example — Inorder gives sorted output:</strong></p>
+<pre><code>         8
+       /   \
+      3     10
+     / \      \
+    1   6     14
+
+Inorder: 1, 3, 6, 8, 10, 14 ← sorted! ✓
+</code></pre>
+<h3 id="postorder-traversal-lrn-left-right-node">Postorder Traversal (LRN — Left, Right, Node)</h3>
+<p>Traverse the left subtree, then the right subtree, then <strong>visit the current node last</strong>.</p>
+<p><strong>Recursive Pseudocode:</strong></p>
+<pre><code>POSTORDER(node):
+    if node == NULL:
+        return
+    POSTORDER(node.left)           // traverse left subtree
+    POSTORDER(node.right)          // traverse right subtree
+    VISIT(node)                    // process current node
+</code></pre>
+<p><strong>Iterative Pseudocode (using two stacks):</strong></p>
+<pre><code>POSTORDER_ITERATIVE(root):
+    if root == NULL:
+        return
+    create Stack S1, Stack S2
+    S1.push(root)
+    while S1 is not empty:
+        node = S1.pop()
+        S2.push(node)
+        if node.left ≠ NULL:
+            S1.push(node.left)
+        if node.right ≠ NULL:
+            S1.push(node.right)
+    while S2 is not empty:
+        node = S2.pop()
+        VISIT(node)
+</code></pre>
+<p><strong>Step-by-step trace on sample tree:</strong></p>
+<p>Recursive trace (call stack visualization):</p>
+<pre><code>POSTORDER(1)
+  POSTORDER(2)
+    POSTORDER(4)
+      POSTORDER(NULL) → return
+      POSTORDER(NULL) → return
+      Visit 4 ← output: 4
+    POSTORDER(5)
+      POSTORDER(NULL) → return
+      POSTORDER(NULL) → return
+      Visit 5 ← output: 4, 5
+    Visit 2 ← output: 4, 5, 2
+  POSTORDER(3)
+    POSTORDER(6)
+      POSTORDER(NULL) → return
+      POSTORDER(NULL) → return
+      Visit 6 ← output: 4, 5, 2, 6
+    POSTORDER(7)
+      POSTORDER(NULL) → return
+      POSTORDER(NULL) → return
+      Visit 7 ← output: 4, 5, 2, 6, 7
+    Visit 3 ← output: 4, 5, 2, 6, 7, 3
+  Visit 1 ← output: 4, 5, 2, 6, 7, 3, 1
+</code></pre>
+<p><strong>Postorder: 4, 5, 2, 6, 7, 3, 1</strong></p>
+<h3 id="level-order-traversal-bfs-breadth-first">Level-Order Traversal (BFS — Breadth-First)</h3>
+<p>Visit nodes level by level, from top to bottom, left to right within each level. Uses a <strong>queue</strong> (not a stack).</p>
+<p><strong>Pseudocode:</strong></p>
+<pre><code>LEVEL_ORDER(root):
+    if root == NULL:
+        return
+    create Queue Q
+    Q.enqueue(root)
+    while Q is not empty:
+        node = Q.dequeue()
+        VISIT(node)
+        if node.left ≠ NULL:
+            Q.enqueue(node.left)
+        if node.right ≠ NULL:
+            Q.enqueue(node.right)
+</code></pre>
+<p><strong>Step-by-step trace on sample tree:</strong></p>
+<pre><code>            1
+          /   \
+         2     3
+        / \   / \
+       4   5 6   7
+</code></pre>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Step</th>
+<th>Dequeue</th>
+<th>Visit</th>
+<th>Queue After</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+<td>[2, 3]</td>
+</tr>
+<tr>
+<td>2</td>
+<td>2</td>
+<td>2</td>
+<td>[3, 4, 5]</td>
+</tr>
+<tr>
+<td>3</td>
+<td>3</td>
+<td>3</td>
+<td>[4, 5, 6, 7]</td>
+</tr>
+<tr>
+<td>4</td>
+<td>4</td>
+<td>4</td>
+<td>[5, 6, 7]</td>
+</tr>
+<tr>
+<td>5</td>
+<td>5</td>
+<td>5</td>
+<td>[6, 7]</td>
+</tr>
+<tr>
+<td>6</td>
+<td>6</td>
+<td>6</td>
+<td>[7]</td>
+</tr>
+<tr>
+<td>7</td>
+<td>7</td>
+<td>7</td>
+<td>[]</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Level-Order: 1, 2, 3, 4, 5, 6, 7</strong></p>
+<h3 id="traversal-summary">Traversal Summary</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Traversal</th>
+<th>Order</th>
+<th>Data Structure</th>
+<th>Use Case</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Preorder</td>
+<td>Node → Left → Right</td>
+<td>Stack (implicit/explicit)</td>
+<td>Copy tree, prefix expression</td>
+</tr>
+<tr>
+<td>Inorder</td>
+<td>Left → Node → Right</td>
+<td>Stack (implicit/explicit)</td>
+<td>Sorted order for BST, infix expression</td>
+</tr>
+<tr>
+<td>Postorder</td>
+<td>Left → Right → Node</td>
+<td>Stack (implicit/explicit)</td>
+<td>Delete tree, postfix expression, compute height</td>
+</tr>
+<tr>
+<td>Level-order</td>
+<td>Level by level</td>
+<td>Queue</td>
+<td>BFS, shortest path, find width of tree</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Complexity for all traversals:</strong> O(n) time, O(n) space (O(h) stack space for recursive; O(w) queue space for level-order, where w = max width).</p>
+<hr />
+<h2 id="326-expression-trees">3.2.6 Expression Trees</h2>
+<p>An <strong>expression tree</strong> is a binary tree that represents an arithmetic expression. <strong>Operands</strong> (numbers/variables) are at the leaves, and <strong>operators</strong> (+, −, ×, /) are at the internal nodes.</p>
+<pre><code>Expression: (A + B) * (C - D)
+
+Expression Tree:
+            *
+          /   \
+         +     -
+        / \   / \
+       A   B C   D
+</code></pre>
+<h3 id="traversals-and-expression-notations">Traversals and Expression Notations</h3>
+<p>The three standard traversals of an expression tree produce the three standard expression notations:</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Traversal</th>
+<th>Notation</th>
+<th>Result for (A+B)*(C−D)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Preorder</strong> (NLR)</td>
+<td><strong>Prefix</strong> (Polish)</td>
+<td>* + A B - C D</td>
+</tr>
+<tr>
+<td><strong>Inorder</strong> (LNR)</td>
+<td><strong>Infix</strong> (standard)</td>
+<td>A + B * C - D (needs parentheses for correct meaning)</td>
+</tr>
+<tr>
+<td><strong>Postorder</strong> (LRN)</td>
+<td><strong>Postfix</strong> (Reverse Polish)</td>
+<td>A B + C D - *</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Why this works:</strong>
+- <strong>Preorder</strong> visits the operator before its operands → prefix notation
+- <strong>Inorder</strong> visits the operator between its operands → infix notation
+- <strong>Postorder</strong> visits the operator after its operands → postfix notation</p>
+<p><strong>Important:</strong> Inorder traversal of an expression tree does NOT automatically produce correct parenthesised infix. You need to add parentheses around each subtree:</p>
+<pre><code>INORDER_EXPRESSION(node):
+    if node is leaf:
+        print node.data
+    else:
+        print &quot;(&quot;
+        INORDER_EXPRESSION(node.left)
+        print node.data
+        INORDER_EXPRESSION(node.right)
+        print &quot;)&quot;
+</code></pre>
+<p>This gives: <code>((A+B)*(C-D))</code> — correctly parenthesised.</p>
+<h3 id="building-an-expression-tree-from-postfix">Building an Expression Tree from Postfix</h3>
+<p><strong>Algorithm:</strong> Scan postfix expression left to right. Push operands as leaf nodes. When you see an operator, pop two nodes, create a new node with the operator, attach the popped nodes as children.</p>
+<pre><code>BUILD_EXPRESSION_TREE(postfix):
+    create Stack S (of tree nodes)
+    for each token in postfix:
+        if token is operand:
+            node = CREATE_NODE(token)
+            S.push(node)
+        else:                              // token is operator
+            right = S.pop()
+            left = S.pop()
+            node = CREATE_NODE(token)
+            node.left = left
+            node.right = right
+            S.push(node)
+    return S.pop()                         // root of expression tree
+</code></pre>
+<p><strong>Worked Example:</strong> Build tree from postfix <code>A B + C D - *</code></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Token</th>
+<th>Action</th>
+<th>Stack (trees)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A</td>
+<td>Push leaf A</td>
+<td>[A]</td>
+</tr>
+<tr>
+<td>B</td>
+<td>Push leaf B</td>
+<td>[A, B]</td>
+</tr>
+<tr>
+<td>+</td>
+<td>Pop B, A → create + node</td>
+<td>[+{A,B}]</td>
+</tr>
+<tr>
+<td>C</td>
+<td>Push leaf C</td>
+<td>[+{A,B}, C]</td>
+</tr>
+<tr>
+<td>D</td>
+<td>Push leaf D</td>
+<td>[+{A,B}, C, D]</td>
+</tr>
+<tr>
+<td>-</td>
+<td>Pop D, C → create - node</td>
+<td>[+{A,B}, -{C,D}]</td>
+</tr>
+<tr>
+<td>*</td>
+<td>Pop -{C,D}, +{A,B} → create * node</td>
+<td>[*{+{A,B}, -{C,D}}]</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Result:</strong> The tree rooted at <code>*</code> with left child <code>+{A,B}</code> and right child <code>-{C,D}</code>.</p>
+<hr />
+<h2 id="327-constructing-a-tree-from-traversals">3.2.7 Constructing a Tree from Traversals</h2>
+<p>A binary tree can be <strong>uniquely reconstructed</strong> from two traversal sequences, provided one of them is <strong>inorder</strong>. You need either:
+- <strong>Preorder + Inorder</strong>, or
+- <strong>Postorder + Inorder</strong></p>
+<p><strong>Why inorder is required:</strong> Preorder or postorder alone tells you the root (first or last element), but you need inorder to determine which nodes belong to the left vs right subtree.</p>
+<p><strong>Why preorder + postorder is NOT sufficient:</strong> Without inorder, you cannot distinguish left from right when a node has only one child.</p>
+<h3 id="method-1-preorder-inorder">Method 1: Preorder + Inorder</h3>
+<p><strong>Algorithm:</strong>
+1. The <strong>first element</strong> of preorder is the <strong>root</strong>
+2. Find the root in the inorder sequence
+3. Everything <strong>left</strong> of the root in inorder = left subtree
+4. Everything <strong>right</strong> of the root in inorder = right subtree
+5. Recursively construct left and right subtrees</p>
+<p><strong>Worked Example:</strong></p>
+<pre><code>Preorder: A, B, D, E, C, F, G
+Inorder:  D, B, E, A, F, C, G
+</code></pre>
+<p><strong>Step 1:</strong> Root = A (first in preorder)</p>
+<pre><code>Inorder split: [D, B, E] A [F, C, G]
+               left subtree  right subtree
+
+Left subtree preorder:  B, D, E  (next 3 elements from preorder)
+Right subtree preorder: C, F, G  (remaining elements)
+</code></pre>
+<p><strong>Step 2:</strong> Left subtree — Root = B (first in left preorder)</p>
+<pre><code>Left inorder: [D, B, E]
+Split at B: [D] B [E]
+
+B's left child = D, B's right child = E
+</code></pre>
+<p><strong>Step 3:</strong> Right subtree — Root = C (first in right preorder)</p>
+<pre><code>Right inorder: [F, C, G]
+Split at C: [F] C [G]
+
+C's left child = F, C's right child = G
+</code></pre>
+<p><strong>Result:</strong></p>
+<pre><code>            A
+          /   \
+         B     C
+        / \   / \
+       D   E F   G
+</code></pre>
+<p><strong>Verification:</strong>
+- Preorder (NLR): A, B, D, E, C, F, G ✓
+- Inorder (LNR): D, B, E, A, F, C, G ✓</p>
+<h3 id="method-2-postorder-inorder">Method 2: Postorder + Inorder</h3>
+<p><strong>Algorithm:</strong>
+1. The <strong>last element</strong> of postorder is the <strong>root</strong>
+2. Find the root in the inorder sequence
+3. Everything <strong>left</strong> of the root in inorder = left subtree
+4. Everything <strong>right</strong> of the root in inorder = right subtree
+5. Recursively construct (process right subtree first from postorder, then left)</p>
+<p><strong>Worked Example:</strong></p>
+<pre><code>Postorder: D, E, B, F, G, C, A
+Inorder:   D, B, E, A, F, C, G
+</code></pre>
+<p><strong>Step 1:</strong> Root = A (last in postorder)</p>
+<pre><code>Inorder split: [D, B, E] A [F, C, G]
+
+Left subtree postorder:  D, E, B
+Right subtree postorder: F, G, C
+</code></pre>
+<p><strong>Step 2:</strong> Right subtree — Root = C (last in right postorder)</p>
+<pre><code>Right inorder: [F, C, G]
+Split at C: [F] C [G]
+
+C's left child = F, C's right child = G
+</code></pre>
+<p><strong>Step 3:</strong> Left subtree — Root = B (last in left postorder)</p>
+<pre><code>Left inorder: [D, B, E]
+Split at B: [D] B [E]
+
+B's left child = D, B's right child = E
+</code></pre>
+<p><strong>Result:</strong></p>
+<pre><code>            A
+          /   \
+         B     C
+        / \   / \
+       D   E F   G
+</code></pre>
+<p><strong>Pseudocode for Preorder + Inorder Construction:</strong></p>
+<pre><code>BUILD_TREE(preorder, inorder, preStart, preEnd, inStart, inEnd):
+    if preStart &gt; preEnd:
+        return NULL
+
+    rootVal = preorder[preStart]
+    root = CREATE_NODE(rootVal)
+
+    // Find root in inorder
+    rootIndex = index of rootVal in inorder[inStart..inEnd]
+    leftSize = rootIndex - inStart
+
+    root.left = BUILD_TREE(preorder, inorder,
+                           preStart + 1, preStart + leftSize,
+                           inStart, rootIndex - 1)
+    root.right = BUILD_TREE(preorder, inorder,
+                            preStart + leftSize + 1, preEnd,
+                            rootIndex + 1, inEnd)
+    return root
+</code></pre>
+<p><strong>Complexity:</strong> O(n²) naive (searching inorder each time), O(n) with a hash map for inorder positions.</p>
+<h2 id="-_2">---</h2>
+<h1 id="33-heaps">3.3 Heaps</h1>
+<div class="callout">
+<p><strong>R1 Reference: Chapter 6 — Heapsort (6.1–6.5)</strong></p>
+</div>
+<h2 id="331-heap-concept-and-types">3.3.1 Heap Concept and Types</h2>
+<p>A <strong>heap</strong> is a <strong>complete binary tree</strong> that satisfies the <strong>heap property</strong>. Because it is complete, a heap can be efficiently stored in an array with no wasted space.</p>
+<h3 id="max-heap">Max-Heap</h3>
+<p>Every parent node's value is <strong>greater than or equal to</strong> its children's values. The <strong>root contains the maximum</strong> element.</p>
+<pre><code>Max-Heap:
+         50
+       /    \
+      30     40
+     / \    / \
+    10  20 15  25
+
+Parent ≥ Children at every node ✓
+Root (50) = maximum element
+</code></pre>
+<h3 id="min-heap">Min-Heap</h3>
+<p>Every parent node's value is <strong>less than or equal to</strong> its children's values. The <strong>root contains the minimum</strong> element.</p>
+<pre><code>Min-Heap:
+         5
+       /   \
+      10    15
+     / \   / \
+    20  25 30  40
+
+Parent ≤ Children at every node ✓
+Root (5) = minimum element
+</code></pre>
+<p><strong>Important:</strong> A heap is <strong>NOT</strong> a BST. In a BST, left child &lt; parent &lt; right child. In a heap, both children can be larger (max-heap) or smaller (min-heap) than the parent — there is no ordering between left and right siblings.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Max-Heap</th>
+<th>Min-Heap</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Root</td>
+<td>Maximum element</td>
+<td>Minimum element</td>
+</tr>
+<tr>
+<td>Parent vs Children</td>
+<td>Parent ≥ children</td>
+<td>Parent ≤ children</td>
+</tr>
+<tr>
+<td>Shape</td>
+<td>Complete binary tree</td>
+<td>Complete binary tree</td>
+</tr>
+<tr>
+<td>Sibling ordering</td>
+<td>None</td>
+<td>None</td>
+</tr>
+<tr>
+<td>Common use</td>
+<td>Heap sort, max-priority queue</td>
+<td>Min-priority queue, Dijkstra's</td>
+</tr>
+</tbody>
+</table></div>
+<hr />
+<h2 id="332-heap-representation">3.3.2 Heap Representation</h2>
+<h3 id="array-representation-standard">Array Representation (Standard)</h3>
+<p>Since a heap is a <strong>complete binary tree</strong>, it maps perfectly to an array with no gaps. This is the standard and preferred representation.</p>
+<p>For a node at index <strong>i</strong> (0-indexed):
+- <strong>Parent:</strong> ⌊(i − 1) / 2⌋
+- <strong>Left child:</strong> 2i + 1
+- <strong>Right child:</strong> 2i + 2</p>
+<pre><code>Max-Heap Tree:
+         50
+       /    \
+      30     40
+     / \    / \
+    10  20 15  25
+
+Array representation:
+Index:  0    1    2    3    4    5    6
+Value: [50] [30] [40] [10] [20] [15] [25]
+
+Verify: Index 1 (value 30)
+  Parent:      (1-1)/2 = 0 → value 50 (50 ≥ 30 ✓)
+  Left child:  2(1)+1 = 3 → value 10 (30 ≥ 10 ✓)
+  Right child: 2(1)+2 = 4 → value 20 (30 ≥ 20 ✓)
+</code></pre>
+<h3 id="linked-representation_1">Linked Representation</h3>
+<p>Each node stores data, left pointer, right pointer. Less common for heaps because:
+- Array gives O(1) parent access; linked needs O(log n) to find parent
+- Array is more cache-friendly
+- Finding the "last position" for insert/delete is O(1) in array (index = size), O(log n) in linked</p>
+<p>Linked representation is used only when the heap size is highly dynamic and memory must be allocated on demand.</p>
+<hr />
+<h2 id="333-heap-operations">3.3.3 Heap Operations</h2>
+<h3 id="insert-percolate-up-bubble-up-sift-up">Insert (Percolate Up / Bubble Up / Sift Up)</h3>
+<p><strong>Idea:</strong> Add the new element at the <strong>end</strong> of the array (to maintain completeness), then <strong>swap it up</strong> with its parent repeatedly until the heap property is restored.</p>
+<p><strong>Pseudocode (Max-Heap):</strong></p>
+<pre><code>HEAP_INSERT(A, heapSize, key):
+    heapSize = heapSize + 1
+    A[heapSize - 1] = key          // place at end
+    // Percolate up
+    i = heapSize - 1
+    while i &gt; 0 and A[i] &gt; A[PARENT(i)]:
+        SWAP(A[i], A[PARENT(i)])
+        i = PARENT(i)
+</code></pre>
+<p><strong>Worked Example: Insert 45 into max-heap [50, 30, 40, 10, 20, 15, 25]</strong></p>
+<pre><code>Step 0: Add 45 at end
+Array: [50, 30, 40, 10, 20, 15, 25, 45]
+
+         50
+       /    \
+      30     40
+     / \    / \
+    10  20 15  25
+   /
+  45  ← new element at index 7
+
+Step 1: Compare 45 with parent A[3]=10. 45 &gt; 10 → SWAP
+Array: [50, 30, 40, 45, 20, 15, 25, 10]
+
+         50
+       /    \
+      30     40
+     / \    / \
+    45  20 15  25
+   /
+  10
+
+Step 2: Compare 45 with parent A[1]=30. 45 &gt; 30 → SWAP
+Array: [50, 45, 40, 30, 20, 15, 25, 10]
+
+         50
+       /    \
+      45     40
+     / \    / \
+    30  20 15  25
+   /
+  10
+
+Step 3: Compare 45 with parent A[0]=50. 45 &lt; 50 → STOP
+
+Final heap: [50, 45, 40, 30, 20, 15, 25, 10] ✓
+</code></pre>
+<p><strong>Complexity:</strong> O(log n) — at most we traverse the height of the tree.</p>
+<h3 id="delete-max-extract-max-percolate-down-bubble-down-sift-down">Delete Max / Extract Max (Percolate Down / Bubble Down / Sift Down)</h3>
+<p><strong>Idea:</strong> The maximum is at the root. Replace the root with the <strong>last element</strong>, reduce the heap size, then <strong>swap the new root down</strong> with its larger child repeatedly until the heap property is restored.</p>
+<p><strong>Pseudocode (Max-Heap):</strong></p>
+<pre><code>EXTRACT_MAX(A, heapSize):
+    if heapSize == 0:
+        error &quot;Heap underflow&quot;
+    max = A[0]
+    A[0] = A[heapSize - 1]        // move last element to root
+    heapSize = heapSize - 1
+    MAX_HEAPIFY(A, 0, heapSize)   // percolate down
+    return max
+
+MAX_HEAPIFY(A, i, heapSize):
+    left = 2i + 1
+    right = 2i + 2
+    largest = i
+
+    if left &lt; heapSize and A[left] &gt; A[largest]:
+        largest = left
+    if right &lt; heapSize and A[right] &gt; A[largest]:
+        largest = right
+
+    if largest ≠ i:
+        SWAP(A[i], A[largest])
+        MAX_HEAPIFY(A, largest, heapSize)    // continue down
+</code></pre>
+<p><strong>Worked Example: Extract max from [50, 45, 40, 30, 20, 15, 25, 10]</strong></p>
+<pre><code>Step 0: Save max = 50. Move last element (10) to root.
+Array: [10, 45, 40, 30, 20, 15, 25]
+
+         10  ← violates heap property
+       /    \
+      45     40
+     / \    / \
+    30  20 15  25
+
+Step 1: MAX_HEAPIFY at index 0
+  left=45, right=40, largest=left(45). 45 &gt; 10 → SWAP(10, 45)
+Array: [45, 10, 40, 30, 20, 15, 25]
+
+         45
+       /    \
+      10     40
+     / \    / \
+    30  20 15  25
+
+Step 2: MAX_HEAPIFY at index 1
+  left=30, right=20, largest=left(30). 30 &gt; 10 → SWAP(10, 30)
+Array: [45, 30, 40, 10, 20, 15, 25]
+
+         45
+       /    \
+      30     40
+     / \    / \
+    10  20 15  25
+
+Step 3: MAX_HEAPIFY at index 3
+  left index = 7 (out of bounds) → STOP
+
+Final heap: [45, 30, 40, 10, 20, 15, 25] ✓
+Extracted value: 50
+</code></pre>
+<p><strong>Complexity:</strong> O(log n) — at most traverse the height of the tree.</p>
+<hr />
+<h2 id="334-building-a-heap-heapify">3.3.4 Building a Heap — Heapify</h2>
+<h3 id="naive-approach-repeated-insertion">Naive Approach: Repeated Insertion</h3>
+<p>Insert elements one by one into an empty heap. Each insertion is O(log n), so building a heap from n elements is O(n log n).</p>
+<h3 id="optimal-approach-bottom-up-build-floyds-algorithm">Optimal Approach: Bottom-Up Build (Floyd's Algorithm)</h3>
+<p><strong>Key insight:</strong> Leaf nodes (indices ⌊n/2⌋ to n−1) are already trivially valid heaps. We only need to call MAX_HEAPIFY on internal nodes, starting from the <strong>last internal node</strong> up to the root.</p>
+<p><strong>Pseudocode:</strong></p>
+<pre><code>BUILD_MAX_HEAP(A, n):
+    heapSize = n
+    for i = ⌊n/2⌋ - 1 downto 0:     // start from last internal node
+        MAX_HEAPIFY(A, i, heapSize)
+</code></pre>
+<p><strong>Why O(n) and not O(n log n)?</strong></p>
+<p>At first glance, we call MAX_HEAPIFY O(n/2) times, each taking O(log n). But the cost varies by level:</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Level from bottom</th>
+<th>Nodes at this level</th>
+<th>Max heapify cost (swaps)</th>
+<th>Total work</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0 (leaves)</td>
+<td>~n/2</td>
+<td>0 (skip)</td>
+<td>0</td>
+</tr>
+<tr>
+<td>1</td>
+<td>~n/4</td>
+<td>1</td>
+<td>n/4</td>
+</tr>
+<tr>
+<td>2</td>
+<td>~n/8</td>
+<td>2</td>
+<td>n/4</td>
+</tr>
+<tr>
+<td>3</td>
+<td>~n/16</td>
+<td>3</td>
+<td>3n/16</td>
+</tr>
+<tr>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+</tr>
+<tr>
+<td>h</td>
+<td>1</td>
+<td>h</td>
+<td>h</td>
+</tr>
+</tbody>
+</table></div>
+<p>Total = Σ(i=0 to h) ⌈n / 2^(i+1)⌉ × i = n × Σ(i=0 to h) i / 2^(i+1) ≤ n × Σ(i=0 to ∞) i / 2^(i+1) = n × 2 = <strong>O(n)</strong></p>
+<p>The infinite series Σ i/2^i converges to 2, so BUILD_MAX_HEAP is <strong>O(n)</strong>.</p>
+<p><strong>Worked Example: Build max-heap from [4, 10, 3, 5, 1]</strong></p>
+<pre><code>Initial array: [4, 10, 3, 5, 1]
+n = 5, last internal node = ⌊5/2⌋ - 1 = 1
+
+         4
+       /   \
+      10    3
+     / \
+    5   1
+
+Step 1: MAX_HEAPIFY(A, 1, 5) — node 10
+  left=5, right=1. 10 &gt; 5 &gt; 1 → already valid. No swap.
+
+         4
+       /   \
+      10    3
+     / \
+    5   1
+
+Step 2: MAX_HEAPIFY(A, 0, 5) — node 4
+  left=10, right=3. largest=10. 10 &gt; 4 → SWAP(4, 10)
+
+         10
+       /    \
+      4      3
+     / \
+    5   1
+
+  Continue MAX_HEAPIFY(A, 1, 5) — node 4
+  left=5, right=1. largest=5. 5 &gt; 4 → SWAP(4, 5)
+
+         10
+       /    \
+      5      3
+     / \
+    4   1
+
+  Continue MAX_HEAPIFY(A, 3, 5) — node 4
+  left index = 7 (out of bounds) → STOP
+
+Final max-heap: [10, 5, 3, 4, 1] ✓
+</code></pre>
+<hr />
+<h2 id="335-heap-sort">3.3.5 Heap Sort</h2>
+<p>Heap sort uses the max-heap property to sort an array in ascending order.</p>
+<p><strong>Algorithm:</strong>
+1. Build a max-heap from the input array — O(n)
+2. Repeatedly extract the maximum (root) and place it at the end of the array — O(n log n)</p>
+<p><strong>Pseudocode:</strong></p>
+<pre><code>HEAP_SORT(A, n):
+    BUILD_MAX_HEAP(A, n)           // Step 1: O(n)
+    heapSize = n
+    for i = n - 1 downto 1:       // Step 2: n-1 extractions
+        SWAP(A[0], A[i])           // move current max to end
+        heapSize = heapSize - 1
+        MAX_HEAPIFY(A, 0, heapSize) // restore heap on reduced array
+</code></pre>
+<p><strong>Worked Example: Sort [4, 10, 3, 5, 1]</strong></p>
+<p><strong>Phase 1: Build Max-Heap</strong>
+(From previous example) → [10, 5, 3, 4, 1]</p>
+<p><strong>Phase 2: Repeated Extract-Max</strong></p>
+<pre><code>Iteration 1: SWAP(A[0], A[4]) → [1, 5, 3, 4, | 10]
+  MAX_HEAPIFY(A, 0, 4): 1 swaps with 5, then 1 swaps with 4
+  → [5, 4, 3, 1, | 10]
+
+Iteration 2: SWAP(A[0], A[3]) → [1, 4, 3, | 5, 10]
+  MAX_HEAPIFY(A, 0, 3): 1 swaps with 4
+  → [4, 1, 3, | 5, 10]
+
+Iteration 3: SWAP(A[0], A[2]) → [3, 1, | 4, 5, 10]
+  MAX_HEAPIFY(A, 0, 2): 3 &gt; 1 → no swap needed
+  → [3, 1, | 4, 5, 10]
+
+Iteration 4: SWAP(A[0], A[1]) → [1, | 3, 4, 5, 10]
+  Heap size = 1 → done
+
+Sorted array: [1, 3, 4, 5, 10] ✓
+</code></pre>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Step</th>
+<th>Array State</th>
+<th>Sorted Portion</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Build heap</td>
+<td>[10, 5, 3, 4, 1]</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Extract 10</td>
+<td>[5, 4, 3, 1, <strong>10</strong>]</td>
+<td>{10}</td>
+</tr>
+<tr>
+<td>Extract 5</td>
+<td>[4, 1, 3, <strong>5, 10</strong>]</td>
+<td>{5, 10}</td>
+</tr>
+<tr>
+<td>Extract 4</td>
+<td>[3, 1, <strong>4, 5, 10</strong>]</td>
+<td>{4, 5, 10}</td>
+</tr>
+<tr>
+<td>Extract 3</td>
+<td>[1, <strong>3, 4, 5, 10</strong>]</td>
+<td>{3, 4, 5, 10}</td>
+</tr>
+<tr>
+<td>Done</td>
+<td>[<strong>1, 3, 4, 5, 10</strong>]</td>
+<td>{1, 3, 4, 5, 10}</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="heap-sort-complexity-analysis">Heap Sort Complexity Analysis</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Aspect</th>
+<th>Complexity</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Build heap</td>
+<td>O(n)</td>
+</tr>
+<tr>
+<td>Extract max × (n−1)</td>
+<td>O(n log n)</td>
+</tr>
+<tr>
+<td><strong>Total time</strong></td>
+<td><strong>O(n log n)</strong></td>
+</tr>
+<tr>
+<td>Space</td>
+<td>O(1) — in-place</td>
+</tr>
+<tr>
+<td>Stable?</td>
+<td><strong>No</strong> — swapping can change relative order of equal elements</td>
+</tr>
+<tr>
+<td>Best case</td>
+<td>O(n log n)</td>
+</tr>
+<tr>
+<td>Worst case</td>
+<td>O(n log n)</td>
+</tr>
+<tr>
+<td>Average case</td>
+<td>O(n log n)</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Advantages of Heap Sort:</strong>
+- O(n log n) guaranteed (no worst-case degradation like quicksort)
+- In-place (O(1) extra space)
+- Good for external sorting and priority-based scheduling</p>
+<p><strong>Disadvantages:</strong>
+- Not stable
+- Poor cache performance compared to quicksort (array access patterns are not sequential)
+- Higher constant factors than quicksort in practice</p>
+<hr />
+<h2 id="336-priority-queue-using-heap">3.3.6 Priority Queue using Heap</h2>
+<p>A <strong>priority queue</strong> is an ADT where each element has a priority, and the element with the highest (or lowest) priority is served first.</p>
+<p><strong>Why use a heap?</strong> A heap gives the best balance of insertion and extraction performance for a priority queue:</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Implementation</th>
+<th>Insert</th>
+<th>Extract Max/Min</th>
+<th>Peek</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Unsorted array</td>
+<td>O(1)</td>
+<td>O(n)</td>
+<td>O(n)</td>
+</tr>
+<tr>
+<td>Sorted array</td>
+<td>O(n)</td>
+<td>O(1)</td>
+<td>O(1)</td>
+</tr>
+<tr>
+<td>Unsorted linked list</td>
+<td>O(1)</td>
+<td>O(n)</td>
+<td>O(n)</td>
+</tr>
+<tr>
+<td>Sorted linked list</td>
+<td>O(n)</td>
+<td>O(1)</td>
+<td>O(1)</td>
+</tr>
+<tr>
+<td><strong>Binary Heap</strong></td>
+<td><strong>O(log n)</strong></td>
+<td><strong>O(log n)</strong></td>
+<td><strong>O(1)</strong></td>
+</tr>
+</tbody>
+</table></div>
+<p>The heap provides O(log n) for both insert and extract, making it the optimal choice when both operations are frequent.</p>
+<p><strong>Priority Queue Operations using Max-Heap:</strong></p>
+<pre><code>PQ_INSERT(A, heapSize, key):
+    HEAP_INSERT(A, heapSize, key)       // O(log n)
+
+PQ_EXTRACT_MAX(A, heapSize):
+    return EXTRACT_MAX(A, heapSize)      // O(log n)
+
+PQ_PEEK(A):
+    return A[0]                          // O(1)
+
+PQ_INCREASE_KEY(A, i, newKey):
+    if newKey &lt; A[i]:
+        error &quot;New key is smaller than current key&quot;
+    A[i] = newKey
+    while i &gt; 0 and A[i] &gt; A[PARENT(i)]:
+        SWAP(A[i], A[PARENT(i)])
+        i = PARENT(i)
+</code></pre>
+<p><strong>Applications of Priority Queues:</strong>
+- <strong>CPU scheduling:</strong> Highest-priority process runs first
+- <strong>Dijkstra's shortest path:</strong> Extracts the vertex with minimum distance
+- <strong>Huffman coding:</strong> Repeatedly extract the two minimum-frequency nodes
+- <strong>Event-driven simulation:</strong> Process events in order of their scheduled time
+- <strong>Median maintenance:</strong> Use two heaps (max-heap for lower half, min-heap for upper half)</p>
+<h2 id="-_3">---</h2>
+<h1 id="34-graphs">3.4 Graphs</h1>
+<div class="callout">
+<p><strong>R1 Reference: Chapter 22 — Elementary Graph Algorithms (22.1–22.3)</strong></p>
+</div>
+<h2 id="341-terms-and-definitions">3.4.1 Terms and Definitions</h2>
+<p>A <strong>graph</strong> G = (V, E) consists of:
+- <strong>V</strong> = a set of <strong>vertices</strong> (also called nodes)
+- <strong>E</strong> = a set of <strong>edges</strong> (also called arcs), where each edge connects two vertices</p>
+<p>Graphs are the most general non-linear data structure — trees are a special case of graphs (connected, acyclic graphs).</p>
+<h3 id="fundamental-terms">Fundamental Terms</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Term</th>
+<th>Definition</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Vertex (Node)</strong></td>
+<td>A fundamental unit of a graph</td>
+<td>Cities in a road network</td>
+</tr>
+<tr>
+<td><strong>Edge (Arc)</strong></td>
+<td>A connection between two vertices</td>
+<td>Road between two cities</td>
+</tr>
+<tr>
+<td><strong>Undirected graph</strong></td>
+<td>Edges have no direction; (u,v) = (v,u)</td>
+<td>Friendship network (mutual)</td>
+</tr>
+<tr>
+<td><strong>Directed graph (Digraph)</strong></td>
+<td>Edges have direction; (u,v) ≠ (v,u)</td>
+<td>Twitter follow (one-way)</td>
+</tr>
+<tr>
+<td><strong>Weighted graph</strong></td>
+<td>Each edge has an associated numerical value (weight/cost)</td>
+<td>Road network with distances</td>
+</tr>
+<tr>
+<td><strong>Unweighted graph</strong></td>
+<td>All edges are treated equally (or weight = 1)</td>
+<td>Social network connections</td>
+</tr>
+<tr>
+<td><strong>Adjacent vertices</strong></td>
+<td>Two vertices connected by an edge</td>
+<td>If edge (A,B) exists, A and B are adjacent</td>
+</tr>
+<tr>
+<td><strong>Incident edge</strong></td>
+<td>An edge is incident on the vertices it connects</td>
+<td>Edge (A,B) is incident on A and B</td>
+</tr>
+<tr>
+<td><strong>Degree</strong></td>
+<td>Number of edges connected to a vertex</td>
+<td>—</td>
+</tr>
+<tr>
+<td><strong>In-degree</strong></td>
+<td>(Directed) Number of edges coming INTO a vertex</td>
+<td>—</td>
+</tr>
+<tr>
+<td><strong>Out-degree</strong></td>
+<td>(Directed) Number of edges going OUT from a vertex</td>
+<td>—</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="path-related-terms">Path-Related Terms</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Term</th>
+<th>Definition</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Walk</strong></td>
+<td>A sequence of vertices where each adjacent pair is connected by an edge. Vertices and edges may repeat.</td>
+</tr>
+<tr>
+<td><strong>Trail</strong></td>
+<td>A walk in which <strong>no edge is repeated</strong> (but vertices may repeat).</td>
+</tr>
+<tr>
+<td><strong>Path</strong></td>
+<td>A walk in which <strong>no vertex is repeated</strong> (and therefore no edge repeats).</td>
+</tr>
+<tr>
+<td><strong>Circuit</strong></td>
+<td>A closed trail — a trail that starts and ends at the same vertex.</td>
+</tr>
+<tr>
+<td><strong>Cycle</strong></td>
+<td>A closed path — a path that starts and ends at the same vertex (length ≥ 3 for simple graphs).</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="connectivity-terms">Connectivity Terms</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Term</th>
+<th>Definition</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Connected graph</strong></td>
+<td>(Undirected) There exists a path between every pair of vertices.</td>
+</tr>
+<tr>
+<td><strong>Disconnected graph</strong></td>
+<td>At least one pair of vertices has no path between them.</td>
+</tr>
+<tr>
+<td><strong>Strongly connected</strong></td>
+<td>(Directed) For every pair (u,v), there is a path from u to v AND from v to u.</td>
+</tr>
+<tr>
+<td><strong>Weakly connected</strong></td>
+<td>(Directed) The graph is connected if we ignore edge directions.</td>
+</tr>
+<tr>
+<td><strong>Connected component</strong></td>
+<td>A maximal connected subgraph.</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="special-graph-types">Special Graph Types</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Definition</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Simple graph</strong></td>
+<td>No self-loops, no multiple edges between the same pair of vertices.</td>
+</tr>
+<tr>
+<td><strong>Multigraph</strong></td>
+<td>Multiple edges allowed between the same pair of vertices.</td>
+</tr>
+<tr>
+<td><strong>Complete graph (Kₙ)</strong></td>
+<td>Every pair of vertices is connected. n vertices → n(n−1)/2 edges.</td>
+</tr>
+<tr>
+<td><strong>Bipartite graph</strong></td>
+<td>Vertices can be divided into two disjoint sets such that every edge connects a vertex from one set to the other.</td>
+</tr>
+<tr>
+<td><strong>Subgraph</strong></td>
+<td>A graph formed from a subset of vertices and edges of the original graph.</td>
+</tr>
+<tr>
+<td><strong>Spanning subgraph</strong></td>
+<td>A subgraph that includes ALL vertices of the original graph.</td>
+</tr>
+<tr>
+<td><strong>Null graph</strong></td>
+<td>A graph with no edges (but may have vertices).</td>
+</tr>
+<tr>
+<td><strong>Trivial graph</strong></td>
+<td>A graph with exactly one vertex and no edges.</td>
+</tr>
+<tr>
+<td><strong>Acyclic graph</strong></td>
+<td>A graph with no cycles. A connected acyclic undirected graph is a tree.</td>
+</tr>
+<tr>
+<td><strong>DAG</strong></td>
+<td>Directed Acyclic Graph — a directed graph with no directed cycles.</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="graph-diagrams">Graph Diagrams</h3>
+<pre><code>Undirected Graph:           Directed Graph (Digraph):
+  A --- B                     A → B
+  |   / |                     ↑   ↓
+  |  /  |                     D ← C
+  | /   |
+  C --- D                   
+
+Weighted Undirected:        Complete Graph K₄:
+  A -5- B                     A --- B
+  |     |                     |\ /|
+  3     2                     | X |
+  |     |                     |/ \|
+  C -4- D                     C --- D
+</code></pre>
+<hr />
+<h2 id="342-graph-properties">3.4.2 Graph Properties</h2>
+<h3 id="handshaking-lemma">Handshaking Lemma</h3>
+<p><strong>Theorem:</strong> In an undirected graph, the sum of degrees of all vertices equals twice the number of edges.</p>
+<pre><code>Σ deg(v) = 2|E|    for all v ∈ V
+</code></pre>
+<p><strong>Proof:</strong> Each edge (u, v) contributes 1 to the degree of u and 1 to the degree of v. So each edge is counted exactly twice in the sum of degrees.</p>
+<p><strong>Corollary:</strong> The number of vertices with odd degree is always even.</p>
+<p><strong>Example:</strong></p>
+<pre><code>  A --- B
+  |   / |
+  |  /  |
+  | /   |
+  C --- D
+
+deg(A)=2, deg(B)=3, deg(C)=3, deg(D)=2
+Sum = 2+3+3+2 = 10 = 2×5 = 2|E| ✓ (5 edges)
+</code></pre>
+<h3 id="for-directed-graphs">For Directed Graphs</h3>
+<pre><code>Σ in-deg(v) = Σ out-deg(v) = |E|
+</code></pre>
+<p>Each edge contributes 1 to the out-degree of its source and 1 to the in-degree of its destination.</p>
+<h3 id="maximum-edges">Maximum Edges</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Graph Type</th>
+<th>Maximum Edges</th>
+<th>Formula</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Undirected simple graph</td>
+<td>Every pair connected</td>
+<td>n(n−1)/2</td>
+</tr>
+<tr>
+<td>Directed simple graph</td>
+<td>Every ordered pair connected</td>
+<td>n(n−1)</td>
+</tr>
+<tr>
+<td>Complete undirected Kₙ</td>
+<td>n(n−1)/2</td>
+<td>K₄ = 6, K₅ = 10</td>
+</tr>
+<tr>
+<td>Tree with n vertices</td>
+<td>n − 1</td>
+<td>Always</td>
+</tr>
+<tr>
+<td>Connected undirected graph</td>
+<td>At least n − 1</td>
+<td></td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Dense vs Sparse:</strong>
+- <strong>Dense graph:</strong> |E| ≈ |V|² (close to maximum edges)
+- <strong>Sparse graph:</strong> |E| ≈ |V| (few edges relative to vertices)</p>
+<hr />
+<h2 id="343-graph-representations">3.4.3 Graph Representations</h2>
+<h3 id="adjacency-matrix">Adjacency Matrix</h3>
+<p>A 2D array <code>M[V][V]</code> where <code>M[i][j] = 1</code> if there is an edge from vertex i to vertex j, and <code>M[i][j] = 0</code> otherwise. For weighted graphs, <code>M[i][j]</code> stores the edge weight (or ∞ if no edge).</p>
+<p><strong>Example — Undirected Graph:</strong></p>
+<pre><code>Graph:
+  0 --- 1
+  |   / |
+  |  /  |
+  | /   |
+  2 --- 3
+
+Adjacency Matrix:
+     0  1  2  3
+  0 [0  1  1  0]
+  1 [1  0  1  1]
+  2 [1  1  0  1]
+  3 [0  1  1  0]
+
+Note: Matrix is SYMMETRIC for undirected graphs (M[i][j] = M[j][i])
+</code></pre>
+<p><strong>Example — Directed Graph:</strong></p>
+<pre><code>Graph:
+  0 → 1
+  ↑   ↓
+  3 ← 2
+
+Adjacency Matrix:
+     0  1  2  3
+  0 [0  1  0  0]
+  1 [0  0  1  0]
+  2 [0  0  0  1]
+  3 [1  0  0  0]
+
+Note: NOT symmetric for directed graphs
+</code></pre>
+<p><strong>Properties:</strong>
+- Space: O(V²)
+- Check if edge (u,v) exists: O(1)
+- Find all neighbors of v: O(V) — scan entire row
+- Add edge: O(1)
+- Remove edge: O(1)
+- Count edges: O(V²)</p>
+<h3 id="adjacency-list">Adjacency List</h3>
+<p>An array of lists. <code>adj[v]</code> is a list of all vertices adjacent to v.</p>
+<p><strong>Example — Undirected Graph (same as above):</strong></p>
+<pre><code>adj[0]: 1 → 2
+adj[1]: 0 → 2 → 3
+adj[2]: 0 → 1 → 3
+adj[3]: 1 → 2
+</code></pre>
+<p><strong>Example — Directed Graph (same as above):</strong></p>
+<pre><code>adj[0]: 1
+adj[1]: 2
+adj[2]: 3
+adj[3]: 0
+</code></pre>
+<p><strong>Properties:</strong>
+- Space: O(V + E) — much better for sparse graphs
+- Check if edge (u,v) exists: O(degree(u)) — scan u's adjacency list
+- Find all neighbors of v: O(degree(v))
+- Add edge: O(1) — append to list
+- Remove edge: O(degree(u))</p>
+<h3 id="representation-comparison_1">Representation Comparison</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Aspect</th>
+<th>Adjacency Matrix</th>
+<th>Adjacency List</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Space</strong></td>
+<td>O(V²)</td>
+<td>O(V + E)</td>
+</tr>
+<tr>
+<td><strong>Edge lookup</strong></td>
+<td>O(1)</td>
+<td>O(degree)</td>
+</tr>
+<tr>
+<td><strong>All neighbors</strong></td>
+<td>O(V)</td>
+<td>O(degree)</td>
+</tr>
+<tr>
+<td><strong>Add edge</strong></td>
+<td>O(1)</td>
+<td>O(1)</td>
+</tr>
+<tr>
+<td><strong>Remove edge</strong></td>
+<td>O(1)</td>
+<td>O(degree)</td>
+</tr>
+<tr>
+<td><strong>Best for</strong></td>
+<td>Dense graphs, small V</td>
+<td>Sparse graphs, large V</td>
+</tr>
+<tr>
+<td><strong>Edge weight</strong></td>
+<td>M[i][j] = weight</td>
+<td>Store (vertex, weight) pairs</td>
+</tr>
+<tr>
+<td><strong>Memory for sparse</strong></td>
+<td>Wasteful</td>
+<td>Efficient</td>
+</tr>
+<tr>
+<td><strong>Memory for dense</strong></td>
+<td>Efficient</td>
+<td>Overhead from pointers</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Rule of thumb:</strong> If |E| ≈ |V|², use adjacency matrix. If |E| &lt;&lt; |V|², use adjacency list. Most real-world graphs are sparse, so adjacency list is more common.</p>
+<hr />
+<h2 id="344-breadth-first-search-bfs">3.4.4 Breadth-First Search (BFS)</h2>
+<p>BFS explores a graph <strong>level by level</strong> — it visits all vertices at distance d from the source before visiting any vertex at distance d+1. This makes it ideal for finding <strong>shortest paths in unweighted graphs</strong>.</p>
+<p>BFS uses a <strong>queue</strong> to maintain the frontier of vertices to explore next.</p>
+<h3 id="pseudocode">Pseudocode</h3>
+<pre><code>BFS(G, source):
+    for each vertex u in G.V:
+        u.color = WHITE           // unvisited
+        u.distance = ∞
+        u.parent = NULL
+    source.color = GRAY           // discovered
+    source.distance = 0
+    source.parent = NULL
+    create Queue Q
+    Q.enqueue(source)
+
+    while Q is not empty:
+        u = Q.dequeue()
+        for each vertex v in G.adj[u]:     // all neighbors of u
+            if v.color == WHITE:           // not yet discovered
+                v.color = GRAY
+                v.distance = u.distance + 1
+                v.parent = u
+                Q.enqueue(v)
+        u.color = BLACK                    // fully explored
+</code></pre>
+<p><strong>Color coding:</strong>
+- <strong>WHITE</strong> = undiscovered
+- <strong>GRAY</strong> = discovered but not fully explored (in the queue)
+- <strong>BLACK</strong> = fully explored (all neighbors discovered)</p>
+<h3 id="worked-example">Worked Example</h3>
+<pre><code>Graph (undirected):
+  0 --- 1 --- 2
+  |           |
+  3 --- 4 --- 5
+
+Adjacency List:
+  0: [1, 3]
+  1: [0, 2]
+  2: [1, 5]
+  3: [0, 4]
+  4: [3, 5]
+  5: [2, 4]
+
+BFS from source = 0
+</code></pre>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Step</th>
+<th>Dequeue</th>
+<th>Process Neighbors</th>
+<th>Queue After</th>
+<th>Distances</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Init</td>
+<td>—</td>
+<td>Enqueue 0</td>
+<td>[0]</td>
+<td>0:0, rest:∞</td>
+</tr>
+<tr>
+<td>1</td>
+<td>0</td>
+<td>1(new, d=1), 3(new, d=1)</td>
+<td>[1, 3]</td>
+<td>0:0, 1:1, 3:1</td>
+</tr>
+<tr>
+<td>2</td>
+<td>1</td>
+<td>0(black), 2(new, d=2)</td>
+<td>[3, 2]</td>
+<td>0:0, 1:1, 2:2, 3:1</td>
+</tr>
+<tr>
+<td>3</td>
+<td>3</td>
+<td>0(black), 4(new, d=2)</td>
+<td>[2, 4]</td>
+<td>0:0, 1:1, 2:2, 3:1, 4:2</td>
+</tr>
+<tr>
+<td>4</td>
+<td>2</td>
+<td>1(black), 5(new, d=3)</td>
+<td>[4, 5]</td>
+<td>0:0, 1:1, 2:2, 3:1, 4:2, 5:3</td>
+</tr>
+<tr>
+<td>5</td>
+<td>4</td>
+<td>3(black), 5(gray)</td>
+<td>[5]</td>
+<td>(no change)</td>
+</tr>
+<tr>
+<td>6</td>
+<td>5</td>
+<td>2(black), 4(black)</td>
+<td>[]</td>
+<td>(no change)</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>BFS visit order: 0, 1, 3, 2, 4, 5</strong></p>
+<p><strong>BFS Tree (shortest path tree):</strong></p>
+<pre><code>        0 (d=0)
+       / \
+      1   3 (d=1)
+      |   |
+      2   4 (d=2)
+      |
+      5 (d=3)
+</code></pre>
+<h3 id="bfs-properties">BFS Properties</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Time complexity</strong></td>
+<td>O(V + E) — each vertex and edge processed once</td>
+</tr>
+<tr>
+<td><strong>Space complexity</strong></td>
+<td>O(V) — for queue, color, distance, parent arrays</td>
+</tr>
+<tr>
+<td><strong>Gives shortest path?</strong></td>
+<td>Yes, for <strong>unweighted</strong> graphs</td>
+</tr>
+<tr>
+<td><strong>Uses</strong></td>
+<td>Queue</td>
+</tr>
+<tr>
+<td><strong>Produces</strong></td>
+<td>BFS tree / shortest path tree</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Applications of BFS:</strong>
+- Shortest path in unweighted graphs
+- Level-order traversal of trees
+- Finding connected components
+- Testing bipartiteness
+- Web crawling (visit pages layer by layer)
+- Social networking (find people within k connections)</p>
+<hr />
+<h2 id="345-depth-first-search-dfs">3.4.5 Depth-First Search (DFS)</h2>
+<p>DFS explores a graph by going <strong>as deep as possible</strong> along each branch before backtracking. It uses a <strong>stack</strong> (or recursion, which implicitly uses the call stack).</p>
+<h3 id="pseudocode-recursive">Pseudocode (Recursive)</h3>
+<pre><code>DFS(G):
+    for each vertex u in G.V:
+        u.color = WHITE
+        u.parent = NULL
+    time = 0
+    for each vertex u in G.V:
+        if u.color == WHITE:
+            DFS_VISIT(G, u)
+
+DFS_VISIT(G, u):
+    time = time + 1
+    u.discovery = time             // timestamp when first discovered
+    u.color = GRAY
+    for each vertex v in G.adj[u]:
+        if v.color == WHITE:
+            v.parent = u
+            DFS_VISIT(G, v)
+    u.color = BLACK
+    time = time + 1
+    u.finish = time                // timestamp when fully explored
+</code></pre>
+<h3 id="pseudocode-iterative-using-explicit-stack">Pseudocode (Iterative — using explicit stack)</h3>
+<pre><code>DFS_ITERATIVE(G, source):
+    for each vertex u in G.V:
+        u.color = WHITE
+    create Stack S
+    S.push(source)
+
+    while S is not empty:
+        u = S.pop()
+        if u.color == WHITE:
+            u.color = GRAY
+            VISIT(u)
+            for each vertex v in G.adj[u]:
+                if v.color == WHITE:
+                    S.push(v)
+</code></pre>
+<h3 id="worked-example_1">Worked Example</h3>
+<pre><code>Graph (undirected — same as BFS example):
+  0 --- 1 --- 2
+  |           |
+  3 --- 4 --- 5
+
+Adjacency List (neighbors in order):
+  0: [1, 3]
+  1: [0, 2]
+  2: [1, 5]
+  3: [0, 4]
+  4: [3, 5]
+  5: [2, 4]
+
+DFS from source = 0 (recursive)
+</code></pre>
+<p><strong>Call stack trace:</strong></p>
+<pre><code>DFS_VISIT(0)                         discovery=1, color=GRAY
+  neighbor 1 is WHITE → DFS_VISIT(1)   discovery=2, color=GRAY
+    neighbor 0 is GRAY → skip
+    neighbor 2 is WHITE → DFS_VISIT(2)   discovery=3, color=GRAY
+      neighbor 1 is GRAY → skip
+      neighbor 5 is WHITE → DFS_VISIT(5)   discovery=4, color=GRAY
+        neighbor 2 is GRAY → skip
+        neighbor 4 is WHITE → DFS_VISIT(4)   discovery=5, color=GRAY
+          neighbor 3 is WHITE → DFS_VISIT(3)   discovery=6, color=GRAY
+            neighbor 0 is GRAY → skip
+            neighbor 4 is GRAY → skip
+            3 finish=7, color=BLACK    ←backtrack
+          4 finish=8, color=BLACK      ←backtrack
+        5 finish=9, color=BLACK        ←backtrack
+      2 finish=10, color=BLACK         ←backtrack
+    1 finish=11, color=BLACK           ←backtrack
+  neighbor 3 is BLACK → skip
+  0 finish=12, color=BLACK             ←backtrack
+</code></pre>
+<p><strong>DFS visit order: 0, 1, 2, 5, 4, 3</strong></p>
+<p><strong>Discovery/Finish times:</strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Vertex</th>
+<th>Discovery</th>
+<th>Finish</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0</td>
+<td>1</td>
+<td>12</td>
+</tr>
+<tr>
+<td>1</td>
+<td>2</td>
+<td>11</td>
+</tr>
+<tr>
+<td>2</td>
+<td>3</td>
+<td>10</td>
+</tr>
+<tr>
+<td>3</td>
+<td>6</td>
+<td>7</td>
+</tr>
+<tr>
+<td>4</td>
+<td>5</td>
+<td>8</td>
+</tr>
+<tr>
+<td>5</td>
+<td>4</td>
+<td>9</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>DFS Tree:</strong></p>
+<pre><code>  0
+  |
+  1
+  |
+  2
+  |
+  5
+  |
+  4
+  |
+  3
+</code></pre>
+<h3 id="dfs-properties">DFS Properties</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Time complexity</strong></td>
+<td>O(V + E)</td>
+</tr>
+<tr>
+<td><strong>Space complexity</strong></td>
+<td>O(V) — stack depth in worst case</td>
+</tr>
+<tr>
+<td><strong>Gives shortest path?</strong></td>
+<td>No</td>
+</tr>
+<tr>
+<td><strong>Uses</strong></td>
+<td>Stack (explicit or recursive call stack)</td>
+</tr>
+<tr>
+<td><strong>Produces</strong></td>
+<td>DFS tree / DFS forest, discovery/finish times</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="bfs-vs-dfs-comparison">BFS vs DFS Comparison</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Aspect</th>
+<th>BFS</th>
+<th>DFS</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Strategy</strong></td>
+<td>Explore level by level (breadth)</td>
+<td>Explore as deep as possible (depth)</td>
+</tr>
+<tr>
+<td><strong>Data structure</strong></td>
+<td>Queue</td>
+<td>Stack (or recursion)</td>
+</tr>
+<tr>
+<td><strong>Shortest path</strong></td>
+<td>Yes (unweighted graphs)</td>
+<td>No</td>
+</tr>
+<tr>
+<td><strong>Time</strong></td>
+<td>O(V + E)</td>
+<td>O(V + E)</td>
+</tr>
+<tr>
+<td><strong>Space</strong></td>
+<td>O(V) — width of graph</td>
+<td>O(V) — depth of graph</td>
+</tr>
+<tr>
+<td><strong>Best for</strong></td>
+<td>Shortest path, level-order, bipartite check</td>
+<td>Cycle detection, topological sort, connected components</td>
+</tr>
+<tr>
+<td><strong>Visit order</strong></td>
+<td>Closer vertices first</td>
+<td>Deeper vertices first</td>
+</tr>
+<tr>
+<td><strong>Completeness</strong></td>
+<td>Complete (always finds a solution if one exists)</td>
+<td>Complete for finite graphs</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="edge-classification-in-dfs">Edge Classification in DFS</h3>
+<p>DFS classifies edges of the graph into four types based on discovery/finish times:</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Edge Type</th>
+<th>Definition</th>
+<th>Detection</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Tree edge</strong></td>
+<td>Edge in the DFS tree (u→v where v is discovered via u)</td>
+<td>v is WHITE when explored</td>
+</tr>
+<tr>
+<td><strong>Back edge</strong></td>
+<td>Edge to an ancestor in the DFS tree</td>
+<td>v is GRAY when explored</td>
+</tr>
+<tr>
+<td><strong>Forward edge</strong></td>
+<td>Edge to a descendant (non-tree edge)</td>
+<td>v is BLACK and u.discovery &lt; v.discovery</td>
+</tr>
+<tr>
+<td><strong>Cross edge</strong></td>
+<td>Edge to a vertex in a different subtree</td>
+<td>v is BLACK and u.discovery &gt; v.discovery</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Key fact:</strong> An undirected graph has a <strong>cycle</strong> if and only if DFS finds a <strong>back edge</strong>.
+A directed graph has a <strong>cycle</strong> if and only if DFS finds a <strong>back edge</strong>.</p>
+<h2 id="-_4">---</h2>
+<h1 id="35-directed-graphs-reachability-and-transitive-closure">3.5 Directed Graphs, Reachability, and Transitive Closure</h1>
+<div class="callout">
+<p><strong>R1 Reference: Chapter 25.2 — Transitive Closure</strong></p>
+</div>
+<h2 id="351-reachability">3.5.1 Reachability</h2>
+<p><strong>Reachability</strong> asks: given a directed graph G and vertices u, v, can we reach v starting from u by following directed edges?</p>
+<p>Vertex v is <strong>reachable</strong> from u if there exists a directed path from u to v in G.</p>
+<p><strong>Transitive Closure</strong> of a directed graph G = (V, E) is a graph G<em> = (V, E</em>) where there is an edge (u, v) in E<em> if and only if there is a </em><em>directed path</em>* from u to v in G (including the trivial path from any vertex to itself).</p>
+<p>In matrix terms: the transitive closure matrix T has T[i][j] = 1 if vertex j is reachable from vertex i.</p>
+<pre><code>Original Graph:                Transitive Closure:
+  0 → 1                         0 → 1
+  ↓   ↓                         0 → 2 (via 0→1→2)
+  3   2                         0 → 3 (direct)
+                                 1 → 2 (direct)
+
+  Adjacency Matrix:             Transitive Closure Matrix:
+       0  1  2  3                     0  1  2  3
+  0 [  0  1  0  1 ]             0 [  1  1  1  1 ]
+  1 [  0  0  1  0 ]             1 [  0  1  1  0 ]
+  2 [  0  0  0  0 ]             2 [  0  0  1  0 ]
+  3 [  0  0  0  0 ]             3 [  0  0  0  1 ]
+</code></pre>
+<p><strong>Naive approach:</strong> Run BFS or DFS from every vertex. Time: O(V × (V + E)).</p>
+<hr />
+<h2 id="352-warshalls-algorithm-for-transitive-closure">3.5.2 Warshall's Algorithm for Transitive Closure</h2>
+<p>Warshall's algorithm computes the transitive closure using <strong>dynamic programming</strong>. It is a boolean version of the Floyd-Warshall all-pairs shortest paths algorithm.</p>
+<p><strong>Key idea:</strong> Consider intermediate vertices one at a time. For each intermediate vertex k, check if adding k as an intermediate step creates a new path from i to j.</p>
+<p><strong>If we can go from i to k AND from k to j, then we can go from i to j.</strong></p>
+<h3 id="pseudocode_1">Pseudocode</h3>
+<pre><code>WARSHALL(G):
+    n = |V|
+    // Initialize T from adjacency matrix
+    for i = 0 to n-1:
+        for j = 0 to n-1:
+            T[i][j] = G.adjMatrix[i][j]
+        T[i][i] = 1                   // every vertex reaches itself
+
+    // Main algorithm: consider each vertex k as intermediate
+    for k = 0 to n-1:
+        for i = 0 to n-1:
+            for j = 0 to n-1:
+                T[i][j] = T[i][j] OR (T[i][k] AND T[k][j])
+
+    return T
+</code></pre>
+<p><strong>Intuition behind the triple loop:</strong>
+- Outer loop (k): "Can we use vertex k as a stepping stone?"
+- Middle loop (i): "Starting from vertex i..."
+- Inner loop (j): "...can we reach vertex j?"
+- <code>T[i][j] = T[i][j] OR (T[i][k] AND T[k][j])</code>: "Either we could already reach j from i, OR we can reach k from i AND then reach j from k."</p>
+<h3 id="worked-example_2">Worked Example</h3>
+<pre><code>Directed Graph:
+  0 → 1 → 2 → 3
+  0 → 2
+
+Adjacency Matrix:
+     0  1  2  3
+  0 [0  1  1  0]
+  1 [0  0  1  0]
+  2 [0  0  0  1]
+  3 [0  0  0  0]
+
+Initialise T (copy adjacency matrix, add self-loops on diagonal):
+     0  1  2  3
+  0 [1  1  1  0]
+  1 [0  1  1  0]
+  2 [0  0  1  1]
+  3 [0  0  0  1]
+</code></pre>
+<p><strong>k = 0 (use vertex 0 as intermediate):</strong>
+Check all (i,j): Can we go i→0→j?
+- T[i][0] is 1 only for i=0. So only paths via 0 start from 0.
+- 0 already reaches 1, 2 → no new paths.</p>
+<pre><code>T unchanged after k=0.
+</code></pre>
+<p><strong>k = 1 (use vertex 1 as intermediate):</strong>
+Check: T[i][1] AND T[1][j]
+- i=0: T[0][1]=1. T[1][j]: j=1(1), j=2(1). 0→1→2 already known. No change.</p>
+<pre><code>T unchanged after k=1.
+</code></pre>
+<p><strong>k = 2 (use vertex 2 as intermediate):</strong>
+Check: T[i][2] AND T[2][j]
+- i=0: T[0][2]=1. T[2][3]=1 → T[0][3] = 0 OR (1 AND 1) = <strong>1</strong> ← NEW!
+- i=1: T[1][2]=1. T[2][3]=1 → T[1][3] = 0 OR (1 AND 1) = <strong>1</strong> ← NEW!</p>
+<pre><code>T after k=2:
+     0  1  2  3
+  0 [1  1  1  1]  ← 0 can now reach 3 (via 2)
+  1 [0  1  1  1]  ← 1 can now reach 3 (via 2)
+  2 [0  0  1  1]
+  3 [0  0  0  1]
+</code></pre>
+<p><strong>k = 3 (use vertex 3 as intermediate):</strong>
+T[i][3] AND T[3][j]: T[3][j] is 0 for j=0,1,2. No new paths.</p>
+<pre><code>T unchanged after k=3.
+</code></pre>
+<p><strong>Final Transitive Closure Matrix:</strong></p>
+<pre><code>     0  1  2  3
+  0 [1  1  1  1]    0 can reach all vertices
+  1 [0  1  1  1]    1 can reach 1, 2, 3
+  2 [0  0  1  1]    2 can reach 2, 3
+  3 [0  0  0  1]    3 can reach only itself
+</code></pre>
+<h3 id="complexity-analysis">Complexity Analysis</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Aspect</th>
+<th>Complexity</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Time</strong></td>
+<td>O(V³) — three nested loops, each running V times</td>
+</tr>
+<tr>
+<td><strong>Space</strong></td>
+<td>O(V²) — for the T matrix</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Execution count table:</strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Line</th>
+<th>Operation</th>
+<th>Count</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Initialise T</td>
+<td>Copy + set diagonal</td>
+<td>O(V²)</td>
+</tr>
+<tr>
+<td>Outer loop (k)</td>
+<td>V iterations</td>
+<td>V</td>
+</tr>
+<tr>
+<td>Middle loop (i)</td>
+<td>V iterations per k</td>
+<td>V²</td>
+</tr>
+<tr>
+<td>Inner loop (j)</td>
+<td>V iterations per (k,i)</td>
+<td>V³</td>
+</tr>
+<tr>
+<td>OR/AND operation</td>
+<td>1 per (k,i,j)</td>
+<td>V³</td>
+</tr>
+<tr>
+<td><strong>Total</strong></td>
+<td></td>
+<td><strong>O(V³)</strong></td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>When to use Warshall's vs BFS/DFS from each vertex:</strong>
+- Warshall's: O(V³) — simple, good for dense graphs
+- BFS/DFS from each vertex: O(V × (V + E)) — better for sparse graphs where E &lt;&lt; V²</p>
+<h2 id="-_5">---</h2>
+<h1 id="key-comparisons-table">Key Comparisons Table</h1>
+<h2 id="data-structure-operations-comparison">Data Structure Operations Comparison</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Data Structure</th>
+<th>Insert</th>
+<th>Delete</th>
+<th>Search</th>
+<th>Space</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>BST (average)</strong></td>
+<td>O(log n)</td>
+<td>O(log n)</td>
+<td>O(log n)</td>
+<td>O(n)</td>
+<td>Degrades to O(n) if skewed</td>
+</tr>
+<tr>
+<td><strong>BST (worst — skewed)</strong></td>
+<td>O(n)</td>
+<td>O(n)</td>
+<td>O(n)</td>
+<td>O(n)</td>
+<td>Essentially a linked list</td>
+</tr>
+<tr>
+<td><strong>Balanced BST (AVL/RB)</strong></td>
+<td>O(log n)</td>
+<td>O(log n)</td>
+<td>O(log n)</td>
+<td>O(n)</td>
+<td>Guaranteed O(log n) height</td>
+</tr>
+<tr>
+<td><strong>Max-Heap</strong></td>
+<td>O(log n)</td>
+<td>O(log n)*</td>
+<td>O(n)</td>
+<td>O(n)</td>
+<td>*Delete max is O(log n); arbitrary delete is O(n)</td>
+</tr>
+<tr>
+<td><strong>Min-Heap</strong></td>
+<td>O(log n)</td>
+<td>O(log n)*</td>
+<td>O(n)</td>
+<td>O(n)</td>
+<td>*Delete min is O(log n)</td>
+</tr>
+<tr>
+<td><strong>Graph (adj matrix)</strong></td>
+<td>O(1) edge</td>
+<td>O(1) edge</td>
+<td>O(1) edge</td>
+<td>O(V²)</td>
+<td>Good for dense graphs</td>
+</tr>
+<tr>
+<td><strong>Graph (adj list)</strong></td>
+<td>O(1) edge</td>
+<td>O(deg) edge</td>
+<td>O(deg) edge</td>
+<td>O(V+E)</td>
+<td>Good for sparse graphs</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="sorting-algorithm-comparison-including-heap-sort">Sorting Algorithm Comparison (Including Heap Sort)</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Algorithm</th>
+<th>Best</th>
+<th>Average</th>
+<th>Worst</th>
+<th>Space</th>
+<th>Stable?</th>
+<th>Method</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Insertion Sort</td>
+<td>O(n)</td>
+<td>O(n²)</td>
+<td>O(n²)</td>
+<td>O(1)</td>
+<td>Yes</td>
+<td>Incremental</td>
+</tr>
+<tr>
+<td>Merge Sort</td>
+<td>O(n log n)</td>
+<td>O(n log n)</td>
+<td>O(n log n)</td>
+<td>O(n)</td>
+<td>Yes</td>
+<td>Divide &amp; Conquer</td>
+</tr>
+<tr>
+<td><strong>Heap Sort</strong></td>
+<td>O(n log n)</td>
+<td>O(n log n)</td>
+<td>O(n log n)</td>
+<td>O(1)</td>
+<td>No</td>
+<td>Selection via heap</td>
+</tr>
+<tr>
+<td>Quick Sort</td>
+<td>O(n log n)</td>
+<td>O(n log n)</td>
+<td>O(n²)</td>
+<td>O(log n)</td>
+<td>No</td>
+<td>Divide &amp; Conquer</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="traversal-comparison">Traversal Comparison</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Traversal</th>
+<th>Data Structure</th>
+<th>Time</th>
+<th>Space</th>
+<th>Gives Shortest Path?</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>BFS</td>
+<td>Queue</td>
+<td>O(V+E)</td>
+<td>O(V)</td>
+<td>Yes (unweighted)</td>
+</tr>
+<tr>
+<td>DFS</td>
+<td>Stack / Recursion</td>
+<td>O(V+E)</td>
+<td>O(V)</td>
+<td>No</td>
+</tr>
+<tr>
+<td>Preorder</td>
+<td>Stack / Recursion</td>
+<td>O(n)</td>
+<td>O(h)</td>
+<td>N/A</td>
+</tr>
+<tr>
+<td>Inorder</td>
+<td>Stack / Recursion</td>
+<td>O(n)</td>
+<td>O(h)</td>
+<td>N/A</td>
+</tr>
+<tr>
+<td>Postorder</td>
+<td>Stack / Recursion</td>
+<td>O(n)</td>
+<td>O(h)</td>
+<td>N/A</td>
+</tr>
+<tr>
+<td>Level-order</td>
+<td>Queue</td>
+<td>O(n)</td>
+<td>O(w)</td>
+<td>N/A</td>
+</tr>
+</tbody>
+</table></div>
+<p>Where h = height of tree, w = maximum width, n = number of nodes.</p>
+<h2 id="tree-types-quick-reference">Tree Types Quick Reference</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Shape Constraint</th>
+<th>Key Use</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Binary Tree</td>
+<td>Each node ≤ 2 children</td>
+<td>General hierarchical data</td>
+</tr>
+<tr>
+<td>BST</td>
+<td>Left &lt; Node &lt; Right</td>
+<td>Efficient searching</td>
+</tr>
+<tr>
+<td>Full Binary Tree</td>
+<td>Every node has 0 or 2 children</td>
+<td>Expression trees</td>
+</tr>
+<tr>
+<td>Complete Binary Tree</td>
+<td>All levels full except last (left-filled)</td>
+<td>Heaps</td>
+</tr>
+<tr>
+<td>Perfect Binary Tree</td>
+<td>All leaves at same level, all internal nodes have 2 children</td>
+<td>Theoretical analysis</td>
+</tr>
+<tr>
+<td>Balanced Binary Tree</td>
+<td>Height of subtrees differ by ≤ 1</td>
+<td>AVL trees, guaranteed O(log n)</td>
+</tr>
+<tr>
+<td>Heap</td>
+<td>Complete + heap property</td>
+<td>Priority queues, sorting</td>
+</tr>
+</tbody>
+</table></div>
+<hr />
+<h1 id="glossary-of-key-terms">Glossary of Key Terms</h1>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Term</th>
+<th>Definition</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Acyclic</strong></td>
+<td>A graph with no cycles.</td>
+</tr>
+<tr>
+<td><strong>Adjacency</strong></td>
+<td>Two vertices are adjacent if connected by an edge.</td>
+</tr>
+<tr>
+<td><strong>Adjacency List</strong></td>
+<td>Graph representation using an array of lists of neighbors. O(V+E) space.</td>
+</tr>
+<tr>
+<td><strong>Adjacency Matrix</strong></td>
+<td>Graph representation using a 2D boolean/integer matrix. O(V²) space.</td>
+</tr>
+<tr>
+<td><strong>Ancestor</strong></td>
+<td>Any node on the path from a given node to the root.</td>
+</tr>
+<tr>
+<td><strong>AVL Tree</strong></td>
+<td>A self-balancing BST where heights of subtrees differ by at most 1.</td>
+</tr>
+<tr>
+<td><strong>Back Edge</strong></td>
+<td>In DFS, an edge to an ancestor. Indicates a cycle.</td>
+</tr>
+<tr>
+<td><strong>Balanced Binary Tree</strong></td>
+<td>A binary tree where height of left and right subtrees differ by at most 1 at every node.</td>
+</tr>
+<tr>
+<td><strong>BFS</strong></td>
+<td>Breadth-First Search. Explores graph level by level using a queue. O(V+E).</td>
+</tr>
+<tr>
+<td><strong>Binary Search Tree (BST)</strong></td>
+<td>Binary tree where left subtree &lt; node &lt; right subtree for every node.</td>
+</tr>
+<tr>
+<td><strong>Binary Tree</strong></td>
+<td>A tree where each node has at most two children.</td>
+</tr>
+<tr>
+<td><strong>Bipartite Graph</strong></td>
+<td>A graph whose vertices can be split into two sets with edges only between sets.</td>
+</tr>
+<tr>
+<td><strong>Bubble Up / Percolate Up</strong></td>
+<td>Moving a node upward in a heap to restore the heap property after insertion.</td>
+</tr>
+<tr>
+<td><strong>Bubble Down / Percolate Down</strong></td>
+<td>Moving a node downward in a heap to restore the heap property after deletion.</td>
+</tr>
+<tr>
+<td><strong>Child</strong></td>
+<td>A node directly connected below another node in a tree.</td>
+</tr>
+<tr>
+<td><strong>Circuit</strong></td>
+<td>A closed trail — starts and ends at the same vertex, no repeated edges.</td>
+</tr>
+<tr>
+<td><strong>Complete Binary Tree</strong></td>
+<td>All levels filled except possibly the last, which is filled left to right.</td>
+</tr>
+<tr>
+<td><strong>Complete Graph (Kₙ)</strong></td>
+<td>A graph where every pair of vertices is connected. n(n−1)/2 edges.</td>
+</tr>
+<tr>
+<td><strong>Connected Component</strong></td>
+<td>A maximal connected subgraph of an undirected graph.</td>
+</tr>
+<tr>
+<td><strong>Connected Graph</strong></td>
+<td>An undirected graph where a path exists between every pair of vertices.</td>
+</tr>
+<tr>
+<td><strong>Cross Edge</strong></td>
+<td>In DFS, an edge to a vertex in a different subtree.</td>
+</tr>
+<tr>
+<td><strong>Cycle</strong></td>
+<td>A closed path — starts and ends at same vertex, no repeated vertices.</td>
+</tr>
+<tr>
+<td><strong>DAG</strong></td>
+<td>Directed Acyclic Graph — a directed graph with no cycles.</td>
+</tr>
+<tr>
+<td><strong>Degree</strong></td>
+<td>Number of edges incident on a vertex. In-degree + out-degree for directed.</td>
+</tr>
+<tr>
+<td><strong>Dense Graph</strong></td>
+<td>A graph where</td>
+</tr>
+<tr>
+<td><strong>Depth</strong></td>
+<td>Number of edges from the root to a node.</td>
+</tr>
+<tr>
+<td><strong>Descendant</strong></td>
+<td>Any node in the subtree rooted at a given node.</td>
+</tr>
+<tr>
+<td><strong>DFS</strong></td>
+<td>Depth-First Search. Explores as deep as possible before backtracking. O(V+E).</td>
+</tr>
+<tr>
+<td><strong>Digraph</strong></td>
+<td>Directed graph — edges have a direction.</td>
+</tr>
+<tr>
+<td><strong>Edge</strong></td>
+<td>A connection between two vertices in a graph, or parent-child link in a tree.</td>
+</tr>
+<tr>
+<td><strong>Expression Tree</strong></td>
+<td>A binary tree representing an arithmetic expression.</td>
+</tr>
+<tr>
+<td><strong>Extract Max/Min</strong></td>
+<td>Remove and return the root element of a max-heap/min-heap. O(log n).</td>
+</tr>
+<tr>
+<td><strong>Forest</strong></td>
+<td>A collection of disjoint trees (removing the root of a tree creates a forest).</td>
+</tr>
+<tr>
+<td><strong>Forward Edge</strong></td>
+<td>In DFS, a non-tree edge to a descendant.</td>
+</tr>
+<tr>
+<td><strong>Full Binary Tree</strong></td>
+<td>Every node has 0 or 2 children.</td>
+</tr>
+<tr>
+<td><strong>Graph</strong></td>
+<td>G = (V, E). A set of vertices V and edges E connecting pairs of vertices.</td>
+</tr>
+<tr>
+<td><strong>Handshaking Lemma</strong></td>
+<td>Sum of all vertex degrees = 2 × number of edges.</td>
+</tr>
+<tr>
+<td><strong>Heap</strong></td>
+<td>A complete binary tree satisfying the heap property (max or min).</td>
+</tr>
+<tr>
+<td><strong>Heap Sort</strong></td>
+<td>Sort by building a max-heap and repeatedly extracting the max. O(n log n), in-place, not stable.</td>
+</tr>
+<tr>
+<td><strong>Heapify</strong></td>
+<td>Convert an arbitrary array into a heap. O(n) using bottom-up approach.</td>
+</tr>
+<tr>
+<td><strong>Height</strong></td>
+<td>Number of edges on the longest path from a node to a leaf.</td>
+</tr>
+<tr>
+<td><strong>In-degree</strong></td>
+<td>Number of edges directed into a vertex.</td>
+</tr>
+<tr>
+<td><strong>Infix</strong></td>
+<td>Standard notation: operator between operands. A + B.</td>
+</tr>
+<tr>
+<td><strong>Inorder</strong></td>
+<td>Tree traversal: Left → Node → Right. Gives sorted order for BST.</td>
+</tr>
+<tr>
+<td><strong>Internal Node</strong></td>
+<td>A node with at least one child.</td>
+</tr>
+<tr>
+<td><strong>Leaf</strong></td>
+<td>A node with no children (degree 0). Also called external node.</td>
+</tr>
+<tr>
+<td><strong>Level</strong></td>
+<td>Set of all nodes at the same depth.</td>
+</tr>
+<tr>
+<td><strong>Level-Order</strong></td>
+<td>Tree traversal using a queue — visits nodes level by level.</td>
+</tr>
+<tr>
+<td><strong>Max-Heap</strong></td>
+<td>Heap where every parent ≥ its children. Root = maximum.</td>
+</tr>
+<tr>
+<td><strong>MAX_HEAPIFY</strong></td>
+<td>Procedure to fix a single violation of the max-heap property. O(log n).</td>
+</tr>
+<tr>
+<td><strong>Min-Heap</strong></td>
+<td>Heap where every parent ≤ its children. Root = minimum.</td>
+</tr>
+<tr>
+<td><strong>Multigraph</strong></td>
+<td>A graph allowing multiple edges between the same pair of vertices.</td>
+</tr>
+<tr>
+<td><strong>Out-degree</strong></td>
+<td>Number of edges directed out from a vertex.</td>
+</tr>
+<tr>
+<td><strong>Parent</strong></td>
+<td>A node directly above another node in a tree.</td>
+</tr>
+<tr>
+<td><strong>Path</strong></td>
+<td>A walk with no repeated vertices.</td>
+</tr>
+<tr>
+<td><strong>Perfect Binary Tree</strong></td>
+<td>All internal nodes have 2 children and all leaves are at the same level.</td>
+</tr>
+<tr>
+<td><strong>Postfix</strong></td>
+<td>Reverse Polish notation: operator after operands. A B +.</td>
+</tr>
+<tr>
+<td><strong>Postorder</strong></td>
+<td>Tree traversal: Left → Right → Node. Used for deletion and postfix expressions.</td>
+</tr>
+<tr>
+<td><strong>Prefix</strong></td>
+<td>Polish notation: operator before operands. + A B.</td>
+</tr>
+<tr>
+<td><strong>Preorder</strong></td>
+<td>Tree traversal: Node → Left → Right. Used for copying and prefix expressions.</td>
+</tr>
+<tr>
+<td><strong>Priority Queue</strong></td>
+<td>ADT where elements are served by priority, not insertion order. Best implemented with a heap.</td>
+</tr>
+<tr>
+<td><strong>Reachability</strong></td>
+<td>Whether there exists a directed path from vertex u to vertex v.</td>
+</tr>
+<tr>
+<td><strong>Root</strong></td>
+<td>The topmost node of a tree (has no parent).</td>
+</tr>
+<tr>
+<td><strong>Sibling</strong></td>
+<td>Nodes that share the same parent.</td>
+</tr>
+<tr>
+<td><strong>Simple Graph</strong></td>
+<td>No self-loops, no multiple edges between same pair.</td>
+</tr>
+<tr>
+<td><strong>Skewed Tree</strong></td>
+<td>A degenerate tree where every node has at most one child (looks like a list).</td>
+</tr>
+<tr>
+<td><strong>Sparse Graph</strong></td>
+<td>A graph where</td>
+</tr>
+<tr>
+<td><strong>Strongly Connected</strong></td>
+<td>In a directed graph, every vertex is reachable from every other vertex.</td>
+</tr>
+<tr>
+<td><strong>Subgraph</strong></td>
+<td>A graph formed from a subset of vertices and edges of another graph.</td>
+</tr>
+<tr>
+<td><strong>Subtree</strong></td>
+<td>The tree formed by a node and all its descendants.</td>
+</tr>
+<tr>
+<td><strong>Trail</strong></td>
+<td>A walk with no repeated edges.</td>
+</tr>
+<tr>
+<td><strong>Transitive Closure</strong></td>
+<td>Graph G<em> where (u,v) ∈ E</em> iff there is a path from u to v in G.</td>
+</tr>
+<tr>
+<td><strong>Tree</strong></td>
+<td>A connected, acyclic undirected graph. n nodes, n−1 edges.</td>
+</tr>
+<tr>
+<td><strong>Tree Edge</strong></td>
+<td>In DFS, an edge in the DFS tree.</td>
+</tr>
+<tr>
+<td><strong>Vertex (Node)</strong></td>
+<td>Fundamental unit of a graph or tree.</td>
+</tr>
+<tr>
+<td><strong>Walk</strong></td>
+<td>A sequence of vertices where consecutive pairs are connected by edges.</td>
+</tr>
+<tr>
+<td><strong>Warshall's Algorithm</strong></td>
+<td>Computes transitive closure of a directed graph in O(V³).</td>
+</tr>
+<tr>
+<td><strong>Weighted Graph</strong></td>
+<td>A graph where edges have associated numerical weights.</td>
+</tr>
+</tbody>
+</table></div>
+</main><button class="back-top" id="bt">&#8593;</button>
+<script>var b=document.getElementById("bt");window.onscroll=function(){b.classList.toggle("show",document.documentElement.scrollTop>400)};b.onclick=function(){window.scrollTo({top:0,behavior:"smooth"})};</script>
+</body></html>

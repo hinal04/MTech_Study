@@ -1,372 +1,2071 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Chapter 2: Elementary Data Structures — Questions &amp; Answers</title>
-<style>
-  :root{--bg:#f8f9fa;--card:#fff;--primary:#0d9488;--primary-light:#ccfbf1;--text:#1e293b;--text-light:#64748b;--border:#e2e8f0;--green:#16a34a;--green-bg:#dcfce7;--orange:#ea580c;--orange-bg:#fff7ed;--code-bg:#f1f5f9;--accent:#7c3aed;--accent-bg:#f5f3ff;--s1:#0d9488;--s2:#7c3aed;--s3:#ea580c;--s4:#1e40af}
-  *{box-sizing:border-box;margin:0;padding:0}
-  body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);line-height:1.75;padding-bottom:80px}
-  .header{background:linear-gradient(135deg,#0f766e,#0d9488,#2dd4bf);color:#fff;padding:44px 24px 36px;text-align:center}
-  .header h1{font-size:2em;margin-bottom:6px}.header p{opacity:.85;font-size:1em}
-  .header .sub{font-size:.85em;opacity:.6;margin-top:6px}
-  .container{max-width:900px;margin:0 auto;padding:0 20px}
-  .controls{display:flex;gap:10px;flex-wrap:wrap;margin:24px 0 16px;align-items:center}
-  .ctrl-btn{padding:8px 16px;border:1px solid var(--border);border-radius:8px;background:var(--card);color:var(--text-light);cursor:pointer;font-size:.85em;transition:all .2s}
-  .ctrl-btn:hover{background:var(--primary-light);color:var(--primary)}
-  .score{margin-left:auto;font-weight:700;color:var(--primary);font-size:.95em}
-  .sec-label{background:var(--primary);color:#fff;padding:14px 24px;border-radius:10px;margin:32px 0 16px;font-size:1.15em;font-weight:700}
-  .sec-label.s2{background:var(--accent)}.sec-label.s3{background:var(--orange)}.sec-label.s4{background:var(--s4)}
-
-  /* Question card */
-  .q{background:var(--card);border:1px solid var(--border);border-radius:10px;margin-bottom:12px;overflow:hidden;transition:box-shadow .2s}
-  .q:hover{box-shadow:0 2px 12px rgba(0,0,0,.07)}
-  .q-head{display:flex;align-items:flex-start;gap:12px;padding:16px 20px;cursor:pointer;user-select:none}
-  .q-head:hover{background:#f1f5f9}
-  .q-num{flex-shrink:0;width:34px;height:34px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.82em;color:#fff;background:var(--primary)}
-  .q-num.c2{background:var(--accent)}.q-num.c3{background:var(--orange)}.q-num.c4{background:var(--s4)}
-  .q-title{flex:1;font-weight:600;font-size:.95em;padding-top:5px}
-  .q-chk{flex-shrink:0;margin-top:5px}.q-chk input{width:17px;height:17px;accent-color:var(--green);cursor:pointer}
-  .q-arrow{flex-shrink:0;font-size:14px;color:var(--text-light);margin-top:6px;transition:transform .3s}
-  .q.open .q-arrow{transform:rotate(180deg);color:var(--primary)}
-
-  /* Answer */
-  .q-ans{max-height:0;overflow:hidden;transition:max-height .4s ease,padding .3s;padding:0 20px}
-  .q.open .q-ans{max-height:5000px;padding:16px 20px 20px;border-top:1px solid var(--border)}
-  .q-ans p{margin:8px 0;font-size:.93em}.q-ans strong{color:var(--text)}
-  .q-ans ul,.q-ans ol{margin:6px 0 12px 20px;font-size:.93em}.q-ans li{margin:4px 0}
-  .q-ans table{width:100%;border-collapse:collapse;margin:10px 0;font-size:.88em}
-  .q-ans th{background:var(--primary);color:#fff;padding:8px 12px;text-align:left;font-size:.85em}
-  .q-ans td{padding:8px 12px;border-bottom:1px solid var(--border)}
-  .q-ans tr:nth-child(even) td{background:#f8fafc}
-  .q-ans pre{background:var(--code-bg);border:1px solid var(--border);border-radius:8px;padding:14px 18px;overflow-x:auto;font-size:.85em;line-height:1.55;margin:10px 0}
-  .q-ans code{font-family:'SF Mono','Fira Code','Consolas',monospace;font-size:.88em;background:var(--code-bg);padding:2px 5px;border-radius:4px}
-  .q-ans pre code{background:none;padding:0}
-  .q-ans .tip{background:var(--green-bg);border-left:4px solid var(--green);padding:10px 14px;border-radius:0 8px 8px 0;margin:10px 0;font-size:.9em}
-  .q-ans .warn{background:var(--orange-bg);border-left:4px solid var(--orange);padding:10px 14px;border-radius:0 8px 8px 0;margin:10px 0;font-size:.9em}
-
-  .back-top{position:fixed;bottom:24px;right:24px;background:var(--primary);color:#fff;width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,.2);text-decoration:none;opacity:0;transition:opacity .3s;z-index:50}
-  .back-top.visible{opacity:1}
-  @media(max-width:700px){.header h1{font-size:1.5em}.q-head{padding:14px 16px}.q-ans{padding:0 16px}}
-  @media print{.controls,.back-top,.q-chk,.q-arrow{display:none}.q-ans{max-height:none!important;padding:14px 20px!important;border-top:1px solid #ddd}}
-</style>
-</head>
-<body>
-
-<div class="header">
-  <h1>Chapter 2: Questions &amp; Answers</h1>
-  <p>Elementary Data Structures &mdash; 30 Questions</p>
-  <div class="sub">Stacks &bull; Queues &bull; Amortised Analysis &bull; Lists</div>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Chapter 2: Elementary Data Structures — Questions and Answers</title>
+<style>:root{--bg:#0f172a;--surface:#1e293b;--surface2:#334155;--border:#475569;--text:#e2e8f0;--text-muted:#94a3b8;--code-bg:#0d1117;--accent:#10b981;--accent-dim:rgba(16,185,129,.15);--accent-border:rgba(16,185,129,.3);--header-gradient:linear-gradient(135deg,#064e3b,#059669,#10b981)}*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}html{scroll-behavior:smooth}body{font-family:"Segoe UI",system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.7;display:flex;min-height:100vh}.sidebar{position:fixed;top:0;left:0;width:280px;height:100vh;background:var(--surface);border-right:1px solid var(--border);overflow-y:auto;padding:1.5rem 0;z-index:100}.sidebar-header{padding:0 1.5rem 1.5rem;border-bottom:1px solid var(--border);margin-bottom:1rem}.sidebar-header h2{font-size:1rem;color:var(--accent)}.sidebar nav a{display:block;padding:.55rem 1.5rem;color:var(--text-muted);text-decoration:none;font-size:.85rem;border-left:3px solid transparent}.sidebar nav a:hover,.sidebar nav a.active{color:var(--accent);background:var(--accent-dim);border-left-color:var(--accent)}.sidebar nav a.sub{padding-left:2.5rem;font-size:.8rem}.main{margin-left:280px;flex:1;max-width:900px;padding:2rem 3rem 4rem}.page-header{background:var(--header-gradient);border-radius:16px;padding:2.5rem;margin-bottom:2.5rem}.page-header .badge{display:inline-block;background:rgba(0,0,0,.3);color:#fff;padding:.25rem .75rem;border-radius:20px;font-size:.75rem;margin-bottom:.75rem}.page-header h1{font-size:2rem;color:#fff}h2{font-size:1.5rem;color:var(--accent);margin:2.5rem 0 1rem;padding-bottom:.5rem;border-bottom:2px solid var(--accent-border)}h3{font-size:1.15rem;color:var(--text);margin:1.8rem 0 .8rem}p{margin-bottom:1rem}strong{color:var(--text)}.table-wrap{overflow-x:auto;margin:1.2rem 0;border-radius:10px;border:1px solid var(--border)}table{width:100%;border-collapse:collapse;font-size:.88rem}thead th{background:var(--accent);color:#000;padding:.75rem 1rem;text-align:left;font-weight:600}tbody tr:nth-child(even){background:var(--surface)}tbody tr:nth-child(odd){background:var(--surface2)}tbody tr:hover{background:var(--accent-dim)}td{padding:.7rem 1rem;border-top:1px solid var(--border)}pre{background:var(--code-bg);border:1px solid var(--border);border-radius:10px;padding:1.2rem;overflow-x:auto;margin:1.2rem 0;font-size:.85rem;line-height:1.6}code{font-family:"Cascadia Code","Fira Code",monospace;color:#e6edf3}p code,li code,td code{background:var(--code-bg);padding:.15rem .4rem;border-radius:4px;font-size:.85em;color:var(--accent)}.callout{background:var(--accent-dim);border-left:4px solid var(--accent);border-radius:0 10px 10px 0;padding:1rem 1.2rem;margin:1.2rem 0}.callout p{margin:0}ul,ol{margin:0 0 1rem 1.5rem}li{margin-bottom:.4rem}li strong{color:var(--accent)}.back-top{position:fixed;bottom:2rem;right:2rem;width:44px;height:44px;background:var(--accent);color:#000;border:none;border-radius:50%;cursor:pointer;font-size:1.3rem;display:none;align-items:center;justify-content:center;z-index:100}.back-top.show{display:flex}@media(max-width:900px){.sidebar{display:none}.main{margin-left:0;padding:2rem 1.2rem}}</style></head><body>
+<aside class="sidebar"><div class="sidebar-header"><h2>DSA</h2></div><nav>
+    <a href="#-">---</a>
+    <a href="#stacks-q1q8">Stacks (Q1–Q8)</a>
+    <a href="#q1-define-the-stack-adt-what-principle-does-it-follow" class="sub">Q1. Define the Stack ADT. What principle does it f...</a>
+    <a href="#q2-compare-array-based-and-linked-list-based-stack-implementations" class="sub">Q2. Compare array-based and linked-list-based stac...</a>
+    <a href="#q3-convert-the-infix-expression-a-b-c-d-e-to-postfix-using-a-stack" class="sub">Q3. Convert the infix expression A * (B + C) - D /...</a>
+    <a href="#q4-evaluate-the-postfix-expression-6-2-3-3-8-2" class="sub">Q4. Evaluate the postfix expression 6 2 3 + - 3 8 ...</a>
+    <a href="#q5-how-can-you-implement-two-stacks-in-a-single-array-efficiently" class="sub">Q5. How can you implement two stacks in a single a...</a>
+    <a href="#q6-check-if-the-string-is-balanced-using-a-stack-show-the-trace" class="sub">Q6. Check if the string {[()]} is balanced using a...</a>
+    <a href="#q7-how-is-the-function-call-stack-used-during-recursion-explain-with-factorial3" class="sub">Q7. How is the function call stack used during rec...</a>
+    <a href="#q8-list-5-applications-of-stacks" class="sub">Q8. List 5 applications of stacks.</a>
+    <a href="#-_1">---</a>
+    <a href="#queues-q9q16">Queues (Q9–Q16)</a>
+    <a href="#q9-define-the-queue-adt-how-is-it-different-from-a-stack" class="sub">Q9. Define the Queue ADT. How is it different from...</a>
+    <a href="#q10-why-is-a-circular-array-better-than-a-linear-array-for-implementing-a-queue" class="sub">Q10. Why is a circular array better than a linear ...</a>
+    <a href="#q11-implement-a-queue-using-two-stacks-show-the-trace-for-enqueue1-enqueue2-dequeue-enqueue3-dequeue" class="sub">Q11. Implement a queue using two stacks. Show the ...</a>
+    <a href="#q12-what-is-a-deque-when-would-you-use-it" class="sub">Q12. What is a Deque? When would you use it?</a>
+    <a href="#q13-implement-a-stack-using-two-queues-what-is-the-time-complexity" class="sub">Q13. Implement a stack using two queues. What is t...</a>
+    <a href="#q14-write-bfs-using-a-queue-and-trace-it-on-this-graph-from-vertex-a" class="sub">Q14. Write BFS using a queue and trace it on this ...</a>
+    <a href="#q15-what-is-a-priority-queue-how-is-it-different-from-a-regular-queue" class="sub">Q15. What is a priority queue? How is it different...</a>
+    <a href="#q16-list-5-applications-of-queues" class="sub">Q16. List 5 applications of queues.</a>
+    <a href="#-_2">---</a>
+    <a href="#amortised-analysis-q17q23">Amortised Analysis (Q17–Q23)</a>
+    <a href="#q17-what-is-amortised-analysis-how-is-it-different-from-average-case-analysis" class="sub">Q17. What is amortised analysis? How is it differe...</a>
+    <a href="#q18-explain-the-aggregate-method-with-the-multipop-stack-example" class="sub">Q18. Explain the Aggregate Method with the MULTIPO...</a>
+    <a href="#q19-prove-that-a-queue-implemented-with-two-stacks-has-o1-amortised-cost-per-operation" class="sub">Q19. Prove that a queue implemented with two stack...</a>
+    <a href="#q20-prove-that-dynamic-array-insertion-has-o1-amortised-cost-using-the-aggregate-method" class="sub">Q20. Prove that dynamic array insertion has O(1) a...</a>
+    <a href="#q21-why-does-doubling-capacity-give-o1-amortised-but-adding-a-constant-gives-on-amortised" class="sub">Q21. Why does doubling capacity give O(1) amortise...</a>
+    <a href="#q22-trace-the-amortised-cost-of-8-insertions-into-a-dynamic-array-starting-from-capacity-1" class="sub">Q22. Trace the amortised cost of 8 insertions into...</a>
+    <a href="#q23-a-binary-counter-increments-from-0-to-n-prove-the-amortised-cost-per-increment-is-o1" class="sub">Q23. A binary counter increments from 0 to n. Prov...</a>
+    <a href="#-_3">---</a>
+    <a href="#lists-q24q30">Lists (Q24–Q30)</a>
+    <a href="#q24-what-is-the-key-advantage-of-a-doubly-linked-list-over-a-singly-linked-list" class="sub">Q24. What is the key advantage of a doubly linked ...</a>
+    <a href="#q25-reverse-a-singly-linked-list-trace-on-123null" class="sub">Q25. Reverse a singly linked list. Trace on 1→2→3→...</a>
+    <a href="#q26-detect-a-cycle-in-a-linked-list-using-floyds-algorithm-why-does-it-work" class="sub">Q26. Detect a cycle in a linked list using Floyd's...</a>
+    <a href="#q27-design-an-lru-cache-using-a-doubly-linked-list-hash-map" class="sub">Q27. Design an LRU Cache using a doubly linked lis...</a>
+    <a href="#q28-when-should-you-use-an-array-vs-a-linked-list" class="sub">Q28. When should you use an array vs a linked list...</a>
+    <a href="#q29-implement-a-stack-using-a-singly-linked-list-write-push-pop-and-isempty-in-c" class="sub">Q29. Implement a stack using a singly linked list....</a>
+    <a href="#q30-find-the-middle-element-of-a-linked-list-in-one-pass" class="sub">Q30. Find the middle element of a linked list in o...</a>
+    <a href="#-_4">---</a>
+    <a href="#practice-problems-stacks-queues-linked-lists-q31q44">Practice Problems — Stacks, Queues &amp; Linked Li...</a>
+    <a href="#q31-reverse-a-string-using-a-stack-trace-the-execution-for-the-string-hello" class="sub">Q31. Reverse a string using a stack. Trace the exe...</a>
+    <a href="#q32-check-if-a-string-is-a-palindrome-using-a-stack-trace-for-racecar-and-hello" class="sub">Q32. Check if a string is a palindrome using a sta...</a>
+    <a href="#q33-write-an-algorithm-to-find-the-sum-of-all-elements-in-a-stack-without-losing-the-data-trace-for-stack-5-10-15-20-20-on-top" class="sub">Q33. Write an algorithm to find the sum of all ele...</a>
+    <a href="#q34-insert-an-element-at-the-bottom-of-a-stack-using-recursion-trace-inserting-0-at-the-bottom-of-1-2-3-3-on-top" class="sub">Q34. Insert an element at the bottom of a stack us...</a>
+    <a href="#q35-search-for-an-element-in-a-stack-return-its-position-from-top-1-indexed-trace-searching-for-15-in-5-10-15-20-25-25-on-top" class="sub">Q35. Search for an element in a stack. Return its ...</a>
+    <a href="#q36-convert-a-decimal-number-to-binary-using-a-stack-trace-for-decimal-25" class="sub">Q36. Convert a decimal number to binary using a st...</a>
+    <a href="#q37-check-if-parentheses-are-balanced-in-the-expression-a-b-c-d-e-f-support" class="sub">Q37. Check if parentheses are balanced in the expr...</a>
+    <a href="#q38-count-the-number-of-elements-in-a-queue-without-using-a-size-variable-trace-for-queue-10-20-30-40-front10" class="sub">Q38. Count the number of elements in a queue witho...</a>
+    <a href="#q39-simulate-an-atm-queue-three-customers-c1-c2-c3-arrive-in-order-c1-needs-3-mins-c2-needs-2-mins-c3-needs-5-mins-show-the-queue-state-at-each-minute" class="sub">Q39. Simulate an ATM queue. Three customers (C1, C...</a>
+    <a href="#q40-simulate-a-printer-queue-three-print-jobs-arrive-j1-5-pages-j2-2-pages-j3-8-pages-the-printer-processes-1-pageminute-show-how-the-queue-manages-jobs" class="sub">Q40. Simulate a printer queue. Three print jobs ar...</a>
+    <a href="#q41-simulate-a-customer-service-system-with-two-queues-regular-and-vip-vip-customers-are-served-first-show-the-processing-for-r1-v1-r2-v2-r3" class="sub">Q41. Simulate a customer service system with two q...</a>
+    <a href="#q42-demonstrate-a-double-ended-queue-deque-for-managing-railway-coaches-coaches-can-be-addedremoved-from-both-front-and-rear-show-operations-addreara-addrearb-addfrontc-removefront-addreard-removerear" class="sub">Q42. Demonstrate a double-ended queue (deque) for ...</a>
+    <a href="#q43-implement-a-circular-queue-for-a-music-playlist-rotation-capacity-4-show-enqueuesong1-enqueuesong2-enqueuesong3-enqueuesong4-dequeue-enqueuesong5-dequeue-show-how-the-circular-array-wraps-around" class="sub">Q43. Implement a circular queue for a music playli...</a>
+    <a href="#q44-insert-nodes-10-20-30-into-a-singly-linked-list-then-delete-the-node-with-value-20-show-the-pointer-changes-at-each-step" class="sub">Q44. Insert nodes 10, 20, 30 into a singly linked ...</a>
+</nav></aside>
+<main class="main"><div class="page-header"><span class="badge">Chapter 2 Questions and Answers</span><h1>Chapter 2: Elementary Data Structures — Questions and Answers</h1></div>
+<h1 id="chapter-2-elementary-data-structures-questions-and-answers">Chapter 2: Elementary Data Structures — Questions and Answers</h1>
+<div class="callout">
+<p>BITS Pilani — 30 questions covering Stacks, Queues, Amortised Analysis, and Lists.
+References: R1 (CLRS) 10.1, 10.2, 17.1</p>
 </div>
+<h2 id="-">---</h2>
+<h2 id="stacks-q1q8">Stacks (Q1–Q8)</h2>
+<hr />
+<h3 id="q1-define-the-stack-adt-what-principle-does-it-follow">Q1. Define the Stack ADT. What principle does it follow?</h3>
+<p><strong>Answer:</strong></p>
+<p>A <strong>stack</strong> is a linear data structure following the <strong>LIFO (Last In, First Out)</strong> principle — the most recently inserted element is the first one removed.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Operation</th>
+<th>Description</th>
+<th>Time</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>push(x)</td>
+<td>Insert x on top</td>
+<td>O(1)</td>
+</tr>
+<tr>
+<td>pop()</td>
+<td>Remove and return top element</td>
+<td>O(1)</td>
+</tr>
+<tr>
+<td>top() / peek()</td>
+<td>Return top without removing</td>
+<td>O(1)</td>
+</tr>
+<tr>
+<td>isEmpty()</td>
+<td>Check if stack is empty</td>
+<td>O(1)</td>
+</tr>
+</tbody>
+</table></div>
+<p>Precondition: pop() and top() require the stack to be non-empty (underflow error otherwise).</p>
+<hr />
+<h3 id="q2-compare-array-based-and-linked-list-based-stack-implementations">Q2. Compare array-based and linked-list-based stack implementations.</h3>
+<p><strong>Answer:</strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Aspect</th>
+<th>Array-Based</th>
+<th>Linked-List-Based</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Size</td>
+<td>Fixed (or dynamic with resizing)</td>
+<td>Dynamic — grows as needed</td>
+</tr>
+<tr>
+<td>Push/Pop</td>
+<td>O(1)</td>
+<td>O(1) (at head)</td>
+</tr>
+<tr>
+<td>Memory</td>
+<td>Contiguous; cache-friendly</td>
+<td>Scattered; extra pointer per node</td>
+</tr>
+<tr>
+<td>Overflow</td>
+<td>Possible (fixed array)</td>
+<td>Only when system memory exhausted</td>
+</tr>
+<tr>
+<td>Wasted space</td>
+<td>Unused capacity slots</td>
+<td>Pointer overhead per element</td>
+</tr>
+<tr>
+<td>Implementation</td>
+<td>Simpler</td>
+<td>Slightly more complex (allocation)</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Choose array</strong> when maximum size is known and cache performance matters.
+<strong>Choose linked list</strong> when size is unpredictable.</p>
+<hr />
+<h3 id="q3-convert-the-infix-expression-a-b-c-d-e-to-postfix-using-a-stack">Q3. Convert the infix expression <code>A * (B + C) - D / E</code> to postfix using a stack.</h3>
+<p><strong>Answer:</strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Token</th>
+<th>Action</th>
+<th>Stack</th>
+<th>Output</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A</td>
+<td>Output</td>
+<td></td>
+<td>A</td>
+</tr>
+<tr>
+<td>*</td>
+<td>Push</td>
+<td>[*]</td>
+<td>A</td>
+</tr>
+<tr>
+<td>(</td>
+<td>Push</td>
+<td>[*, (]</td>
+<td>A</td>
+</tr>
+<tr>
+<td>B</td>
+<td>Output</td>
+<td>[*, (]</td>
+<td>A B</td>
+</tr>
+<tr>
+<td>+</td>
+<td>Push</td>
+<td>[*, (, +]</td>
+<td>A B</td>
+</tr>
+<tr>
+<td>C</td>
+<td>Output</td>
+<td>[*, (, +]</td>
+<td>A B C</td>
+</tr>
+<tr>
+<td>)</td>
+<td>Pop until (</td>
+<td>[*]</td>
+<td>A B C +</td>
+</tr>
+<tr>
+<td>-</td>
+<td>Pop * (≥ precedence), Push -</td>
+<td>[-]</td>
+<td>A B C + *</td>
+</tr>
+<tr>
+<td>D</td>
+<td>Output</td>
+<td>[-]</td>
+<td>A B C + * D</td>
+</tr>
+<tr>
+<td>/</td>
+<td>Push (/ &gt; -)</td>
+<td>[-, /]</td>
+<td>A B C + * D</td>
+</tr>
+<tr>
+<td>E</td>
+<td>Output</td>
+<td>[-, /]</td>
+<td>A B C + * D E</td>
+</tr>
+<tr>
+<td>End</td>
+<td>Pop all</td>
+<td>[]</td>
+<td>A B C + * D E / -</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Postfix: <code>A B C + * D E / -</code></strong></p>
+<hr />
+<h3 id="q4-evaluate-the-postfix-expression-6-2-3-3-8-2">Q4. Evaluate the postfix expression <code>6 2 3 + - 3 8 2 / + *</code></h3>
+<p><strong>Answer:</strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Token</th>
+<th>Action</th>
+<th>Stack</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>6</td>
+<td>push</td>
+<td>[6]</td>
+</tr>
+<tr>
+<td>2</td>
+<td>push</td>
+<td>[6, 2]</td>
+</tr>
+<tr>
+<td>3</td>
+<td>push</td>
+<td>[6, 2, 3]</td>
+</tr>
+<tr>
+<td>+</td>
+<td>pop 3,2 → 2+3=5</td>
+<td>[6, 5]</td>
+</tr>
+<tr>
+<td>-</td>
+<td>pop 5,6 → 6-5=1</td>
+<td>[1]</td>
+</tr>
+<tr>
+<td>3</td>
+<td>push</td>
+<td>[1, 3]</td>
+</tr>
+<tr>
+<td>8</td>
+<td>push</td>
+<td>[1, 3, 8]</td>
+</tr>
+<tr>
+<td>2</td>
+<td>push</td>
+<td>[1, 3, 8, 2]</td>
+</tr>
+<tr>
+<td>/</td>
+<td>pop 2,8 → 8/2=4</td>
+<td>[1, 3, 4]</td>
+</tr>
+<tr>
+<td>+</td>
+<td>pop 4,3 → 3+4=7</td>
+<td>[1, 7]</td>
+</tr>
+<tr>
+<td>*</td>
+<td>pop 7,1 → 1*7=7</td>
+<td>[7]</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Result: 7</strong></p>
+<hr />
+<h3 id="q5-how-can-you-implement-two-stacks-in-a-single-array-efficiently">Q5. How can you implement two stacks in a single array efficiently?</h3>
+<p><strong>Answer:</strong></p>
+<p>Use one array of size n. Stack 1 grows from the <strong>left</strong> (index 0 upward). Stack 2 grows from the <strong>right</strong> (index n-1 downward).</p>
+<pre><code>Stack 1:  → push at top1++
+Stack 2:  ← push at top2--
 
-<div class="container">
+Array: [S1_0, S1_1, ..., S1_top1, ..., S2_top2, ..., S2_n-1]
 
-<div class="controls">
-  <button class="ctrl-btn" onclick="toggleAll(true)">Show All</button>
-  <button class="ctrl-btn" onclick="toggleAll(false)">Hide All</button>
-  <button class="ctrl-btn" onclick="toggleSec('s1',true)">Stacks</button>
-  <button class="ctrl-btn" onclick="toggleSec('s2',true)">Queues</button>
-  <button class="ctrl-btn" onclick="toggleSec('s3',true)">Amortised</button>
-  <button class="ctrl-btn" onclick="toggleSec('s4',true)">Lists</button>
-  <div class="score">Reviewed: <span id="sc">0</span>/30</div>
-</div>
+Overflow condition: top1 + 1 == top2 (they meet in the middle)
+</code></pre>
+<pre><code>init:
+    top1 = -1
+    top2 = n
 
-<!-- ==================== STACKS ==================== -->
-<div class="sec-label" id="sec-s1">Stacks (Q1–Q8)</div>
+push1(x):
+    if top1 + 1 == top2: error &quot;Overflow&quot;
+    top1++; A[top1] = x
 
-<div class="q" data-s="s1"><div class="q-head" onclick="tog(this)"><div class="q-num">Q1</div><div class="q-title">Define the Stack ADT. What principle does it follow?</div><div class="q-chk"><input type="checkbox" onchange="sc()" title="Reviewed"></div><div class="q-arrow">&#9660;</div></div><div class="q-ans">
-  <p>A <strong>stack</strong> follows <strong>LIFO (Last In, First Out)</strong> — the most recently inserted element is removed first.</p>
-  <table><tr><th>Operation</th><th>Time</th></tr><tr><td>push(x), pop(), top(), isEmpty()</td><td>All O(1)</td></tr></table>
-  <p>Precondition: pop() and top() require non-empty stack (underflow error otherwise).</p>
-</div></div>
+push2(x):
+    if top1 + 1 == top2: error &quot;Overflow&quot;
+    top2--; A[top2] = x
 
-<div class="q" data-s="s1"><div class="q-head" onclick="tog(this)"><div class="q-num">Q2</div><div class="q-title">Compare array-based and linked-list-based stack implementations.</div><div class="q-chk"><input type="checkbox" onchange="sc()" title="Reviewed"></div><div class="q-arrow">&#9660;</div></div><div class="q-ans">
-  <table><tr><th>Aspect</th><th>Array</th><th>Linked List</th></tr>
-  <tr><td>Size</td><td>Fixed (or dynamic)</td><td>Dynamic</td></tr>
-  <tr><td>Push/Pop</td><td>O(1)</td><td>O(1) at head</td></tr>
-  <tr><td>Memory</td><td>Contiguous, cache-friendly</td><td>Scattered, pointer overhead</td></tr>
-  <tr><td>Overflow</td><td>Possible</td><td>Only if system memory exhausted</td></tr></table>
-</div></div>
-
-<div class="q" data-s="s1"><div class="q-head" onclick="tog(this)"><div class="q-num">Q3</div><div class="q-title">Convert <code>A * (B + C) - D / E</code> to postfix using a stack.</div><div class="q-chk"><input type="checkbox" onchange="sc()" title="Reviewed"></div><div class="q-arrow">&#9660;</div></div><div class="q-ans">
-  <table><tr><th>Token</th><th>Action</th><th>Stack</th><th>Output</th></tr>
-  <tr><td>A</td><td>Output</td><td></td><td>A</td></tr>
-  <tr><td>*</td><td>Push</td><td>[*]</td><td>A</td></tr>
-  <tr><td>(</td><td>Push</td><td>[*, (]</td><td>A</td></tr>
-  <tr><td>B</td><td>Output</td><td>[*, (]</td><td>A B</td></tr>
-  <tr><td>+</td><td>Push</td><td>[*, (, +]</td><td>A B</td></tr>
-  <tr><td>C</td><td>Output</td><td>[*, (, +]</td><td>A B C</td></tr>
-  <tr><td>)</td><td>Pop to (</td><td>[*]</td><td>A B C +</td></tr>
-  <tr><td>-</td><td>Pop *, Push -</td><td>[-]</td><td>A B C + *</td></tr>
-  <tr><td>D</td><td>Output</td><td>[-]</td><td>A B C + * D</td></tr>
-  <tr><td>/</td><td>Push</td><td>[-, /]</td><td>A B C + * D</td></tr>
-  <tr><td>E</td><td>Output</td><td>[-, /]</td><td>A B C + * D E</td></tr>
-  <tr><td>End</td><td>Pop all</td><td>[]</td><td><strong>A B C + * D E / -</strong></td></tr></table>
-</div></div>
-
-<div class="q" data-s="s1"><div class="q-head" onclick="tog(this)"><div class="q-num">Q4</div><div class="q-title">Evaluate postfix: <code>6 2 3 + - 3 8 2 / + *</code></div><div class="q-chk"><input type="checkbox" onchange="sc()" title="Reviewed"></div><div class="q-arrow">&#9660;</div></div><div class="q-ans">
-  <table><tr><th>Token</th><th>Action</th><th>Stack</th></tr>
-  <tr><td>6</td><td>push</td><td>[6]</td></tr>
-  <tr><td>2</td><td>push</td><td>[6, 2]</td></tr>
-  <tr><td>3</td><td>push</td><td>[6, 2, 3]</td></tr>
-  <tr><td>+</td><td>2+3=5</td><td>[6, 5]</td></tr>
-  <tr><td>-</td><td>6-5=1</td><td>[1]</td></tr>
-  <tr><td>3</td><td>push</td><td>[1, 3]</td></tr>
-  <tr><td>8</td><td>push</td><td>[1, 3, 8]</td></tr>
-  <tr><td>2</td><td>push</td><td>[1, 3, 8, 2]</td></tr>
-  <tr><td>/</td><td>8/2=4</td><td>[1, 3, 4]</td></tr>
-  <tr><td>+</td><td>3+4=7</td><td>[1, 7]</td></tr>
-  <tr><td>*</td><td>1&times;7=7</td><td>[7]</td></tr></table>
-  <div class="tip"><strong>Result: 7</strong></div>
-</div></div>
-
-<div class="q" data-s="s1"><div class="q-head" onclick="tog(this)"><div class="q-num">Q5</div><div class="q-title">How can you implement two stacks in a single array?</div><div class="q-chk"><input type="checkbox" onchange="sc()" title="Reviewed"></div><div class="q-arrow">&#9660;</div></div><div class="q-ans">
-  <p>Stack 1 grows from index 0 <strong>rightward</strong>. Stack 2 grows from index n-1 <strong>leftward</strong>. Overflow when they meet: <code>top1 + 1 == top2</code>.</p>
-  <pre><code>init: top1 = -1, top2 = n
-push1(x): top1++; A[top1] = x
-push2(x): top2--; A[top2] = x
 pop1(): return A[top1--]
-pop2(): return A[top2++]</code></pre>
-  <p>Total capacity shared — if one stack uses less, the other can use more.</p>
-</div></div>
+pop2(): return A[top2++]
+</code></pre>
+<p><strong>Advantage:</strong> Space is shared — if one stack uses less, the other can use more. Total capacity = n.</p>
+<hr />
+<h3 id="q6-check-if-the-string-is-balanced-using-a-stack-show-the-trace">Q6. Check if the string <code>{[()]}</code> is balanced using a stack. Show the trace.</h3>
+<p><strong>Answer:</strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Char</th>
+<th>Action</th>
+<th>Stack</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>{</td>
+<td>Push</td>
+<td>[{]</td>
+</tr>
+<tr>
+<td>[</td>
+<td>Push</td>
+<td>[{, []</td>
+</tr>
+<tr>
+<td>(</td>
+<td>Push</td>
+<td>[{, [, (]</td>
+</tr>
+<tr>
+<td>)</td>
+<td>Pop ( → matches ) ✓</td>
+<td>[{, []</td>
+</tr>
+<tr>
+<td>]</td>
+<td>Pop [ → matches ] ✓</td>
+<td>[{]</td>
+</tr>
+<tr>
+<td>}</td>
+<td>Pop { → matches } ✓</td>
+<td>[]</td>
+</tr>
+</tbody>
+</table></div>
+<p>Stack empty at end → <strong>Balanced ✓</strong></p>
+<hr />
+<h3 id="q7-how-is-the-function-call-stack-used-during-recursion-explain-with-factorial3">Q7. How is the function call stack used during recursion? Explain with factorial(3).</h3>
+<p><strong>Answer:</strong></p>
+<p>Each function call pushes a <strong>stack frame</strong> containing local variables, parameters, and the return address.</p>
+<pre><code>Call factorial(3):
+    Stack: [factorial(3)]
+    3 * factorial(2)
 
-<div class="q" data-s="s1"><div class="q-head" onclick="tog(this)"><div class="q-num">Q6</div><div class="q-title">Check if <code>{[()]}</code> is balanced. Show the trace.</div><div class="q-chk"><input type="checkbox" onchange="sc()" title="Reviewed"></div><div class="q-arrow">&#9660;</div></div><div class="q-ans">
-  <table><tr><th>Char</th><th>Action</th><th>Stack</th></tr>
-  <tr><td>{</td><td>Push</td><td>[{]</td></tr><tr><td>[</td><td>Push</td><td>[{, []</td></tr>
-  <tr><td>(</td><td>Push</td><td>[{, [, (]</td></tr><tr><td>)</td><td>Pop ( match &check;</td><td>[{, []</td></tr>
-  <tr><td>]</td><td>Pop [ match &check;</td><td>[{]</td></tr><tr><td>}</td><td>Pop { match &check;</td><td>[]</td></tr></table>
-  <div class="tip">Stack empty &rarr; <strong>Balanced</strong> &check;</div>
-</div></div>
+Call factorial(2):
+    Stack: [factorial(3), factorial(2)]
+    2 * factorial(1)
 
-<div class="q" data-s="s1"><div class="q-head" onclick="tog(this)"><div class="q-num">Q7</div><div class="q-title">How is the function call stack used during recursion? Trace factorial(3).</div><div class="q-chk"><input type="checkbox" onchange="sc()" title="Reviewed"></div><div class="q-arrow">&#9660;</div></div><div class="q-ans">
-  <pre><code>factorial(3) pushed → calls factorial(2)
-factorial(2) pushed → calls factorial(1)
-factorial(1) pushed → base case, returns 1
-factorial(2) pops → 2 × 1 = 2, returns 2
-factorial(3) pops → 3 × 2 = 6, returns 6</code></pre>
-  <p>Each call pushes a <strong>stack frame</strong> (local vars + return address). Stack overflow occurs when recursion is too deep.</p>
-</div></div>
+Call factorial(1):
+    Stack: [factorial(3), factorial(2), factorial(1)]
+    return 1  ← base case
 
-<div class="q" data-s="s1"><div class="q-head" onclick="tog(this)"><div class="q-num">Q8</div><div class="q-title">List 5 applications of stacks.</div><div class="q-chk"><input type="checkbox" onchange="sc()" title="Reviewed"></div><div class="q-arrow">&#9660;</div></div><div class="q-ans">
-  <ol><li>Parenthesis/bracket matching</li><li>Infix to postfix conversion</li><li>Postfix expression evaluation</li><li>Function call stack (recursion)</li><li>Undo mechanism</li><li>DFS (iterative)</li><li>Backtracking (N-Queens, Sudoku)</li></ol>
-</div></div>
+Return to factorial(2): 2 * 1 = 2
+    Stack: [factorial(3), factorial(2)]
+    Pop factorial(1)
 
-<!-- ==================== QUEUES ==================== -->
-<div class="sec-label s2" id="sec-s2">Queues (Q9–Q16)</div>
+Return to factorial(3): 3 * 2 = 6
+    Stack: [factorial(3)]
+    Pop factorial(2)
 
-<div class="q" data-s="s2"><div class="q-head" onclick="tog(this)"><div class="q-num c2">Q9</div><div class="q-title">Define the Queue ADT. How is it different from a stack?</div><div class="q-chk"><input type="checkbox" onchange="sc()" title="Reviewed"></div><div class="q-arrow">&#9660;</div></div><div class="q-ans">
-  <p><strong>Queue = FIFO</strong> (first in, first out). <strong>Stack = LIFO</strong> (last in, first out).</p>
-  <table><tr><th></th><th>Stack</th><th>Queue</th></tr>
-  <tr><td>Insert</td><td>push (top)</td><td>enqueue (rear)</td></tr>
-  <tr><td>Remove</td><td>pop (top)</td><td>dequeue (front)</td></tr>
-  <tr><td>Analogy</td><td>Stack of plates</td><td>Ticket counter line</td></tr></table>
-</div></div>
-
-<div class="q" data-s="s2"><div class="q-head" onclick="tog(this)"><div class="q-num c2">Q10</div><div class="q-title">Why is a circular array better than a linear array for queues?</div><div class="q-chk"><input type="checkbox" onchange="sc()" title="Reviewed"></div><div class="q-arrow">&#9660;</div></div><div class="q-ans">
-  <p><strong>Linear:</strong> After dequeues, front moves right, leaving wasted empty slots. Reusing them requires O(n) shifting.</p>
-  <p><strong>Circular:</strong> Uses <code>mod</code> arithmetic to wrap around: <code>rear = (rear+1) % capacity</code>. No wasted space, no shifting, all O(1).</p>
-</div></div>
-
-<div class="q" data-s="s2"><div class="q-head" onclick="tog(this)"><div class="q-num c2">Q11</div><div class="q-title">Implement a queue using two stacks. Trace: enqueue(1), enqueue(2), dequeue(), enqueue(3), dequeue().</div><div class="q-chk"><input type="checkbox" onchange="sc()" title="Reviewed"></div><div class="q-arrow">&#9660;</div></div><div class="q-ans">
-  <p>S1 = input, S2 = output. When S2 empty, transfer all from S1.</p>
-  <table><tr><th>Op</th><th>S1</th><th>S2</th><th>Output</th></tr>
-  <tr><td>enqueue(1)</td><td>[1]</td><td>[]</td><td></td></tr>
-  <tr><td>enqueue(2)</td><td>[1,2]</td><td>[]</td><td></td></tr>
-  <tr><td>dequeue()</td><td>[]</td><td>[2,1]→pop 1</td><td><strong>1</strong></td></tr>
-  <tr><td>enqueue(3)</td><td>[3]</td><td>[2]</td><td></td></tr>
-  <tr><td>dequeue()</td><td>[3]</td><td>pop 2</td><td><strong>2</strong></td></tr></table>
-  <p>Amortised O(1) — each element transferred at most once.</p>
-</div></div>
-
-<div class="q" data-s="s2"><div class="q-head" onclick="tog(this)"><div class="q-num c2">Q12</div><div class="q-title">What is a Deque? When would you use it?</div><div class="q-chk"><input type="checkbox" onchange="sc()" title="Reviewed"></div><div class="q-arrow">&#9660;</div></div><div class="q-ans">
-  <p><strong>Deque (Double-Ended Queue)</strong> — insert/remove at both ends in O(1).</p>
-  <p><strong>Use cases:</strong> Sliding window maximum, 0-1 BFS, palindrome check. Can act as both stack and queue.</p>
-</div></div>
-
-<div class="q" data-s="s2"><div class="q-head" onclick="tog(this)"><div class="q-num c2">Q13</div><div class="q-title">Implement a stack using two queues.</div><div class="q-chk"><input type="checkbox" onchange="sc()" title="Reviewed"></div><div class="q-arrow">&#9660;</div></div><div class="q-ans">
-  <pre><code>push(x):
+Return 6.
+    Stack: []
+    Pop factorial(3)
+</code></pre>
+<p><strong>Stack overflow</strong> occurs when recursion depth exceeds the system stack limit (e.g. factorial(100000) without tail-call optimisation).</p>
+<hr />
+<h3 id="q8-list-5-applications-of-stacks">Q8. List 5 applications of stacks.</h3>
+<p><strong>Answer:</strong></p>
+<ol>
+<li><strong>Parenthesis/bracket matching</strong> — push opening, pop and match on closing.</li>
+<li><strong>Infix to postfix conversion</strong> — Shunting-Yard algorithm uses an operator stack.</li>
+<li><strong>Postfix expression evaluation</strong> — operands pushed, operators pop and compute.</li>
+<li><strong>Function call stack</strong> — tracks active function calls and local variables during recursion.</li>
+<li><strong>Undo mechanism</strong> — each action pushed; undo pops the last action.</li>
+<li><strong>DFS (iterative)</strong> — vertices pushed onto stack instead of using recursion.</li>
+<li><strong>Backtracking</strong> — exploring paths in mazes, N-Queens, Sudoku.</li>
+</ol>
+<h2 id="-_1">---</h2>
+<h2 id="queues-q9q16">Queues (Q9–Q16)</h2>
+<hr />
+<h3 id="q9-define-the-queue-adt-how-is-it-different-from-a-stack">Q9. Define the Queue ADT. How is it different from a stack?</h3>
+<p><strong>Answer:</strong></p>
+<p>A <strong>queue</strong> follows <strong>FIFO (First In, First Out)</strong> — the first element inserted is the first removed.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th></th>
+<th>Stack (LIFO)</th>
+<th>Queue (FIFO)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Insert</td>
+<td>push (top)</td>
+<td>enqueue (rear)</td>
+</tr>
+<tr>
+<td>Remove</td>
+<td>pop (top)</td>
+<td>dequeue (front)</td>
+</tr>
+<tr>
+<td>Analogy</td>
+<td>Stack of plates</td>
+<td>Ticket counter line</td>
+</tr>
+</tbody>
+</table></div>
+<p>Both support O(1) insertion and removal, but from different ends.</p>
+<hr />
+<h3 id="q10-why-is-a-circular-array-better-than-a-linear-array-for-implementing-a-queue">Q10. Why is a circular array better than a linear array for implementing a queue?</h3>
+<p><strong>Answer:</strong></p>
+<p><strong>Linear array problem:</strong> After several enqueue/dequeue operations, the front pointer moves right, leaving wasted empty slots at the beginning that cannot be reused without shifting all elements (O(n)).</p>
+<pre><code>Linear: [_, _, _, 4, 5, 6, _, _]   ← slots 0-2 wasted after dequeues
+                 ↑front     ↑rear
+</code></pre>
+<p><strong>Circular array solution:</strong> When rear reaches the end, it wraps to index 0 using modular arithmetic: <code>rear = (rear + 1) % capacity</code>.</p>
+<pre><code>Circular: [7, 8, _, 4, 5, 6]   ← slots 0-1 reused!
+              ↑rear  ↑front
+</code></pre>
+<p><strong>No wasted space. No shifting. All operations remain O(1).</strong></p>
+<hr />
+<h3 id="q11-implement-a-queue-using-two-stacks-show-the-trace-for-enqueue1-enqueue2-dequeue-enqueue3-dequeue">Q11. Implement a queue using two stacks. Show the trace for enqueue(1), enqueue(2), dequeue(), enqueue(3), dequeue().</h3>
+<p><strong>Answer:</strong></p>
+<p><strong>Implementation:</strong>
+- <code>S1</code> = input stack (enqueue pushes here)
+- <code>S2</code> = output stack (dequeue pops from here; if empty, transfer all from S1)</p>
+<p><strong>Trace:</strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Operation</th>
+<th>S1</th>
+<th>S2</th>
+<th>Output</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>enqueue(1)</td>
+<td>[1]</td>
+<td>[]</td>
+<td></td>
+</tr>
+<tr>
+<td>enqueue(2)</td>
+<td>[1, 2]</td>
+<td>[]</td>
+<td></td>
+</tr>
+<tr>
+<td>dequeue()</td>
+<td>[]</td>
+<td>[2, 1] (transferred) → pop → 1</td>
+<td><strong>1</strong></td>
+</tr>
+<tr>
+<td></td>
+<td>[]</td>
+<td>[2]</td>
+<td></td>
+</tr>
+<tr>
+<td>enqueue(3)</td>
+<td>[3]</td>
+<td>[2]</td>
+<td></td>
+</tr>
+<tr>
+<td>dequeue()</td>
+<td>[3]</td>
+<td>[2] → pop → 2</td>
+<td><strong>2</strong></td>
+</tr>
+<tr>
+<td></td>
+<td>[3]</td>
+<td>[]</td>
+<td></td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Key insight:</strong> Each element moves at most once from S1 to S2. Amortised O(1) per operation.</p>
+<hr />
+<h3 id="q12-what-is-a-deque-when-would-you-use-it">Q12. What is a Deque? When would you use it?</h3>
+<p><strong>Answer:</strong></p>
+<p>A <strong>Deque (Double-Ended Queue)</strong> allows insertion and removal at <strong>both</strong> front and rear in O(1).</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Operation</th>
+<th>Time</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>insertFront(x)</td>
+<td>O(1)</td>
+</tr>
+<tr>
+<td>insertRear(x)</td>
+<td>O(1)</td>
+</tr>
+<tr>
+<td>removeFront()</td>
+<td>O(1)</td>
+</tr>
+<tr>
+<td>removeRear()</td>
+<td>O(1)</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Use cases:</strong>
+- <strong>Sliding window maximum</strong> — Maintain a deque of indices; remove from front (out of window) and rear (smaller elements).
+- <strong>0-1 BFS</strong> — Push 0-weight edges to front, 1-weight edges to rear.
+- <strong>Palindrome check</strong> — Compare front and rear, shrinking inward.
+- A deque can simulate both a stack (use one end) and a queue (use both ends).</p>
+<hr />
+<h3 id="q13-implement-a-stack-using-two-queues-what-is-the-time-complexity">Q13. Implement a stack using two queues. What is the time complexity?</h3>
+<p><strong>Answer:</strong></p>
+<p><strong>Approach (make push expensive):</strong></p>
+<pre><code>push(x):
     enqueue x onto Q2
-    while Q1 not empty:
-        dequeue from Q1, enqueue onto Q2
+    while Q1 is not empty:
+        dequeue from Q1 and enqueue onto Q2
     swap Q1 and Q2
 
 pop():
-    return dequeue from Q1</code></pre>
-  <p>push = O(n), pop = O(1). After push, Q1 has elements in stack order.</p>
-</div></div>
+    return dequeue from Q1
+</code></pre>
+<p>After push, Q1 always has elements in stack order (most recent at front).</p>
+<p><strong>Trace: push(1), push(2), push(3):</strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Operation</th>
+<th>Q1</th>
+<th>Q2</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>push(1)</td>
+<td>[1]</td>
+<td>[]</td>
+</tr>
+<tr>
+<td>push(2)</td>
+<td>[2, 1]</td>
+<td>[]</td>
+</tr>
+<tr>
+<td>push(3)</td>
+<td>[3, 2, 1]</td>
+<td>[]</td>
+</tr>
+<tr>
+<td>pop() → 3</td>
+<td>[2, 1]</td>
+<td>[]</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Complexity:</strong> push = O(n), pop = O(1).</p>
+<p>Alternative approach makes pop expensive: push = O(1), pop = O(n).</p>
+<hr />
+<h3 id="q14-write-bfs-using-a-queue-and-trace-it-on-this-graph-from-vertex-a">Q14. Write BFS using a queue and trace it on this graph from vertex A.</h3>
+<pre><code>A — B
+|   |
+C — D — E
+</code></pre>
+<p><strong>Answer:</strong></p>
+<pre><code>BFS(A):
+    Queue: [A], Visited: {A}
 
-<div class="q" data-s="s2"><div class="q-head" onclick="tog(this)"><div class="q-num c2">Q14</div><div class="q-title">Trace BFS from vertex A: A—B, A—C, B—D, C—D, D—E.</div><div class="q-chk"><input type="checkbox" onchange="sc()" title="Reviewed"></div><div class="q-arrow">&#9660;</div></div><div class="q-ans">
-  <table><tr><th>Step</th><th>Dequeue</th><th>Enqueue</th><th>Queue</th></tr>
-  <tr><td>0</td><td>—</td><td>A</td><td>[A]</td></tr>
-  <tr><td>1</td><td>A</td><td>B, C</td><td>[B, C]</td></tr>
-  <tr><td>2</td><td>B</td><td>D</td><td>[C, D]</td></tr>
-  <tr><td>3</td><td>C</td><td>(D visited)</td><td>[D]</td></tr>
-  <tr><td>4</td><td>D</td><td>E</td><td>[E]</td></tr>
-  <tr><td>5</td><td>E</td><td>—</td><td>[]</td></tr></table>
-  <p><strong>BFS order: A → B → C → D → E</strong></p>
-</div></div>
+    Dequeue A → process A. Neighbours: B, C
+    Queue: [B, C], Visited: {A, B, C}
 
-<div class="q" data-s="s2"><div class="q-head" onclick="tog(this)"><div class="q-num c2">Q15</div><div class="q-title">What is a priority queue? How is it different from a regular queue?</div><div class="q-chk"><input type="checkbox" onchange="sc()" title="Reviewed"></div><div class="q-arrow">&#9660;</div></div><div class="q-ans">
-  <table><tr><th></th><th>Queue</th><th>Priority Queue</th></tr>
-  <tr><td>Order</td><td>FIFO</td><td>By priority</td></tr>
-  <tr><td>Insert</td><td>O(1)</td><td>O(log n)</td></tr>
-  <tr><td>Remove</td><td>O(1)</td><td>O(log n)</td></tr>
-  <tr><td>Implementation</td><td>Array/linked list</td><td>Binary heap</td></tr>
-  <tr><td>Use</td><td>BFS, scheduling</td><td>Dijkstra's, Huffman</td></tr></table>
-</div></div>
+    Dequeue B → process B. Neighbours: A(visited), D
+    Queue: [C, D], Visited: {A, B, C, D}
 
-<div class="q" data-s="s2"><div class="q-head" onclick="tog(this)"><div class="q-num c2">Q16</div><div class="q-title">List 5 applications of queues.</div><div class="q-chk"><input type="checkbox" onchange="sc()" title="Reviewed"></div><div class="q-arrow">&#9660;</div></div><div class="q-ans">
-  <ol><li>BFS graph traversal</li><li>Level-order tree traversal</li><li>Task scheduling (OS ready queue)</li><li>Print spooling</li><li>Producer-consumer buffer</li></ol>
-</div></div>
+    Dequeue C → process C. Neighbours: A(visited), D(visited)
+    Queue: [D]
 
-<!-- ==================== AMORTISED ==================== -->
-<div class="sec-label s3" id="sec-s3">Amortised Analysis (Q17–Q23)</div>
+    Dequeue D → process D. Neighbours: B(visited), C(visited), E
+    Queue: [E], Visited: {A, B, C, D, E}
 
-<div class="q" data-s="s3"><div class="q-head" onclick="tog(this)"><div class="q-num c3">Q17</div><div class="q-title">What is amortised analysis? How is it different from average-case?</div><div class="q-chk"><input type="checkbox" onchange="sc()" title="Reviewed"></div><div class="q-arrow">&#9660;</div></div><div class="q-ans">
-  <table><tr><th></th><th>Amortised</th><th>Average-case</th></tr>
-  <tr><td>Measures</td><td>Avg cost over worst-case <strong>sequence</strong></td><td>Expected cost over random <strong>inputs</strong></td></tr>
-  <tr><td>Probability?</td><td><strong>No</strong></td><td>Yes</td></tr>
-  <tr><td>Guarantee</td><td>Deterministic bound for any sequence</td><td>Probabilistic</td></tr></table>
-</div></div>
+    Dequeue E → process E. No unvisited neighbours.
+    Queue: []
+</code></pre>
+<p><strong>BFS order: A → B → C → D → E</strong></p>
+<hr />
+<h3 id="q15-what-is-a-priority-queue-how-is-it-different-from-a-regular-queue">Q15. What is a priority queue? How is it different from a regular queue?</h3>
+<p><strong>Answer:</strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Aspect</th>
+<th>Regular Queue</th>
+<th>Priority Queue</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Order</td>
+<td>FIFO — first in, first out</td>
+<td>Highest/lowest priority out first</td>
+</tr>
+<tr>
+<td>Insert</td>
+<td>O(1)</td>
+<td>O(log n) — heap insert</td>
+</tr>
+<tr>
+<td>Remove</td>
+<td>O(1)</td>
+<td>O(log n) — heap extract</td>
+</tr>
+<tr>
+<td>Implementation</td>
+<td>Array/linked list</td>
+<td>Binary heap (most common)</td>
+</tr>
+<tr>
+<td>Use cases</td>
+<td>BFS, scheduling</td>
+<td>Dijkstra's, Huffman coding, event simulation</td>
+</tr>
+</tbody>
+</table></div>
+<p>A priority queue does NOT preserve insertion order — it serves elements by priority regardless of when they arrived.</p>
+<hr />
+<h3 id="q16-list-5-applications-of-queues">Q16. List 5 applications of queues.</h3>
+<p><strong>Answer:</strong></p>
+<ol>
+<li><strong>BFS graph traversal</strong> — vertices discovered in order of distance.</li>
+<li><strong>Level-order tree traversal</strong> — visit nodes level by level.</li>
+<li><strong>Task scheduling (OS)</strong> — ready queue, I/O request queue.</li>
+<li><strong>Print spooling</strong> — print jobs served in arrival order.</li>
+<li><strong>Producer-consumer buffer</strong> — decouples data producers from consumers.</li>
+<li><strong>Simulation</strong> — modelling real-world queues (banks, traffic).</li>
+</ol>
+<h2 id="-_2">---</h2>
+<h2 id="amortised-analysis-q17q23">Amortised Analysis (Q17–Q23)</h2>
+<hr />
+<h3 id="q17-what-is-amortised-analysis-how-is-it-different-from-average-case-analysis">Q17. What is amortised analysis? How is it different from average-case analysis?</h3>
+<p><strong>Answer:</strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Aspect</th>
+<th>Amortised Analysis</th>
+<th>Average-Case Analysis</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>What it measures</td>
+<td>Average cost per operation over a <strong>worst-case sequence</strong> of n operations.</td>
+<td>Expected cost of a single operation assuming a <strong>probability distribution</strong> over inputs.</td>
+</tr>
+<tr>
+<td>Probability?</td>
+<td><strong>No</strong> — no assumptions about input distribution.</td>
+<td><strong>Yes</strong> — requires a probabilistic model.</td>
+</tr>
+<tr>
+<td>Guarantee</td>
+<td>Guaranteed bound for any sequence.</td>
+<td>Expected bound over random inputs.</td>
+</tr>
+<tr>
+<td>Example</td>
+<td>Dynamic array insert = O(1) amortised</td>
+<td>Quick Sort = O(n log n) average</td>
+</tr>
+</tbody>
+</table></div>
+<p>Amortised analysis is <strong>deterministic</strong> — it works for the worst possible sequence of operations.</p>
+<hr />
+<h3 id="q18-explain-the-aggregate-method-with-the-multipop-stack-example">Q18. Explain the Aggregate Method with the MULTIPOP stack example.</h3>
+<p><strong>Answer:</strong></p>
+<p><strong>Setup:</strong> Stack supports PUSH (cost 1), POP (cost 1), MULTIPOP(k) (cost min(k, stack_size)).</p>
+<p><strong>Naive worst case:</strong> MULTIPOP can cost O(n) → n operations could be O(n²). <strong>Too pessimistic!</strong></p>
+<p><strong>Aggregate method:</strong>
+- Each element is pushed at most once → total push cost ≤ n.
+- Each element is popped at most once (whether by POP or MULTIPOP) → total pop cost ≤ n.
+- Total cost ≤ 2n.
+- <strong>Amortised cost = 2n / n = O(1) per operation.</strong></p>
+<p>The key insight: <strong>you can't pop more than you've pushed</strong>.</p>
+<hr />
+<h3 id="q19-prove-that-a-queue-implemented-with-two-stacks-has-o1-amortised-cost-per-operation">Q19. Prove that a queue implemented with two stacks has O(1) amortised cost per operation.</h3>
+<p><strong>Answer:</strong></p>
+<p><strong>Implementation:</strong> S1 for enqueue (push), S2 for dequeue (pop). When S2 is empty, transfer all elements from S1 to S2.</p>
+<p><strong>Aggregate analysis:</strong> Each element undergoes at most 4 operations in its lifetime:
+1. Push onto S1 (during enqueue) — cost 1
+2. Pop from S1 (during transfer) — cost 1
+3. Push onto S2 (during transfer) — cost 1
+4. Pop from S2 (during dequeue) — cost 1</p>
+<p>Total cost per element = 4. Over n operations with at most n elements:</p>
+<p><strong>Total cost ≤ 4n. Amortised cost = 4n/n = O(1).</strong> ∎</p>
+<hr />
+<h3 id="q20-prove-that-dynamic-array-insertion-has-o1-amortised-cost-using-the-aggregate-method">Q20. Prove that dynamic array insertion has O(1) amortised cost using the Aggregate Method.</h3>
+<p><strong>Answer:</strong></p>
+<p>Starting from capacity 1, doubling when full.</p>
+<p><strong>Cost of n insertions:</strong>
+- Normal insert (no resize): cost 1. Happens n times → total n.
+- Resize at sizes 1, 2, 4, 8, ..., 2^k where 2^k ≤ n:
+  - Copy costs: 1 + 2 + 4 + 8 + ... + 2^k = 2^(k+1) - 1 &lt; 2n.</p>
+<p><strong>Total cost &lt; n + 2n = 3n.</strong></p>
+<p><strong>Amortised cost = 3n / n = O(1).</strong> ∎</p>
+<hr />
+<h3 id="q21-why-does-doubling-capacity-give-o1-amortised-but-adding-a-constant-gives-on-amortised">Q21. Why does doubling capacity give O(1) amortised, but adding a constant gives O(n) amortised?</h3>
+<p><strong>Answer:</strong></p>
+<p><strong>Doubling (multiply by 2):</strong>
+- Resizes at insertions: 1, 2, 4, 8, ..., n.
+- Total copies: 1 + 2 + 4 + ... + n = O(n) (geometric series).
+- Amortised: O(n)/n = <strong>O(1)</strong>.</p>
+<p><strong>Adding constant c:</strong>
+- Resizes at insertions: c, 2c, 3c, ..., n.
+- Number of resizes = n/c.
+- Total copies: c + 2c + 3c + ... + (n/c)·c = c · (n/c)(n/c + 1)/2 = <strong>O(n²/c)</strong> = O(n²).
+- Amortised: O(n²)/n = <strong>O(n)</strong>.</p>
+<p><strong>Geometric growth (doubling)</strong> makes resize costs decrease relative to the number of insertions between resizes. <strong>Arithmetic growth</strong> does not.</p>
+<hr />
+<h3 id="q22-trace-the-amortised-cost-of-8-insertions-into-a-dynamic-array-starting-from-capacity-1">Q22. Trace the amortised cost of 8 insertions into a dynamic array starting from capacity 1.</h3>
+<p><strong>Answer:</strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Insert #</th>
+<th>Capacity before</th>
+<th>Resize?</th>
+<th>Copy cost</th>
+<th>Insert cost</th>
+<th>Total step cost</th>
+<th>Array</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>1</td>
+<td>Yes → 2</td>
+<td>1</td>
+<td>1</td>
+<td>2</td>
+<td>[1]</td>
+</tr>
+<tr>
+<td>2</td>
+<td>2</td>
+<td>Yes → 4</td>
+<td>2</td>
+<td>1</td>
+<td>3</td>
+<td>[1, 2]</td>
+</tr>
+<tr>
+<td>3</td>
+<td>4</td>
+<td>No</td>
+<td>0</td>
+<td>1</td>
+<td>1</td>
+<td>[1, 2, 3]</td>
+</tr>
+<tr>
+<td>4</td>
+<td>4</td>
+<td>Yes → 8</td>
+<td>4</td>
+<td>1</td>
+<td>5</td>
+<td>[1, 2, 3, 4]</td>
+</tr>
+<tr>
+<td>5</td>
+<td>8</td>
+<td>No</td>
+<td>0</td>
+<td>1</td>
+<td>1</td>
+<td>[1, 2, 3, 4, 5]</td>
+</tr>
+<tr>
+<td>6</td>
+<td>8</td>
+<td>No</td>
+<td>0</td>
+<td>1</td>
+<td>1</td>
+<td>[..., 6]</td>
+</tr>
+<tr>
+<td>7</td>
+<td>8</td>
+<td>No</td>
+<td>0</td>
+<td>1</td>
+<td>1</td>
+<td>[..., 7]</td>
+</tr>
+<tr>
+<td>8</td>
+<td>8</td>
+<td>Yes → 16</td>
+<td>8</td>
+<td>1</td>
+<td>9</td>
+<td>[..., 8]</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Total cost: 2+3+1+5+1+1+1+9 = 23</strong>
+<strong>Amortised: 23/8 ≈ 2.88 = O(1) ✓</strong></p>
+<hr />
+<h3 id="q23-a-binary-counter-increments-from-0-to-n-prove-the-amortised-cost-per-increment-is-o1">Q23. A binary counter increments from 0 to n. Prove the amortised cost per increment is O(1).</h3>
+<p><strong>Answer:</strong></p>
+<p>A k-bit binary counter: each INCREMENT flips some bits from 1 to 0 and one bit from 0 to 1.</p>
+<p><strong>Aggregate analysis:</strong>
+- Bit 0 flips every increment → n flips total.
+- Bit 1 flips every 2nd increment → n/2 flips.
+- Bit 2 flips every 4th increment → n/4 flips.
+- Bit i flips n/2^i times.</p>
+<p><strong>Total flips = n + n/2 + n/4 + ... = n · (1 + 1/2 + 1/4 + ...) &lt; 2n.</strong></p>
+<p><strong>Amortised cost per increment = 2n/n = O(1).</strong> ∎</p>
+<h2 id="-_3">---</h2>
+<h2 id="lists-q24q30">Lists (Q24–Q30)</h2>
+<hr />
+<h3 id="q24-what-is-the-key-advantage-of-a-doubly-linked-list-over-a-singly-linked-list">Q24. What is the key advantage of a doubly linked list over a singly linked list?</h3>
+<p><strong>Answer:</strong></p>
+<p><strong>O(1) deletion given a node pointer.</strong></p>
+<p>In a singly linked list, to delete node X, you must traverse from the head to find X's predecessor (O(n)). In a doubly linked list, X already knows its predecessor via <code>X.prev</code>, so you can update the links in O(1):</p>
+<pre><code>X.prev.next = X.next
+X.next.prev = X.prev
+free(X)
+</code></pre>
+<p>This is critical for:
+- <strong>LRU Cache</strong> — move accessed node to front in O(1).
+- <strong>Efficient removal</strong> during graph algorithms.</p>
+<hr />
+<h3 id="q25-reverse-a-singly-linked-list-trace-on-123null">Q25. Reverse a singly linked list. Trace on 1→2→3→NULL.</h3>
+<p><strong>Answer:</strong></p>
+<pre><code>reverse(head):
+    prev = NULL, curr = head
+    while curr ≠ NULL:
+        next = curr.next
+        curr.next = prev
+        prev = curr
+        curr = next
+    return prev
+</code></pre>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Step</th>
+<th>prev</th>
+<th>curr</th>
+<th>next</th>
+<th>List state</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0</td>
+<td>NULL</td>
+<td>1</td>
+<td>—</td>
+<td>1→2→3→NULL</td>
+</tr>
+<tr>
+<td>1</td>
+<td>NULL</td>
+<td>1</td>
+<td>2</td>
+<td>NULL←1  2→3→NULL</td>
+</tr>
+<tr>
+<td>2</td>
+<td>1</td>
+<td>2</td>
+<td>3</td>
+<td>NULL←1←2  3→NULL</td>
+</tr>
+<tr>
+<td>3</td>
+<td>2</td>
+<td>3</td>
+<td>NULL</td>
+<td>NULL←1←2←3</td>
+</tr>
+<tr>
+<td>End</td>
+<td>3</td>
+<td>NULL</td>
+<td>—</td>
+<td>3→2→1→NULL ✓</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>New head: 3. Time: O(n). Space: O(1).</strong></p>
+<hr />
+<h3 id="q26-detect-a-cycle-in-a-linked-list-using-floyds-algorithm-why-does-it-work">Q26. Detect a cycle in a linked list using Floyd's algorithm. Why does it work?</h3>
+<p><strong>Answer:</strong></p>
+<pre><code>hasCycle(head):
+    slow = fast = head
+    while fast ≠ NULL AND fast.next ≠ NULL:
+        slow = slow.next          // 1 step
+        fast = fast.next.next     // 2 steps
+        if slow == fast: return True
+    return False
+</code></pre>
+<p><strong>Why it works:</strong>
+- If no cycle: fast reaches NULL → return False.
+- If cycle exists: once both pointers are inside the cycle, fast gains 1 step on slow each iteration. Since the cycle has finite length L, fast catches slow within L iterations.</p>
+<p><strong>Finding cycle start:</strong> After detection (slow == fast), reset slow to head. Move both one step at a time. They meet at the <strong>cycle start</strong>.</p>
+<p><strong>Proof:</strong> Let d = distance from head to cycle start, and k = distance from cycle start to meeting point. When they meet: slow traveled d+k steps, fast traveled 2(d+k) steps. The difference d+k is a multiple of cycle length L. So d+k = mL → d = mL - k. Starting from head (distance d to cycle start) and from meeting point (distance L-k to cycle start): both reach the cycle start after d steps.</p>
+<hr />
+<h3 id="q27-design-an-lru-cache-using-a-doubly-linked-list-hash-map">Q27. Design an LRU Cache using a doubly linked list + hash map.</h3>
+<p><strong>Answer:</strong></p>
+<p><strong>Data structures:</strong>
+- <strong>Doubly linked list:</strong> Stores key-value pairs. Most recently used at <strong>head</strong>, least recently used at <strong>tail</strong>.
+- <strong>Hash map:</strong> Maps key → node pointer for O(1) lookup.</p>
+<p><strong>Operations:</strong></p>
+<pre><code>get(key):
+    if key in hashmap:
+        node = hashmap[key]
+        moveToHead(node)       // mark as recently used
+        return node.value
+    return -1                  // not found
 
-<div class="q" data-s="s3"><div class="q-head" onclick="tog(this)"><div class="q-num c3">Q18</div><div class="q-title">Prove MULTIPOP stack has O(1) amortised cost (Aggregate Method).</div><div class="q-chk"><input type="checkbox" onchange="sc()" title="Reviewed"></div><div class="q-arrow">&#9660;</div></div><div class="q-ans">
-  <div class="warn"><strong>Naive:</strong> MULTIPOP costs O(n) → n ops = O(n²)? Too pessimistic!</div>
-  <div class="tip"><strong>Proof:</strong> Each element pushed at most once (cost ≤ n). Each popped at most once (cost ≤ n). Total ≤ 2n. <strong>Amortised = 2n/n = O(1).</strong></div>
-  <p><strong>Key insight:</strong> You can't pop more than you've pushed.</p>
-</div></div>
+put(key, value):
+    if key in hashmap:
+        node = hashmap[key]
+        node.value = value
+        moveToHead(node)
+    else:
+        newNode = create Node(key, value)
+        hashmap[key] = newNode
+        addToHead(newNode)
+        if size &gt; capacity:
+            tail = removeTail()    // evict LRU
+            delete hashmap[tail.key]
+</code></pre>
+<p><strong>All operations: O(1).</strong></p>
+<p>The doubly linked list enables O(1) removal (for moveToHead and removeTail). The hash map enables O(1) lookup.</p>
+<hr />
+<h3 id="q28-when-should-you-use-an-array-vs-a-linked-list">Q28. When should you use an array vs a linked list?</h3>
+<p><strong>Answer:</strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Use Array When</th>
+<th>Use Linked List When</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Frequent random access (index-based lookups).</td>
+<td>Frequent insertions/deletions at arbitrary positions.</td>
+</tr>
+<tr>
+<td>Size is known or predictable.</td>
+<td>Size is highly dynamic/unpredictable.</td>
+</tr>
+<tr>
+<td>Cache performance matters (contiguous memory).</td>
+<td>Memory fragmentation is acceptable.</td>
+</tr>
+<tr>
+<td>Need binary search on sorted data.</td>
+<td>Implementing stacks/queues (operations at ends).</td>
+</tr>
+<tr>
+<td>Memory efficiency matters (no pointer overhead).</td>
+<td>Need O(1) deletion given a node pointer (doubly linked).</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>General rule:</strong> Default to arrays. Use linked lists only when insertion/deletion at arbitrary positions is frequent and access-by-index is rare.</p>
+<hr />
+<h3 id="q29-implement-a-stack-using-a-singly-linked-list-write-push-pop-and-isempty-in-c">Q29. Implement a stack using a singly linked list. Write push, pop, and isEmpty in C.</h3>
+<p><strong>Answer:</strong></p>
+<pre><code class="language-c">struct Node {
+    int data;
+    struct Node* next;
+};
 
-<div class="q" data-s="s3"><div class="q-head" onclick="tog(this)"><div class="q-num c3">Q19</div><div class="q-title">Prove two-stack queue has O(1) amortised cost.</div><div class="q-chk"><input type="checkbox" onchange="sc()" title="Reviewed"></div><div class="q-arrow">&#9660;</div></div><div class="q-ans">
-  <p>Each element: push S1 (1) + pop S1 (1) + push S2 (1) + pop S2 (1) = <strong>4 moves max</strong>.</p>
-  <p>n operations, at most n elements → Total ≤ 4n → <strong>Amortised = O(1).</strong></p>
-</div></div>
+struct Stack {
+    struct Node* head;
+    int size;
+};
 
-<div class="q" data-s="s3"><div class="q-head" onclick="tog(this)"><div class="q-num c3">Q20</div><div class="q-title">Prove dynamic array insertion has O(1) amortised cost.</div><div class="q-chk"><input type="checkbox" onchange="sc()" title="Reviewed"></div><div class="q-arrow">&#9660;</div></div><div class="q-ans">
-  <p>Doubling capacity. Copy costs: 1+2+4+...+n &lt; 2n. Plus n normal inserts.</p>
-  <p><strong>Total &lt; 3n → Amortised = 3n/n = O(1).</strong></p>
-</div></div>
+void init(struct Stack* s) {
+    s-&gt;head = NULL;
+    s-&gt;size = 0;
+}
 
-<div class="q" data-s="s3"><div class="q-head" onclick="tog(this)"><div class="q-num c3">Q21</div><div class="q-title">Why doubling gives O(1) amortised but adding a constant gives O(n)?</div><div class="q-chk"><input type="checkbox" onchange="sc()" title="Reviewed"></div><div class="q-arrow">&#9660;</div></div><div class="q-ans">
-  <table><tr><th>Strategy</th><th>Total copies</th><th>Amortised</th></tr>
-  <tr><td>Doubling (×2)</td><td>1+2+4+...+n = O(n) (geometric)</td><td><strong>O(1)</strong></td></tr>
-  <tr><td>Adding constant c</td><td>c+2c+3c+... = O(n²/c) (arithmetic)</td><td><strong>O(n)</strong></td></tr></table>
-  <p>Geometric growth makes resize cost negligible. Arithmetic growth does not.</p>
-</div></div>
-
-<div class="q" data-s="s3"><div class="q-head" onclick="tog(this)"><div class="q-num c3">Q22</div><div class="q-title">Trace amortised cost of 8 dynamic array insertions.</div><div class="q-chk"><input type="checkbox" onchange="sc()" title="Reviewed"></div><div class="q-arrow">&#9660;</div></div><div class="q-ans">
-  <table><tr><th>#</th><th>Cap</th><th>Resize?</th><th>Cost</th></tr>
-  <tr><td>1</td><td>1→2</td><td>Yes</td><td><strong>2</strong></td></tr>
-  <tr><td>2</td><td>2→4</td><td>Yes</td><td><strong>3</strong></td></tr>
-  <tr><td>3</td><td>4</td><td>No</td><td>1</td></tr>
-  <tr><td>4</td><td>4→8</td><td>Yes</td><td><strong>5</strong></td></tr>
-  <tr><td>5-7</td><td>8</td><td>No</td><td>1 each</td></tr>
-  <tr><td>8</td><td>8→16</td><td>Yes</td><td><strong>9</strong></td></tr></table>
-  <p>Total: 2+3+1+5+1+1+1+9 = <strong>23</strong>. Amortised: 23/8 ≈ 2.88 = <strong>O(1)</strong> ✓</p>
-</div></div>
-
-<div class="q" data-s="s3"><div class="q-head" onclick="tog(this)"><div class="q-num c3">Q23</div><div class="q-title">Prove binary counter increment has O(1) amortised cost.</div><div class="q-chk"><input type="checkbox" onchange="sc()" title="Reviewed"></div><div class="q-arrow">&#9660;</div></div><div class="q-ans">
-  <p>Bit i flips n/2<sup>i</sup> times over n increments.</p>
-  <pre><code>Total = n + n/2 + n/4 + ... = n × (1 + 1/2 + 1/4 + ...) < 2n</code></pre>
-  <p><strong>Amortised = 2n/n = O(1).</strong></p>
-</div></div>
-
-<!-- ==================== LISTS ==================== -->
-<div class="sec-label s4" id="sec-s4">Lists (Q24–Q30)</div>
-
-<div class="q" data-s="s4"><div class="q-head" onclick="tog(this)"><div class="q-num c4">Q24</div><div class="q-title">Key advantage of doubly linked list over singly linked list?</div><div class="q-chk"><input type="checkbox" onchange="sc()" title="Reviewed"></div><div class="q-arrow">&#9660;</div></div><div class="q-ans">
-  <p><strong>O(1) deletion given a node pointer.</strong> In singly linked, deleting needs the predecessor (O(n) traversal). In doubly linked, <code>node.prev</code> is already available.</p>
-  <p>Critical for: <strong>LRU Cache</strong> (move accessed node to front in O(1)).</p>
-</div></div>
-
-<div class="q" data-s="s4"><div class="q-head" onclick="tog(this)"><div class="q-num c4">Q25</div><div class="q-title">Reverse a singly linked list. Trace on 1→2→3→NULL.</div><div class="q-chk"><input type="checkbox" onchange="sc()" title="Reviewed"></div><div class="q-arrow">&#9660;</div></div><div class="q-ans">
-  <pre><code>prev=NULL, curr=head
-while curr ≠ NULL:
-    next = curr.next
-    curr.next = prev
-    prev = curr; curr = next
-return prev</code></pre>
-  <table><tr><th>Step</th><th>prev</th><th>curr</th><th>Result</th></tr>
-  <tr><td>1</td><td>1</td><td>2</td><td>NULL←1 &nbsp; 2→3</td></tr>
-  <tr><td>2</td><td>2</td><td>3</td><td>NULL←1←2 &nbsp; 3</td></tr>
-  <tr><td>3</td><td>3</td><td>NULL</td><td>3→2→1→NULL ✓</td></tr></table>
-  <p><strong>O(n) time, O(1) space.</strong></p>
-</div></div>
-
-<div class="q" data-s="s4"><div class="q-head" onclick="tog(this)"><div class="q-num c4">Q26</div><div class="q-title">Detect a cycle using Floyd's algorithm. Why does it work?</div><div class="q-chk"><input type="checkbox" onchange="sc()" title="Reviewed"></div><div class="q-arrow">&#9660;</div></div><div class="q-ans">
-  <pre><code>slow = fast = head
-while fast ≠ NULL AND fast.next ≠ NULL:
-    slow = slow.next       // 1 step
-    fast = fast.next.next  // 2 steps
-    if slow == fast: return True (cycle!)
-return False</code></pre>
-  <p><strong>Why:</strong> In a cycle, fast gains 1 step per iteration. Since cycle has finite length, fast catches slow. <strong>O(n) time, O(1) space.</strong></p>
-  <p><strong>Find start:</strong> After meeting, reset slow to head. Move both 1 step at a time — they meet at cycle start.</p>
-</div></div>
-
-<div class="q" data-s="s4"><div class="q-head" onclick="tog(this)"><div class="q-num c4">Q27</div><div class="q-title">Design an LRU Cache (Doubly Linked List + Hash Map).</div><div class="q-chk"><input type="checkbox" onchange="sc()" title="Reviewed"></div><div class="q-arrow">&#9660;</div></div><div class="q-ans">
-  <p><strong>DLL:</strong> Most recent at head, least recent at tail. <strong>HashMap:</strong> key → node pointer.</p>
-  <pre><code>get(key):
-    if in map: moveToHead(node), return value
-    else: return -1
-
-put(key, val):
-    if in map: update val, moveToHead
-    else: addToHead, if over capacity → removeTail</code></pre>
-  <p>All operations <strong>O(1)</strong>. DLL enables O(1) removal; HashMap enables O(1) lookup.</p>
-</div></div>
-
-<div class="q" data-s="s4"><div class="q-head" onclick="tog(this)"><div class="q-num c4">Q28</div><div class="q-title">When should you use an array vs a linked list?</div><div class="q-chk"><input type="checkbox" onchange="sc()" title="Reviewed"></div><div class="q-arrow">&#9660;</div></div><div class="q-ans">
-  <table><tr><th>Use Array</th><th>Use Linked List</th></tr>
-  <tr><td>Frequent random access</td><td>Frequent insert/delete at arbitrary positions</td></tr>
-  <tr><td>Known/predictable size</td><td>Highly dynamic size</td></tr>
-  <tr><td>Cache performance matters</td><td>Need O(1) delete given node (doubly)</td></tr>
-  <tr><td>Need binary search</td><td>Implementing stacks/queues</td></tr></table>
-  <p><strong>Default to arrays.</strong> Use linked lists only when insert/delete is frequent and index access is rare.</p>
-</div></div>
-
-<div class="q" data-s="s4"><div class="q-head" onclick="tog(this)"><div class="q-num c4">Q29</div><div class="q-title">Implement a stack using a singly linked list in C.</div><div class="q-chk"><input type="checkbox" onchange="sc()" title="Reviewed"></div><div class="q-arrow">&#9660;</div></div><div class="q-ans">
-  <pre><code>struct Node { int data; struct Node* next; };
-struct Stack { struct Node* head; };
+int isEmpty(struct Stack* s) {
+    return s-&gt;head == NULL;
+}
 
 void push(struct Stack* s, int x) {
-    struct Node* n = malloc(sizeof(struct Node));
-    n->data = x;
-    n->next = s->head;
-    s->head = n;
+    struct Node* newNode = (struct Node*)malloc(sizeof(struct Node));
+    newNode-&gt;data = x;
+    newNode-&gt;next = s-&gt;head;
+    s-&gt;head = newNode;
+    s-&gt;size++;
 }
+
 int pop(struct Stack* s) {
-    if (!s->head) return -1; // underflow
-    struct Node* t = s->head;
-    int val = t->data;
-    s->head = s->head->next;
-    free(t);
+    if (isEmpty(s)) {
+        printf(&quot;Underflow\n&quot;);
+        return -1;
+    }
+    struct Node* temp = s-&gt;head;
+    int val = temp-&gt;data;
+    s-&gt;head = s-&gt;head-&gt;next;
+    free(temp);
+    s-&gt;size--;
     return val;
-}</code></pre>
-  <p>All O(1). No overflow.</p>
-</div></div>
+}
+</code></pre>
+<p><strong>All operations O(1). No overflow (until system memory exhausted).</strong></p>
+<hr />
+<h3 id="q30-find-the-middle-element-of-a-linked-list-in-one-pass">Q30. Find the middle element of a linked list in one pass.</h3>
+<p><strong>Answer:</strong></p>
+<p>Use the <strong>slow-fast pointer</strong> technique:</p>
+<pre><code>findMiddle(head):
+    slow = head
+    fast = head
+    while fast ≠ NULL AND fast.next ≠ NULL:
+        slow = slow.next           // 1 step
+        fast = fast.next.next      // 2 steps
+    return slow                    // slow is at the middle
+</code></pre>
+<p><strong>Why it works:</strong> When fast reaches the end (having traversed n nodes), slow has traversed n/2 nodes — exactly the middle.</p>
+<p><strong>Example: 1→2→3→4→5</strong>
+| Step | slow | fast |
+|------|------|------|
+| 0 | 1 | 1 |
+| 1 | 2 | 3 |
+| 2 | 3 | 5 |
+| 3 | — | NULL (fast.next = NULL, stop) |</p>
+<p><strong>Middle: 3 ✓</strong></p>
+<p><strong>Time: O(n). Space: O(1). Single pass.</strong></p>
+<h2 id="-_4">---</h2>
+<h2 id="practice-problems-stacks-queues-linked-lists-q31q44">Practice Problems — Stacks, Queues &amp; Linked Lists (Q31–Q44)</h2>
+<div class="callout">
+<p>Additional practice questions based on class material covering stack problems, queue problems, and linked list operations.</p>
+</div>
+<hr />
+<h3 id="q31-reverse-a-string-using-a-stack-trace-the-execution-for-the-string-hello">Q31. Reverse a string using a stack. Trace the execution for the string "HELLO".</h3>
+<p><strong>Answer:</strong></p>
+<pre><code>Algorithm ReverseString(str, n)
+    S ← empty stack
+    for i ← 0 to n-1 do
+        S.push(str[i])
+    result ← &quot;&quot;
+    while S is not empty do
+        result ← result + S.pop()
+    return result
+</code></pre>
+<p><strong>Trace for "HELLO":</strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Step</th>
+<th>Operation</th>
+<th>Stack</th>
+<th>Result</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>push('H')</td>
+<td>[H]</td>
+<td>""</td>
+</tr>
+<tr>
+<td>2</td>
+<td>push('E')</td>
+<td>[H, E]</td>
+<td>""</td>
+</tr>
+<tr>
+<td>3</td>
+<td>push('L')</td>
+<td>[H, E, L]</td>
+<td>""</td>
+</tr>
+<tr>
+<td>4</td>
+<td>push('L')</td>
+<td>[H, E, L, L]</td>
+<td>""</td>
+</tr>
+<tr>
+<td>5</td>
+<td>push('O')</td>
+<td>[H, E, L, L, O]</td>
+<td>""</td>
+</tr>
+<tr>
+<td>6</td>
+<td>pop() → 'O'</td>
+<td>[H, E, L, L]</td>
+<td>"O"</td>
+</tr>
+<tr>
+<td>7</td>
+<td>pop() → 'L'</td>
+<td>[H, E, L]</td>
+<td>"OL"</td>
+</tr>
+<tr>
+<td>8</td>
+<td>pop() → 'L'</td>
+<td>[H, E]</td>
+<td>"OLL"</td>
+</tr>
+<tr>
+<td>9</td>
+<td>pop() → 'E'</td>
+<td>[H]</td>
+<td>"OLLE"</td>
+</tr>
+<tr>
+<td>10</td>
+<td>pop() → 'H'</td>
+<td>[]</td>
+<td>"OLLEH"</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Result: "OLLEH"</strong> ✓</p>
+<p><strong>Time: O(n). Space: O(n).</strong></p>
+<hr />
+<h3 id="q32-check-if-a-string-is-a-palindrome-using-a-stack-trace-for-racecar-and-hello">Q32. Check if a string is a palindrome using a stack. Trace for "RACECAR" and "HELLO".</h3>
+<p><strong>Answer:</strong></p>
+<pre><code>Algorithm IsPalindrome(str, n)
+    S ← empty stack
+    for i ← 0 to n-1 do
+        S.push(str[i])
+    for i ← 0 to n-1 do
+        if str[i] ≠ S.pop() then
+            return FALSE
+    return TRUE
+</code></pre>
+<p><strong>Trace for "RACECAR" (n=7):</strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Step</th>
+<th>str[i]</th>
+<th>pop()</th>
+<th>Match?</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>R</td>
+<td>R</td>
+<td>✓</td>
+</tr>
+<tr>
+<td>2</td>
+<td>A</td>
+<td>A</td>
+<td>✓</td>
+</tr>
+<tr>
+<td>3</td>
+<td>C</td>
+<td>C</td>
+<td>✓</td>
+</tr>
+<tr>
+<td>4</td>
+<td>E</td>
+<td>E</td>
+<td>✓</td>
+</tr>
+<tr>
+<td>5</td>
+<td>C</td>
+<td>C</td>
+<td>✓</td>
+</tr>
+<tr>
+<td>6</td>
+<td>A</td>
+<td>A</td>
+<td>✓</td>
+</tr>
+<tr>
+<td>7</td>
+<td>R</td>
+<td>R</td>
+<td>✓</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Result: TRUE</strong> — "RACECAR" is a palindrome ✓</p>
+<p><strong>Trace for "HELLO":</strong>
+Stack after pushing: [H, E, L, L, O]</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Step</th>
+<th>str[i]</th>
+<th>pop()</th>
+<th>Match?</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>H</td>
+<td>O</td>
+<td>✗ → return FALSE</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Result: FALSE</strong> — "HELLO" is not a palindrome ✓</p>
+<p><strong>Time: O(n). Space: O(n).</strong></p>
+<p><strong>Optimization:</strong> Only push first half, then compare with second half → halves the comparisons.</p>
+<hr />
+<h3 id="q33-write-an-algorithm-to-find-the-sum-of-all-elements-in-a-stack-without-losing-the-data-trace-for-stack-5-10-15-20-20-on-top">Q33. Write an algorithm to find the sum of all elements in a stack without losing the data. Trace for stack [5, 10, 15, 20] (20 on top).</h3>
+<p><strong>Answer:</strong></p>
+<pre><code>Algorithm SumOfStack(S)
+    tempStack ← empty stack
+    sum ← 0
+    // Pop all, accumulate sum, save to temp
+    while S is not empty do
+        val ← S.pop()
+        sum ← sum + val
+        tempStack.push(val)
+    // Restore original stack
+    while tempStack is not empty do
+        S.push(tempStack.pop())
+    return sum
+</code></pre>
+<p><strong>Trace:</strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Step</th>
+<th>S.pop()</th>
+<th>sum</th>
+<th>S</th>
+<th>tempStack</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>20</td>
+<td>20</td>
+<td>[5, 10, 15]</td>
+<td>[20]</td>
+</tr>
+<tr>
+<td>2</td>
+<td>15</td>
+<td>35</td>
+<td>[5, 10]</td>
+<td>[20, 15]</td>
+</tr>
+<tr>
+<td>3</td>
+<td>10</td>
+<td>45</td>
+<td>[5]</td>
+<td>[20, 15, 10]</td>
+</tr>
+<tr>
+<td>4</td>
+<td>5</td>
+<td>50</td>
+<td>[]</td>
+<td>[20, 15, 10, 5]</td>
+</tr>
+</tbody>
+</table></div>
+<p>Restore: push 5, 10, 15, 20 back → S = [5, 10, 15, 20] (original order restored).</p>
+<p><strong>Sum = 50</strong> ✓. Stack preserved.</p>
+<p><strong>Time: O(n). Space: O(n)</strong> (for temp stack).</p>
+<hr />
+<h3 id="q34-insert-an-element-at-the-bottom-of-a-stack-using-recursion-trace-inserting-0-at-the-bottom-of-1-2-3-3-on-top">Q34. Insert an element at the bottom of a stack using recursion. Trace inserting 0 at the bottom of [1, 2, 3] (3 on top).</h3>
+<p><strong>Answer:</strong></p>
+<pre><code>Algorithm InsertAtBottom(S, item)
+    if S.isEmpty() then
+        S.push(item)
+    else
+        top ← S.pop()
+        InsertAtBottom(S, item)
+        S.push(top)
+</code></pre>
+<p><strong>Trace: Insert 0 at bottom of [1, 2, 3]:</strong></p>
+<pre><code>InsertAtBottom(S=[1,2,3], 0)
+  top = 3, pop → S = [1, 2]
+  InsertAtBottom(S=[1,2], 0)
+    top = 2, pop → S = [1]
+    InsertAtBottom(S=[1], 0)
+      top = 1, pop → S = []
+      InsertAtBottom(S=[], 0)
+        S is empty → push(0) → S = [0]
+      push(1) → S = [0, 1]
+    push(2) → S = [0, 1, 2]
+  push(3) → S = [0, 1, 2, 3]
+</code></pre>
+<p><strong>Result: [0, 1, 2, 3]</strong> (0 at bottom, 3 on top) ✓</p>
+<p><strong>Time: O(n). Space: O(n)</strong> recursion stack.</p>
+<hr />
+<h3 id="q35-search-for-an-element-in-a-stack-return-its-position-from-top-1-indexed-trace-searching-for-15-in-5-10-15-20-25-25-on-top">Q35. Search for an element in a stack. Return its position from top (1-indexed). Trace searching for 15 in [5, 10, 15, 20, 25] (25 on top).</h3>
+<p><strong>Answer:</strong></p>
+<pre><code>Algorithm SearchStack(S, key)
+    tempStack ← empty stack
+    position ← 0
+    found ← FALSE
+    while S is not empty do
+        position ← position + 1
+        val ← S.pop()
+        tempStack.push(val)
+        if val = key then
+            found ← TRUE
+            break
+    // Restore stack
+    while tempStack is not empty do
+        S.push(tempStack.pop())
+    if found then return position
+    else return -1
+</code></pre>
+<p><strong>Trace: Search for 15 in [5, 10, 15, 20, 25]:</strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Step</th>
+<th>pop()</th>
+<th>position</th>
+<th>Match?</th>
+<th>S</th>
+<th>tempStack</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>25</td>
+<td>1</td>
+<td>No</td>
+<td>[5,10,15,20]</td>
+<td>[25]</td>
+</tr>
+<tr>
+<td>2</td>
+<td>20</td>
+<td>2</td>
+<td>No</td>
+<td>[5,10,15]</td>
+<td>[25,20]</td>
+</tr>
+<tr>
+<td>3</td>
+<td>15</td>
+<td>3</td>
+<td><strong>Yes</strong> ✓</td>
+<td>[5,10]</td>
+<td>[25,20,15]</td>
+</tr>
+</tbody>
+</table></div>
+<p>Restore: push 15, 20, 25 back.</p>
+<p><strong>Result: position = 3</strong> (3rd from top) ✓</p>
+<hr />
+<h3 id="q36-convert-a-decimal-number-to-binary-using-a-stack-trace-for-decimal-25">Q36. Convert a decimal number to binary using a stack. Trace for decimal 25.</h3>
+<p><strong>Answer:</strong></p>
+<pre><code>Algorithm DecimalToBinary(n)
+    S ← empty stack
+    while n &gt; 0 do
+        S.push(n mod 2)
+        n ← n / 2    (integer division)
+    result ← &quot;&quot;
+    while S is not empty do
+        result ← result + S.pop()
+    return result
+</code></pre>
+<p><strong>Trace for n = 25:</strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Step</th>
+<th>n</th>
+<th>n mod 2</th>
+<th>n / 2</th>
+<th>Stack</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>25</td>
+<td>1</td>
+<td>12</td>
+<td>[1]</td>
+</tr>
+<tr>
+<td>2</td>
+<td>12</td>
+<td>0</td>
+<td>6</td>
+<td>[1, 0]</td>
+</tr>
+<tr>
+<td>3</td>
+<td>6</td>
+<td>0</td>
+<td>3</td>
+<td>[1, 0, 0]</td>
+</tr>
+<tr>
+<td>4</td>
+<td>3</td>
+<td>1</td>
+<td>1</td>
+<td>[1, 0, 0, 1]</td>
+</tr>
+<tr>
+<td>5</td>
+<td>1</td>
+<td>1</td>
+<td>0</td>
+<td>[1, 0, 0, 1, 1]</td>
+</tr>
+</tbody>
+</table></div>
+<p>Pop all: 1, 1, 0, 0, 1 → <strong>"11001"</strong></p>
+<p><strong>Verification:</strong> 1×16 + 1×8 + 0×4 + 0×2 + 1×1 = 16 + 8 + 1 = <strong>25</strong> ✓</p>
+<hr />
+<h3 id="q37-check-if-parentheses-are-balanced-in-the-expression-a-b-c-d-e-f-support">Q37. Check if parentheses are balanced in the expression <code>{[a + b] * (c - d) / (e + f)}</code>. Support <code>()</code>, <code>[]</code>, <code>{}</code>.</h3>
+<p><strong>Answer:</strong></p>
+<pre><code>Algorithm IsBalanced(expr, n)
+    S ← empty stack
+    for i ← 0 to n-1 do
+        ch ← expr[i]
+        if ch ∈ {'(', '[', '{'} then
+            S.push(ch)
+        else if ch ∈ {')', ']', '}'} then
+            if S.isEmpty() then return FALSE
+            top ← S.pop()
+            if not isMatchingPair(top, ch) then return FALSE
+    return S.isEmpty()
+</code></pre>
+<p><strong>Trace for <code>{[a + b] * (c - d) / (e + f)}</code>:</strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Char</th>
+<th>Action</th>
+<th>Stack</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>{</td>
+<td>Push</td>
+<td>[{]</td>
+</tr>
+<tr>
+<td>[</td>
+<td>Push</td>
+<td>[{, []</td>
+</tr>
+<tr>
+<td>a,+,b</td>
+<td>Skip (not bracket)</td>
+<td>[{, []</td>
+</tr>
+<tr>
+<td>]</td>
+<td>Pop [ → matches ] ✓</td>
+<td>[{]</td>
+</tr>
+<tr>
+<td>*,(,c,-,d</td>
+<td>Push (</td>
+<td>[{, (]</td>
+</tr>
+<tr>
+<td>)</td>
+<td>Pop ( → matches ) ✓</td>
+<td>[{]</td>
+</tr>
+<tr>
+<td>/,(,e,+,f</td>
+<td>Push (</td>
+<td>[{, (]</td>
+</tr>
+<tr>
+<td>)</td>
+<td>Pop ( → matches ) ✓</td>
+<td>[{]</td>
+</tr>
+<tr>
+<td>}</td>
+<td>Pop { → matches } ✓</td>
+<td>[]</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Stack empty → Balanced ✓</strong></p>
+<p><strong>Unbalanced example: <code>{[a + b])</code></strong>
+At <code>)</code>: pop <code>{</code> — mismatch! <code>{</code> does not match <code>)</code>. → <strong>FALSE</strong></p>
+<hr />
+<h3 id="q38-count-the-number-of-elements-in-a-queue-without-using-a-size-variable-trace-for-queue-10-20-30-40-front10">Q38. Count the number of elements in a queue without using a size variable. Trace for queue [10, 20, 30, 40] (front=10).</h3>
+<p><strong>Answer:</strong></p>
+<pre><code>Algorithm CountQueue(Q)
+    count ← 0
+    marker ← Q.dequeue()
+    Q.enqueue(marker)
+    count ← 1
+    while Q.front() ≠ marker do
+        Q.enqueue(Q.dequeue())
+        count ← count + 1
+    return count
+</code></pre>
+<p><strong>Trace for [10, 20, 30, 40]:</strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Step</th>
+<th>Dequeue</th>
+<th>Enqueue</th>
+<th>Queue</th>
+<th>count</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0</td>
+<td>10 (marker)</td>
+<td>10</td>
+<td>[20, 30, 40, 10]</td>
+<td>1</td>
+</tr>
+<tr>
+<td>1</td>
+<td>20</td>
+<td>20</td>
+<td>[30, 40, 10, 20]</td>
+<td>2</td>
+</tr>
+<tr>
+<td>2</td>
+<td>30</td>
+<td>30</td>
+<td>[40, 10, 20, 30]</td>
+<td>3</td>
+</tr>
+<tr>
+<td>3</td>
+<td>40</td>
+<td>40</td>
+<td>[10, 20, 30, 40]</td>
+<td>4</td>
+</tr>
+<tr>
+<td>4</td>
+<td>front = 10 = marker → stop</td>
+<td></td>
+<td>[10, 20, 30, 40]</td>
+<td>4</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Count = 4</strong> ✓. Queue restored to original order.</p>
+<p><strong>Time: O(n). Space: O(1)</strong> (no extra data structure).</p>
+<hr />
+<h3 id="q39-simulate-an-atm-queue-three-customers-c1-c2-c3-arrive-in-order-c1-needs-3-mins-c2-needs-2-mins-c3-needs-5-mins-show-the-queue-state-at-each-minute">Q39. Simulate an ATM queue. Three customers (C1, C2, C3) arrive in order. C1 needs 3 mins, C2 needs 2 mins, C3 needs 5 mins. Show the queue state at each minute.</h3>
+<p><strong>Answer:</strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Time</th>
+<th>Event</th>
+<th>Queue</th>
+<th>Being Served</th>
+<th>Wait Time</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>t=0</td>
+<td>C1 arrives, starts service</td>
+<td>[]</td>
+<td>C1 (3 min)</td>
+<td>C1: 0</td>
+</tr>
+<tr>
+<td>t=1</td>
+<td>C2 arrives, joins queue</td>
+<td>[C2]</td>
+<td>C1 (2 min left)</td>
+<td></td>
+</tr>
+<tr>
+<td>t=2</td>
+<td>C3 arrives, joins queue</td>
+<td>[C2, C3]</td>
+<td>C1 (1 min left)</td>
+<td></td>
+</tr>
+<tr>
+<td>t=3</td>
+<td>C1 done. Dequeue C2</td>
+<td>[C3]</td>
+<td>C2 (2 min)</td>
+<td>C2 waited 2 min</td>
+</tr>
+<tr>
+<td>t=5</td>
+<td>C2 done. Dequeue C3</td>
+<td>[]</td>
+<td>C3 (5 min)</td>
+<td>C3 waited 3 min</td>
+</tr>
+<tr>
+<td>t=10</td>
+<td>C3 done</td>
+<td>[]</td>
+<td>—</td>
+<td></td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Summary:</strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Customer</th>
+<th>Arrival</th>
+<th>Service Start</th>
+<th>Wait</th>
+<th>Service Time</th>
+<th>Finish</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>C1</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>3</td>
+<td>3</td>
+</tr>
+<tr>
+<td>C2</td>
+<td>1</td>
+<td>3</td>
+<td>2</td>
+<td>2</td>
+<td>5</td>
+</tr>
+<tr>
+<td>C3</td>
+<td>2</td>
+<td>5</td>
+<td>3</td>
+<td>5</td>
+<td>10</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Average wait time = (0 + 2 + 3) / 3 = 1.67 minutes</strong></p>
+<hr />
+<h3 id="q40-simulate-a-printer-queue-three-print-jobs-arrive-j1-5-pages-j2-2-pages-j3-8-pages-the-printer-processes-1-pageminute-show-how-the-queue-manages-jobs">Q40. Simulate a printer queue. Three print jobs arrive: J1 (5 pages), J2 (2 pages), J3 (8 pages). The printer processes 1 page/minute. Show how the queue manages jobs.</h3>
+<p><strong>Answer:</strong></p>
+<pre><code>Queue at start: [J1(5), J2(2), J3(8)]    (FIFO order)
+</code></pre>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Time</th>
+<th>Event</th>
+<th>Queue</th>
+<th>Pages Done</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>t=0</td>
+<td>Start J1</td>
+<td>[J2(2), J3(8)]</td>
+<td>J1: 0/5</td>
+</tr>
+<tr>
+<td>t=5</td>
+<td>J1 complete. Start J2</td>
+<td>[J3(8)]</td>
+<td>J1: done</td>
+</tr>
+<tr>
+<td>t=7</td>
+<td>J2 complete. Start J3</td>
+<td>[]</td>
+<td>J2: done</td>
+</tr>
+<tr>
+<td>t=15</td>
+<td>J3 complete</td>
+<td>[]</td>
+<td>J3: done</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Total time: 15 minutes.</strong></p>
+<p><strong>With priority queue (shortest job first):</strong> J2(2) → J1(5) → J3(8).
+- J2 finishes at t=2, J1 at t=7, J3 at t=15.
+- Average completion: (2+7+15)/3 = 8 vs FIFO: (5+7+15)/3 = 9.
+- <strong>SJF reduces average completion time.</strong></p>
+<hr />
+<h3 id="q41-simulate-a-customer-service-system-with-two-queues-regular-and-vip-vip-customers-are-served-first-show-the-processing-for-r1-v1-r2-v2-r3">Q41. Simulate a customer service system with two queues: Regular and VIP. VIP customers are served first. Show the processing for: R1, V1, R2, V2, R3.</h3>
+<p><strong>Answer:</strong></p>
+<pre><code>Algorithm ServeCustomers()
+    regularQ ← empty queue
+    vipQ ← empty queue
+    // Arrivals in order: R1, V1, R2, V2, R3
 
-<div class="q" data-s="s4"><div class="q-head" onclick="tog(this)"><div class="q-num c4">Q30</div><div class="q-title">Find the middle of a linked list in one pass.</div><div class="q-chk"><input type="checkbox" onchange="sc()" title="Reviewed"></div><div class="q-arrow">&#9660;</div></div><div class="q-ans">
-  <pre><code>slow = fast = head
-while fast ≠ NULL AND fast.next ≠ NULL:
-    slow = slow.next       // 1 step
-    fast = fast.next.next  // 2 steps
-return slow  // middle!</code></pre>
-  <p>When fast reaches end (n nodes), slow is at n/2. <strong>O(n) time, O(1) space, single pass.</strong></p>
-  <table><tr><th>Step</th><th>slow</th><th>fast</th></tr>
-  <tr><td>0</td><td>1</td><td>1</td></tr><tr><td>1</td><td>2</td><td>3</td></tr><tr><td>2</td><td>3</td><td>5 (end)</td></tr></table>
-  <p>Middle of 1→2→3→4→5 = <strong>3</strong> ✓</p>
-</div></div>
+    Serving logic: always dequeue from vipQ first; if empty, dequeue from regularQ.
+</code></pre>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Step</th>
+<th>Arrival</th>
+<th>regularQ</th>
+<th>vipQ</th>
+<th>Serve Next</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>R1 arrives</td>
+<td>[R1]</td>
+<td>[]</td>
+<td>Serve R1 (only customer)</td>
+</tr>
+<tr>
+<td>2</td>
+<td>V1 arrives during R1 service</td>
+<td>[R2]</td>
+<td>[V1]</td>
+<td>—</td>
+</tr>
+<tr>
+<td>3</td>
+<td>R2 arrives</td>
+<td>[R2]</td>
+<td>[V1]</td>
+<td>—</td>
+</tr>
+<tr>
+<td>4</td>
+<td>R1 done. VIP queue not empty →</td>
+<td>[R2]</td>
+<td>[]</td>
+<td><strong>Serve V1</strong></td>
+</tr>
+<tr>
+<td>5</td>
+<td>V2 arrives during V1 service</td>
+<td>[R2, R3]</td>
+<td>[V2]</td>
+<td>—</td>
+</tr>
+<tr>
+<td>6</td>
+<td>R3 arrives</td>
+<td>[R2, R3]</td>
+<td>[V2]</td>
+<td>—</td>
+</tr>
+<tr>
+<td>7</td>
+<td>V1 done. VIP queue not empty →</td>
+<td>[R2, R3]</td>
+<td>[]</td>
+<td><strong>Serve V2</strong></td>
+</tr>
+<tr>
+<td>8</td>
+<td>V2 done. VIP empty → regular</td>
+<td>[R3]</td>
+<td>[]</td>
+<td><strong>Serve R2</strong></td>
+</tr>
+<tr>
+<td>9</td>
+<td>R2 done</td>
+<td>[]</td>
+<td>[]</td>
+<td><strong>Serve R3</strong></td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Service order: R1, V1, V2, R2, R3</strong></p>
+<p>Note: VIP customers "jump" ahead of regular customers already waiting. This is essentially a <strong>priority queue</strong>.</p>
+<hr />
+<h3 id="q42-demonstrate-a-double-ended-queue-deque-for-managing-railway-coaches-coaches-can-be-addedremoved-from-both-front-and-rear-show-operations-addreara-addrearb-addfrontc-removefront-addreard-removerear">Q42. Demonstrate a double-ended queue (deque) for managing railway coaches. Coaches can be added/removed from both front and rear. Show operations: addRear(A), addRear(B), addFront(C), removeFront(), addRear(D), removeRear().</h3>
+<p><strong>Answer:</strong></p>
+<pre><code>Deque operations (front ← → rear):
+</code></pre>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Step</th>
+<th>Operation</th>
+<th>Deque State</th>
+<th>Returned</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>addRear(A)</td>
+<td>[A]</td>
+<td>—</td>
+</tr>
+<tr>
+<td>2</td>
+<td>addRear(B)</td>
+<td>[A, B]</td>
+<td>—</td>
+</tr>
+<tr>
+<td>3</td>
+<td>addFront(C)</td>
+<td>[<strong>C</strong>, A, B]</td>
+<td>—</td>
+</tr>
+<tr>
+<td>4</td>
+<td>removeFront()</td>
+<td>[A, B]</td>
+<td><strong>C</strong></td>
+</tr>
+<tr>
+<td>5</td>
+<td>addRear(D)</td>
+<td>[A, B, <strong>D</strong>]</td>
+<td>—</td>
+</tr>
+<tr>
+<td>6</td>
+<td>removeRear()</td>
+<td>[A, B]</td>
+<td><strong>D</strong></td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Final deque: [A, B]</strong> (front=A, rear=B)</p>
+<p><strong>Railway analogy:</strong>
+- addRear = attach coach at the end of train
+- addFront = attach engine/coach at the front
+- removeFront = detach from front (e.g., engine change)
+- removeRear = detach last coach (e.g., route split)</p>
+<p><strong>All operations: O(1)</strong> using a doubly-linked list implementation.</p>
+<hr />
+<h3 id="q43-implement-a-circular-queue-for-a-music-playlist-rotation-capacity-4-show-enqueuesong1-enqueuesong2-enqueuesong3-enqueuesong4-dequeue-enqueuesong5-dequeue-show-how-the-circular-array-wraps-around">Q43. Implement a circular queue for a music playlist rotation. Capacity = 4. Show: enqueue(Song1), enqueue(Song2), enqueue(Song3), enqueue(Song4), dequeue(), enqueue(Song5), dequeue(). Show how the circular array wraps around.</h3>
+<p><strong>Answer:</strong></p>
+<p><strong>Circular queue array (0-indexed, capacity 4):</strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Step</th>
+<th>Operation</th>
+<th>front</th>
+<th>rear</th>
+<th>Array [0][1][2][3]</th>
+<th>Size</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0</td>
+<td>init</td>
+<td>0</td>
+<td>-1</td>
+<td>[<em>, </em>, <em>, </em>]</td>
+<td>0</td>
+</tr>
+<tr>
+<td>1</td>
+<td>enqueue(S1)</td>
+<td>0</td>
+<td>0</td>
+<td>[<strong>S1</strong>, <em>, </em>, _]</td>
+<td>1</td>
+</tr>
+<tr>
+<td>2</td>
+<td>enqueue(S2)</td>
+<td>0</td>
+<td>1</td>
+<td>[S1, <strong>S2</strong>, <em>, </em>]</td>
+<td>2</td>
+</tr>
+<tr>
+<td>3</td>
+<td>enqueue(S3)</td>
+<td>0</td>
+<td>2</td>
+<td>[S1, S2, <strong>S3</strong>, _]</td>
+<td>3</td>
+</tr>
+<tr>
+<td>4</td>
+<td>enqueue(S4)</td>
+<td>0</td>
+<td>3</td>
+<td>[S1, S2, S3, <strong>S4</strong>]</td>
+<td>4 (full)</td>
+</tr>
+<tr>
+<td>5</td>
+<td>dequeue()→S1</td>
+<td>1</td>
+<td>3</td>
+<td>[_, S2, S3, S4]</td>
+<td>3</td>
+</tr>
+<tr>
+<td>6</td>
+<td>enqueue(S5)</td>
+<td>1</td>
+<td><strong>0</strong> ← wraps!</td>
+<td>[<strong>S5</strong>, S2, S3, S4]</td>
+<td>4 (full)</td>
+</tr>
+<tr>
+<td>7</td>
+<td>dequeue()→S2</td>
+<td>2</td>
+<td>0</td>
+<td>[S5, _, S3, S4]</td>
+<td>3</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Key: rear = (rear + 1) % capacity</strong> → after index 3, wraps to index 0.</p>
+<p><strong>Playlist state after all operations: [S3, S4, S5]</strong> (front at index 2)</p>
+<pre><code>Array visual:
+Index:  [0]  [1]  [2]  [3]
+        S5    _   S3   S4
+              ↑front     
+        ↑rear
+</code></pre>
+<p><strong>Circular queue advantage over linear:</strong> Slot 0 was reused after S1 was dequeued — no wasted space!</p>
+<hr />
+<h3 id="q44-insert-nodes-10-20-30-into-a-singly-linked-list-then-delete-the-node-with-value-20-show-the-pointer-changes-at-each-step">Q44. Insert nodes 10, 20, 30 into a singly linked list, then delete the node with value 20. Show the pointer changes at each step.</h3>
+<p><strong>Answer:</strong></p>
+<p><strong>Insertion (at end):</strong></p>
+<pre><code>Step 1: Insert 10
+    head → [10 | NULL]
 
-</div><!-- container -->
+Step 2: Insert 20
+    head → [10 | •] → [20 | NULL]
 
-<a href="#" class="back-top" id="bt">&uarr;</a>
-
-<script>
-function tog(h){if(event.target.type==='checkbox')return;h.closest('.q').classList.toggle('open')}
-function toggleAll(show){document.querySelectorAll('.q').forEach(q=>show?q.classList.add('open'):q.classList.remove('open'))}
-function toggleSec(s,show){document.querySelectorAll(`.q[data-s="${s}"]`).forEach(q=>show?q.classList.add('open'):q.classList.remove('open'))}
-function sc(){document.getElementById('sc').textContent=document.querySelectorAll('.q-chk input:checked').length}
-window.addEventListener('scroll',()=>{document.getElementById('bt').classList.toggle('visible',window.scrollY>400)});
-</script>
-</body>
-</html>
+Step 3: Insert 30
+    head → [10 | •] → [20 | •] → [30 | NULL]
+</code></pre>
+<p><strong>Deletion of node with value 20:</strong></p>
+<pre><code>Algorithm DeleteNode(head, key)
+    if head.data = key then
+        head = head.next         // delete head
+        return head
+    curr = head
+    while curr.next ≠ NULL do
+        if curr.next.data = key then
+            curr.next = curr.next.next    // bypass the node
+            return head
+        curr = curr.next
+    return head    // key not found
+</code></pre>
+<p><strong>Trace:</strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Step</th>
+<th>curr</th>
+<th>curr.next</th>
+<th>Check</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>10</td>
+<td>20</td>
+<td>20.data = 20 = key? <strong>Yes!</strong></td>
+</tr>
+<tr>
+<td>2</td>
+<td>Set 10.next = 20.next = 30</td>
+<td>—</td>
+<td>Node 20 bypassed</td>
+</tr>
+</tbody>
+</table></div>
+<pre><code>Before: head → [10 | •] → [20 | •] → [30 | NULL]
+After:  head → [10 | •] ————————→ [30 | NULL]
+                          (20 removed / freed)
+</code></pre>
+<p><strong>Result:</strong> head → [10 | •] → [30 | NULL] ✓</p>
+<p><strong>Time: O(n) to find the node. Space: O(1).</strong></p>
+<hr />
+<p><em>End of Chapter 2 Questions and Answers</em></p>
+</main><button class="back-top" id="bt">&#8593;</button>
+<script>var b=document.getElementById("bt");window.onscroll=function(){b.classList.toggle("show",document.documentElement.scrollTop>400)};b.onclick=function(){window.scrollTo({top:0,behavior:"smooth"})};</script>
+</body></html>

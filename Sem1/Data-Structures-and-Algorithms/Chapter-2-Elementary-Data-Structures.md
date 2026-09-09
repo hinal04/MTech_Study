@@ -30,10 +30,12 @@
   - [2.1.4 Stack Applications](#214-stack-applications)
 - [2.2 Queues](#22-queues)
   - [2.2.1 Queue ADT](#221-queue-adt)
-  - [2.2.2 Circular Array Implementation](#222-circular-array-implementation)
-  - [2.2.3 Linked-List Implementation](#223-linked-list-implementation)
-  - [2.2.4 Double-Ended Queue (Deque)](#224-double-ended-queue-deque)
-  - [2.2.5 Queue Applications](#225-queue-applications)
+  - [2.2.2 Linear Queue Limitations](#222-linear-queue-limitations)
+  - [2.2.3 Circular Array Implementation](#223-circular-array-implementation)
+  - [2.2.4 Linked-List Implementation](#224-linked-list-implementation)
+  - [2.2.5 Double-Ended Queue (Deque)](#225-double-ended-queue-deque)
+  - [2.2.6 Priority Queue](#226-priority-queue)
+  - [2.2.7 Queue Applications](#227-queue-applications)
 - [2.3 Amortised Analysis](#23-amortised-analysis)
   - [2.3.1 Why Amortised Analysis?](#231-why-amortised-analysis)
   - [2.3.2 The Aggregate Method](#232-the-aggregate-method)
@@ -45,8 +47,9 @@
   - [2.4.2 Singly Linked List — Implementation](#242-singly-linked-list--implementation)
   - [2.4.3 Doubly Linked List — Implementation](#243-doubly-linked-list--implementation)
   - [2.4.4 Circular Linked List](#244-circular-linked-list)
-  - [2.4.5 Array vs. Linked List — Comparison](#245-array-vs-linked-list--comparison)
-  - [2.4.6 List Applications](#246-list-applications)
+  - [2.4.5 Circular Doubly Linked List](#245-circular-doubly-linked-list)
+  - [2.4.6 Array vs. Linked List — Comparison](#246-array-vs-linked-list--comparison)
+  - [2.4.7 List Applications](#247-list-applications)
 - [Practice Problems with Solutions](#practice-problems-with-solutions)
 
 ---
@@ -365,18 +368,22 @@ while stack is not empty:
 
 **Algorithm:**
 ```
-for each token in postfix expression:
-    if token is an operand:
-        push(token)
-    else (token is operator):
-        b = pop()    // second operand (popped first!)
-        a = pop()    // first operand
-        result = a operator b
-        push(result)
-return pop()    // final result
+EVALUATE_POSTFIX(expression):
+    Create stack S
+    For each token in expression:
+        If token is operand:
+            Push(S, token)
+        If token is operator:
+            op2 = Pop(S)        // second operand popped first!
+            op1 = Pop(S)        // first operand
+            result = op1 operator op2
+            Push(S, result)
+    Return Pop(S)
 ```
 
-**Example: Evaluate `5 3 2 * + 4 -`**
+**Why op2 is popped before op1:** The stack holds operands in left-to-right order, so the deeper element (op1) is the left operand and the top element (op2) is the right operand. For non-commutative operators like `-` and `/`, the order matters: `op1 - op2`, not `op2 - op1`.
+
+**Example 1: Evaluate `5 3 2 * + 4 -`**
 
 | Token | Action | Stack |
 |-------|--------|-------|
@@ -389,6 +396,272 @@ return pop()    // final result
 | - | pop 4,11 → 11-4=7 → push | [7] |
 
 **Result: 7** ✓
+
+**Example 2: Evaluate `2 3 + 4 *`**
+
+| Token | Action | Stack |
+|-------|--------|-------|
+| 2 | push | [2] |
+| 3 | push | [2, 3] |
+| + | pop 3, 2 → 2+3=5 → push | [5] |
+| 4 | push | [5, 4] |
+| * | pop 4, 5 → 5*4=20 → push | [20] |
+
+**Result: 20** ✓
+
+**Time: O(n)** — each token is processed exactly once. **Space: O(n)** — stack holds at most n/2 operands.
+
+---
+
+### Application 3b: Prefix Expression Evaluation
+
+In **prefix** (Polish) notation, operators appear **before** their operands: `+ 3 4` means `3 + 4`.
+
+**Algorithm:**
+```
+EVALUATE_PREFIX(expression):
+    Reverse the expression
+    Create stack S
+    For each token in reversed expression:
+        If token is operand:
+            Push(S, token)
+        If token is operator:
+            op1 = Pop(S)        // first operand
+            op2 = Pop(S)        // second operand
+            result = op1 operator op2
+            Push(S, result)
+    Return Pop(S)
+```
+
+**Critical difference from postfix:** In prefix evaluation (after reversing), we pop `op1` FIRST then `op2`. This is the **opposite** of postfix, where we pop `op2` first then `op1`. The reason is that reversing the expression flips the operand order, so the first popped element is the left operand.
+
+**Example: Evaluate `+ 3 * 4 5`**
+
+Step 1 — Reverse: `5 4 * 3 +`
+
+| Token | Action | Stack |
+|-------|--------|-------|
+| 5 | push | [5] |
+| 4 | push | [5, 4] |
+| * | pop op1=4, op2=5 → 4*5=20 → push | [20] |
+| 3 | push | [20, 3] |
+| + | pop op1=3, op2=20 → 3+20=23 → push | [23] |
+
+**Result: 23** ✓ (which is `3 + (4 * 5) = 3 + 20 = 23`)
+
+**Time: O(n). Space: O(n).**
+
+---
+
+### Application 3c: Infix Expression Evaluation (Two-Stack Approach)
+
+**Infix** is the standard notation humans use: `(2 + 3) * 4`. The challenge is handling operator precedence and parentheses correctly. The **two-stack approach** uses one stack for operands and one for operators.
+
+**Algorithm:**
+```
+EVALUATE_INFIX(expression):
+    Create operand stack VALS
+    Create operator stack OPS
+    For each token in expression:
+        If token is operand:
+            Push(VALS, token)
+        If token is '(':
+            Push(OPS, token)
+        If token is ')':
+            While Top(OPS) ≠ '(':
+                APPLY_TOP(VALS, OPS)
+            Pop(OPS)                    // discard '('
+        If token is operator:
+            While OPS is not empty
+              AND Top(OPS) ≠ '('
+              AND precedence(Top(OPS)) ≥ precedence(token):
+                APPLY_TOP(VALS, OPS)
+            Push(OPS, token)
+    While OPS is not empty:
+        APPLY_TOP(VALS, OPS)
+    Return Pop(VALS)
+
+APPLY_TOP(VALS, OPS):
+    op = Pop(OPS)
+    b = Pop(VALS)
+    a = Pop(VALS)
+    Push(VALS, a op b)
+```
+
+**Precedence:** `* /` (2) > `+ -` (1). For equal precedence with left-associative operators, the existing operator on the stack is applied first.
+
+**Example: Evaluate `(2 + 3) * 4`**
+
+| Token | Action | VALS | OPS |
+|-------|--------|------|-----|
+| `(` | Push to OPS | [] | [(] |
+| 2 | Push to VALS | [2] | [(] |
+| + | Push to OPS (after `(`) | [2] | [(, +] |
+| 3 | Push to VALS | [2, 3] | [(, +] |
+| `)` | Apply + → pop 3,2 → 2+3=5, discard `(` | [5] | [] |
+| * | Push to OPS | [5] | [*] |
+| 4 | Push to VALS | [5, 4] | [*] |
+| End | Apply * → pop 4,5 → 5*4=20 | [20] | [] |
+
+**Result: 20** ✓
+
+**Time: O(n). Space: O(n).**
+
+---
+
+### Application 3d: Infix to Prefix Conversion
+
+**Method:** Reverse the infix expression → swap `(` with `)` and vice versa → apply the standard infix-to-postfix algorithm → reverse the result.
+
+**Algorithm:**
+```
+INFIX_TO_PREFIX(expression):
+    Step 1: Reverse the expression
+    Step 2: Swap every '(' with ')' and every ')' with '('
+    Step 3: Apply infix-to-postfix (Shunting-Yard) on the modified expression
+    Step 4: Reverse the postfix result → this is the prefix
+```
+
+**Example: Convert `A + B * C` to prefix**
+
+| Step | Result |
+|------|--------|
+| Original infix | `A + B * C` |
+| Step 1 — Reverse | `C * B + A` |
+| Step 2 — Swap parens | `C * B + A` (no parens to swap here) |
+| Step 3 — Apply infix-to-postfix | `C B * A +` |
+| Step 4 — Reverse | `+ A * B C` |
+
+**Prefix result: `+ A * B C`** ✓ (which means `A + (B * C)`)
+
+**Example with parentheses: Convert `(A + B) * C` to prefix**
+
+| Step | Result |
+|------|--------|
+| Original infix | `(A + B) * C` |
+| Step 1 — Reverse | `C * )B + A(` |
+| Step 2 — Swap parens | `C * (B + A)` |
+| Step 3 — Apply infix-to-postfix | `C B A + *` |
+| Step 4 — Reverse | `* + A B C` |
+
+**Prefix result: `* + A B C`** ✓ (which means `(A + B) * C`)
+
+---
+
+### Application 3e: Postfix to Infix Conversion
+
+**Algorithm:**
+```
+POSTFIX_TO_INFIX(expression):
+    Create stack S (of strings)
+    For each token in expression (left to right):
+        If token is operand:
+            Push(S, token as string)
+        If token is operator:
+            op2 = Pop(S)
+            op1 = Pop(S)
+            result = "(" + op1 + token + op2 + ")"
+            Push(S, result)
+    Return Pop(S)
+```
+
+**Example: Convert `A B + C *` to infix**
+
+| Token | Action | Stack |
+|-------|--------|-------|
+| A | Push "A" | ["A"] |
+| B | Push "B" | ["A", "B"] |
+| + | Pop "B","A" → "(A+B)" → push | ["(A+B)"] |
+| C | Push "C" | ["(A+B)", "C"] |
+| * | Pop "C","(A+B)" → "((A+B)*C)" → push | ["((A+B)*C)"] |
+
+**Result: `((A+B)*C)`** ✓
+
+---
+
+### Application 3f: Prefix to Infix Conversion
+
+**Algorithm:**
+```
+PREFIX_TO_INFIX(expression):
+    Create stack S (of strings)
+    Scan expression from RIGHT to LEFT:
+        If token is operand:
+            Push(S, token as string)
+        If token is operator:
+            op1 = Pop(S)        // first popped = left operand
+            op2 = Pop(S)        // second popped = right operand
+            result = "(" + op1 + token + op2 + ")"
+            Push(S, result)
+    Return Pop(S)
+```
+
+**Why right-to-left?** In prefix notation, operators come before their operands. By scanning from the right, we encounter operands first and build up subexpressions. When we hit an operator, its two operands are already on the stack.
+
+**Example: Convert `* + A B C` to infix**
+
+Scan from right: `C`, `B`, `A`, `+`, `*`
+
+| Token | Action | Stack |
+|-------|--------|-------|
+| C | Push "C" | ["C"] |
+| B | Push "B" | ["C", "B"] |
+| A | Push "A" | ["C", "B", "A"] |
+| + | Pop op1="A", op2="B" → "(A+B)" → push | ["C", "(A+B)"] |
+| * | Pop op1="(A+B)", op2="C" → "((A+B)*C)" → push | ["((A+B)*C)"] |
+
+**Result: `((A+B)*C)`** ✓
+
+---
+
+### Application 3g: Balanced Parentheses Checker
+
+**Problem:** Given a string containing brackets `()`, `{}`, `[]`, determine if every opening bracket has a correctly matched closing bracket in the correct nesting order.
+
+**Algorithm:**
+```
+BALANCED_PARENTHESES(expr):
+    Create stack S
+    For each char in expr:
+        If char in '(', '[', '{':
+            Push(S, char)
+        If char in ')', ']', '}':
+            If S is empty:
+                Return FALSE        // closing bracket with no opener
+            top = Pop(S)
+            If top does not match char:
+                Return FALSE        // mismatched bracket types
+    Return (S is empty)              // TRUE if all openers were matched
+```
+
+**Matching pairs:** `(` matches `)`, `[` matches `]`, `{` matches `}`.
+
+**Example 1: `{[()]}` — Balanced**
+
+| Char | Action | Stack |
+|------|--------|-------|
+| `{` | Push | [{] |
+| `[` | Push | [{, [] |
+| `(` | Push | [{, [, (] |
+| `)` | Pop `(` → matches `)` ✓ | [{, [] |
+| `]` | Pop `[` → matches `]` ✓ | [{] |
+| `}` | Pop `{` → matches `}` ✓ | [] |
+
+Stack empty → **Balanced** ✓
+
+**Example 2: `([)]` — Not Balanced**
+
+| Char | Action | Stack |
+|------|--------|-------|
+| `(` | Push | [(] |
+| `[` | Push | [(, [] |
+| `)` | Pop `[` → does NOT match `)` ✗ | — |
+
+**Return FALSE** — Not Balanced ✓
+
+**Why it works:** The stack enforces proper nesting. The most recently opened bracket must be closed first (LIFO). If a closing bracket doesn't match the top of the stack, the nesting is violated.
+
+**Time: O(n). Space: O(n) worst case** (all opening brackets).
 
 ---
 
@@ -483,7 +756,67 @@ ADT Queue:
 
 ---
 
-## 2.2.2 Circular Array Implementation
+## 2.2.2 Linear Queue Limitations
+
+Before introducing the circular array, it's important to understand **why** a naive linear array implementation of a queue fails in practice.
+
+### The problem: phantom overflow
+
+In a linear (non-circular) array implementation, `front` and `rear` both start at 0. Each enqueue increments `rear`, and each dequeue increments `front`. The active elements live between `front` and `rear`.
+
+The critical issue is that **dequeued slots at the front are never reused**. After many enqueue/dequeue cycles, both pointers have drifted to the right, leaving empty but unusable slots at the beginning of the array.
+
+```
+Initial:    [10] [20] [30] [__] [__]     front=0, rear=3
+             ↑front          ↑rear
+
+Dequeue x2: [__] [__] [30] [__] [__]     front=2, rear=3
+                       ↑front  ↑rear
+
+Enqueue 40, 50:
+            [__] [__] [30] [40] [50]     front=2, rear=5
+                       ↑front       ↑rear
+
+Now enqueue(60):
+            rear == capacity → OVERFLOW!
+            But slots 0 and 1 are empty!
+```
+
+This is called **phantom overflow** (or **false overflow**) — the queue reports that it is full even though there are empty slots available. The space at the front has been permanently abandoned.
+
+### Why not just shift elements?
+
+One "fix" is to shift all elements to the left whenever the front advances:
+
+```
+After dequeue: shift [30] to index 0 → [30] [__] [__] [__] [__]
+```
+
+But this makes dequeue an **O(n)** operation — we must move every remaining element one position to the left. For a data structure whose entire point is O(1) operations, this defeats the purpose.
+
+### The solution: Circular Queue
+
+Instead of shifting elements, we let the pointers **wrap around** to the beginning of the array using the modulo operator:
+
+```
+rear = (rear + 1) mod capacity
+front = (front + 1) mod capacity
+```
+
+When `rear` would go past the last index, `mod` wraps it back to 0, reusing the slots freed by earlier dequeues. No shifting, no wasted space, O(1) operations preserved.
+
+### Summary of linear queue problems
+
+| Problem | Description |
+|---------|-------------|
+| Wasted space | Dequeued front positions are permanently abandoned |
+| Phantom overflow | Queue reports full even when empty slots exist at front |
+| Shift fix is O(n) | Moving elements left restores space but ruins performance |
+| **Solution** | **Circular array with modular arithmetic** |
+
+---
+
+## 2.2.3 Circular Array Implementation
 
 ### The problem with a naive linear array
 
@@ -601,7 +934,7 @@ int dequeue(struct Queue* q) {
 
 ---
 
-## 2.2.3 Linked-List Implementation
+## 2.2.4 Linked-List Implementation
 
 Enqueue at **tail**, dequeue at **head** — both O(1) with a tail pointer.
 
@@ -635,7 +968,7 @@ dequeue(Q):
 
 ---
 
-## 2.2.4 Double-Ended Queue (Deque)
+## 2.2.5 Double-Ended Queue (Deque)
 
 A **deque** (pronounced "deck") allows insertion and removal at **both** ends.
 
@@ -652,7 +985,98 @@ A **deque** (pronounced "deck") allows insertion and removal at **both** ends.
 
 ---
 
-## 2.2.5 Queue Applications
+## 2.2.6 Priority Queue
+
+### Concept
+
+A **priority queue** is a queue variant where each element has an associated **priority**. Unlike a standard FIFO queue, elements are served based on priority rather than insertion order — the highest-priority element is dequeued first, regardless of when it was inserted.
+
+Think of a **hospital emergency room**: patients are not treated in arrival order. A heart attack patient (critical priority) is treated before someone with a sprained ankle (low priority), even if the ankle patient arrived hours earlier. This is a max-priority queue in action.
+
+### Types
+
+| Type | Behaviour | Typical Use |
+|------|-----------|-------------|
+| **Max-priority queue** | Highest priority dequeued first | Task scheduling (most urgent first) |
+| **Min-priority queue** | Lowest priority dequeued first | Dijkstra's algorithm (shortest distance first) |
+
+### Operations
+
+| Operation | Description |
+|-----------|-------------|
+| `insert(x, priority)` | Insert element x with given priority |
+| `deleteMax()` / `deleteMin()` | Remove and return the highest/lowest priority element |
+| `peekMax()` / `peekMin()` | Return the highest/lowest priority element without removing |
+| `isEmpty()` | Return true if no elements exist |
+
+### Implementation Comparison
+
+| Implementation | Insert | DeleteMax/Min | PeekMax/Min |
+|----------------|--------|---------------|-------------|
+| **Unsorted array** | **O(1)** — append at end | O(n) — scan for max | O(n) |
+| **Sorted array** | O(n) — find correct position & shift | **O(1)** — remove from end | O(1) |
+| **Unsorted linked list** | **O(1)** — insert at head | O(n) — scan for max | O(n) |
+| **Sorted linked list** | O(n) — find correct position | **O(1)** — remove head | O(1) |
+| **Binary heap** | **O(log n)** | **O(log n)** | O(1) |
+
+The **binary heap** is the standard implementation because it balances both operations at O(log n). The array-based approaches are simpler but create a bottleneck on one operation.
+
+### Array-Based Pseudocode (Unsorted — Max-Priority)
+
+```
+struct PriorityQueue:
+    array[0..capacity-1]    // stores (element, priority) pairs
+    size = 0
+
+INSERT(PQ, element, priority):
+    if PQ.size == capacity:
+        error "Overflow"
+    PQ.array[PQ.size] = (element, priority)
+    PQ.size++
+    // O(1) — just append at the end
+
+DELETE_MAX(PQ):
+    if PQ.size == 0:
+        error "Underflow"
+    maxIdx = 0
+    for i = 1 to PQ.size - 1:          // scan for highest priority
+        if PQ.array[i].priority > PQ.array[maxIdx].priority:
+            maxIdx = i
+    maxElement = PQ.array[maxIdx]
+    PQ.array[maxIdx] = PQ.array[PQ.size - 1]    // fill gap with last element
+    PQ.size--
+    return maxElement
+    // O(n) — must scan entire array
+```
+
+### Worked Example
+
+```
+Insert (Task A, priority 3)  → [(A,3)]
+Insert (Task B, priority 1)  → [(A,3), (B,1)]
+Insert (Task C, priority 5)  → [(A,3), (B,1), (C,5)]
+Insert (Task D, priority 2)  → [(A,3), (B,1), (C,5), (D,2)]
+
+DeleteMax() → scan: max is (C,5) at index 2
+             → replace with last: [(A,3), (B,1), (D,2)]
+             → return Task C
+
+DeleteMax() → scan: max is (A,3) at index 0
+             → replace with last: [(D,2), (B,1)]
+             → return Task A
+```
+
+### Applications
+
+1. **OS Process Scheduling:** Higher-priority processes get CPU time first. Real-time tasks (e.g., interrupt handlers) have higher priority than background tasks.
+2. **Dijkstra's Shortest Path Algorithm:** Uses a min-priority queue to always expand the vertex with the smallest known distance.
+3. **Huffman Encoding:** Builds an optimal prefix code by repeatedly extracting the two lowest-frequency characters from a min-priority queue.
+4. **Emergency Triage (Hospital):** Patients are prioritised by severity, not arrival time.
+5. **Event-Driven Simulation:** Events are processed in timestamp order using a min-priority queue.
+
+---
+
+## 2.2.7 Queue Applications
 
 ### Application 1: BFS (Breadth-First Search)
 
@@ -1197,7 +1621,172 @@ The main change is that there's no NULL check during traversal — you must dete
 
 ---
 
-## 2.4.5 Array vs. Linked List — Comparison
+## 2.4.5 Circular Doubly Linked List
+
+### Concept
+
+A **circular doubly linked list** combines the features of both a doubly linked list and a circular linked list. Each node has three fields:
+
+1. **prev** — pointer to the previous node
+2. **data** — the stored value
+3. **next** — pointer to the next node
+
+The key structural properties:
+- The **last node's `next`** points to the **head** (not NULL).
+- The **head's `prev`** points to the **last node** (not NULL).
+
+This creates a closed ring that can be traversed in **both directions** indefinitely, with no NULL pointers anywhere in the list.
+
+```
+Structure:
+    ┌─────────────────────────────────────┐
+    │                                     │
+    ↓                                     │
+   [A] ⇄ [B] ⇄ [C] ⇄ [D]──────────────→│
+    ↑                    ↑                │
+    │←───────────────────│                │
+    │                                     │
+    └─────────────────────────────────────┘
+
+    head.prev = D (last node)
+    D.next = A (head)
+```
+
+### Data Structure
+
+```
+struct Node:
+    prev → Node
+    data
+    next → Node
+
+struct CircularDoublyLinkedList:
+    head → Node (or NULL if empty)
+    size = 0
+```
+
+### Advantages over other list variants
+
+| Feature | Singly LL | Doubly LL | Circular Singly | **Circular Doubly** |
+|---------|-----------|-----------|-----------------|---------------------|
+| Traverse forward | ✓ | ✓ | ✓ | ✓ |
+| Traverse backward | ✗ | ✓ | ✗ | **✓** |
+| Wrap around | ✗ | ✗ | ✓ | **✓** |
+| O(1) insert at head | ✓ | ✓ | ✓ | **✓** |
+| O(1) insert at tail | needs tail ptr | ✓ | ✓ | **✓** (head.prev = tail) |
+| O(1) delete given node | ✗ (need predecessor) | ✓ | ✗ | **✓** |
+
+The circular doubly linked list gives O(1) access to both the head AND the tail (via `head.prev`), without maintaining a separate tail pointer.
+
+### Operations
+
+```
+INSERT_BEGIN(L, x):                            // O(1)
+    newNode = create Node(data=x)
+    if L.head == NULL:
+        newNode.next = newNode              // points to itself
+        newNode.prev = newNode
+        L.head = newNode
+    else:
+        tail = L.head.prev                  // last node
+        newNode.next = L.head
+        newNode.prev = tail
+        L.head.prev = newNode
+        tail.next = newNode
+        L.head = newNode                    // new node becomes head
+    L.size++
+
+INSERT_END(L, x):                             // O(1)
+    INSERT_BEGIN(L, x)                      // insert at head first
+    L.head = L.head.next                    // then advance head → old head becomes head again
+    // Alternatively: insert before head, don't change head pointer
+    // Effect: new node is at the end (just before head in the circle)
+
+DELETE_BEGIN(L):                               // O(1)
+    if L.head == NULL: error "Empty"
+    if L.head.next == L.head:               // only one node
+        free(L.head)
+        L.head = NULL
+    else:
+        tail = L.head.prev
+        newHead = L.head.next
+        tail.next = newHead
+        newHead.prev = tail
+        free(L.head)
+        L.head = newHead
+    L.size--
+
+DELETE_NODE(L, node):                          // O(1) — given a pointer to the node
+    if L.head == NULL: error "Empty"
+    if node.next == node:                   // only one node in the list
+        L.head = NULL
+    else:
+        node.prev.next = node.next          // predecessor skips over node
+        node.next.prev = node.prev          // successor skips back over node
+        if node == L.head:
+            L.head = node.next              // update head if we're deleting it
+    free(node)
+    L.size--
+```
+
+### Worked Trace: Insert 10, 20, 30, then delete 20
+
+```
+Step 1: INSERT_BEGIN(10)
+    List has 1 node: [10] → 10 (points to itself)
+    10.next = 10, 10.prev = 10
+    head = 10
+
+Step 2: INSERT_BEGIN(20)
+    newNode = 20
+    tail = head.prev = 10
+    20.next = 10, 20.prev = 10
+    10.prev = 20, 10.next = 20
+    head = 20
+    List: 20 ⇄ 10 ⇄ (back to 20)
+
+Step 3: INSERT_BEGIN(30)
+    newNode = 30
+    tail = head.prev = 10
+    30.next = 20, 30.prev = 10
+    20.prev = 30, 10.next = 30
+    head = 30
+    List: 30 ⇄ 20 ⇄ 10 ⇄ (back to 30)
+
+Step 4: DELETE_NODE(node pointing to 20)
+    20.prev = 30, 20.next = 10
+    30.next = 10    (skip over 20)
+    10.prev = 30    (skip back over 20)
+    free(20)
+    List: 30 ⇄ 10 ⇄ (back to 30)
+
+Verification — traverse forward from head:
+    30 → 10 → 30 → 10 → ... ✓ (circular)
+Traverse backward from head:
+    30 → 10 → 30 → 10 → ... ✓ (circular)
+```
+
+### Complexity Summary — Circular Doubly Linked List
+
+| Operation | Time |
+|-----------|------|
+| Insert at head / tail | O(1) |
+| Delete at head / tail | O(1) |
+| Delete given node | O(1) |
+| Access tail from head | O(1) via `head.prev` |
+| Search | O(n) |
+| Access by index | O(n) |
+
+### Use Cases
+
+1. **Fibonacci Heaps:** The internal structure uses circular doubly linked lists for O(1) union operations.
+2. **Browser navigation:** Forward/back with wrap-around through tab list.
+3. **Round-robin scheduling with bidirectional traversal:** When the scheduler needs to move both forward and backward through the process list.
+4. **Undo/redo ring buffer:** Stores a fixed number of states in a circle, overwriting the oldest when full.
+
+---
+
+## 2.4.6 Array vs. Linked List — Comparison
 
 This is one of the most fundamental trade-offs in computer science. The choice affects performance, memory usage, and code complexity in nearly every program.
 
@@ -1246,7 +1835,7 @@ This is why the practical advice is: **default to arrays unless you have a speci
 
 ---
 
-## 2.4.6 List Applications
+## 2.4.7 List Applications
 
 1. **Polynomial Representation:** Each node stores a coefficient and exponent. Addition/multiplication by traversing both lists.
 

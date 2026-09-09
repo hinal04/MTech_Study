@@ -719,5 +719,498 @@ findMiddle(head):
 **Time: O(n). Space: O(1). Single pass.**
 
 ---
+---
+
+## Practice Problems — Stacks, Queues & Linked Lists (Q31–Q44)
+
+> Additional practice questions based on class material covering stack problems, queue problems, and linked list operations.
+
+---
+
+### Q31. Reverse a string using a stack. Trace the execution for the string "HELLO".
+
+**Answer:**
+
+```
+Algorithm ReverseString(str, n)
+    S ← empty stack
+    for i ← 0 to n-1 do
+        S.push(str[i])
+    result ← ""
+    while S is not empty do
+        result ← result + S.pop()
+    return result
+```
+
+**Trace for "HELLO":**
+
+| Step | Operation | Stack | Result |
+|------|-----------|-------|--------|
+| 1 | push('H') | [H] | "" |
+| 2 | push('E') | [H, E] | "" |
+| 3 | push('L') | [H, E, L] | "" |
+| 4 | push('L') | [H, E, L, L] | "" |
+| 5 | push('O') | [H, E, L, L, O] | "" |
+| 6 | pop() → 'O' | [H, E, L, L] | "O" |
+| 7 | pop() → 'L' | [H, E, L] | "OL" |
+| 8 | pop() → 'L' | [H, E] | "OLL" |
+| 9 | pop() → 'E' | [H] | "OLLE" |
+| 10 | pop() → 'H' | [] | "OLLEH" |
+
+**Result: "OLLEH"** ✓
+
+**Time: O(n). Space: O(n).**
+
+---
+
+### Q32. Check if a string is a palindrome using a stack. Trace for "RACECAR" and "HELLO".
+
+**Answer:**
+
+```
+Algorithm IsPalindrome(str, n)
+    S ← empty stack
+    for i ← 0 to n-1 do
+        S.push(str[i])
+    for i ← 0 to n-1 do
+        if str[i] ≠ S.pop() then
+            return FALSE
+    return TRUE
+```
+
+**Trace for "RACECAR" (n=7):**
+
+| Step | str[i] | pop() | Match? |
+|------|--------|-------|--------|
+| 1 | R | R | ✓ |
+| 2 | A | A | ✓ |
+| 3 | C | C | ✓ |
+| 4 | E | E | ✓ |
+| 5 | C | C | ✓ |
+| 6 | A | A | ✓ |
+| 7 | R | R | ✓ |
+
+**Result: TRUE** — "RACECAR" is a palindrome ✓
+
+**Trace for "HELLO":**
+Stack after pushing: [H, E, L, L, O]
+
+| Step | str[i] | pop() | Match? |
+|------|--------|-------|--------|
+| 1 | H | O | ✗ → return FALSE |
+
+**Result: FALSE** — "HELLO" is not a palindrome ✓
+
+**Time: O(n). Space: O(n).**
+
+**Optimization:** Only push first half, then compare with second half → halves the comparisons.
+
+---
+
+### Q33. Write an algorithm to find the sum of all elements in a stack without losing the data. Trace for stack [5, 10, 15, 20] (20 on top).
+
+**Answer:**
+
+```
+Algorithm SumOfStack(S)
+    tempStack ← empty stack
+    sum ← 0
+    // Pop all, accumulate sum, save to temp
+    while S is not empty do
+        val ← S.pop()
+        sum ← sum + val
+        tempStack.push(val)
+    // Restore original stack
+    while tempStack is not empty do
+        S.push(tempStack.pop())
+    return sum
+```
+
+**Trace:**
+
+| Step | S.pop() | sum | S | tempStack |
+|------|---------|-----|---|-----------|
+| 1 | 20 | 20 | [5, 10, 15] | [20] |
+| 2 | 15 | 35 | [5, 10] | [20, 15] |
+| 3 | 10 | 45 | [5] | [20, 15, 10] |
+| 4 | 5 | 50 | [] | [20, 15, 10, 5] |
+
+Restore: push 5, 10, 15, 20 back → S = [5, 10, 15, 20] (original order restored).
+
+**Sum = 50** ✓. Stack preserved.
+
+**Time: O(n). Space: O(n)** (for temp stack).
+
+---
+
+### Q34. Insert an element at the bottom of a stack using recursion. Trace inserting 0 at the bottom of [1, 2, 3] (3 on top).
+
+**Answer:**
+
+```
+Algorithm InsertAtBottom(S, item)
+    if S.isEmpty() then
+        S.push(item)
+    else
+        top ← S.pop()
+        InsertAtBottom(S, item)
+        S.push(top)
+```
+
+**Trace: Insert 0 at bottom of [1, 2, 3]:**
+
+```
+InsertAtBottom(S=[1,2,3], 0)
+  top = 3, pop → S = [1, 2]
+  InsertAtBottom(S=[1,2], 0)
+    top = 2, pop → S = [1]
+    InsertAtBottom(S=[1], 0)
+      top = 1, pop → S = []
+      InsertAtBottom(S=[], 0)
+        S is empty → push(0) → S = [0]
+      push(1) → S = [0, 1]
+    push(2) → S = [0, 1, 2]
+  push(3) → S = [0, 1, 2, 3]
+```
+
+**Result: [0, 1, 2, 3]** (0 at bottom, 3 on top) ✓
+
+**Time: O(n). Space: O(n)** recursion stack.
+
+---
+
+### Q35. Search for an element in a stack. Return its position from top (1-indexed). Trace searching for 15 in [5, 10, 15, 20, 25] (25 on top).
+
+**Answer:**
+
+```
+Algorithm SearchStack(S, key)
+    tempStack ← empty stack
+    position ← 0
+    found ← FALSE
+    while S is not empty do
+        position ← position + 1
+        val ← S.pop()
+        tempStack.push(val)
+        if val = key then
+            found ← TRUE
+            break
+    // Restore stack
+    while tempStack is not empty do
+        S.push(tempStack.pop())
+    if found then return position
+    else return -1
+```
+
+**Trace: Search for 15 in [5, 10, 15, 20, 25]:**
+
+| Step | pop() | position | Match? | S | tempStack |
+|------|-------|----------|--------|---|-----------|
+| 1 | 25 | 1 | No | [5,10,15,20] | [25] |
+| 2 | 20 | 2 | No | [5,10,15] | [25,20] |
+| 3 | 15 | 3 | **Yes** ✓ | [5,10] | [25,20,15] |
+
+Restore: push 15, 20, 25 back.
+
+**Result: position = 3** (3rd from top) ✓
+
+---
+
+### Q36. Convert a decimal number to binary using a stack. Trace for decimal 25.
+
+**Answer:**
+
+```
+Algorithm DecimalToBinary(n)
+    S ← empty stack
+    while n > 0 do
+        S.push(n mod 2)
+        n ← n / 2    (integer division)
+    result ← ""
+    while S is not empty do
+        result ← result + S.pop()
+    return result
+```
+
+**Trace for n = 25:**
+
+| Step | n | n mod 2 | n / 2 | Stack |
+|------|---|---------|-------|-------|
+| 1 | 25 | 1 | 12 | [1] |
+| 2 | 12 | 0 | 6 | [1, 0] |
+| 3 | 6 | 0 | 3 | [1, 0, 0] |
+| 4 | 3 | 1 | 1 | [1, 0, 0, 1] |
+| 5 | 1 | 1 | 0 | [1, 0, 0, 1, 1] |
+
+Pop all: 1, 1, 0, 0, 1 → **"11001"**
+
+**Verification:** 1×16 + 1×8 + 0×4 + 0×2 + 1×1 = 16 + 8 + 1 = **25** ✓
+
+---
+
+### Q37. Check if parentheses are balanced in the expression `{[a + b] * (c - d) / (e + f)}`. Support `()`, `[]`, `{}`.
+
+**Answer:**
+
+```
+Algorithm IsBalanced(expr, n)
+    S ← empty stack
+    for i ← 0 to n-1 do
+        ch ← expr[i]
+        if ch ∈ {'(', '[', '{'} then
+            S.push(ch)
+        else if ch ∈ {')', ']', '}'} then
+            if S.isEmpty() then return FALSE
+            top ← S.pop()
+            if not isMatchingPair(top, ch) then return FALSE
+    return S.isEmpty()
+```
+
+**Trace for `{[a + b] * (c - d) / (e + f)}`:**
+
+| Char | Action | Stack |
+|------|--------|-------|
+| { | Push | [{] |
+| [ | Push | [{, [] |
+| a,+,b | Skip (not bracket) | [{, [] |
+| ] | Pop [ → matches ] ✓ | [{] |
+| *,(,c,-,d | Push ( | [{, (] |
+| ) | Pop ( → matches ) ✓ | [{] |
+| /,(,e,+,f | Push ( | [{, (] |
+| ) | Pop ( → matches ) ✓ | [{] |
+| } | Pop { → matches } ✓ | [] |
+
+**Stack empty → Balanced ✓**
+
+**Unbalanced example: `{[a + b])`**
+At `)`: pop `{` — mismatch! `{` does not match `)`. → **FALSE**
+
+---
+
+### Q38. Count the number of elements in a queue without using a size variable. Trace for queue [10, 20, 30, 40] (front=10).
+
+**Answer:**
+
+```
+Algorithm CountQueue(Q)
+    count ← 0
+    marker ← Q.dequeue()
+    Q.enqueue(marker)
+    count ← 1
+    while Q.front() ≠ marker do
+        Q.enqueue(Q.dequeue())
+        count ← count + 1
+    return count
+```
+
+**Trace for [10, 20, 30, 40]:**
+
+| Step | Dequeue | Enqueue | Queue | count |
+|------|---------|---------|-------|-------|
+| 0 | 10 (marker) | 10 | [20, 30, 40, 10] | 1 |
+| 1 | 20 | 20 | [30, 40, 10, 20] | 2 |
+| 2 | 30 | 30 | [40, 10, 20, 30] | 3 |
+| 3 | 40 | 40 | [10, 20, 30, 40] | 4 |
+| 4 | front = 10 = marker → stop | | [10, 20, 30, 40] | 4 |
+
+**Count = 4** ✓. Queue restored to original order.
+
+**Time: O(n). Space: O(1)** (no extra data structure).
+
+---
+
+### Q39. Simulate an ATM queue. Three customers (C1, C2, C3) arrive in order. C1 needs 3 mins, C2 needs 2 mins, C3 needs 5 mins. Show the queue state at each minute.
+
+**Answer:**
+
+| Time | Event | Queue | Being Served | Wait Time |
+|------|-------|-------|-------------|-----------|
+| t=0 | C1 arrives, starts service | [] | C1 (3 min) | C1: 0 |
+| t=1 | C2 arrives, joins queue | [C2] | C1 (2 min left) | |
+| t=2 | C3 arrives, joins queue | [C2, C3] | C1 (1 min left) | |
+| t=3 | C1 done. Dequeue C2 | [C3] | C2 (2 min) | C2 waited 2 min |
+| t=5 | C2 done. Dequeue C3 | [] | C3 (5 min) | C3 waited 3 min |
+| t=10 | C3 done | [] | — | |
+
+**Summary:**
+
+| Customer | Arrival | Service Start | Wait | Service Time | Finish |
+|----------|---------|---------------|------|-------------|--------|
+| C1 | 0 | 0 | 0 | 3 | 3 |
+| C2 | 1 | 3 | 2 | 2 | 5 |
+| C3 | 2 | 5 | 3 | 5 | 10 |
+
+**Average wait time = (0 + 2 + 3) / 3 = 1.67 minutes**
+
+---
+
+### Q40. Simulate a printer queue. Three print jobs arrive: J1 (5 pages), J2 (2 pages), J3 (8 pages). The printer processes 1 page/minute. Show how the queue manages jobs.
+
+**Answer:**
+
+```
+Queue at start: [J1(5), J2(2), J3(8)]    (FIFO order)
+```
+
+| Time | Event | Queue | Pages Done |
+|------|-------|-------|------------|
+| t=0 | Start J1 | [J2(2), J3(8)] | J1: 0/5 |
+| t=5 | J1 complete. Start J2 | [J3(8)] | J1: done |
+| t=7 | J2 complete. Start J3 | [] | J2: done |
+| t=15 | J3 complete | [] | J3: done |
+
+**Total time: 15 minutes.**
+
+**With priority queue (shortest job first):** J2(2) → J1(5) → J3(8).
+- J2 finishes at t=2, J1 at t=7, J3 at t=15.
+- Average completion: (2+7+15)/3 = 8 vs FIFO: (5+7+15)/3 = 9.
+- **SJF reduces average completion time.**
+
+---
+
+### Q41. Simulate a customer service system with two queues: Regular and VIP. VIP customers are served first. Show the processing for: R1, V1, R2, V2, R3.
+
+**Answer:**
+
+```
+Algorithm ServeCustomers()
+    regularQ ← empty queue
+    vipQ ← empty queue
+    // Arrivals in order: R1, V1, R2, V2, R3
+    
+    Serving logic: always dequeue from vipQ first; if empty, dequeue from regularQ.
+```
+
+| Step | Arrival | regularQ | vipQ | Serve Next |
+|------|---------|----------|------|------------|
+| 1 | R1 arrives | [R1] | [] | Serve R1 (only customer) |
+| 2 | V1 arrives during R1 service | [R2] | [V1] | — |
+| 3 | R2 arrives | [R2] | [V1] | — |
+| 4 | R1 done. VIP queue not empty → | [R2] | [] | **Serve V1** |
+| 5 | V2 arrives during V1 service | [R2, R3] | [V2] | — |
+| 6 | R3 arrives | [R2, R3] | [V2] | — |
+| 7 | V1 done. VIP queue not empty → | [R2, R3] | [] | **Serve V2** |
+| 8 | V2 done. VIP empty → regular | [R3] | [] | **Serve R2** |
+| 9 | R2 done | [] | [] | **Serve R3** |
+
+**Service order: R1, V1, V2, R2, R3**
+
+Note: VIP customers "jump" ahead of regular customers already waiting. This is essentially a **priority queue**.
+
+---
+
+### Q42. Demonstrate a double-ended queue (deque) for managing railway coaches. Coaches can be added/removed from both front and rear. Show operations: addRear(A), addRear(B), addFront(C), removeFront(), addRear(D), removeRear().
+
+**Answer:**
+
+```
+Deque operations (front ← → rear):
+```
+
+| Step | Operation | Deque State | Returned |
+|------|-----------|-------------|----------|
+| 1 | addRear(A) | [A] | — |
+| 2 | addRear(B) | [A, B] | — |
+| 3 | addFront(C) | [**C**, A, B] | — |
+| 4 | removeFront() | [A, B] | **C** |
+| 5 | addRear(D) | [A, B, **D**] | — |
+| 6 | removeRear() | [A, B] | **D** |
+
+**Final deque: [A, B]** (front=A, rear=B)
+
+**Railway analogy:**
+- addRear = attach coach at the end of train
+- addFront = attach engine/coach at the front
+- removeFront = detach from front (e.g., engine change)
+- removeRear = detach last coach (e.g., route split)
+
+**All operations: O(1)** using a doubly-linked list implementation.
+
+---
+
+### Q43. Implement a circular queue for a music playlist rotation. Capacity = 4. Show: enqueue(Song1), enqueue(Song2), enqueue(Song3), enqueue(Song4), dequeue(), enqueue(Song5), dequeue(). Show how the circular array wraps around.
+
+**Answer:**
+
+**Circular queue array (0-indexed, capacity 4):**
+
+| Step | Operation | front | rear | Array [0][1][2][3] | Size |
+|------|-----------|-------|------|--------------------|------|
+| 0 | init | 0 | -1 | [_, _, _, _] | 0 |
+| 1 | enqueue(S1) | 0 | 0 | [**S1**, _, _, _] | 1 |
+| 2 | enqueue(S2) | 0 | 1 | [S1, **S2**, _, _] | 2 |
+| 3 | enqueue(S3) | 0 | 2 | [S1, S2, **S3**, _] | 3 |
+| 4 | enqueue(S4) | 0 | 3 | [S1, S2, S3, **S4**] | 4 (full) |
+| 5 | dequeue()→S1 | 1 | 3 | [_, S2, S3, S4] | 3 |
+| 6 | enqueue(S5) | 1 | **0** ← wraps! | [**S5**, S2, S3, S4] | 4 (full) |
+| 7 | dequeue()→S2 | 2 | 0 | [S5, _, S3, S4] | 3 |
+
+**Key: rear = (rear + 1) % capacity** → after index 3, wraps to index 0.
+
+**Playlist state after all operations: [S3, S4, S5]** (front at index 2)
+
+```
+Array visual:
+Index:  [0]  [1]  [2]  [3]
+        S5    _   S3   S4
+              ↑front     
+        ↑rear
+```
+
+**Circular queue advantage over linear:** Slot 0 was reused after S1 was dequeued — no wasted space!
+
+---
+
+### Q44. Insert nodes 10, 20, 30 into a singly linked list, then delete the node with value 20. Show the pointer changes at each step.
+
+**Answer:**
+
+**Insertion (at end):**
+
+```
+Step 1: Insert 10
+    head → [10 | NULL]
+
+Step 2: Insert 20
+    head → [10 | •] → [20 | NULL]
+
+Step 3: Insert 30
+    head → [10 | •] → [20 | •] → [30 | NULL]
+```
+
+**Deletion of node with value 20:**
+
+```
+Algorithm DeleteNode(head, key)
+    if head.data = key then
+        head = head.next         // delete head
+        return head
+    curr = head
+    while curr.next ≠ NULL do
+        if curr.next.data = key then
+            curr.next = curr.next.next    // bypass the node
+            return head
+        curr = curr.next
+    return head    // key not found
+```
+
+**Trace:**
+
+| Step | curr | curr.next | Check |
+|------|------|-----------|-------|
+| 1 | 10 | 20 | 20.data = 20 = key? **Yes!** |
+| 2 | Set 10.next = 20.next = 30 | — | Node 20 bypassed |
+
+```
+Before: head → [10 | •] → [20 | •] → [30 | NULL]
+After:  head → [10 | •] ————————→ [30 | NULL]
+                          (20 removed / freed)
+```
+
+**Result:** head → [10 | •] → [30 | NULL] ✓
+
+**Time: O(n) to find the node. Space: O(1).**
+
+---
 
 *End of Chapter 2 Questions and Answers*

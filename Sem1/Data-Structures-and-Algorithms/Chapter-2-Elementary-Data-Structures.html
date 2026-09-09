@@ -1,114 +1,293 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Chapter 2: Elementary Data Structures — Study Guide</title>
-<style>
-  :root {
-    --bg:#f8f9fa;--card:#fff;--primary:#0d9488;--primary-light:#ccfbf1;
-    --text:#1e293b;--text-light:#64748b;--border:#e2e8f0;
-    --green:#16a34a;--green-bg:#dcfce7;--orange:#ea580c;--orange-bg:#fff7ed;
-    --code-bg:#f1f5f9;--accent:#7c3aed;--accent-bg:#f5f3ff;
-    --teal:#0d9488;--teal-bg:#ccfbf1;
-  }
-  *{box-sizing:border-box;margin:0;padding:0}
-  body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);line-height:1.75;padding-bottom:80px}
-  .header{background:linear-gradient(135deg,#0f766e,#0d9488,#2dd4bf);color:#fff;padding:48px 24px 40px;text-align:center}
-  .header h1{font-size:2.1em;margin-bottom:8px;letter-spacing:-.5px}
-  .header p{opacity:.85;font-size:1.05em}
-  .header .subtitle{font-size:.88em;opacity:.65;margin-top:8px}
-  .container{max-width:920px;margin:0 auto;padding:0 20px}
-  .ref-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:20px 0}
-  .ref-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:16px 20px}
-  .ref-card .code{font-weight:700;color:var(--teal);font-size:.85em}
-  .ref-card .title{font-weight:600;font-size:.92em;margin-top:4px}
-  .ref-card .author{color:var(--text-light);font-size:.84em;margin-top:2px}
-  .toc-card{background:var(--card);border-radius:12px;padding:24px 28px;margin:24px 0;box-shadow:0 2px 8px rgba(0,0,0,.06);border:1px solid var(--border)}
-  .toc-card h2{color:var(--teal);font-size:1.15em;margin-bottom:12px}
-  .toc-card ul{list-style:none}.toc-card>ul>li{margin:6px 0}
-  .toc-card>ul>li>a{font-weight:600;color:var(--teal);text-decoration:none;font-size:.95em}
-  .toc-card ul ul{margin-left:18px;margin-top:2px}.toc-card ul ul li{margin:2px 0}
-  .toc-card ul ul a{color:var(--text-light);font-weight:400;text-decoration:none;font-size:.9em}
-  .toc-card a:hover{text-decoration:underline;color:var(--accent)}
-  .sec-h1{background:linear-gradient(135deg,#0f766e,#0d9488);color:#fff;padding:18px 28px;border-radius:12px;margin:40px 0 4px;font-size:1.3em}
-  .sec-h2{background:var(--accent);color:#fff;padding:12px 24px;border-radius:10px;margin:32px 0 4px;font-size:1.1em}
-  .sec-h3{color:var(--teal);font-size:1.08em;margin:24px 0 8px;padding-bottom:4px;border-bottom:2px solid var(--teal-bg)}
-  .card{background:var(--card);border-radius:0 0 12px 12px;padding:24px 28px;margin-bottom:4px;box-shadow:0 1px 4px rgba(0,0,0,.05);border:1px solid var(--border);border-top:none}
-  .scard{background:var(--card);border-radius:12px;padding:24px 28px;margin:16px 0;box-shadow:0 1px 4px rgba(0,0,0,.05);border:1px solid var(--border)}
-  pre{background:var(--code-bg);border:1px solid var(--border);border-radius:8px;padding:16px 20px;overflow-x:auto;font-size:.87em;line-height:1.6;margin:12px 0;font-family:'SF Mono','Fira Code','Consolas',monospace}
-  code{font-family:'SF Mono','Fira Code','Consolas',monospace;font-size:.9em;background:var(--code-bg);padding:2px 6px;border-radius:4px}
-  pre code{background:none;padding:0}
-  table{width:100%;border-collapse:collapse;margin:14px 0;font-size:.91em}
-  th{background:var(--teal);color:#fff;padding:10px 14px;text-align:left;font-weight:600;font-size:.92em}
-  td{padding:10px 14px;border-bottom:1px solid var(--border)}
-  tr:nth-child(even) td{background:#f8fafc}
-  .tip{background:var(--green-bg);border-left:4px solid var(--green);padding:14px 18px;border-radius:0 8px 8px 0;margin:14px 0}
-  .warn{background:var(--orange-bg);border-left:4px solid var(--orange);padding:14px 18px;border-radius:0 8px 8px 0;margin:14px 0}
-  .info{background:var(--accent-bg);border-left:4px solid var(--accent);padding:14px 18px;border-radius:0 8px 8px 0;margin:14px 0}
-  .def{background:var(--teal-bg);border-left:4px solid var(--teal);padding:14px 18px;border-radius:0 8px 8px 0;margin:14px 0}
-  .ref-badge{display:inline-block;background:var(--teal-bg);color:var(--teal);font-size:.8em;font-weight:600;padding:3px 10px;border-radius:20px;margin-left:8px}
-  strong{color:var(--text)}ul,ol{margin:8px 0 8px 22px}li{margin:4px 0}
-  h4{margin:18px 0 8px;color:var(--teal);font-size:1em}
-  hr{border:none;border-top:1px solid var(--border);margin:20px 0}
-  .back-top{position:fixed;bottom:24px;right:24px;background:var(--teal);color:#fff;width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:700;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,.2);text-decoration:none;opacity:0;transition:opacity .3s;z-index:50}
-  .back-top.visible{opacity:1}
-  @media(max-width:700px){.ref-grid{grid-template-columns:1fr}.header h1{font-size:1.5em}.card,.scard{padding:18px 16px}}
-  @media print{.back-top{display:none}body{background:#fff}}
-</style>
-</head>
-<body>
-
-<div class="header">
-  <h1>Chapter 2: Elementary Data Structures</h1>
-  <p>Stacks, Queues, Amortised Analysis &amp; Lists</p>
-  <div class="subtitle">BITS Pilani &bull; Department of Computer Science and Information Systems</div>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Chapter 2: Elementary Data Structures</title>
+<style>:root{--bg:#0f172a;--surface:#1e293b;--surface2:#334155;--border:#475569;--text:#e2e8f0;--text-muted:#94a3b8;--code-bg:#0d1117;--accent:#10b981;--accent-dim:rgba(16,185,129,.15);--accent-border:rgba(16,185,129,.3);--header-gradient:linear-gradient(135deg,#064e3b,#059669,#10b981)}*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}html{scroll-behavior:smooth}body{font-family:"Segoe UI",system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.7;display:flex;min-height:100vh}.sidebar{position:fixed;top:0;left:0;width:280px;height:100vh;background:var(--surface);border-right:1px solid var(--border);overflow-y:auto;padding:1.5rem 0;z-index:100}.sidebar-header{padding:0 1.5rem 1.5rem;border-bottom:1px solid var(--border);margin-bottom:1rem}.sidebar-header h2{font-size:1rem;color:var(--accent)}.sidebar nav a{display:block;padding:.55rem 1.5rem;color:var(--text-muted);text-decoration:none;font-size:.85rem;border-left:3px solid transparent}.sidebar nav a:hover,.sidebar nav a.active{color:var(--accent);background:var(--accent-dim);border-left-color:var(--accent)}.sidebar nav a.sub{padding-left:2.5rem;font-size:.8rem}.main{margin-left:280px;flex:1;max-width:900px;padding:2rem 3rem 4rem}.page-header{background:var(--header-gradient);border-radius:16px;padding:2.5rem;margin-bottom:2.5rem}.page-header .badge{display:inline-block;background:rgba(0,0,0,.3);color:#fff;padding:.25rem .75rem;border-radius:20px;font-size:.75rem;margin-bottom:.75rem}.page-header h1{font-size:2rem;color:#fff}h2{font-size:1.5rem;color:var(--accent);margin:2.5rem 0 1rem;padding-bottom:.5rem;border-bottom:2px solid var(--accent-border)}h3{font-size:1.15rem;color:var(--text);margin:1.8rem 0 .8rem}p{margin-bottom:1rem}strong{color:var(--text)}.table-wrap{overflow-x:auto;margin:1.2rem 0;border-radius:10px;border:1px solid var(--border)}table{width:100%;border-collapse:collapse;font-size:.88rem}thead th{background:var(--accent);color:#000;padding:.75rem 1rem;text-align:left;font-weight:600}tbody tr:nth-child(even){background:var(--surface)}tbody tr:nth-child(odd){background:var(--surface2)}tbody tr:hover{background:var(--accent-dim)}td{padding:.7rem 1rem;border-top:1px solid var(--border)}pre{background:var(--code-bg);border:1px solid var(--border);border-radius:10px;padding:1.2rem;overflow-x:auto;margin:1.2rem 0;font-size:.85rem;line-height:1.6}code{font-family:"Cascadia Code","Fira Code",monospace;color:#e6edf3}p code,li code,td code{background:var(--code-bg);padding:.15rem .4rem;border-radius:4px;font-size:.85em;color:var(--accent)}.callout{background:var(--accent-dim);border-left:4px solid var(--accent);border-radius:0 10px 10px 0;padding:1rem 1.2rem;margin:1.2rem 0}.callout p{margin:0}ul,ol{margin:0 0 1rem 1.5rem}li{margin-bottom:.4rem}li strong{color:var(--accent)}.back-top{position:fixed;bottom:2rem;right:2rem;width:44px;height:44px;background:var(--accent);color:#000;border:none;border-radius:50%;cursor:pointer;font-size:1.3rem;display:none;align-items:center;justify-content:center;z-index:100}.back-top.show{display:flex}@media(max-width:900px){.sidebar{display:none}.main{margin-left:0;padding:2rem 1.2rem}}</style></head><body>
+<aside class="sidebar"><div class="sidebar-header"><h2>DSA</h2></div><nav>
+    <a href="#prescribed-textbooks" class="sub">Prescribed Textbooks</a>
+    <a href="#reading-map" class="sub">Reading Map</a>
+    <a href="#table-of-contents">Table of Contents</a>
+    <a href="#-">---</a>
+    <a href="#211-stack-adt">2.1.1 Stack ADT</a>
+    <a href="#what-is-an-abstract-data-type-adt" class="sub">What is an Abstract Data Type (ADT)?</a>
+    <a href="#the-stack-concept" class="sub">The Stack Concept</a>
+    <a href="#why-is-restricted-access-useful" class="sub">Why is restricted access useful?</a>
+    <a href="#operations" class="sub">Operations</a>
+    <a href="#formal-adt-definition" class="sub">Formal ADT Definition</a>
+    <a href="#212-array-based-implementation">2.1.2 Array-Based Implementation</a>
+    <a href="#how-it-works-conceptually" class="sub">How it works conceptually</a>
+    <a href="#the-overflowunderflow-problem" class="sub">The overflow/underflow problem</a>
+    <a href="#data-structure" class="sub">Data Structure</a>
+    <a href="#operations_1" class="sub">Operations</a>
+    <a href="#c-implementation" class="sub">C Implementation</a>
+    <a href="#pros-and-cons" class="sub">Pros and Cons</a>
+    <a href="#213-linked-list-implementation">2.1.3 Linked-List Implementation</a>
+    <a href="#how-it-works-conceptually_1" class="sub">How it works conceptually</a>
+    <a href="#why-choose-a-linked-list-over-an-array" class="sub">Why choose a linked list over an array?</a>
+    <a href="#data-structure_1" class="sub">Data Structure</a>
+    <a href="#operations_2" class="sub">Operations</a>
+    <a href="#pros-and-cons_1" class="sub">Pros and Cons</a>
+    <a href="#214-stack-applications">2.1.4 Stack Applications</a>
+    <a href="#application-1-parenthesis-bracket-matching" class="sub">Application 1: Parenthesis / Bracket Matching</a>
+    <a href="#application-2-infix-to-postfix-conversion-shunting-yard-algorithm" class="sub">Application 2: Infix to Postfix Conversion (Shunti...</a>
+    <a href="#application-3-postfix-expression-evaluation" class="sub">Application 3: Postfix Expression Evaluation</a>
+    <a href="#application-3b-prefix-expression-evaluation" class="sub">Application 3b: Prefix Expression Evaluation</a>
+    <a href="#application-3c-infix-expression-evaluation-two-stack-approach" class="sub">Application 3c: Infix Expression Evaluation (Two-S...</a>
+    <a href="#application-3d-infix-to-prefix-conversion" class="sub">Application 3d: Infix to Prefix Conversion</a>
+    <a href="#application-3e-postfix-to-infix-conversion" class="sub">Application 3e: Postfix to Infix Conversion</a>
+    <a href="#application-3f-prefix-to-infix-conversion" class="sub">Application 3f: Prefix to Infix Conversion</a>
+    <a href="#application-3g-balanced-parentheses-checker" class="sub">Application 3g: Balanced Parentheses Checker</a>
+    <a href="#application-4-function-call-stack" class="sub">Application 4: Function Call Stack</a>
+    <a href="#application-5-iterative-dfs-depth-first-search" class="sub">Application 5: Iterative DFS (Depth-First Search)</a>
+    <a href="#-_1">---</a>
+    <a href="#221-queue-adt">2.2.1 Queue ADT</a>
+    <a href="#the-queue-concept" class="sub">The Queue Concept</a>
+    <a href="#why-fifo-matters" class="sub">Why FIFO matters</a>
+    <a href="#stack-vs-queue-a-mental-model" class="sub">Stack vs. Queue: A mental model</a>
+    <a href="#operations_3" class="sub">Operations</a>
+    <a href="#formal-adt-definition_1" class="sub">Formal ADT Definition</a>
+    <a href="#222-linear-queue-limitations">2.2.2 Linear Queue Limitations</a>
+    <a href="#the-problem-phantom-overflow" class="sub">The problem: phantom overflow</a>
+    <a href="#why-not-just-shift-elements" class="sub">Why not just shift elements?</a>
+    <a href="#the-solution-circular-queue" class="sub">The solution: Circular Queue</a>
+    <a href="#summary-of-linear-queue-problems" class="sub">Summary of linear queue problems</a>
+    <a href="#223-circular-array-implementation">2.2.3 Circular Array Implementation</a>
+    <a href="#the-problem-with-a-naive-linear-array" class="sub">The problem with a naive linear array</a>
+    <a href="#the-circular-array-solution" class="sub">The circular array solution</a>
+    <a href="#detecting-full-vs-empty" class="sub">Detecting full vs. empty</a>
+    <a href="#data-structure_2" class="sub">Data Structure</a>
+    <a href="#operations_4" class="sub">Operations</a>
+    <a href="#visualization-of-circular-array" class="sub">Visualization of Circular Array</a>
+    <a href="#c-implementation_1" class="sub">C Implementation</a>
+    <a href="#224-linked-list-implementation">2.2.4 Linked-List Implementation</a>
+    <a href="#225-double-ended-queue-deque">2.2.5 Double-Ended Queue (Deque)</a>
+    <a href="#226-priority-queue">2.2.6 Priority Queue</a>
+    <a href="#concept" class="sub">Concept</a>
+    <a href="#types" class="sub">Types</a>
+    <a href="#operations_5" class="sub">Operations</a>
+    <a href="#implementation-comparison" class="sub">Implementation Comparison</a>
+    <a href="#array-based-pseudocode-unsorted-max-priority" class="sub">Array-Based Pseudocode (Unsorted — Max-Priority)</a>
+    <a href="#worked-example" class="sub">Worked Example</a>
+    <a href="#applications" class="sub">Applications</a>
+    <a href="#227-queue-applications">2.2.7 Queue Applications</a>
+    <a href="#application-1-bfs-breadth-first-search" class="sub">Application 1: BFS (Breadth-First Search)</a>
+    <a href="#application-2-task-scheduling-fifo" class="sub">Application 2: Task Scheduling (FIFO)</a>
+    <a href="#application-3-level-order-tree-traversal" class="sub">Application 3: Level-Order Tree Traversal</a>
+    <a href="#application-4-producer-consumer-buffer" class="sub">Application 4: Producer-Consumer Buffer</a>
+    <a href="#-_2">---</a>
+    <a href="#231-why-amortised-analysis">2.3.1 Why Amortised Analysis?</a>
+    <a href="#the-problem-with-worst-case-analysis" class="sub">The problem with worst-case analysis</a>
+    <a href="#what-amortised-analysis-actually-measures" class="sub">What amortised analysis actually measures</a>
+    <a href="#three-methods-of-amortised-analysis" class="sub">Three methods of amortised analysis</a>
+    <a href="#232-the-aggregate-method">2.3.2 The Aggregate Method</a>
+    <a href="#233-stack-operations-amortised-analysis">2.3.3 Stack Operations — Amortised Analysis</a>
+    <a href="#the-multipop-operation" class="sub">The MULTIPOP Operation</a>
+    <a href="#naive-worst-case-analysis-too-pessimistic" class="sub">Naive Worst-Case Analysis (Too Pessimistic)</a>
+    <a href="#aggregate-analysis-correct" class="sub">Aggregate Analysis (Correct)</a>
+    <a href="#worked-example_1" class="sub">Worked Example</a>
+    <a href="#234-queue-operations-amortised-analysis">2.3.4 Queue Operations — Amortised Analysis</a>
+    <a href="#queue-with-two-stacks" class="sub">Queue with Two Stacks</a>
+    <a href="#worked-example_2" class="sub">Worked Example</a>
+    <a href="#235-dynamic-array-amortised-analysis">2.3.5 Dynamic Array — Amortised Analysis</a>
+    <a href="#why-doubling-why-not-add-a-constant" class="sub">Why Doubling? Why Not Add a Constant?</a>
+    <a href="#-_3">---</a>
+    <a href="#241-list-adt">2.4.1 List ADT</a>
+    <a href="#what-is-a-list" class="sub">What is a List?</a>
+    <a href="#lists-vs-stacks-vs-queues" class="sub">Lists vs. Stacks vs. Queues</a>
+    <a href="#two-implementation-strategies" class="sub">Two implementation strategies</a>
+    <a href="#operations_6" class="sub">Operations</a>
+    <a href="#242-singly-linked-list-implementation">2.4.2 Singly Linked List — Implementation</a>
+    <a href="#the-structure" class="sub">The structure</a>
+    <a href="#why-singly" class="sub">Why "singly"?</a>
+    <a href="#memory-layout" class="sub">Memory layout</a>
+    <a href="#core-operations" class="sub">Core Operations</a>
+    <a href="#complexity-summary-singly-linked-list" class="sub">Complexity Summary — Singly Linked List</a>
+    <a href="#243-doubly-linked-list-implementation">2.4.3 Doubly Linked List — Implementation</a>
+    <a href="#why-do-we-need-a-doubly-linked-list" class="sub">Why do we need a doubly linked list?</a>
+    <a href="#the-o1-deletion-advantage" class="sub">The O(1) deletion advantage</a>
+    <a href="#the-cost-of-the-extra-pointer" class="sub">The cost of the extra pointer</a>
+    <a href="#operations_7" class="sub">Operations</a>
+    <a href="#key-advantage-o1-deletion-given-a-node-pointer" class="sub">Key Advantage: O(1) Deletion Given a Node Pointer</a>
+    <a href="#complexity-summary-doubly-linked-list" class="sub">Complexity Summary — Doubly Linked List</a>
+    <a href="#244-circular-linked-list">2.4.4 Circular Linked List</a>
+    <a href="#what-makes-it-circular" class="sub">What makes it circular?</a>
+    <a href="#when-to-use-circular-lists" class="sub">When to use circular lists</a>
+    <a href="#implementation-considerations" class="sub">Implementation considerations</a>
+    <a href="#245-circular-doubly-linked-list">2.4.5 Circular Doubly Linked List</a>
+    <a href="#concept_1" class="sub">Concept</a>
+    <a href="#data-structure_3" class="sub">Data Structure</a>
+    <a href="#advantages-over-other-list-variants" class="sub">Advantages over other list variants</a>
+    <a href="#operations_8" class="sub">Operations</a>
+    <a href="#worked-trace-insert-10-20-30-then-delete-20" class="sub">Worked Trace: Insert 10, 20, 30, then delete 20</a>
+    <a href="#complexity-summary-circular-doubly-linked-list" class="sub">Complexity Summary — Circular Doubly Linked List</a>
+    <a href="#use-cases" class="sub">Use Cases</a>
+    <a href="#246-array-vs-linked-list-comparison">2.4.6 Array vs. Linked List — Comparison</a>
+    <a href="#the-core-trade-off" class="sub">The core trade-off</a>
+    <a href="#the-cache-performance-factor-often-overlooked" class="sub">The cache performance factor (often overlooked)</a>
+    <a href="#when-to-use-what" class="sub">When to Use What</a>
+    <a href="#247-list-applications">2.4.7 List Applications</a>
+    <a href="#-_4">---</a>
+    <a href="#p1-implement-a-min-stack" class="sub">P1. Implement a Min-Stack</a>
+    <a href="#p2-evaluate-3-4-2-7-postfix" class="sub">P2. Evaluate 3 4 + 2 * 7 / (Postfix)</a>
+    <a href="#p3-starting-from-an-empty-stack-a-sequence-of-n-push-and-multipop-operations-is-performed-prove-the-amortised-cost-per-operation-is-o1" class="sub">P3. Starting from an empty stack, a sequence of n ...</a>
+    <a href="#p4-a-queue-is-implemented-using-two-stacks-show-that-the-amortised-cost-of-enqueue-and-dequeue-is-o1" class="sub">P4. A queue is implemented using two stacks. Show ...</a>
+    <a href="#p5-reverse-a-linked-list-iteratively-and-recursively" class="sub">P5. Reverse a linked list iteratively and recursiv...</a>
+    <a href="#p6-detect-a-cycle-in-a-linked-list-floyds-tortoise-and-hare" class="sub">P6. Detect a cycle in a linked list (Floyd's Torto...</a>
+</nav></aside>
+<main class="main"><div class="page-header"><span class="badge">Chapter 2 Elementary Data Structures</span><h1>Chapter 2: Elementary Data Structures</h1></div>
+<h1 id="chapter-2-elementary-data-structures">Chapter 2: Elementary Data Structures</h1>
+<div class="callout">
+<p>BITS Pilani — Department of Computer Science and Information Systems</p>
 </div>
-
-<div class="container">
-
-<!-- References -->
-<div class="ref-grid">
-  <div class="ref-card"><div class="code">R1: 10.1</div><div class="title">Stacks and Queues (CLRS)</div><div class="author">Cormen, Leiserson, Rivest, Stein &mdash; 3rd Ed</div></div>
-  <div class="ref-card"><div class="code">R1: 17.1</div><div class="title">Aggregate Analysis (Amortised)</div><div class="author">CLRS Chapter 17</div></div>
-  <div class="ref-card"><div class="code">R1: 10.2</div><div class="title">Linked Lists</div><div class="author">CLRS Chapter 10</div></div>
-  <div class="ref-card"><div class="code">T1</div><div class="title">Algorithm Design</div><div class="author">Goodrich &amp; Tamassia, 2006</div></div>
+<h3 id="prescribed-textbooks">Prescribed Textbooks</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Code</th>
+<th>Book</th>
+<th>Authors</th>
+<th>Edition</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>T1</strong></td>
+<td>Algorithm Design: Foundations, Analysis and Internet Examples</td>
+<td>Michael T. Goodrich, Roberto Tamassia</td>
+<td>2006, Wiley</td>
+</tr>
+<tr>
+<td><strong>R1</strong></td>
+<td>Introduction to Algorithms (CLRS)</td>
+<td>T.H. Cormen, C.E. Leiserson, R.L. Rivest, C. Stein</td>
+<td>3rd Ed, 2009, PHI</td>
+</tr>
+<tr>
+<td><strong>R2</strong></td>
+<td>Data Structures, Algorithms and Applications in Java</td>
+<td>Sartaj Sahni</td>
+<td>2nd Ed, 2005, Universities Press</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="reading-map">Reading Map</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Syllabus Topic</th>
+<th>R1 Reference</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>2.1 Stacks — ADT, Implementation, Applications</td>
+<td>R1: 10.1</td>
+</tr>
+<tr>
+<td>2.2 Queues — ADT, Implementation, Applications</td>
+<td>R1: 10.1</td>
+</tr>
+<tr>
+<td>2.3 Amortised Analysis — Aggregate Method</td>
+<td>R1: 17.1</td>
+</tr>
+<tr>
+<td>2.4 Lists — ADT, Implementation, Applications</td>
+<td>R1: 10.2</td>
+</tr>
+</tbody>
+</table></div>
+<hr />
+<h2 id="table-of-contents">Table of Contents</h2>
+<ul>
+<li><a href="#21-stacks">2.1 Stacks</a></li>
+<li><a href="#211-stack-adt">2.1.1 Stack ADT</a></li>
+<li><a href="#212-array-based-implementation">2.1.2 Array-Based Implementation</a></li>
+<li><a href="#213-linked-list-implementation">2.1.3 Linked-List Implementation</a></li>
+<li><a href="#214-stack-applications">2.1.4 Stack Applications</a></li>
+<li><a href="#22-queues">2.2 Queues</a></li>
+<li><a href="#221-queue-adt">2.2.1 Queue ADT</a></li>
+<li><a href="#222-linear-queue-limitations">2.2.2 Linear Queue Limitations</a></li>
+<li><a href="#223-circular-array-implementation">2.2.3 Circular Array Implementation</a></li>
+<li><a href="#224-linked-list-implementation">2.2.4 Linked-List Implementation</a></li>
+<li><a href="#225-double-ended-queue-deque">2.2.5 Double-Ended Queue (Deque)</a></li>
+<li><a href="#226-priority-queue">2.2.6 Priority Queue</a></li>
+<li><a href="#227-queue-applications">2.2.7 Queue Applications</a></li>
+<li><a href="#23-amortised-analysis">2.3 Amortised Analysis</a></li>
+<li><a href="#231-why-amortised-analysis">2.3.1 Why Amortised Analysis?</a></li>
+<li><a href="#232-the-aggregate-method">2.3.2 The Aggregate Method</a></li>
+<li><a href="#233-stack-operations--amortised-analysis">2.3.3 Stack Operations — Amortised Analysis</a></li>
+<li><a href="#234-queue-operations--amortised-analysis">2.3.4 Queue Operations — Amortised Analysis</a></li>
+<li><a href="#235-dynamic-array--amortised-analysis">2.3.5 Dynamic Array — Amortised Analysis</a></li>
+<li><a href="#24-lists">2.4 Lists</a></li>
+<li><a href="#241-list-adt">2.4.1 List ADT</a></li>
+<li><a href="#242-singly-linked-list--implementation">2.4.2 Singly Linked List — Implementation</a></li>
+<li><a href="#243-doubly-linked-list--implementation">2.4.3 Doubly Linked List — Implementation</a></li>
+<li><a href="#244-circular-linked-list">2.4.4 Circular Linked List</a></li>
+<li><a href="#245-circular-doubly-linked-list">2.4.5 Circular Doubly Linked List</a></li>
+<li><a href="#246-array-vs-linked-list--comparison">2.4.6 Array vs. Linked List — Comparison</a></li>
+<li><a href="#247-list-applications">2.4.7 List Applications</a></li>
+<li><a href="#practice-problems-with-solutions">Practice Problems with Solutions</a></li>
+</ul>
+<h2 id="-">---</h2>
+<h1 id="21-stacks">2.1 Stacks</h1>
+<div class="callout">
+<p><strong>R1 Reference: Chapter 10.1 — Stacks and Queues</strong></p>
 </div>
-
-<!-- TOC -->
-<div class="toc-card">
-  <h2>Table of Contents</h2>
-  <ul>
-    <li><a href="#s21">2.1 Stacks</a><ul><li><a href="#s211">ADT &amp; Operations</a></li><li><a href="#s212">Array Implementation (with C code)</a></li><li><a href="#s213">Linked-List Implementation</a></li><li><a href="#s214">Applications (5 detailed)</a></li></ul></li>
-    <li><a href="#s22">2.2 Queues</a><ul><li><a href="#s221">ADT &amp; Operations</a></li><li><a href="#s222">Circular Array (with C code &amp; visual)</a></li><li><a href="#s223">Linked-List &amp; Deque</a></li><li><a href="#s225">Applications (4 detailed)</a></li></ul></li>
-    <li><a href="#s23">2.3 Amortised Analysis</a><ul><li><a href="#s231">Why Amortised?</a></li><li><a href="#s232">Aggregate Method</a></li><li><a href="#s233">MULTIPOP Stack (with proof)</a></li><li><a href="#s234">Two-Stack Queue (with proof)</a></li><li><a href="#s235">Dynamic Array (with proof)</a></li></ul></li>
-    <li><a href="#s24">2.4 Lists</a><ul><li><a href="#s241">List ADT</a></li><li><a href="#s242">Singly Linked (full ops)</a></li><li><a href="#s243">Doubly Linked (O(1) delete)</a></li><li><a href="#s244">Circular &amp; Comparison Table</a></li><li><a href="#s246">Applications (5 detailed)</a></li></ul></li>
-    <li><a href="#practice">Practice Problems (6)</a></li>
-  </ul>
-</div>
-
-<!-- ============================================================ -->
-<!-- SECTION 2.1 STACKS -->
-<!-- ============================================================ -->
-<div class="sec-h1" id="s21">2.1 Stacks <span class="ref-badge">R1: 10.1</span></div>
-
-<div class="sec-h3" id="s211">2.1.1 Stack ADT</div>
-<div class="card">
-  <div class="def"><strong>Definition:</strong> A <strong>stack</strong> is a LIFO (Last In, First Out) collection &mdash; the last element inserted is the first removed. Think of a stack of plates: you add plates on top and remove from the top.</div>
-  <table>
-    <tr><th>Operation</th><th>Description</th><th>Time</th></tr>
-    <tr><td><code>push(x)</code></td><td>Insert element x on top of the stack</td><td>O(1)</td></tr>
-    <tr><td><code>pop()</code></td><td>Remove and return the top element</td><td>O(1)</td></tr>
-    <tr><td><code>top()</code> / <code>peek()</code></td><td>Return top element without removing it</td><td>O(1)</td></tr>
-    <tr><td><code>isEmpty()</code></td><td>Return true if the stack has no elements</td><td>O(1)</td></tr>
-    <tr><td><code>size()</code></td><td>Return the number of elements</td><td>O(1)</td></tr>
-  </table>
-  <div class="warn"><strong>Errors:</strong> <code>pop()</code> or <code>top()</code> on empty stack &rarr; <strong>Underflow Error</strong>. <code>push()</code> on full fixed-size stack &rarr; <strong>Overflow Error</strong>.</div>
-
-  <h4>Formal ADT Definition</h4>
-  <pre><code>ADT Stack:
+<h2 id="211-stack-adt">2.1.1 Stack ADT</h2>
+<h3 id="what-is-an-abstract-data-type-adt">What is an Abstract Data Type (ADT)?</h3>
+<p>Before we discuss stacks specifically, it's important to understand what an <strong>Abstract Data Type (ADT)</strong> means. An ADT is a mathematical model for a data type that is defined purely by its <strong>behaviour</strong> — what operations it supports and what those operations do — without specifying <strong>how</strong> those operations are implemented internally. The ADT separates the "what" from the "how."</p>
+<p>For example, the Stack ADT says "you can push an element and pop the most recent element" — but it does not say whether you should use an array, a linked list, or any other internal structure. This separation is fundamental to software engineering: it allows you to change the implementation without affecting any code that uses the stack.</p>
+<h3 id="the-stack-concept">The Stack Concept</h3>
+<p>A <strong>stack</strong> is a collection of elements that follows the <strong>LIFO (Last In, First Out)</strong> principle — the last element inserted is the first one removed.</p>
+<p>The most intuitive real-world analogy is a <strong>stack of plates in a cafeteria</strong>. You place new plates on top of the pile, and when you need a plate, you take the one from the top. You cannot pull a plate from the middle or bottom without first removing all the plates above it. This restricted access pattern — where you can only interact with the topmost element — is exactly what defines a stack.</p>
+<p>Another analogy is the <strong>"undo" feature</strong> in any text editor. Every action you perform is "pushed" onto an undo stack. When you press Ctrl+Z, the most recent action is "popped" and reversed. The older actions remain underneath, waiting their turn.</p>
+<h3 id="why-is-restricted-access-useful">Why is restricted access useful?</h3>
+<p>At first, it might seem like restricting access to only the top element is a limitation. But this restriction is precisely what makes stacks powerful and efficient:</p>
+<ol>
+<li><strong>Simplicity:</strong> Because you only ever touch the top, every operation (push, pop, peek) takes O(1) time. There's no searching, no shifting, no traversal.</li>
+<li><strong>Natural modelling of nested structures:</strong> Function calls are nested (function A calls B, which calls C). Parentheses are nested. Recursive problems are nested. A stack naturally mirrors this nesting — the most recently opened context is the first one closed.</li>
+<li><strong>Automatic ordering:</strong> The LIFO property guarantees that elements are processed in reverse order of their insertion. This is exactly what you need for undo operations, backtracking, and expression evaluation.</li>
+</ol>
+<h3 id="operations">Operations</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Operation</th>
+<th>Description</th>
+<th>Time Complexity</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>push(x)</code></td>
+<td>Insert element x on top of the stack</td>
+<td>O(1)</td>
+</tr>
+<tr>
+<td><code>pop()</code></td>
+<td>Remove and return the top element</td>
+<td>O(1)</td>
+</tr>
+<tr>
+<td><code>top()</code> / <code>peek()</code></td>
+<td>Return the top element without removing it</td>
+<td>O(1)</td>
+</tr>
+<tr>
+<td><code>isEmpty()</code></td>
+<td>Return true if the stack has no elements</td>
+<td>O(1)</td>
+</tr>
+<tr>
+<td><code>size()</code></td>
+<td>Return the number of elements</td>
+<td>O(1)</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="formal-adt-definition">Formal ADT Definition</h3>
+<pre><code>ADT Stack:
     Data:
-        A sequence of elements with a designated "top"
+        A sequence of elements with a designated &quot;top&quot;
 
     Operations:
         push(x)    : Add x to the top
@@ -120,47 +299,52 @@
         size()     : Return the count of elements
 
     Errors:
-        pop() or top() on empty stack &rarr; Underflow Error
-        push() on full stack (fixed-size) &rarr; Overflow Error</code></pre>
-</div>
-
-<div class="sec-h3" id="s212">2.1.2 Array-Based Implementation</div>
-<div class="card">
-  <p>The simplest implementation uses an array and an integer <code>top</code> tracking the index of the topmost element. <code>top = -1</code> means empty.</p>
-
-  <h4>Data Structure</h4>
-  <pre><code>struct Stack:
+        pop() or top() on empty stack → Underflow Error
+        push() on full stack (fixed-size) → Overflow Error
+</code></pre>
+<hr />
+<h2 id="212-array-based-implementation">2.1.2 Array-Based Implementation</h2>
+<p>The simplest and most common way to implement a stack is with an <strong>array</strong> and a single integer variable <code>top</code> that tracks the index of the topmost element.</p>
+<h3 id="how-it-works-conceptually">How it works conceptually</h3>
+<p>Imagine an array of fixed size (say, 100 elements). We designate one end of the array as the "bottom" of the stack (index 0) and grow the stack towards higher indices. The variable <code>top</code> always points to the index of the element currently on top of the stack. When the stack is empty, <code>top</code> is set to -1 (a sentinel value indicating "no element").</p>
+<p>When we <strong>push</strong> an element, we increment <code>top</code> by 1 and place the new element at <code>array[top]</code>. When we <strong>pop</strong>, we read the element at <code>array[top]</code> and then decrement <code>top</code> by 1. The element isn't physically erased from memory — it's simply no longer considered part of the stack because <code>top</code> has moved below it.</p>
+<p>This approach is elegant because both push and pop only modify a single index and a single array cell — making them <strong>O(1)</strong> operations regardless of how many elements are in the stack.</p>
+<h3 id="the-overflowunderflow-problem">The overflow/underflow problem</h3>
+<p>The main limitation of a fixed-size array is that you must decide the maximum capacity upfront. If the stack grows beyond this capacity, you get a <strong>stack overflow</strong> — there's no room for the new element. Conversely, if you try to pop from an empty stack (<code>top == -1</code>), you get a <strong>stack underflow</strong>.</p>
+<p>In practice, this is often acceptable when you know the maximum size in advance (for example, expression evaluation where the stack can never exceed the number of operands). When the size is unpredictable, you either use a <strong>dynamic array</strong> (which doubles in size when full — see Section 2.3.5 on amortised analysis) or switch to a linked-list implementation.</p>
+<h3 id="data-structure">Data Structure</h3>
+<pre><code>struct Stack:
     array[0..capacity-1]   // fixed-size array
     top = -1               // index of top element; -1 means empty
-    capacity               // maximum size</code></pre>
-
-  <h4>Pseudocode Operations</h4>
-  <pre><code>push(S, x):
+    capacity               // maximum size
+</code></pre>
+<h3 id="operations_1">Operations</h3>
+<pre><code>push(S, x):
     if S.top == S.capacity - 1:
-        error "Stack Overflow"
+        error &quot;Stack Overflow&quot;
     S.top = S.top + 1
     S.array[S.top] = x
 
 pop(S):
     if S.top == -1:
-        error "Stack Underflow"
+        error &quot;Stack Underflow&quot;
     x = S.array[S.top]
     S.top = S.top - 1
     return x
 
 top(S):
     if S.top == -1:
-        error "Stack Underflow"
+        error &quot;Stack Underflow&quot;
     return S.array[S.top]
 
 isEmpty(S):
     return (S.top == -1)
 
 size(S):
-    return S.top + 1</code></pre>
-
-  <h4>C Implementation</h4>
-  <pre><code>#define MAX 100
+    return S.top + 1
+</code></pre>
+<h3 id="c-implementation">C Implementation</h3>
+<pre><code class="language-c">#define MAX 100
 
 struct Stack {
     int arr[MAX];
@@ -180,44 +364,69 @@ int isFull(struct Stack* s) {
 }
 
 void push(struct Stack* s, int x) {
-    if (isFull(s)) { printf("Overflow\n"); return; }
+    if (isFull(s)) { printf(&quot;Overflow\n&quot;); return; }
     s-&gt;arr[++(s-&gt;top)] = x;
 }
 
 int pop(struct Stack* s) {
-    if (isEmpty(s)) { printf("Underflow\n"); return -1; }
+    if (isEmpty(s)) { printf(&quot;Underflow\n&quot;); return -1; }
     return s-&gt;arr[(s-&gt;top)--];
 }
 
 int peek(struct Stack* s) {
-    if (isEmpty(s)) { printf("Empty\n"); return -1; }
+    if (isEmpty(s)) { printf(&quot;Empty\n&quot;); return -1; }
     return s-&gt;arr[s-&gt;top];
-}</code></pre>
-
-  <h4>Pros and Cons</h4>
-  <table>
-    <tr><th>Pros</th><th>Cons</th></tr>
-    <tr><td>O(1) for all operations</td><td>Fixed size &mdash; must know maximum in advance</td></tr>
-    <tr><td>Cache-friendly (contiguous memory)</td><td>Wastes space if stack is mostly empty</td></tr>
-    <tr><td>Simple implementation</td><td>Overflow if capacity exceeded</td></tr>
-  </table>
-</div>
-
-<div class="sec-h3" id="s213">2.1.3 Linked-List Implementation</div>
-<div class="card">
-  <p>Use a singly linked list with <code>push</code> and <code>pop</code> at the <strong>head</strong> &mdash; no need to traverse.</p>
-
-  <h4>Data Structure</h4>
-  <pre><code>struct Node:
+}
+</code></pre>
+<h3 id="pros-and-cons">Pros and Cons</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Pros</th>
+<th>Cons</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>O(1) for all operations</td>
+<td>Fixed size — must know maximum in advance</td>
+</tr>
+<tr>
+<td>Cache-friendly (contiguous memory)</td>
+<td>Wastes space if stack is mostly empty</td>
+</tr>
+<tr>
+<td>Simple implementation</td>
+<td>Overflow if capacity exceeded</td>
+</tr>
+</tbody>
+</table></div>
+<hr />
+<h2 id="213-linked-list-implementation">2.1.3 Linked-List Implementation</h2>
+<p>An alternative to the array-based approach is to implement a stack using a <strong>singly linked list</strong>. The key insight is that if you always insert and remove at the <strong>head</strong> of the linked list, both operations take O(1) time — no traversal is needed.</p>
+<h3 id="how-it-works-conceptually_1">How it works conceptually</h3>
+<p>Each element in the stack is stored in a <strong>node</strong> that contains two things: the data itself and a pointer (<code>next</code>) to the node below it in the stack. The stack maintains a single pointer called <code>head</code> (or <code>top</code>) that points to the topmost node.</p>
+<p>When you <strong>push</strong> a new element, you create a new node, set its <code>next</code> pointer to the current head, and update the head to point to this new node. The new node is now on top. When you <strong>pop</strong>, you save the head node's data, update the head to point to <code>head.next</code> (the node below), and free the old head node.</p>
+<h3 id="why-choose-a-linked-list-over-an-array">Why choose a linked list over an array?</h3>
+<p>The linked-list approach solves the fixed-size problem: the stack can grow as large as available memory allows, with no pre-determined capacity limit. There's no overflow (unless the entire system runs out of memory). Each push allocates exactly one node, and each pop frees exactly one node — so there's no wasted space.</p>
+<p>However, this flexibility comes with costs:</p>
+<ol>
+<li><strong>Memory overhead:</strong> Each node stores an extra pointer (4 or 8 bytes depending on the architecture). For small data types like integers, this overhead can double the memory usage compared to an array.</li>
+<li><strong>Cache performance:</strong> Array elements are stored contiguously in memory, so accessing consecutive elements benefits from CPU cache prefetching. Linked list nodes are scattered across memory, leading to frequent cache misses. In practice, this makes linked-list operations 2-5x slower than array operations for the same logical work.</li>
+<li><strong>Allocation cost:</strong> Each push requires a <code>malloc</code> call (dynamic memory allocation), which is significantly slower than simply incrementing an index.</li>
+</ol>
+<p><strong>Rule of thumb:</strong> Use the array-based stack when you can estimate the maximum size. Use the linked-list stack when the size is completely unpredictable or when the stack needs to grow/shrink frequently with no wasted capacity.</p>
+<h3 id="data-structure_1">Data Structure</h3>
+<pre><code>struct Node:
     data
-    next &rarr; Node (or NULL)
+    next → Node (or NULL)
 
 struct Stack:
-    head &rarr; Node (or NULL)
-    size = 0</code></pre>
-
-  <h4>Operations</h4>
-  <pre><code>push(S, x):
+    head → Node (or NULL)
+    size = 0
+</code></pre>
+<h3 id="operations_2">Operations</h3>
+<pre><code>push(S, x):
     newNode = create Node with data = x
     newNode.next = S.head
     S.head = newNode
@@ -225,68 +434,78 @@ struct Stack:
 
 pop(S):
     if S.head == NULL:
-        error "Stack Underflow"
+        error &quot;Stack Underflow&quot;
     x = S.head.data
     temp = S.head
     S.head = S.head.next
     free(temp)
     S.size--
-    return x</code></pre>
-
-  <table>
-    <tr><th>Pros</th><th>Cons</th></tr>
-    <tr><td>Dynamic size &mdash; no overflow (until memory exhausted)</td><td>Extra memory for pointers</td></tr>
-    <tr><td>No wasted space</td><td>Not cache-friendly (nodes scattered in memory)</td></tr>
-    <tr><td>O(1) push/pop at head</td><td>Slightly slower due to memory allocation per push</td></tr>
-  </table>
-</div>
-
-<div class="sec-h3" id="s214">2.1.4 Stack Applications</div>
-<div class="card">
-
-  <h4>Application 1: Parenthesis / Bracket Matching</h4>
-  <p><strong>Problem:</strong> Given a string of brackets <code>({[]})</code>, check if every opening bracket has a correct closing bracket.</p>
-  <pre><code>for each character c in the string:
+    return x
+</code></pre>
+<h3 id="pros-and-cons_1">Pros and Cons</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Pros</th>
+<th>Cons</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Dynamic size — no overflow (until memory exhausted)</td>
+<td>Extra memory for pointers</td>
+</tr>
+<tr>
+<td>No wasted space</td>
+<td>Not cache-friendly (nodes scattered in memory)</td>
+</tr>
+<tr>
+<td>O(1) push/pop at head</td>
+<td>Slightly slower due to memory allocation per push</td>
+</tr>
+</tbody>
+</table></div>
+<hr />
+<h2 id="214-stack-applications">2.1.4 Stack Applications</h2>
+<h3 id="application-1-parenthesis-bracket-matching">Application 1: Parenthesis / Bracket Matching</h3>
+<p><strong>Problem:</strong> Given a string of brackets <code>({[]})</code>, check if every opening bracket has a correct closing bracket.</p>
+<p><strong>Algorithm:</strong></p>
+<pre><code>for each character c in the string:
     if c is an opening bracket ( '(' or '{' or '[' ):
         push(c)
     else if c is a closing bracket:
         if stack is empty:
-            return "Unbalanced"
+            return &quot;Unbalanced&quot;
         top = pop()
         if top does not match c:
-            return "Unbalanced"
+            return &quot;Unbalanced&quot;
 if stack is not empty:
-    return "Unbalanced"
-return "Balanced"</code></pre>
-
-  <div class="scard" style="font-size:.92em">
-    <strong>Trace: <code>({[]})</code></strong>
-    <table>
-      <tr><th>Char</th><th>Action</th><th>Stack</th></tr>
-      <tr><td><code>(</code></td><td>Push</td><td>[(]</td></tr>
-      <tr><td><code>{</code></td><td>Push</td><td>[(, {]</td></tr>
-      <tr><td><code>[</code></td><td>Push</td><td>[(, {, []</td></tr>
-      <tr><td><code>]</code></td><td>Pop [ &rarr; matches ] &check;</td><td>[(, {]</td></tr>
-      <tr><td><code>}</code></td><td>Pop { &rarr; matches } &check;</td><td>[(]</td></tr>
-      <tr><td><code>)</code></td><td>Pop ( &rarr; matches ) &check;</td><td>[]</td></tr>
-    </table>
-    <div class="tip">Stack empty at end &rarr; <strong>Balanced</strong> &check;</div>
-  </div>
-  <p><strong>Time:</strong> O(n). <strong>Space:</strong> O(n) worst case.</p>
-
-  <hr>
-
-  <h4>Application 2: Infix to Postfix Conversion (Shunting-Yard Algorithm)</h4>
-  <p><strong>Infix:</strong> <code>A + B * C</code> (operators between operands)<br>
-  <strong>Postfix:</strong> <code>A B C * +</code> (operators after operands &mdash; no parentheses needed)</p>
-
-  <pre><code>for each token in the infix expression:
+    return &quot;Unbalanced&quot;
+return &quot;Balanced&quot;
+</code></pre>
+<p><strong>Example:</strong></p>
+<pre><code>Input: &quot;({[]})&quot;
+Step 1: '(' → push → Stack: ['(']
+Step 2: '{' → push → Stack: ['(', '{']
+Step 3: '[' → push → Stack: ['(', '{', '[']
+Step 4: ']' → pop '[' → matches ✓ → Stack: ['(', '{']
+Step 5: '}' → pop '{' → matches ✓ → Stack: ['(']
+Step 6: ')' → pop '(' → matches ✓ → Stack: []
+Stack empty → ✅ Balanced
+</code></pre>
+<p><strong>Time:</strong> O(n). <strong>Space:</strong> O(n) worst case.</p>
+<hr />
+<h3 id="application-2-infix-to-postfix-conversion-shunting-yard-algorithm">Application 2: Infix to Postfix Conversion (Shunting-Yard Algorithm)</h3>
+<p><strong>Infix:</strong> <code>A + B * C</code> (operators between operands)
+<strong>Postfix:</strong> <code>A B C * +</code> (operators after operands — no parentheses needed)</p>
+<p><strong>Algorithm:</strong></p>
+<pre><code>for each token in the infix expression:
     if token is an operand:
         append to output
     else if token is '(':
         push onto stack
     else if token is ')':
-        while top of stack &ne; '(':
+        while top of stack ≠ '(':
             pop and append to output
         pop '(' (discard)
     else (token is an operator):
@@ -294,72 +513,613 @@ return "Balanced"</code></pre>
             pop and append to output
         push token
 while stack is not empty:
-    pop and append to output</code></pre>
+    pop and append to output
+</code></pre>
+<p><strong>Operator Precedence:</strong> <code>^</code> (3, right-assoc) &gt; <code>* /</code> (2, left-assoc) &gt; <code>+ -</code> (1, left-assoc)</p>
+<p><strong>Example: <code>A + B * C - D</code></strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Token</th>
+<th>Action</th>
+<th>Stack</th>
+<th>Output</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A</td>
+<td>Output</td>
+<td></td>
+<td>A</td>
+</tr>
+<tr>
+<td>+</td>
+<td>Push</td>
+<td>[+]</td>
+<td>A</td>
+</tr>
+<tr>
+<td>B</td>
+<td>Output</td>
+<td>[+]</td>
+<td>A B</td>
+</tr>
+<tr>
+<td>*</td>
+<td>Push (* &gt; +)</td>
+<td>[+, *]</td>
+<td>A B</td>
+</tr>
+<tr>
+<td>C</td>
+<td>Output</td>
+<td>[+, *]</td>
+<td>A B C</td>
+</tr>
+<tr>
+<td>-</td>
+<td>Pop * (≥), Pop + (≥), Push -</td>
+<td>[-]</td>
+<td>A B C * +</td>
+</tr>
+<tr>
+<td>D</td>
+<td>Output</td>
+<td>[-]</td>
+<td>A B C * + D</td>
+</tr>
+<tr>
+<td>End</td>
+<td>Pop -</td>
+<td>[]</td>
+<td>A B C * + D -</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Postfix result:</strong> <code>A B C * + D -</code></p>
+<hr />
+<h3 id="application-3-postfix-expression-evaluation">Application 3: Postfix Expression Evaluation</h3>
+<p><strong>Algorithm:</strong></p>
+<pre><code>EVALUATE_POSTFIX(expression):
+    Create stack S
+    For each token in expression:
+        If token is operand:
+            Push(S, token)
+        If token is operator:
+            op2 = Pop(S)        // second operand popped first!
+            op1 = Pop(S)        // first operand
+            result = op1 operator op2
+            Push(S, result)
+    Return Pop(S)
+</code></pre>
+<p><strong>Why op2 is popped before op1:</strong> The stack holds operands in left-to-right order, so the deeper element (op1) is the left operand and the top element (op2) is the right operand. For non-commutative operators like <code>-</code> and <code>/</code>, the order matters: <code>op1 - op2</code>, not <code>op2 - op1</code>.</p>
+<p><strong>Example 1: Evaluate <code>5 3 2 * + 4 -</code></strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Token</th>
+<th>Action</th>
+<th>Stack</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>5</td>
+<td>push</td>
+<td>[5]</td>
+</tr>
+<tr>
+<td>3</td>
+<td>push</td>
+<td>[5, 3]</td>
+</tr>
+<tr>
+<td>2</td>
+<td>push</td>
+<td>[5, 3, 2]</td>
+</tr>
+<tr>
+<td>*</td>
+<td>pop 2,3 → 3*2=6 → push</td>
+<td>[5, 6]</td>
+</tr>
+<tr>
+<td>+</td>
+<td>pop 6,5 → 5+6=11 → push</td>
+<td>[11]</td>
+</tr>
+<tr>
+<td>4</td>
+<td>push</td>
+<td>[11, 4]</td>
+</tr>
+<tr>
+<td>-</td>
+<td>pop 4,11 → 11-4=7 → push</td>
+<td>[7]</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Result: 7</strong> ✓</p>
+<p><strong>Example 2: Evaluate <code>2 3 + 4 *</code></strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Token</th>
+<th>Action</th>
+<th>Stack</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>2</td>
+<td>push</td>
+<td>[2]</td>
+</tr>
+<tr>
+<td>3</td>
+<td>push</td>
+<td>[2, 3]</td>
+</tr>
+<tr>
+<td>+</td>
+<td>pop 3, 2 → 2+3=5 → push</td>
+<td>[5]</td>
+</tr>
+<tr>
+<td>4</td>
+<td>push</td>
+<td>[5, 4]</td>
+</tr>
+<tr>
+<td>*</td>
+<td>pop 4, 5 → 5*4=20 → push</td>
+<td>[20]</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Result: 20</strong> ✓</p>
+<p><strong>Time: O(n)</strong> — each token is processed exactly once. <strong>Space: O(n)</strong> — stack holds at most n/2 operands.</p>
+<hr />
+<h3 id="application-3b-prefix-expression-evaluation">Application 3b: Prefix Expression Evaluation</h3>
+<p>In <strong>prefix</strong> (Polish) notation, operators appear <strong>before</strong> their operands: <code>+ 3 4</code> means <code>3 + 4</code>.</p>
+<p><strong>Algorithm:</strong></p>
+<pre><code>EVALUATE_PREFIX(expression):
+    Reverse the expression
+    Create stack S
+    For each token in reversed expression:
+        If token is operand:
+            Push(S, token)
+        If token is operator:
+            op1 = Pop(S)        // first operand
+            op2 = Pop(S)        // second operand
+            result = op1 operator op2
+            Push(S, result)
+    Return Pop(S)
+</code></pre>
+<p><strong>Critical difference from postfix:</strong> In prefix evaluation (after reversing), we pop <code>op1</code> FIRST then <code>op2</code>. This is the <strong>opposite</strong> of postfix, where we pop <code>op2</code> first then <code>op1</code>. The reason is that reversing the expression flips the operand order, so the first popped element is the left operand.</p>
+<p><strong>Example: Evaluate <code>+ 3 * 4 5</code></strong></p>
+<p>Step 1 — Reverse: <code>5 4 * 3 +</code></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Token</th>
+<th>Action</th>
+<th>Stack</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>5</td>
+<td>push</td>
+<td>[5]</td>
+</tr>
+<tr>
+<td>4</td>
+<td>push</td>
+<td>[5, 4]</td>
+</tr>
+<tr>
+<td>*</td>
+<td>pop op1=4, op2=5 → 4*5=20 → push</td>
+<td>[20]</td>
+</tr>
+<tr>
+<td>3</td>
+<td>push</td>
+<td>[20, 3]</td>
+</tr>
+<tr>
+<td>+</td>
+<td>pop op1=3, op2=20 → 3+20=23 → push</td>
+<td>[23]</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Result: 23</strong> ✓ (which is <code>3 + (4 * 5) = 3 + 20 = 23</code>)</p>
+<p><strong>Time: O(n). Space: O(n).</strong></p>
+<hr />
+<h3 id="application-3c-infix-expression-evaluation-two-stack-approach">Application 3c: Infix Expression Evaluation (Two-Stack Approach)</h3>
+<p><strong>Infix</strong> is the standard notation humans use: <code>(2 + 3) * 4</code>. The challenge is handling operator precedence and parentheses correctly. The <strong>two-stack approach</strong> uses one stack for operands and one for operators.</p>
+<p><strong>Algorithm:</strong></p>
+<pre><code>EVALUATE_INFIX(expression):
+    Create operand stack VALS
+    Create operator stack OPS
+    For each token in expression:
+        If token is operand:
+            Push(VALS, token)
+        If token is '(':
+            Push(OPS, token)
+        If token is ')':
+            While Top(OPS) ≠ '(':
+                APPLY_TOP(VALS, OPS)
+            Pop(OPS)                    // discard '('
+        If token is operator:
+            While OPS is not empty
+              AND Top(OPS) ≠ '('
+              AND precedence(Top(OPS)) ≥ precedence(token):
+                APPLY_TOP(VALS, OPS)
+            Push(OPS, token)
+    While OPS is not empty:
+        APPLY_TOP(VALS, OPS)
+    Return Pop(VALS)
 
-  <p><strong>Operator Precedence:</strong> <code>^</code> (3, right-assoc) &gt; <code>* /</code> (2, left-assoc) &gt; <code>+ -</code> (1, left-assoc)</p>
-
-  <div class="scard" style="font-size:.92em">
-    <strong>Example: <code>A + B * C - D</code></strong>
-    <table>
-      <tr><th>Token</th><th>Action</th><th>Stack</th><th>Output</th></tr>
-      <tr><td>A</td><td>Output</td><td></td><td>A</td></tr>
-      <tr><td>+</td><td>Push</td><td>[+]</td><td>A</td></tr>
-      <tr><td>B</td><td>Output</td><td>[+]</td><td>A B</td></tr>
-      <tr><td>*</td><td>Push (* &gt; +)</td><td>[+, *]</td><td>A B</td></tr>
-      <tr><td>C</td><td>Output</td><td>[+, *]</td><td>A B C</td></tr>
-      <tr><td>-</td><td>Pop * (&ge;), Pop + (&ge;), Push -</td><td>[-]</td><td>A B C * +</td></tr>
-      <tr><td>D</td><td>Output</td><td>[-]</td><td>A B C * + D</td></tr>
-      <tr><td>End</td><td>Pop -</td><td>[]</td><td><strong>A B C * + D -</strong></td></tr>
-    </table>
-  </div>
-
-  <hr>
-
-  <h4>Application 3: Postfix Expression Evaluation</h4>
-  <pre><code>for each token in postfix expression:
-    if token is an operand:
-        push(token)
-    else (token is operator):
-        b = pop()    // second operand (popped first!)
-        a = pop()    // first operand
-        result = a operator b
-        push(result)
-return pop()    // final result</code></pre>
-
-  <div class="scard" style="font-size:.92em">
-    <strong>Evaluate: <code>5 3 2 * + 4 -</code></strong>
-    <table>
-      <tr><th>Token</th><th>Action</th><th>Stack</th></tr>
-      <tr><td>5</td><td>push</td><td>[5]</td></tr>
-      <tr><td>3</td><td>push</td><td>[5, 3]</td></tr>
-      <tr><td>2</td><td>push</td><td>[5, 3, 2]</td></tr>
-      <tr><td>*</td><td>pop 2,3 &rarr; 3&times;2=6 &rarr; push</td><td>[5, 6]</td></tr>
-      <tr><td>+</td><td>pop 6,5 &rarr; 5+6=11 &rarr; push</td><td>[11]</td></tr>
-      <tr><td>4</td><td>push</td><td>[11, 4]</td></tr>
-      <tr><td>-</td><td>pop 4,11 &rarr; 11-4=7 &rarr; push</td><td>[7]</td></tr>
-    </table>
-    <div class="tip"><strong>Result: 7</strong> &check;</div>
-  </div>
-
-  <hr>
-
-  <h4>Application 4: Function Call Stack</h4>
-  <p>Every time a function is called, the system pushes a <strong>stack frame</strong> containing:</p>
-  <ul>
-    <li>Local variables</li>
-    <li>Return address</li>
-    <li>Parameters</li>
-  </ul>
-  <p>When the function returns, its frame is popped. This is why:</p>
-  <ul>
-    <li><strong>Recursion</strong> works &mdash; each recursive call gets its own frame.</li>
-    <li><strong>Stack overflow</strong> occurs when recursion is too deep (too many frames).</li>
-  </ul>
-
-  <hr>
-
-  <h4>Application 5: Iterative DFS (Depth-First Search)</h4>
-  <pre><code>DFS_Iterative(graph, start):
+APPLY_TOP(VALS, OPS):
+    op = Pop(OPS)
+    b = Pop(VALS)
+    a = Pop(VALS)
+    Push(VALS, a op b)
+</code></pre>
+<p><strong>Precedence:</strong> <code>* /</code> (2) &gt; <code>+ -</code> (1). For equal precedence with left-associative operators, the existing operator on the stack is applied first.</p>
+<p><strong>Example: Evaluate <code>(2 + 3) * 4</code></strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Token</th>
+<th>Action</th>
+<th>VALS</th>
+<th>OPS</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>(</code></td>
+<td>Push to OPS</td>
+<td>[]</td>
+<td>[(]</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Push to VALS</td>
+<td>[2]</td>
+<td>[(]</td>
+</tr>
+<tr>
+<td>+</td>
+<td>Push to OPS (after <code>(</code>)</td>
+<td>[2]</td>
+<td>[(, +]</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Push to VALS</td>
+<td>[2, 3]</td>
+<td>[(, +]</td>
+</tr>
+<tr>
+<td><code>)</code></td>
+<td>Apply + → pop 3,2 → 2+3=5, discard <code>(</code></td>
+<td>[5]</td>
+<td>[]</td>
+</tr>
+<tr>
+<td>*</td>
+<td>Push to OPS</td>
+<td>[5]</td>
+<td>[*]</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Push to VALS</td>
+<td>[5, 4]</td>
+<td>[*]</td>
+</tr>
+<tr>
+<td>End</td>
+<td>Apply * → pop 4,5 → 5*4=20</td>
+<td>[20]</td>
+<td>[]</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Result: 20</strong> ✓</p>
+<p><strong>Time: O(n). Space: O(n).</strong></p>
+<hr />
+<h3 id="application-3d-infix-to-prefix-conversion">Application 3d: Infix to Prefix Conversion</h3>
+<p><strong>Method:</strong> Reverse the infix expression → swap <code>(</code> with <code>)</code> and vice versa → apply the standard infix-to-postfix algorithm → reverse the result.</p>
+<p><strong>Algorithm:</strong></p>
+<pre><code>INFIX_TO_PREFIX(expression):
+    Step 1: Reverse the expression
+    Step 2: Swap every '(' with ')' and every ')' with '('
+    Step 3: Apply infix-to-postfix (Shunting-Yard) on the modified expression
+    Step 4: Reverse the postfix result → this is the prefix
+</code></pre>
+<p><strong>Example: Convert <code>A + B * C</code> to prefix</strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Step</th>
+<th>Result</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Original infix</td>
+<td><code>A + B * C</code></td>
+</tr>
+<tr>
+<td>Step 1 — Reverse</td>
+<td><code>C * B + A</code></td>
+</tr>
+<tr>
+<td>Step 2 — Swap parens</td>
+<td><code>C * B + A</code> (no parens to swap here)</td>
+</tr>
+<tr>
+<td>Step 3 — Apply infix-to-postfix</td>
+<td><code>C B * A +</code></td>
+</tr>
+<tr>
+<td>Step 4 — Reverse</td>
+<td><code>+ A * B C</code></td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Prefix result: <code>+ A * B C</code></strong> ✓ (which means <code>A + (B * C)</code>)</p>
+<p><strong>Example with parentheses: Convert <code>(A + B) * C</code> to prefix</strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Step</th>
+<th>Result</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Original infix</td>
+<td><code>(A + B) * C</code></td>
+</tr>
+<tr>
+<td>Step 1 — Reverse</td>
+<td><code>C * )B + A(</code></td>
+</tr>
+<tr>
+<td>Step 2 — Swap parens</td>
+<td><code>C * (B + A)</code></td>
+</tr>
+<tr>
+<td>Step 3 — Apply infix-to-postfix</td>
+<td><code>C B A + *</code></td>
+</tr>
+<tr>
+<td>Step 4 — Reverse</td>
+<td><code>* + A B C</code></td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Prefix result: <code>* + A B C</code></strong> ✓ (which means <code>(A + B) * C</code>)</p>
+<hr />
+<h3 id="application-3e-postfix-to-infix-conversion">Application 3e: Postfix to Infix Conversion</h3>
+<p><strong>Algorithm:</strong></p>
+<pre><code>POSTFIX_TO_INFIX(expression):
+    Create stack S (of strings)
+    For each token in expression (left to right):
+        If token is operand:
+            Push(S, token as string)
+        If token is operator:
+            op2 = Pop(S)
+            op1 = Pop(S)
+            result = &quot;(&quot; + op1 + token + op2 + &quot;)&quot;
+            Push(S, result)
+    Return Pop(S)
+</code></pre>
+<p><strong>Example: Convert <code>A B + C *</code> to infix</strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Token</th>
+<th>Action</th>
+<th>Stack</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A</td>
+<td>Push "A"</td>
+<td>["A"]</td>
+</tr>
+<tr>
+<td>B</td>
+<td>Push "B"</td>
+<td>["A", "B"]</td>
+</tr>
+<tr>
+<td>+</td>
+<td>Pop "B","A" → "(A+B)" → push</td>
+<td>["(A+B)"]</td>
+</tr>
+<tr>
+<td>C</td>
+<td>Push "C"</td>
+<td>["(A+B)", "C"]</td>
+</tr>
+<tr>
+<td>*</td>
+<td>Pop "C","(A+B)" → "((A+B)*C)" → push</td>
+<td>["((A+B)*C)"]</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Result: <code>((A+B)*C)</code></strong> ✓</p>
+<hr />
+<h3 id="application-3f-prefix-to-infix-conversion">Application 3f: Prefix to Infix Conversion</h3>
+<p><strong>Algorithm:</strong></p>
+<pre><code>PREFIX_TO_INFIX(expression):
+    Create stack S (of strings)
+    Scan expression from RIGHT to LEFT:
+        If token is operand:
+            Push(S, token as string)
+        If token is operator:
+            op1 = Pop(S)        // first popped = left operand
+            op2 = Pop(S)        // second popped = right operand
+            result = &quot;(&quot; + op1 + token + op2 + &quot;)&quot;
+            Push(S, result)
+    Return Pop(S)
+</code></pre>
+<p><strong>Why right-to-left?</strong> In prefix notation, operators come before their operands. By scanning from the right, we encounter operands first and build up subexpressions. When we hit an operator, its two operands are already on the stack.</p>
+<p><strong>Example: Convert <code>* + A B C</code> to infix</strong></p>
+<p>Scan from right: <code>C</code>, <code>B</code>, <code>A</code>, <code>+</code>, <code>*</code></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Token</th>
+<th>Action</th>
+<th>Stack</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>C</td>
+<td>Push "C"</td>
+<td>["C"]</td>
+</tr>
+<tr>
+<td>B</td>
+<td>Push "B"</td>
+<td>["C", "B"]</td>
+</tr>
+<tr>
+<td>A</td>
+<td>Push "A"</td>
+<td>["C", "B", "A"]</td>
+</tr>
+<tr>
+<td>+</td>
+<td>Pop op1="A", op2="B" → "(A+B)" → push</td>
+<td>["C", "(A+B)"]</td>
+</tr>
+<tr>
+<td>*</td>
+<td>Pop op1="(A+B)", op2="C" → "((A+B)*C)" → push</td>
+<td>["((A+B)*C)"]</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Result: <code>((A+B)*C)</code></strong> ✓</p>
+<hr />
+<h3 id="application-3g-balanced-parentheses-checker">Application 3g: Balanced Parentheses Checker</h3>
+<p><strong>Problem:</strong> Given a string containing brackets <code>()</code>, <code>{}</code>, <code>[]</code>, determine if every opening bracket has a correctly matched closing bracket in the correct nesting order.</p>
+<p><strong>Algorithm:</strong></p>
+<pre><code>BALANCED_PARENTHESES(expr):
+    Create stack S
+    For each char in expr:
+        If char in '(', '[', '{':
+            Push(S, char)
+        If char in ')', ']', '}':
+            If S is empty:
+                Return FALSE        // closing bracket with no opener
+            top = Pop(S)
+            If top does not match char:
+                Return FALSE        // mismatched bracket types
+    Return (S is empty)              // TRUE if all openers were matched
+</code></pre>
+<p><strong>Matching pairs:</strong> <code>(</code> matches <code>)</code>, <code>[</code> matches <code>]</code>, <code>{</code> matches <code>}</code>.</p>
+<p><strong>Example 1: <code>{[()]}</code> — Balanced</strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Char</th>
+<th>Action</th>
+<th>Stack</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>{</code></td>
+<td>Push</td>
+<td>[{]</td>
+</tr>
+<tr>
+<td><code>[</code></td>
+<td>Push</td>
+<td>[{, []</td>
+</tr>
+<tr>
+<td><code>(</code></td>
+<td>Push</td>
+<td>[{, [, (]</td>
+</tr>
+<tr>
+<td><code>)</code></td>
+<td>Pop <code>(</code> → matches <code>)</code> ✓</td>
+<td>[{, []</td>
+</tr>
+<tr>
+<td><code>]</code></td>
+<td>Pop <code>[</code> → matches <code>]</code> ✓</td>
+<td>[{]</td>
+</tr>
+<tr>
+<td><code>}</code></td>
+<td>Pop <code>{</code> → matches <code>}</code> ✓</td>
+<td>[]</td>
+</tr>
+</tbody>
+</table></div>
+<p>Stack empty → <strong>Balanced</strong> ✓</p>
+<p><strong>Example 2: <code>([)]</code> — Not Balanced</strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Char</th>
+<th>Action</th>
+<th>Stack</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>(</code></td>
+<td>Push</td>
+<td>[(]</td>
+</tr>
+<tr>
+<td><code>[</code></td>
+<td>Push</td>
+<td>[(, []</td>
+</tr>
+<tr>
+<td><code>)</code></td>
+<td>Pop <code>[</code> → does NOT match <code>)</code> ✗</td>
+<td>—</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Return FALSE</strong> — Not Balanced ✓</p>
+<p><strong>Why it works:</strong> The stack enforces proper nesting. The most recently opened bracket must be closed first (LIFO). If a closing bracket doesn't match the top of the stack, the nesting is violated.</p>
+<p><strong>Time: O(n). Space: O(n) worst case</strong> (all opening brackets).</p>
+<hr />
+<h3 id="application-4-function-call-stack">Application 4: Function Call Stack</h3>
+<p>Every time a function is called, the system pushes a <strong>stack frame</strong> containing:
+- Local variables
+- Return address
+- Parameters</p>
+<p>When the function returns, its frame is popped. This is why:
+- <strong>Recursion</strong> works — each recursive call gets its own frame.
+- <strong>Stack overflow</strong> occurs when recursion is too deep (too many frames).</p>
+<hr />
+<h3 id="application-5-iterative-dfs-depth-first-search">Application 5: Iterative DFS (Depth-First Search)</h3>
+<pre><code>DFS_Iterative(graph, start):
     stack = empty Stack
     push(start)
     while stack is not empty:
@@ -369,97 +1129,212 @@ return pop()    // final result</code></pre>
             process v
             for each neighbour u of v:
                 if u is not visited:
-                    push(u)</code></pre>
+                    push(u)
+</code></pre>
+<h2 id="-_1">---</h2>
+<h1 id="22-queues">2.2 Queues</h1>
+<div class="callout">
+<p><strong>R1 Reference: Chapter 10.1 — Stacks and Queues</strong></p>
 </div>
-
-
-<!-- ============================================================ -->
-<!-- SECTION 2.2 QUEUES -->
-<!-- ============================================================ -->
-<div class="sec-h1" id="s22">2.2 Queues <span class="ref-badge">R1: 10.1</span></div>
-
-<div class="sec-h3" id="s221">2.2.1 Queue ADT</div>
-<div class="card">
-  <div class="def"><strong>Definition:</strong> A <strong>queue</strong> is a FIFO (First In, First Out) collection &mdash; the first element inserted is the first removed. Think of a line at a ticket counter.</div>
-  <table>
-    <tr><th>Operation</th><th>Description</th><th>Time</th></tr>
-    <tr><td><code>enqueue(x)</code></td><td>Insert element x at the rear</td><td>O(1)</td></tr>
-    <tr><td><code>dequeue()</code></td><td>Remove and return the front element</td><td>O(1)</td></tr>
-    <tr><td><code>front()</code> / <code>peek()</code></td><td>Return front element without removing</td><td>O(1)</td></tr>
-    <tr><td><code>isEmpty()</code></td><td>Return true if queue has no elements</td><td>O(1)</td></tr>
-    <tr><td><code>size()</code></td><td>Return the number of elements</td><td>O(1)</td></tr>
-  </table>
-
-  <h4>Formal ADT Definition</h4>
-  <pre><code>ADT Queue:
+<h2 id="221-queue-adt">2.2.1 Queue ADT</h2>
+<h3 id="the-queue-concept">The Queue Concept</h3>
+<p>A <strong>queue</strong> is a collection of elements that follows the <strong>FIFO (First In, First Out)</strong> principle — the first element inserted is the first one removed. This is the exact opposite of a stack's LIFO behaviour.</p>
+<p>The real-world analogy is any <strong>waiting line</strong>: a queue at a bank, a ticket counter, or a grocery checkout. The person who arrives first is served first. New arrivals join at the <strong>rear</strong> (back) of the line, and the person at the <strong>front</strong> is the next to be served.</p>
+<h3 id="why-fifo-matters">Why FIFO matters</h3>
+<p>FIFO ordering is essential whenever <strong>fairness</strong> or <strong>order preservation</strong> matters:</p>
+<ol>
+<li>
+<p><strong>Process scheduling in operating systems:</strong> When multiple processes are ready to run, the OS places them in a ready queue. The process that has been waiting the longest gets CPU time first. This prevents starvation — no process waits forever while newer processes keep jumping ahead.</p>
+</li>
+<li>
+<p><strong>Breadth-First Search (BFS):</strong> In graph traversal, BFS explores all vertices at distance d from the source before exploring any vertex at distance d+1. This distance-ordering is naturally maintained by a queue: vertices discovered first (closer) are dequeued and processed before vertices discovered later (farther).</p>
+</li>
+<li>
+<p><strong>Buffering between components:</strong> In any system where a producer generates data faster than a consumer can process it (network packets, print jobs, message queues), a FIFO queue acts as a buffer that preserves the order of arrival.</p>
+</li>
+</ol>
+<h3 id="stack-vs-queue-a-mental-model">Stack vs. Queue: A mental model</h3>
+<p>Think of a <strong>stack</strong> as a vertical pile where you can only touch the top. Think of a <strong>queue</strong> as a horizontal pipe where items enter at one end and exit at the other. The stack reverses order (LIFO), while the queue preserves order (FIFO). Many algorithms need one or the other depending on whether they require depth-first (stack) or breadth-first (queue) exploration.</p>
+<h3 id="operations_3">Operations</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Operation</th>
+<th>Description</th>
+<th>Time Complexity</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>enqueue(x)</code></td>
+<td>Insert element x at the rear</td>
+<td>O(1)</td>
+</tr>
+<tr>
+<td><code>dequeue()</code></td>
+<td>Remove and return the front element</td>
+<td>O(1)</td>
+</tr>
+<tr>
+<td><code>front()</code> / <code>peek()</code></td>
+<td>Return the front element without removing</td>
+<td>O(1)</td>
+</tr>
+<tr>
+<td><code>isEmpty()</code></td>
+<td>Return true if queue has no elements</td>
+<td>O(1)</td>
+</tr>
+<tr>
+<td><code>size()</code></td>
+<td>Return the number of elements</td>
+<td>O(1)</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="formal-adt-definition_1">Formal ADT Definition</h3>
+<pre><code>ADT Queue:
     Data:
-        A sequence of elements with a designated "front" and "rear"
+        A sequence of elements with a designated &quot;front&quot; and &quot;rear&quot;
 
     Operations:
         enqueue(x) : Add x to the rear
         dequeue()  : Remove and return the front element
                      Precondition: queue is not empty
         front()    : Return the front element without removing
+                     Precondition: queue is not empty
         isEmpty()  : Return true if no elements exist
         size()     : Return the count of elements
 
     Errors:
-        dequeue() or front() on empty queue &rarr; Underflow Error
-        enqueue() on full queue (fixed-size) &rarr; Overflow Error</code></pre>
-</div>
+        dequeue() or front() on empty queue → Underflow Error
+        enqueue() on full queue (fixed-size) → Overflow Error
+</code></pre>
+<hr />
+<h2 id="222-linear-queue-limitations">2.2.2 Linear Queue Limitations</h2>
+<p>Before introducing the circular array, it's important to understand <strong>why</strong> a naive linear array implementation of a queue fails in practice.</p>
+<h3 id="the-problem-phantom-overflow">The problem: phantom overflow</h3>
+<p>In a linear (non-circular) array implementation, <code>front</code> and <code>rear</code> both start at 0. Each enqueue increments <code>rear</code>, and each dequeue increments <code>front</code>. The active elements live between <code>front</code> and <code>rear</code>.</p>
+<p>The critical issue is that <strong>dequeued slots at the front are never reused</strong>. After many enqueue/dequeue cycles, both pointers have drifted to the right, leaving empty but unusable slots at the beginning of the array.</p>
+<pre><code>Initial:    [10] [20] [30] [__] [__]     front=0, rear=3
+             ↑front          ↑rear
 
-<div class="sec-h3" id="s222">2.2.2 Circular Array Implementation</div>
-<div class="card">
-  <div class="info"><strong>Why circular?</strong> A naive linear array wastes space as elements are dequeued (front moves right, leaving empty slots at the beginning that can't be reused without shifting all elements). A <strong>circular array</strong> wraps around using <code>mod</code>, reusing freed slots with zero shifting.</div>
+Dequeue x2: [__] [__] [30] [__] [__]     front=2, rear=3
+                       ↑front  ↑rear
 
-  <h4>Data Structure</h4>
-  <pre><code>struct Queue:
+Enqueue 40, 50:
+            [__] [__] [30] [40] [50]     front=2, rear=5
+                       ↑front       ↑rear
+
+Now enqueue(60):
+            rear == capacity → OVERFLOW!
+            But slots 0 and 1 are empty!
+</code></pre>
+<p>This is called <strong>phantom overflow</strong> (or <strong>false overflow</strong>) — the queue reports that it is full even though there are empty slots available. The space at the front has been permanently abandoned.</p>
+<h3 id="why-not-just-shift-elements">Why not just shift elements?</h3>
+<p>One "fix" is to shift all elements to the left whenever the front advances:</p>
+<pre><code>After dequeue: shift [30] to index 0 → [30] [__] [__] [__] [__]
+</code></pre>
+<p>But this makes dequeue an <strong>O(n)</strong> operation — we must move every remaining element one position to the left. For a data structure whose entire point is O(1) operations, this defeats the purpose.</p>
+<h3 id="the-solution-circular-queue">The solution: Circular Queue</h3>
+<p>Instead of shifting elements, we let the pointers <strong>wrap around</strong> to the beginning of the array using the modulo operator:</p>
+<pre><code>rear = (rear + 1) mod capacity
+front = (front + 1) mod capacity
+</code></pre>
+<p>When <code>rear</code> would go past the last index, <code>mod</code> wraps it back to 0, reusing the slots freed by earlier dequeues. No shifting, no wasted space, O(1) operations preserved.</p>
+<h3 id="summary-of-linear-queue-problems">Summary of linear queue problems</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Problem</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Wasted space</td>
+<td>Dequeued front positions are permanently abandoned</td>
+</tr>
+<tr>
+<td>Phantom overflow</td>
+<td>Queue reports full even when empty slots exist at front</td>
+</tr>
+<tr>
+<td>Shift fix is O(n)</td>
+<td>Moving elements left restores space but ruins performance</td>
+</tr>
+<tr>
+<td><strong>Solution</strong></td>
+<td><strong>Circular array with modular arithmetic</strong></td>
+</tr>
+</tbody>
+</table></div>
+<hr />
+<h2 id="223-circular-array-implementation">2.2.3 Circular Array Implementation</h2>
+<h3 id="the-problem-with-a-naive-linear-array">The problem with a naive linear array</h3>
+<p>If you implement a queue using a simple array with a <code>front</code> pointer and a <code>rear</code> pointer, something wasteful happens over time. When you dequeue an element, the <code>front</code> pointer advances to the right. The slot that was freed at the beginning of the array can never be reused — it sits empty forever. After many enqueue/dequeue cycles, the "active" portion of the array has drifted to the right, leaving a growing trail of wasted space on the left.</p>
+<p>You could fix this by shifting all remaining elements to the left after each dequeue, but that would make dequeue an O(n) operation — unacceptable for a data structure whose whole point is O(1) operations.</p>
+<h3 id="the-circular-array-solution">The circular array solution</h3>
+<p>A <strong>circular array</strong> (also called a ring buffer) solves this elegantly. Instead of treating the array as a straight line from index 0 to capacity-1, we treat it as a <strong>circle</strong> where index <code>capacity-1</code> wraps around back to index 0. This is achieved with a single trick: the <strong>modulo operator</strong>.</p>
+<pre><code>rear = (rear + 1) mod capacity
+front = (front + 1) mod capacity
+</code></pre>
+<p>When <code>rear</code> or <code>front</code> would go past the last index, the <code>mod</code> wraps it back to 0. This means the array is fully utilised — freed slots at the beginning are reused when the rear pointer wraps around.</p>
+<h3 id="detecting-full-vs-empty">Detecting full vs. empty</h3>
+<p>One subtle issue: both "completely full" and "completely empty" could look the same (front == rear). There are three common solutions:</p>
+<ol>
+<li><strong>Count variable:</strong> Maintain a separate <code>count</code> of elements. Full when count == capacity. Empty when count == 0. This is the simplest and most common approach.</li>
+<li><strong>Waste one slot:</strong> Keep one slot always empty. Full when <code>(rear + 1) % capacity == front</code>. Empty when <code>front == rear</code>. This avoids the extra variable but wastes one slot.</li>
+<li><strong>Boolean flag:</strong> Use a flag that indicates whether the last operation was an enqueue or dequeue, to distinguish full from empty.</li>
+</ol>
+<h3 id="data-structure_2">Data Structure</h3>
+<pre><code>struct Queue:
     array[0..capacity-1]
     front = 0          // index of front element
     rear = 0           // index of next insertion point
     count = 0          // number of elements
-    capacity</code></pre>
-
-  <h4>Pseudocode Operations</h4>
-  <pre><code>enqueue(Q, x):
+    capacity
+</code></pre>
+<h3 id="operations_4">Operations</h3>
+<pre><code>enqueue(Q, x):
     if Q.count == Q.capacity:
-        error "Queue Overflow"
+        error &quot;Queue Overflow&quot;
     Q.array[Q.rear] = x
     Q.rear = (Q.rear + 1) mod Q.capacity    // wrap around!
     Q.count++
 
 dequeue(Q):
     if Q.count == 0:
-        error "Queue Underflow"
+        error &quot;Queue Underflow&quot;
     x = Q.array[Q.front]
     Q.front = (Q.front + 1) mod Q.capacity  // wrap around!
     Q.count--
-    return x</code></pre>
-
-  <h4>Visualization of Circular Array</h4>
-  <pre><code>Initial state (capacity=5, empty):
+    return x
+</code></pre>
+<h3 id="visualization-of-circular-array">Visualization of Circular Array</h3>
+<pre><code>Initial state (capacity=5, empty):
   [_] [_] [_] [_] [_]
-   &uarr;front              &uarr;rear (both at 0)
+   ↑front              ↑rear (both at 0)
 
 After enqueue(10), enqueue(20), enqueue(30):
   [10] [20] [30] [_] [_]
-   &uarr;front          &uarr;rear (at 3)
+   ↑front          ↑rear (at 3)
 
-After dequeue() &rarr; returns 10:
+After dequeue() → returns 10:
   [_] [20] [30] [_] [_]
-       &uarr;front     &uarr;rear
+       ↑front     ↑rear
 
 After enqueue(40), enqueue(50):
   [_] [20] [30] [40] [50]
-       &uarr;front              &uarr;rear (at 0, wrapped!)
+       ↑front              ↑rear (at 0, wrapped!)
 
 After enqueue(60):
   [60] [20] [30] [40] [50]
-        &uarr;front &uarr;rear (at 1)    // rear wrapped to fill the gap</code></pre>
-  <p>The <code>mod</code> operator makes it circular &mdash; when rear or front reaches the end, it wraps back to 0.</p>
-
-  <h4>C Implementation</h4>
-  <pre><code>#define MAX 100
+        ↑front ↑rear (at 1)    // rear wrapped to fill the gap
+</code></pre>
+<p>The <code>mod</code> operator makes it circular — when rear or front reaches the end, it wraps back to 0.</p>
+<h3 id="c-implementation_1">C Implementation</h3>
+<pre><code class="language-c">#define MAX 100
 
 struct Queue {
     int arr[MAX];
@@ -474,28 +1349,31 @@ int isEmpty(struct Queue* q) { return q-&gt;count == 0; }
 int isFull(struct Queue* q) { return q-&gt;count == MAX; }
 
 void enqueue(struct Queue* q, int x) {
-    if (isFull(q)) { printf("Overflow\n"); return; }
+    if (isFull(q)) { printf(&quot;Overflow\n&quot;); return; }
     q-&gt;arr[q-&gt;rear] = x;
     q-&gt;rear = (q-&gt;rear + 1) % MAX;
     q-&gt;count++;
 }
 
 int dequeue(struct Queue* q) {
-    if (isEmpty(q)) { printf("Underflow\n"); return -1; }
+    if (isEmpty(q)) { printf(&quot;Underflow\n&quot;); return -1; }
     int x = q-&gt;arr[q-&gt;front];
     q-&gt;front = (q-&gt;front + 1) % MAX;
     q-&gt;count--;
     return x;
-}</code></pre>
-</div>
+}
+</code></pre>
+<hr />
+<h2 id="224-linked-list-implementation">2.2.4 Linked-List Implementation</h2>
+<p>Enqueue at <strong>tail</strong>, dequeue at <strong>head</strong> — both O(1) with a tail pointer.</p>
+<pre><code>struct Queue:
+    head → Node (or NULL)
+    tail → Node (or NULL)
+    size = 0
 
-<div class="sec-h3" id="s223">2.2.3 Linked-List Implementation &amp; Deque</div>
-<div class="card">
-  <h4>Linked-List Queue</h4>
-  <p>Enqueue at <strong>tail</strong>, dequeue at <strong>head</strong> &mdash; both O(1) with a tail pointer.</p>
-  <pre><code>enqueue(Q, x):
-    newNode = create Node(data=x, next=NULL)
-    if Q.tail &ne; NULL:
+enqueue(Q, x):
+    newNode = create Node with data = x, next = NULL
+    if Q.tail ≠ NULL:
         Q.tail.next = newNode
     Q.tail = newNode
     if Q.head == NULL:
@@ -503,7 +1381,8 @@ int dequeue(struct Queue* q) {
     Q.size++
 
 dequeue(Q):
-    if Q.head == NULL: error "Underflow"
+    if Q.head == NULL:
+        error &quot;Underflow&quot;
     x = Q.head.data
     temp = Q.head
     Q.head = Q.head.next
@@ -511,26 +1390,188 @@ dequeue(Q):
         Q.tail = NULL    // queue became empty
     free(temp)
     Q.size--
-    return x</code></pre>
+    return x
+</code></pre>
+<hr />
+<h2 id="225-double-ended-queue-deque">2.2.5 Double-Ended Queue (Deque)</h2>
+<p>A <strong>deque</strong> (pronounced "deck") allows insertion and removal at <strong>both</strong> ends.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Operation</th>
+<th>Time</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>insertFront(x)</code></td>
+<td>O(1)</td>
+</tr>
+<tr>
+<td><code>insertRear(x)</code></td>
+<td>O(1)</td>
+</tr>
+<tr>
+<td><code>removeFront()</code></td>
+<td>O(1)</td>
+</tr>
+<tr>
+<td><code>removeRear()</code></td>
+<td>O(1)</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Implementation:</strong> Doubly linked list or circular array.</p>
+<p><strong>Use case:</strong> A deque can function as both a stack AND a queue. It's used in algorithms like BFS with 0-1 edge weights (0-1 BFS) and sliding window maximum.</p>
+<hr />
+<h2 id="226-priority-queue">2.2.6 Priority Queue</h2>
+<h3 id="concept">Concept</h3>
+<p>A <strong>priority queue</strong> is a queue variant where each element has an associated <strong>priority</strong>. Unlike a standard FIFO queue, elements are served based on priority rather than insertion order — the highest-priority element is dequeued first, regardless of when it was inserted.</p>
+<p>Think of a <strong>hospital emergency room</strong>: patients are not treated in arrival order. A heart attack patient (critical priority) is treated before someone with a sprained ankle (low priority), even if the ankle patient arrived hours earlier. This is a max-priority queue in action.</p>
+<h3 id="types">Types</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Behaviour</th>
+<th>Typical Use</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Max-priority queue</strong></td>
+<td>Highest priority dequeued first</td>
+<td>Task scheduling (most urgent first)</td>
+</tr>
+<tr>
+<td><strong>Min-priority queue</strong></td>
+<td>Lowest priority dequeued first</td>
+<td>Dijkstra's algorithm (shortest distance first)</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="operations_5">Operations</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Operation</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>insert(x, priority)</code></td>
+<td>Insert element x with given priority</td>
+</tr>
+<tr>
+<td><code>deleteMax()</code> / <code>deleteMin()</code></td>
+<td>Remove and return the highest/lowest priority element</td>
+</tr>
+<tr>
+<td><code>peekMax()</code> / <code>peekMin()</code></td>
+<td>Return the highest/lowest priority element without removing</td>
+</tr>
+<tr>
+<td><code>isEmpty()</code></td>
+<td>Return true if no elements exist</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="implementation-comparison">Implementation Comparison</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Implementation</th>
+<th>Insert</th>
+<th>DeleteMax/Min</th>
+<th>PeekMax/Min</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Unsorted array</strong></td>
+<td><strong>O(1)</strong> — append at end</td>
+<td>O(n) — scan for max</td>
+<td>O(n)</td>
+</tr>
+<tr>
+<td><strong>Sorted array</strong></td>
+<td>O(n) — find correct position &amp; shift</td>
+<td><strong>O(1)</strong> — remove from end</td>
+<td>O(1)</td>
+</tr>
+<tr>
+<td><strong>Unsorted linked list</strong></td>
+<td><strong>O(1)</strong> — insert at head</td>
+<td>O(n) — scan for max</td>
+<td>O(n)</td>
+</tr>
+<tr>
+<td><strong>Sorted linked list</strong></td>
+<td>O(n) — find correct position</td>
+<td><strong>O(1)</strong> — remove head</td>
+<td>O(1)</td>
+</tr>
+<tr>
+<td><strong>Binary heap</strong></td>
+<td><strong>O(log n)</strong></td>
+<td><strong>O(log n)</strong></td>
+<td>O(1)</td>
+</tr>
+</tbody>
+</table></div>
+<p>The <strong>binary heap</strong> is the standard implementation because it balances both operations at O(log n). The array-based approaches are simpler but create a bottleneck on one operation.</p>
+<h3 id="array-based-pseudocode-unsorted-max-priority">Array-Based Pseudocode (Unsorted — Max-Priority)</h3>
+<pre><code>struct PriorityQueue:
+    array[0..capacity-1]    // stores (element, priority) pairs
+    size = 0
 
-  <hr>
+INSERT(PQ, element, priority):
+    if PQ.size == capacity:
+        error &quot;Overflow&quot;
+    PQ.array[PQ.size] = (element, priority)
+    PQ.size++
+    // O(1) — just append at the end
 
-  <h4>Double-Ended Queue (Deque)</h4>
-  <p>A <strong>deque</strong> (pronounced &ldquo;deck&rdquo;) allows insertion and removal at <strong>both</strong> ends.</p>
-  <table>
-    <tr><th>Operation</th><th>Time</th></tr>
-    <tr><td><code>insertFront(x)</code> / <code>insertRear(x)</code></td><td>O(1)</td></tr>
-    <tr><td><code>removeFront()</code> / <code>removeRear()</code></td><td>O(1)</td></tr>
-  </table>
-  <p><strong>Implementation:</strong> Doubly linked list or circular array.</p>
-  <div class="tip"><strong>Use cases:</strong> A deque can function as both a stack AND a queue. Used in sliding window maximum, 0-1 BFS (0-weight edges go to front, 1-weight to rear), and palindrome checking.</div>
-</div>
+DELETE_MAX(PQ):
+    if PQ.size == 0:
+        error &quot;Underflow&quot;
+    maxIdx = 0
+    for i = 1 to PQ.size - 1:          // scan for highest priority
+        if PQ.array[i].priority &gt; PQ.array[maxIdx].priority:
+            maxIdx = i
+    maxElement = PQ.array[maxIdx]
+    PQ.array[maxIdx] = PQ.array[PQ.size - 1]    // fill gap with last element
+    PQ.size--
+    return maxElement
+    // O(n) — must scan entire array
+</code></pre>
+<h3 id="worked-example">Worked Example</h3>
+<pre><code>Insert (Task A, priority 3)  → [(A,3)]
+Insert (Task B, priority 1)  → [(A,3), (B,1)]
+Insert (Task C, priority 5)  → [(A,3), (B,1), (C,5)]
+Insert (Task D, priority 2)  → [(A,3), (B,1), (C,5), (D,2)]
 
-<div class="sec-h3" id="s225">2.2.5 Queue Applications</div>
-<div class="card">
+DeleteMax() → scan: max is (C,5) at index 2
+             → replace with last: [(A,3), (B,1), (D,2)]
+             → return Task C
 
-  <h4>Application 1: BFS (Breadth-First Search)</h4>
-  <pre><code>BFS(graph, start):
+DeleteMax() → scan: max is (A,3) at index 0
+             → replace with last: [(D,2), (B,1)]
+             → return Task A
+</code></pre>
+<h3 id="applications">Applications</h3>
+<ol>
+<li><strong>OS Process Scheduling:</strong> Higher-priority processes get CPU time first. Real-time tasks (e.g., interrupt handlers) have higher priority than background tasks.</li>
+<li><strong>Dijkstra's Shortest Path Algorithm:</strong> Uses a min-priority queue to always expand the vertex with the smallest known distance.</li>
+<li><strong>Huffman Encoding:</strong> Builds an optimal prefix code by repeatedly extracting the two lowest-frequency characters from a min-priority queue.</li>
+<li><strong>Emergency Triage (Hospital):</strong> Patients are prioritised by severity, not arrival time.</li>
+<li><strong>Event-Driven Simulation:</strong> Events are processed in timestamp order using a min-priority queue.</li>
+</ol>
+<hr />
+<h2 id="227-queue-applications">2.2.7 Queue Applications</h2>
+<h3 id="application-1-bfs-breadth-first-search">Application 1: BFS (Breadth-First Search)</h3>
+<pre><code>BFS(graph, start):
     queue = empty Queue
     enqueue(start)
     mark start as visited
@@ -540,246 +1581,359 @@ dequeue(Q):
         for each neighbour u of v:
             if u is not visited:
                 mark u as visited
-                enqueue(u)</code></pre>
-  <p>BFS visits all vertices at distance d before any at distance d+1. Gives <strong>shortest paths in unweighted graphs</strong>.</p>
-
-  <hr>
-
-  <h4>Application 2: Task Scheduling (FIFO)</h4>
-  <p>Operating systems use queues for:</p>
-  <ul>
-    <li><strong>Process scheduling</strong> &mdash; Ready queue of processes waiting for CPU time.</li>
-    <li><strong>Print spooling</strong> &mdash; Print jobs served in order of arrival.</li>
-    <li><strong>I/O request handling</strong> &mdash; Disk requests queued and served in order.</li>
-  </ul>
-
-  <hr>
-
-  <h4>Application 3: Level-Order Tree Traversal</h4>
-  <pre><code>LevelOrder(root):
+                enqueue(u)
+</code></pre>
+<p>BFS visits all vertices at distance d before any vertex at distance d+1. This gives <strong>shortest paths in unweighted graphs</strong>.</p>
+<h3 id="application-2-task-scheduling-fifo">Application 2: Task Scheduling (FIFO)</h3>
+<p>Operating systems use queues for:
+- <strong>Process scheduling</strong> — Ready queue of processes waiting for CPU time.
+- <strong>Print spooling</strong> — Print jobs served in order of arrival.
+- <strong>I/O request handling</strong> — Disk requests queued and served in order.</p>
+<h3 id="application-3-level-order-tree-traversal">Application 3: Level-Order Tree Traversal</h3>
+<pre><code>LevelOrder(root):
     if root == NULL: return
     queue = empty Queue
     enqueue(root)
     while queue is not empty:
         node = dequeue()
         print node.data
-        if node.left &ne; NULL: enqueue(node.left)
-        if node.right &ne; NULL: enqueue(node.right)</code></pre>
-
-  <hr>
-
-  <h4>Application 4: Producer-Consumer Buffer</h4>
-  <p>A queue acts as a buffer between a producer (adding items) and a consumer (processing items). Used in multithreaded programming, message passing, and streaming systems.</p>
+        if node.left ≠ NULL: enqueue(node.left)
+        if node.right ≠ NULL: enqueue(node.right)
+</code></pre>
+<h3 id="application-4-producer-consumer-buffer">Application 4: Producer-Consumer Buffer</h3>
+<p>A queue acts as a buffer between a producer (adding items) and a consumer (processing items). Used in multithreaded programming, message passing, and streaming systems.</p>
+<h2 id="-_2">---</h2>
+<h1 id="23-amortised-analysis">2.3 Amortised Analysis</h1>
+<div class="callout">
+<p><strong>R1 Reference: Chapter 17.1 — Aggregate Analysis</strong></p>
 </div>
+<h2 id="231-why-amortised-analysis">2.3.1 Why Amortised Analysis?</h2>
+<h3 id="the-problem-with-worst-case-analysis">The problem with worst-case analysis</h3>
+<p>Standard worst-case analysis asks: "What is the maximum cost of a <strong>single</strong> operation?" This is often too pessimistic for data structures where most operations are cheap but occasionally one operation is expensive.</p>
+<p>Consider a dynamic array (like Java's <code>ArrayList</code>). Most insertions simply place an element at the next available slot — cost O(1). But occasionally, when the array is full, the system allocates a new array of double the size and copies all existing elements — cost O(n). If we judge every insertion by the worst case, we'd say "insertion is O(n)" and conclude that n insertions cost O(n²). But this dramatically over-counts the actual work, because the expensive resizing happens very rarely.</p>
+<h3 id="what-amortised-analysis-actually-measures">What amortised analysis actually measures</h3>
+<p><strong>Amortised analysis</strong> gives the <strong>average cost per operation over an entire worst-case sequence</strong> of n operations. It answers the question: "If I perform n operations starting from an empty data structure, what is the total cost divided by n?"</p>
+<p>This is fundamentally different from <strong>average-case analysis</strong>:</p>
+<ul>
+<li><strong>Average-case analysis</strong> assumes a probability distribution over inputs (e.g. "each element is equally likely to be the search target") and computes the expected cost. It requires probabilistic assumptions that may not hold in practice.</li>
+<li><strong>Amortised analysis</strong> makes <strong>no probability assumptions whatsoever</strong>. It works for the absolute worst-case sequence of operations. It just recognises that within that worst-case sequence, the expensive operations are necessarily rare enough that the average stays low.</li>
+</ul>
+<p>Think of it like a monthly subscription: some months you use the service a lot (expensive), some months barely at all (cheap). The amortised cost is the flat monthly fee that covers your total usage over the year.</p>
+<h3 id="three-methods-of-amortised-analysis">Three methods of amortised analysis</h3>
+<p>CLRS (R1: Chapter 17) presents three methods. For this course, we focus on the <strong>Aggregate Method</strong>, but it's helpful to know all three exist:</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Idea</th>
+<th>Difficulty</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Aggregate method</strong></td>
+<td>Compute total cost of n operations, divide by n.</td>
+<td>Simplest; works when all operations have the same amortised cost.</td>
+</tr>
+<tr>
+<td><strong>Accounting method</strong></td>
+<td>Assign a "charge" to each operation. Cheap operations are overcharged (creating "credit") that pays for expensive ones later.</td>
+<td>More flexible; allows different amortised costs for different operations.</td>
+</tr>
+<tr>
+<td><strong>Potential method</strong></td>
+<td>Define a "potential function" Φ on the data structure state. Amortised cost = actual cost + ΔΦ. The potential stores "prepaid work" that can be released later.</td>
+<td>Most powerful; used in advanced proofs (Fibonacci heaps, splay trees).</td>
+</tr>
+</tbody>
+</table></div>
+<p>All three methods give the same amortised bounds — they're just different proof techniques.</p>
+<hr />
+<h2 id="232-the-aggregate-method">2.3.2 The Aggregate Method</h2>
+<p>The aggregate method is the simplest of the three amortised analysis techniques. The procedure is straightforward:</p>
+<ol>
+<li><strong>Identify the sequence:</strong> Consider a worst-case sequence of n operations starting from an empty data structure.</li>
+<li><strong>Compute total cost:</strong> Calculate the total cost T(n) of all n operations combined. This is the hard part — you need to find a clever way to bound the total, usually by finding an invariant (something that limits how much total work can accumulate).</li>
+<li><strong>Divide:</strong> The amortised cost per operation is T(n) / n.</li>
+</ol>
+<p>The key insight that makes this work is that expensive operations are always "paid for" by the many cheap operations that precede them. The total cost captures this balance.</p>
+<pre><code>Amortised cost per operation = (Total cost of n operations) / n
+</code></pre>
+<p>In the aggregate method, every operation gets the <strong>same</strong> amortised cost (T(n)/n). This is a simplification — the accounting and potential methods allow different operations to have different amortised costs — but for the three examples in this chapter (MULTIPOP stack, two-stack queue, dynamic array), the aggregate method is perfectly sufficient.</p>
+<hr />
+<h2 id="233-stack-operations-amortised-analysis">2.3.3 Stack Operations — Amortised Analysis</h2>
+<h3 id="the-multipop-operation">The MULTIPOP Operation</h3>
+<p>Consider a stack with three operations:
+- <code>PUSH(x)</code> — cost 1
+- <code>POP()</code> — cost 1
+- <code>MULTIPOP(k)</code> — pop min(k, stack_size) elements. Cost = min(k, stack_size).</p>
+<p><strong>Question:</strong> Starting from an empty stack, what is the amortised cost per operation over a sequence of n PUSH, POP, and MULTIPOP operations?</p>
+<h3 id="naive-worst-case-analysis-too-pessimistic">Naive Worst-Case Analysis (Too Pessimistic)</h3>
+<p>A single MULTIPOP can cost O(n) (pop everything). So worst case for n operations = O(n²)?</p>
+<p><strong>This is too pessimistic!</strong></p>
+<h3 id="aggregate-analysis-correct">Aggregate Analysis (Correct)</h3>
+<p><strong>Key insight:</strong> Each element can be popped <strong>at most once</strong> for each time it is pushed.</p>
+<ul>
+<li>Over n operations, the number of PUSHes ≤ n.</li>
+<li>The total number of POPs (from POP + MULTIPOP combined) ≤ total PUSHes ≤ n.</li>
+<li>Total cost of all POPs and MULTIPOPs ≤ n.</li>
+<li>Total cost of all PUSHes ≤ n.</li>
+</ul>
+<p><strong>Total cost ≤ 2n.</strong></p>
+<p><strong>Amortised cost per operation = 2n / n = O(1).</strong></p>
+<h3 id="worked-example_1">Worked Example</h3>
+<pre><code>Sequence: PUSH(1), PUSH(2), PUSH(3), MULTIPOP(2), PUSH(4), PUSH(5), MULTIPOP(5)
 
+PUSH(1)      cost = 1   stack: [1]
+PUSH(2)      cost = 1   stack: [1, 2]
+PUSH(3)      cost = 1   stack: [1, 2, 3]
+MULTIPOP(2)  cost = 2   stack: [1]         (popped 3, 2)
+PUSH(4)      cost = 1   stack: [1, 4]
+PUSH(5)      cost = 1   stack: [1, 4, 5]
+MULTIPOP(5)  cost = 3   stack: []           (popped 5, 4, 1 — only 3 elements)
 
-<!-- ============================================================ -->
-<!-- SECTION 2.3 AMORTISED ANALYSIS -->
-<!-- ============================================================ -->
-<div class="sec-h1" id="s23">2.3 Amortised Analysis <span class="ref-badge">R1: 17.1</span></div>
-
-<div class="sec-h3" id="s231">2.3.1 Why Amortised Analysis?</div>
-<div class="card">
-  <p>Sometimes an operation is usually cheap but occasionally expensive. <strong>Worst-case analysis</strong> over-counts by assuming every operation is expensive.</p>
-  <p><strong>Amortised analysis</strong> gives the <strong>average cost per operation over a worst-case sequence</strong> of n operations. It's NOT average-case analysis (which assumes a probability distribution).</p>
-  <table>
-    <tr><th>Analysis Type</th><th>What it measures</th></tr>
-    <tr><td><strong>Worst-case</strong></td><td>Maximum cost of a <em>single</em> operation.</td></tr>
-    <tr><td><strong>Average-case</strong></td><td>Expected cost assuming a probability distribution over inputs.</td></tr>
-    <tr><td><strong>Amortised</strong></td><td>Average cost per operation over <strong>ANY</strong> sequence of n operations. No probability assumption &mdash; deterministic.</td></tr>
-  </table>
-</div>
-
-<div class="sec-h3" id="s232">2.3.2 The Aggregate Method</div>
-<div class="card">
-  <p>The simplest amortised analysis technique:</p>
-  <pre><code>Amortised cost per operation = (Total cost of n operations) / n</code></pre>
-  <p><strong>Key:</strong> Compute the total cost of a worst-case sequence, then divide by n.</p>
-</div>
-
-<div class="sec-h3" id="s233">2.3.3 Stack MULTIPOP &mdash; Amortised O(1)</div>
-<div class="card">
-  <p>Consider a stack with three operations:</p>
-  <ul>
-    <li><code>PUSH(x)</code> &mdash; cost 1</li>
-    <li><code>POP()</code> &mdash; cost 1</li>
-    <li><code>MULTIPOP(k)</code> &mdash; pop min(k, stack_size) elements. Cost = min(k, stack_size).</li>
-  </ul>
-
-  <div class="warn"><strong>Naive analysis (too pessimistic):</strong> A single MULTIPOP can cost O(n) (pop everything). So worst case for n operations = O(n&sup2;)? <strong>Wrong!</strong></div>
-
-  <h4>Aggregate Analysis (Correct)</h4>
-  <div class="tip">
-    <strong>Key insight:</strong> Each element can be popped <strong>at most once</strong> for each time it is pushed.<br><br>
-    <ul>
-      <li>Over n operations, the number of PUSHes &le; n.</li>
-      <li>The total number of POPs (from POP + MULTIPOP combined) &le; total PUSHes &le; n.</li>
-      <li>Total cost of all POPs and MULTIPOPs &le; n.</li>
-      <li>Total cost of all PUSHes &le; n.</li>
-    </ul>
-    <strong>Total cost &le; 2n. Amortised cost per operation = 2n / n = O(1).</strong>
-  </div>
-
-  <h4>Worked Example</h4>
-  <table>
-    <tr><th>Operation</th><th>Cost</th><th>Stack</th></tr>
-    <tr><td>PUSH(1)</td><td>1</td><td>[1]</td></tr>
-    <tr><td>PUSH(2)</td><td>1</td><td>[1, 2]</td></tr>
-    <tr><td>PUSH(3)</td><td>1</td><td>[1, 2, 3]</td></tr>
-    <tr><td>MULTIPOP(2)</td><td>2</td><td>[1] &nbsp;(popped 3, 2)</td></tr>
-    <tr><td>PUSH(4)</td><td>1</td><td>[1, 4]</td></tr>
-    <tr><td>PUSH(5)</td><td>1</td><td>[1, 4, 5]</td></tr>
-    <tr><td>MULTIPOP(5)</td><td>3</td><td>[] &nbsp;(popped 5, 4, 1 &mdash; only 3 elements)</td></tr>
-  </table>
-  <p>Total operations: 7. Total cost: 1+1+1+2+1+1+3 = <strong>10</strong>. Amortised: 10/7 &asymp; 1.43 = <strong>O(1)</strong> &check;</p>
-  <p>Even though MULTIPOP is expensive in isolation, it averages out because you can only pop what you've pushed.</p>
-</div>
-
-<div class="sec-h3" id="s234">2.3.4 Queue with Two Stacks &mdash; Amortised O(1)</div>
-<div class="card">
-  <p>A queue implemented using two stacks (S1 and S2):</p>
-  <pre><code>enqueue(x):
+Total operations: 7
+Total cost: 1 + 1 + 1 + 2 + 1 + 1 + 3 = 10
+Amortised cost: 10 / 7 ≈ 1.43 = O(1)
+</code></pre>
+<p>Even though MULTIPOP can be expensive in isolation, over a sequence it averages out because you can only pop what you've pushed.</p>
+<hr />
+<h2 id="234-queue-operations-amortised-analysis">2.3.4 Queue Operations — Amortised Analysis</h2>
+<h3 id="queue-with-two-stacks">Queue with Two Stacks</h3>
+<p>A queue can be implemented using two stacks (S1 and S2):</p>
+<pre><code>enqueue(x):
     push x onto S1
 
 dequeue():
     if S2 is empty:
         while S1 is not empty:
-            pop from S1 and push onto S2   // Transfer all
-    return pop from S2</code></pre>
-  <p><strong>How it works:</strong> S1 is the &ldquo;input&rdquo; stack. S2 is the &ldquo;output&rdquo; stack. When S2 is empty, we &ldquo;flip&rdquo; S1 into S2 &mdash; reversing the order for FIFO behaviour.</p>
+            pop from S1 and push onto S2     // Transfer all elements
+    return pop from S2
+</code></pre>
+<p><strong>How it works:</strong>
+- S1 is the "input" stack (new elements go here).
+- S2 is the "output" stack (elements come out from here).
+- When S2 is empty, we "flip" S1 into S2 — this reverses the order, giving FIFO behaviour.</p>
+<p><strong>Naive analysis:</strong> A single dequeue might transfer n elements from S1 to S2 → O(n). So n operations could be O(n²)?</p>
+<p><strong>Aggregate analysis:</strong>
+- Each element is pushed onto S1 exactly <strong>once</strong> (cost 1).
+- Each element is transferred from S1 to S2 exactly <strong>once</strong> (cost 1).
+- Each element is popped from S2 exactly <strong>once</strong> (cost 1).
+- Total cost per element = <strong>3</strong>.
+- For n enqueue/dequeue operations involving at most n elements: total cost ≤ <strong>3n</strong>.</p>
+<p><strong>Amortised cost per operation = 3n / n = O(1).</strong></p>
+<h3 id="worked-example_2">Worked Example</h3>
+<pre><code>enqueue(1)     S1: [1]       S2: []         cost: 1
+enqueue(2)     S1: [1, 2]    S2: []         cost: 1
+enqueue(3)     S1: [1, 2, 3] S2: []         cost: 1
+dequeue()      Transfer 3 elements:
+               S1: []        S2: [3, 2, 1]  cost: 3 (transfer)
+               Pop from S2 → returns 1
+               S1: []        S2: [3, 2]     cost: 1 (pop)
+               Total for this dequeue: 4
+dequeue()      S2 not empty:
+               Pop from S2 → returns 2      cost: 1
+dequeue()      Pop from S2 → returns 3      cost: 1
 
-  <div class="warn"><strong>Naive analysis:</strong> A single dequeue might transfer n elements &rarr; O(n). So n operations = O(n&sup2;)? <strong>Too pessimistic!</strong></div>
+Total: 6 operations, total cost = 1+1+1+4+1+1 = 9
+Amortised: 9/6 = 1.5 = O(1)
+</code></pre>
+<hr />
+<h2 id="235-dynamic-array-amortised-analysis">2.3.5 Dynamic Array — Amortised Analysis</h2>
+<p>A <strong>dynamic array</strong> (like C++ <code>vector</code> or Java <code>ArrayList</code>) doubles its capacity when full.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Operation</th>
+<th>What happens</th>
+<th>Cost</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Insert (space available)</td>
+<td>Place element at next slot</td>
+<td><strong>1</strong></td>
+</tr>
+<tr>
+<td>Insert (array full)</td>
+<td>Allocate new array of 2× capacity, copy all elements, insert</td>
+<td><strong>n + 1</strong></td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Aggregate analysis of n insertions starting from capacity 1:</strong></p>
+<p>Resize happens when size = 1, 2, 4, 8, 16, ..., i.e., at insertions 1, 2, 4, 8, ...</p>
+<p>Total copy cost = 1 + 2 + 4 + 8 + ... + n/2 + n ≤ 2n (geometric series sum)</p>
+<p>Plus n insertions at cost 1 each = n.</p>
+<p><strong>Total cost ≤ 3n.</strong></p>
+<p><strong>Amortised cost per insertion = 3n / n = O(1).</strong></p>
+<pre><code>Insert 1:  capacity 1 → FULL → resize to 2, copy 1.  Cost: 1+1 = 2
+Insert 2:  capacity 2 → FULL → resize to 4, copy 2.  Cost: 2+1 = 3
+Insert 3:  capacity 4 → fits.                          Cost: 1
+Insert 4:  capacity 4 → FULL → resize to 8, copy 4.  Cost: 4+1 = 5
+Insert 5:  capacity 8 → fits.                          Cost: 1
+Insert 6:  capacity 8 → fits.                          Cost: 1
+Insert 7:  capacity 8 → fits.                          Cost: 1
+Insert 8:  capacity 8 → FULL → resize to 16, copy 8. Cost: 8+1 = 9
 
-  <div class="tip">
-    <strong>Aggregate proof:</strong> Each element undergoes at most 3 moves in its lifetime:
-    <ol>
-      <li>Pushed onto S1 (during enqueue) &mdash; cost 1</li>
-      <li>Popped from S1 and pushed onto S2 (during transfer) &mdash; cost 2</li>
-      <li>Popped from S2 (during dequeue) &mdash; cost 1</li>
-    </ol>
-    Total cost per element &le; <strong>4</strong>. At most n elements &rarr; Total &le; 4n.<br>
-    <strong>Amortised cost = 4n / n = O(1).</strong>
-  </div>
-
-  <h4>Worked Example</h4>
-  <table>
-    <tr><th>Operation</th><th>S1</th><th>S2</th><th>Cost</th><th>Output</th></tr>
-    <tr><td>enqueue(1)</td><td>[1]</td><td>[]</td><td>1</td><td></td></tr>
-    <tr><td>enqueue(2)</td><td>[1, 2]</td><td>[]</td><td>1</td><td></td></tr>
-    <tr><td>enqueue(3)</td><td>[1, 2, 3]</td><td>[]</td><td>1</td><td></td></tr>
-    <tr><td>dequeue()</td><td>[]</td><td>[3, 2, 1] &rarr; pop 1</td><td>3+1=4</td><td><strong>1</strong></td></tr>
-    <tr><td>dequeue()</td><td>[]</td><td>[3, 2] &rarr; pop 2</td><td>1</td><td><strong>2</strong></td></tr>
-    <tr><td>dequeue()</td><td>[]</td><td>[3] &rarr; pop 3</td><td>1</td><td><strong>3</strong></td></tr>
-  </table>
-  <p>Total: 6 ops, cost = 1+1+1+4+1+1 = <strong>9</strong>. Amortised: 9/6 = 1.5 = <strong>O(1)</strong> &check;</p>
+Total for 8 insertions: 2+3+1+5+1+1+1+9 = 23
+Amortised: 23/8 ≈ 2.875 = O(1) ✓
+</code></pre>
+<h3 id="why-doubling-why-not-add-a-constant">Why Doubling? Why Not Add a Constant?</h3>
+<p>If we increase capacity by a constant c (e.g. add 10 each time):</p>
+<ul>
+<li>Resizes happen at n/c, 2n/c, 3n/c, ... insertions.</li>
+<li>Total copy cost = c + 2c + 3c + ... = c · k(k+1)/2 where k = n/c → <strong>O(n²/c) = O(n²)</strong>.</li>
+<li><strong>Amortised cost = O(n).</strong> Not constant!</li>
+</ul>
+<p><strong>Doubling gives O(1) amortised. Adding a constant gives O(n) amortised.</strong> That's why all standard implementations double.</p>
+<h2 id="-_3">---</h2>
+<h1 id="24-lists">2.4 Lists</h1>
+<div class="callout">
+<p><strong>R1 Reference: Chapter 10.2 — Linked Lists</strong></p>
 </div>
-
-<div class="sec-h3" id="s235">2.3.5 Dynamic Array &mdash; Amortised O(1) Insert</div>
-<div class="card">
-  <p>A <strong>dynamic array</strong> (C++ <code>vector</code>, Java <code>ArrayList</code>) doubles its capacity when full.</p>
-  <table>
-    <tr><th>Operation</th><th>What happens</th><th>Cost</th></tr>
-    <tr><td>Insert (space available)</td><td>Place element at next slot</td><td><strong>1</strong></td></tr>
-    <tr><td>Insert (array full)</td><td>Allocate 2&times; capacity, copy all, insert</td><td><strong>n + 1</strong></td></tr>
-  </table>
-
-  <h4>Trace: 8 Insertions Starting from Capacity 1</h4>
-  <table>
-    <tr><th>Insert #</th><th>Capacity Before</th><th>Resize?</th><th>Copy Cost</th><th>Insert Cost</th><th>Total Step</th></tr>
-    <tr><td>1</td><td>1</td><td>Yes &rarr; 2</td><td>1</td><td>1</td><td><strong>2</strong></td></tr>
-    <tr><td>2</td><td>2</td><td>Yes &rarr; 4</td><td>2</td><td>1</td><td><strong>3</strong></td></tr>
-    <tr><td>3</td><td>4</td><td>No</td><td>0</td><td>1</td><td>1</td></tr>
-    <tr><td>4</td><td>4</td><td>Yes &rarr; 8</td><td>4</td><td>1</td><td><strong>5</strong></td></tr>
-    <tr><td>5</td><td>8</td><td>No</td><td>0</td><td>1</td><td>1</td></tr>
-    <tr><td>6</td><td>8</td><td>No</td><td>0</td><td>1</td><td>1</td></tr>
-    <tr><td>7</td><td>8</td><td>No</td><td>0</td><td>1</td><td>1</td></tr>
-    <tr><td>8</td><td>8</td><td>Yes &rarr; 16</td><td>8</td><td>1</td><td><strong>9</strong></td></tr>
-  </table>
-  <p>Total: 2+3+1+5+1+1+1+9 = <strong>23</strong>. Amortised: 23/8 &asymp; 2.88 = <strong>O(1)</strong> &check;</p>
-
-  <div class="tip">
-    <strong>Formal Proof:</strong><br>
-    Copy costs form geometric series: 1 + 2 + 4 + ... + n &lt; 2n.<br>
-    Plus n normal insertion costs = n.<br>
-    <strong>Total &lt; 3n. Amortised = 3n / n = O(1).</strong>
-  </div>
-
-  <h4>Why Doubling? Why Not Add a Constant?</h4>
-  <div class="warn">
-    <strong>Adding constant c (e.g. +10 each time):</strong><br>
-    Resizes at n/c, 2n/c, 3n/c, ... insertions.<br>
-    Total copy cost = c + 2c + 3c + ... = c &middot; k(k+1)/2 where k = n/c &rarr; <strong>O(n&sup2;/c) = O(n&sup2;)</strong>.<br>
-    Amortised = <strong>O(n)</strong>. Not constant!<br><br>
-    <strong>Doubling gives O(1) amortised. Adding a constant gives O(n) amortised.</strong> That's why all standard implementations double.
-  </div>
-</div>
-
-
-<!-- ============================================================ -->
-<!-- SECTION 2.4 LISTS -->
-<!-- ============================================================ -->
-<div class="sec-h1" id="s24">2.4 Lists <span class="ref-badge">R1: 10.2</span></div>
-
-<div class="sec-h3" id="s241">2.4.1 List ADT</div>
-<div class="card">
-  <p>A <strong>list</strong> is an ordered collection where each element has a position (index). Unlike stacks/queues, lists allow insertion and removal at <strong>any position</strong>.</p>
-  <table>
-    <tr><th>Operation</th><th>Description</th></tr>
-    <tr><td><code>get(i)</code></td><td>Return element at position i</td></tr>
-    <tr><td><code>set(i, x)</code></td><td>Replace element at position i with x</td></tr>
-    <tr><td><code>insert(i, x)</code></td><td>Insert x at position i, shifting subsequent elements</td></tr>
-    <tr><td><code>remove(i)</code></td><td>Remove element at position i, shifting subsequent elements</td></tr>
-    <tr><td><code>indexOf(x)</code></td><td>Return position of first occurrence of x</td></tr>
-    <tr><td><code>size()</code> / <code>isEmpty()</code></td><td>Count elements / check empty</td></tr>
-  </table>
-</div>
-
-<div class="sec-h3" id="s242">2.4.2 Singly Linked List &mdash; Full Implementation</div>
-<div class="card">
-  <p>Each node stores data and a pointer to the next node. Last node points to NULL.</p>
-  <pre><code>struct Node:
+<h2 id="241-list-adt">2.4.1 List ADT</h2>
+<h3 id="what-is-a-list">What is a List?</h3>
+<p>A <strong>list</strong> (sometimes called a sequence) is the most general of the three data structures in this chapter. While stacks restrict access to the top and queues restrict access to the front/rear, a list allows insertion, deletion, and access at <strong>any position</strong>.</p>
+<p>A list is an <strong>ordered collection</strong> — the elements have a definite sequence (first, second, third, ...) and each element is identified by its <strong>index</strong> (position). This is different from a set, where elements have no order.</p>
+<h3 id="lists-vs-stacks-vs-queues">Lists vs. Stacks vs. Queues</h3>
+<p>All three are linear data structures (elements arranged in a sequence), but they differ in what operations they allow:</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Data Structure</th>
+<th>Access Pattern</th>
+<th>Restriction</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Stack</strong></td>
+<td>Top only</td>
+<td>LIFO — can only push/pop at one end.</td>
+</tr>
+<tr>
+<td><strong>Queue</strong></td>
+<td>Front and rear</td>
+<td>FIFO — enqueue at rear, dequeue at front.</td>
+</tr>
+<tr>
+<td><strong>List</strong></td>
+<td>Any position</td>
+<td>No restriction — insert, delete, access anywhere.</td>
+</tr>
+</tbody>
+</table></div>
+<p>A stack and a queue are <strong>restricted lists</strong>. They give up generality to gain simplicity and guaranteed O(1) operations. A general list is more flexible but some operations (like inserting in the middle) require traversal.</p>
+<h3 id="two-implementation-strategies">Two implementation strategies</h3>
+<p>A list can be implemented in two fundamentally different ways:</p>
+<ol>
+<li><strong>Array-based list (ArrayList):</strong> Elements stored in a contiguous array. Access by index is O(1) (direct computation), but insertion/deletion in the middle requires shifting elements — O(n).</li>
+<li><strong>Linked list:</strong> Elements stored in nodes scattered across memory, connected by pointers. Insertion/deletion at a known position is O(1) (just rewire pointers), but access by index requires traversal — O(n).</li>
+</ol>
+<p>The choice between them is one of the most common engineering decisions in programming, and the right answer depends entirely on the access pattern of your application.</p>
+<h3 id="operations_6">Operations</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Operation</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>get(i)</code></td>
+<td>Return element at position i</td>
+</tr>
+<tr>
+<td><code>set(i, x)</code></td>
+<td>Replace element at position i with x</td>
+</tr>
+<tr>
+<td><code>insert(i, x)</code></td>
+<td>Insert x at position i, shifting subsequent elements</td>
+</tr>
+<tr>
+<td><code>remove(i)</code></td>
+<td>Remove element at position i, shifting subsequent elements</td>
+</tr>
+<tr>
+<td><code>indexOf(x)</code></td>
+<td>Return the position of the first occurrence of x</td>
+</tr>
+<tr>
+<td><code>size()</code></td>
+<td>Return the number of elements</td>
+</tr>
+<tr>
+<td><code>isEmpty()</code></td>
+<td>Return true if no elements exist</td>
+</tr>
+</tbody>
+</table></div>
+<hr />
+<h2 id="242-singly-linked-list-implementation">2.4.2 Singly Linked List — Implementation</h2>
+<h3 id="the-structure">The structure</h3>
+<p>A singly linked list is a chain of <strong>nodes</strong> where each node contains two things:
+1. <strong>Data</strong> — the actual value being stored.
+2. <strong>Next pointer</strong> — a reference (address) to the next node in the chain.</p>
+<p>The last node's <code>next</code> pointer is <code>NULL</code>, signalling the end of the list. The list itself is represented by a single <strong>head pointer</strong> that points to the first node. If <code>head</code> is NULL, the list is empty.</p>
+<h3 id="why-singly">Why "singly"?</h3>
+<p>It's called "singly" linked because each node has only <strong>one</strong> link — to the next node. You can traverse the list in only one direction: from head towards the tail. You cannot go backwards. This has a critical consequence: if you're standing at a node and want to delete it, you need its <strong>predecessor's</strong> pointer (to bypass the current node). But you can't get to the predecessor without traversing from the head — making deletion O(n) in the general case.</p>
+<h3 id="memory-layout">Memory layout</h3>
+<p>Unlike an array where elements sit side-by-side in memory (contiguous), linked list nodes can be <strong>anywhere</strong> in memory. Each node is individually allocated by <code>malloc</code>. The <code>next</code> pointers stitch them together into a logical sequence. This means:</p>
+<ul>
+<li><strong>Advantage:</strong> Inserting a new node never requires moving existing elements. Just allocate a new node and rewire two pointers. No shifting.</li>
+<li><strong>Disadvantage:</strong> To access the k-th element, you must follow k pointers starting from the head (O(k) traversal). There's no way to jump directly to a position like <code>array[k]</code>.</li>
+</ul>
+<pre><code>struct Node:
     data
-    next &rarr; Node (or NULL)
+    next → Node (or NULL)
 
 struct SinglyLinkedList:
-    head &rarr; Node (or NULL)
-    size = 0</code></pre>
-
-  <h4>All Core Operations</h4>
-  <pre><code>insertAtHead(L, x):                           // O(1)
-    newNode = Node(data=x, next=L.head)
+    head → Node (or NULL)
+    size = 0
+</code></pre>
+<h3 id="core-operations">Core Operations</h3>
+<pre><code>insertAtHead(L, x):                           // O(1)
+    newNode = create Node(data=x, next=L.head)
     L.head = newNode
     L.size++
 
-insertAtTail(L, x):                           // O(n) without tail ptr, O(1) with
-    newNode = Node(data=x, next=NULL)
+insertAtTail(L, x):                           // O(n) without tail pointer, O(1) with tail pointer
+    newNode = create Node(data=x, next=NULL)
     if L.head == NULL:
         L.head = newNode
     else:
         current = L.head
-        while current.next &ne; NULL:
+        while current.next ≠ NULL:
             current = current.next
         current.next = newNode
     L.size++
 
-insertAtPosition(L, i, x):                    // O(i)
-    if i == 0: insertAtHead(L, x); return
+insertAtPosition(L, i, x):                    // O(i) — traverse to position
+    if i == 0:
+        insertAtHead(L, x)
+        return
     current = L.head
-    for j = 0 to i-2:
+    for j = 0 to i-2:                         // stop at node before position i
         current = current.next
-    newNode = Node(data=x, next=current.next)
+    newNode = create Node(data=x, next=current.next)
     current.next = newNode
     L.size++
 
 deleteAtHead(L):                               // O(1)
-    if L.head == NULL: error "Empty"
+    if L.head == NULL: error &quot;Empty&quot;
     temp = L.head
     L.head = L.head.next
     free(temp)
     L.size--
 
-deleteAtPosition(L, i):                        // O(i)
-    if i == 0: deleteAtHead(L); return
+deleteAtPosition(L, i):                        // O(i) — traverse to node before position i
+    if i == 0:
+        deleteAtHead(L)
+        return
     current = L.head
     for j = 0 to i-2:
         current = current.next
@@ -789,160 +1943,558 @@ deleteAtPosition(L, i):                        // O(i)
     L.size--
 
 search(L, x):                                 // O(n)
-    current = L.head; position = 0
-    while current &ne; NULL:
-        if current.data == x: return position
-        current = current.next; position++
-    return -1</code></pre>
-
-  <h4>Complexity Summary</h4>
-  <table>
-    <tr><th>Operation</th><th>Time</th></tr>
-    <tr><td>Insert at head</td><td><strong>O(1)</strong></td></tr>
-    <tr><td>Insert at tail (without tail ptr)</td><td>O(n)</td></tr>
-    <tr><td>Insert at tail (with tail ptr)</td><td>O(1)</td></tr>
-    <tr><td>Insert at position i</td><td>O(i)</td></tr>
-    <tr><td>Delete at head</td><td><strong>O(1)</strong></td></tr>
-    <tr><td>Delete at position i</td><td>O(i)</td></tr>
-    <tr><td>Delete given node (no predecessor)</td><td>O(n) &mdash; must find predecessor</td></tr>
-    <tr><td>Search / Access by index</td><td>O(n)</td></tr>
-  </table>
-</div>
-
-<div class="sec-h3" id="s243">2.4.3 Doubly Linked List &mdash; O(1) Deletion</div>
-<div class="card">
-  <p>Each node has pointers to <strong>both</strong> next and previous nodes. Supports backward traversal.</p>
-  <pre><code>struct Node:
+    current = L.head
+    position = 0
+    while current ≠ NULL:
+        if current.data == x:
+            return position
+        current = current.next
+        position++
+    return -1                                  // not found
+</code></pre>
+<h3 id="complexity-summary-singly-linked-list">Complexity Summary — Singly Linked List</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Operation</th>
+<th>Time</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Insert at head</td>
+<td>O(1)</td>
+</tr>
+<tr>
+<td>Insert at tail (without tail ptr)</td>
+<td>O(n)</td>
+</tr>
+<tr>
+<td>Insert at tail (with tail ptr)</td>
+<td>O(1)</td>
+</tr>
+<tr>
+<td>Insert at position i</td>
+<td>O(i)</td>
+</tr>
+<tr>
+<td>Delete at head</td>
+<td>O(1)</td>
+</tr>
+<tr>
+<td>Delete at position i</td>
+<td>O(i)</td>
+</tr>
+<tr>
+<td>Delete given node (no predecessor)</td>
+<td>O(n) — must find predecessor</td>
+</tr>
+<tr>
+<td>Search</td>
+<td>O(n)</td>
+</tr>
+<tr>
+<td>Access by index</td>
+<td>O(n)</td>
+</tr>
+</tbody>
+</table></div>
+<hr />
+<h2 id="243-doubly-linked-list-implementation">2.4.3 Doubly Linked List — Implementation</h2>
+<h3 id="why-do-we-need-a-doubly-linked-list">Why do we need a doubly linked list?</h3>
+<p>The singly linked list has one fundamental weakness: to delete a node, you need its <strong>predecessor</strong>. Since each node only points forward (<code>next</code>), finding the predecessor requires traversing from the head — O(n). This is a deal-breaker for algorithms that need to delete specific nodes frequently.</p>
+<p>A <strong>doubly linked list</strong> solves this by giving each node <strong>two</strong> pointers:
+1. <strong>next</strong> — points to the next node (forward).
+2. <strong>prev</strong> — points to the previous node (backward).</p>
+<p>The list also typically maintains both a <strong>head</strong> pointer (first node) and a <strong>tail</strong> pointer (last node).</p>
+<h3 id="the-o1-deletion-advantage">The O(1) deletion advantage</h3>
+<p>With a <code>prev</code> pointer, deleting a node becomes trivial even if you only have a pointer to the node itself (not its predecessor):</p>
+<pre><code>To delete node X:
+    X.prev.next = X.next    // predecessor skips over X
+    X.next.prev = X.prev    // successor's prev skips back over X
+    free(X)
+</code></pre>
+<p>No traversal needed. O(1).</p>
+<p>This is not a minor optimisation — it's the foundation of several important data structures and algorithms:</p>
+<ul>
+<li><strong>LRU Cache:</strong> When a cache entry is accessed, it must be moved to the front of a "recently used" list. With a doubly linked list, the move is O(1): delete from current position (O(1)) and insert at head (O(1)). Combined with a hash map for O(1) lookup, this gives an O(1) LRU cache.</li>
+<li><strong>OS process lists:</strong> The operating system maintains doubly linked lists of processes. When a process changes state (running → blocked → ready), it's removed from one list and inserted into another — both O(1).</li>
+<li><strong>Text editor gap buffer alternative:</strong> Some text editors represent the document as a doubly linked list of lines, allowing O(1) insertion and deletion of lines.</li>
+</ul>
+<h3 id="the-cost-of-the-extra-pointer">The cost of the extra pointer</h3>
+<p>Each node now stores two pointers instead of one. On a 64-bit system, that's 16 bytes of overhead per node (vs. 8 bytes for singly linked). For large data items this is negligible, but for small data (like a list of integers), the pointer overhead can exceed the data size. Memory usage is roughly 2-3x higher than an array storing the same data.</p>
+<pre><code>struct Node:
     data
-    prev &rarr; Node (or NULL)
-    next &rarr; Node (or NULL)
+    prev → Node (or NULL)
+    next → Node (or NULL)
 
 struct DoublyLinkedList:
-    head &rarr; Node (or NULL)
-    tail &rarr; Node (or NULL)
-    size = 0</code></pre>
-
-  <h4>Operations</h4>
-  <pre><code>insertAtHead(L, x):                           // O(1)
-    newNode = Node(data=x, prev=NULL, next=L.head)
-    if L.head &ne; NULL:
+    head → Node (or NULL)
+    tail → Node (or NULL)
+    size = 0
+</code></pre>
+<h3 id="operations_7">Operations</h3>
+<pre><code>insertAtHead(L, x):                           // O(1)
+    newNode = create Node(data=x, prev=NULL, next=L.head)
+    if L.head ≠ NULL:
         L.head.prev = newNode
     else:
         L.tail = newNode
     L.head = newNode
     L.size++
 
-insertAtTail(L, x):                           // O(1)
-    newNode = Node(data=x, prev=L.tail, next=NULL)
-    if L.tail &ne; NULL:
+insertAtTail(L, x):                           // O(1) — have tail pointer
+    newNode = create Node(data=x, prev=L.tail, next=NULL)
+    if L.tail ≠ NULL:
         L.tail.next = newNode
     else:
         L.head = newNode
     L.tail = newNode
     L.size++
 
-deleteNode(L, node):                          // O(1)!
-    if node.prev &ne; NULL:
+deleteNode(L, node):                          // O(1) — given a pointer to the node
+    if node.prev ≠ NULL:
         node.prev.next = node.next
     else:
-        L.head = node.next
-    if node.next &ne; NULL:
+        L.head = node.next               // deleting head
+    if node.next ≠ NULL:
         node.next.prev = node.prev
     else:
-        L.tail = node.prev
+        L.tail = node.prev               // deleting tail
     free(node)
-    L.size--</code></pre>
-
-  <div class="tip">
-    <strong>Key advantage: O(1) deletion given a node pointer.</strong><br>
-    In a singly linked list, deleting node X requires traversing from head to find X's predecessor &rarr; O(n).<br>
-    In a doubly linked list, X already knows its predecessor via <code>X.prev</code> &rarr; O(1).<br><br>
-    Critical for: <strong>LRU Cache</strong> (move accessed node to front in O(1)).
-  </div>
-
-  <table>
-    <tr><th>Operation</th><th>Time</th></tr>
-    <tr><td>Insert at head / tail</td><td>O(1)</td></tr>
-    <tr><td>Insert after given node</td><td>O(1)</td></tr>
-    <tr><td>Delete given node</td><td><strong>O(1)</strong> &larr; key advantage</td></tr>
-    <tr><td>Delete at head / tail</td><td>O(1)</td></tr>
-    <tr><td>Search / Access by index</td><td>O(n)</td></tr>
-  </table>
-</div>
-
-<div class="sec-h3" id="s244">2.4.4 Circular Linked List &amp; Array vs. Linked List</div>
-<div class="card">
-  <h4>Circular Linked List</h4>
-  <p>The last node's <code>next</code> pointer points back to the <strong>head</strong> instead of NULL.</p>
-  <pre><code>Singly Circular:
-    A &rarr; B &rarr; C &rarr; D &rarr; A (back to head)
+    L.size--
+</code></pre>
+<h3 id="key-advantage-o1-deletion-given-a-node-pointer">Key Advantage: O(1) Deletion Given a Node Pointer</h3>
+<p>In a singly linked list, deleting a node requires finding its predecessor → O(n).
+In a doubly linked list, the node already knows its predecessor → O(1).</p>
+<p>This is critical for algorithms like <strong>LRU Cache</strong> (Least Recently Used), which uses a doubly linked list + hash map.</p>
+<h3 id="complexity-summary-doubly-linked-list">Complexity Summary — Doubly Linked List</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Operation</th>
+<th>Time</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Insert at head / tail</td>
+<td>O(1)</td>
+</tr>
+<tr>
+<td>Insert after given node</td>
+<td>O(1)</td>
+</tr>
+<tr>
+<td>Delete given node</td>
+<td><strong>O(1)</strong> — key advantage</td>
+</tr>
+<tr>
+<td>Delete at head / tail</td>
+<td>O(1)</td>
+</tr>
+<tr>
+<td>Search</td>
+<td>O(n)</td>
+</tr>
+<tr>
+<td>Access by index</td>
+<td>O(n)</td>
+</tr>
+</tbody>
+</table></div>
+<hr />
+<h2 id="244-circular-linked-list">2.4.4 Circular Linked List</h2>
+<h3 id="what-makes-it-circular">What makes it circular?</h3>
+<p>In a standard linked list, the last node's <code>next</code> pointer is <code>NULL</code>, marking the end. In a <strong>circular linked list</strong>, the last node's <code>next</code> pointer loops back to the <strong>first node</strong>, forming a closed ring. There is no "end" — traversal continues indefinitely around the circle.</p>
+<pre><code>Singly Circular:
+    A → B → C → D → A → B → C → D → ...  (infinite loop)
 
 Doubly Circular:
-    A &lrarr; B &lrarr; C &lrarr; D &lrarr; A (head.prev = tail, tail.next = head)</code></pre>
-  <p><strong>Advantages:</strong> No NULL checks (always traverse). Natural for <strong>round-robin scheduling</strong>. Efficient circular buffers.</p>
-  <p><strong>Implementation note:</strong> Detect &ldquo;full traversal&rdquo; by checking if we've returned to the starting node.</p>
+    ... ⇄ A ⇄ B ⇄ C ⇄ D ⇄ A ⇄ B ⇄ ...
+    (head.prev = tail, tail.next = head)
+</code></pre>
+<h3 id="when-to-use-circular-lists">When to use circular lists</h3>
+<p>Circular lists are the natural choice when the data itself is cyclic:</p>
+<ol>
+<li>
+<p><strong>Round-robin scheduling:</strong> In an OS, processes take turns using the CPU. After the last process gets its turn, you go back to the first. A circular list lets you just keep following <code>next</code> — you never need to check for NULL or reset to the head.</p>
+</li>
+<li>
+<p><strong>Circular buffers:</strong> Audio/video streaming uses ring buffers where new data overwrites the oldest data. The producer and consumer chase each other around the circle.</p>
+</li>
+<li>
+<p><strong>Game turn order:</strong> In a multiplayer game where turns cycle (Player 1 → Player 2 → Player 3 → Player 1 → ...), a circular list models this naturally.</p>
+</li>
+<li>
+<p><strong>Josephus problem:</strong> A classic algorithmic problem where people standing in a circle are eliminated in a fixed counting pattern. Circular linked list is the textbook implementation.</p>
+</li>
+</ol>
+<h3 id="implementation-considerations">Implementation considerations</h3>
+<p>The main change is that there's no NULL check during traversal — you must detect when you've completed a full loop by comparing the current node to the starting node. Without this check, traversal would loop forever.</p>
+<hr />
+<h2 id="245-circular-doubly-linked-list">2.4.5 Circular Doubly Linked List</h2>
+<h3 id="concept_1">Concept</h3>
+<p>A <strong>circular doubly linked list</strong> combines the features of both a doubly linked list and a circular linked list. Each node has three fields:</p>
+<ol>
+<li><strong>prev</strong> — pointer to the previous node</li>
+<li><strong>data</strong> — the stored value</li>
+<li><strong>next</strong> — pointer to the next node</li>
+</ol>
+<p>The key structural properties:
+- The <strong>last node's <code>next</code></strong> points to the <strong>head</strong> (not NULL).
+- The <strong>head's <code>prev</code></strong> points to the <strong>last node</strong> (not NULL).</p>
+<p>This creates a closed ring that can be traversed in <strong>both directions</strong> indefinitely, with no NULL pointers anywhere in the list.</p>
+<pre><code>Structure:
+    ┌─────────────────────────────────────┐
+    │                                     │
+    ↓                                     │
+   [A] ⇄ [B] ⇄ [C] ⇄ [D]──────────────→│
+    ↑                    ↑                │
+    │←───────────────────│                │
+    │                                     │
+    └─────────────────────────────────────┘
 
-  <hr>
+    head.prev = D (last node)
+    D.next = A (head)
+</code></pre>
+<h3 id="data-structure_3">Data Structure</h3>
+<pre><code>struct Node:
+    prev → Node
+    data
+    next → Node
 
-  <h4>Array vs. Linked List &mdash; Complete Comparison</h4>
-  <table>
-    <tr><th>Aspect</th><th>Array</th><th>Linked List</th></tr>
-    <tr><td><strong>Memory</strong></td><td>Contiguous block</td><td>Scattered nodes + pointer overhead</td></tr>
-    <tr><td><strong>Access by index</strong></td><td><strong>O(1)</strong> &mdash; direct</td><td>O(n) &mdash; must traverse</td></tr>
-    <tr><td><strong>Insert at beginning</strong></td><td>O(n) &mdash; shift all</td><td><strong>O(1)</strong></td></tr>
-    <tr><td><strong>Insert at end</strong></td><td>O(1) amortised (dynamic)</td><td>O(1) with tail pointer</td></tr>
-    <tr><td><strong>Insert in middle</strong></td><td>O(n) &mdash; shift</td><td>O(1) after finding position</td></tr>
-    <tr><td><strong>Delete</strong></td><td>O(n) &mdash; shift</td><td>O(1) if node pointer given (doubly)</td></tr>
-    <tr><td><strong>Search (unsorted)</strong></td><td>O(n)</td><td>O(n)</td></tr>
-    <tr><td><strong>Binary search (sorted)</strong></td><td><strong>O(log n)</strong></td><td>Not possible</td></tr>
-    <tr><td><strong>Cache performance</strong></td><td><strong>Excellent</strong> &mdash; contiguous</td><td>Poor &mdash; scattered</td></tr>
-    <tr><td><strong>Memory waste</strong></td><td>Possible (unused capacity)</td><td>Per-node pointer overhead</td></tr>
-    <tr><td><strong>Size</strong></td><td>Fixed (or amortised growth)</td><td>Dynamic</td></tr>
-  </table>
+struct CircularDoublyLinkedList:
+    head → Node (or NULL if empty)
+    size = 0
+</code></pre>
+<h3 id="advantages-over-other-list-variants">Advantages over other list variants</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Singly LL</th>
+<th>Doubly LL</th>
+<th>Circular Singly</th>
+<th><strong>Circular Doubly</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Traverse forward</td>
+<td>✓</td>
+<td>✓</td>
+<td>✓</td>
+<td>✓</td>
+</tr>
+<tr>
+<td>Traverse backward</td>
+<td>✗</td>
+<td>✓</td>
+<td>✗</td>
+<td><strong>✓</strong></td>
+</tr>
+<tr>
+<td>Wrap around</td>
+<td>✗</td>
+<td>✗</td>
+<td>✓</td>
+<td><strong>✓</strong></td>
+</tr>
+<tr>
+<td>O(1) insert at head</td>
+<td>✓</td>
+<td>✓</td>
+<td>✓</td>
+<td><strong>✓</strong></td>
+</tr>
+<tr>
+<td>O(1) insert at tail</td>
+<td>needs tail ptr</td>
+<td>✓</td>
+<td>✓</td>
+<td><strong>✓</strong> (head.prev = tail)</td>
+</tr>
+<tr>
+<td>O(1) delete given node</td>
+<td>✗ (need predecessor)</td>
+<td>✓</td>
+<td>✗</td>
+<td><strong>✓</strong></td>
+</tr>
+</tbody>
+</table></div>
+<p>The circular doubly linked list gives O(1) access to both the head AND the tail (via <code>head.prev</code>), without maintaining a separate tail pointer.</p>
+<h3 id="operations_8">Operations</h3>
+<pre><code>INSERT_BEGIN(L, x):                            // O(1)
+    newNode = create Node(data=x)
+    if L.head == NULL:
+        newNode.next = newNode              // points to itself
+        newNode.prev = newNode
+        L.head = newNode
+    else:
+        tail = L.head.prev                  // last node
+        newNode.next = L.head
+        newNode.prev = tail
+        L.head.prev = newNode
+        tail.next = newNode
+        L.head = newNode                    // new node becomes head
+    L.size++
 
-  <div class="info">
-    <strong>When to use what:</strong><br>
-    <strong>Use Array:</strong> Frequent random access, known size, cache performance, binary search needed.<br>
-    <strong>Use Linked List:</strong> Frequent insert/delete at arbitrary positions, unpredictable size, O(1) delete given node pointer.
-  </div>
-</div>
+INSERT_END(L, x):                             // O(1)
+    INSERT_BEGIN(L, x)                      // insert at head first
+    L.head = L.head.next                    // then advance head → old head becomes head again
+    // Alternatively: insert before head, don't change head pointer
+    // Effect: new node is at the end (just before head in the circle)
 
-<div class="sec-h3" id="s246">2.4.6 List Applications</div>
-<div class="card">
-  <h4>1. Polynomial Representation</h4>
-  <p>Each node stores (coefficient, exponent). Addition/multiplication by traversing both lists.</p>
+DELETE_BEGIN(L):                               // O(1)
+    if L.head == NULL: error &quot;Empty&quot;
+    if L.head.next == L.head:               // only one node
+        free(L.head)
+        L.head = NULL
+    else:
+        tail = L.head.prev
+        newHead = L.head.next
+        tail.next = newHead
+        newHead.prev = tail
+        free(L.head)
+        L.head = newHead
+    L.size--
 
-  <h4>2. Sparse Matrix Representation</h4>
-  <p>Only non-zero elements stored as (row, col, value) nodes. Saves memory for mostly-zero matrices.</p>
+DELETE_NODE(L, node):                          // O(1) — given a pointer to the node
+    if L.head == NULL: error &quot;Empty&quot;
+    if node.next == node:                   // only one node in the list
+        L.head = NULL
+    else:
+        node.prev.next = node.next          // predecessor skips over node
+        node.next.prev = node.prev          // successor skips back over node
+        if node == L.head:
+            L.head = node.next              // update head if we're deleting it
+    free(node)
+    L.size--
+</code></pre>
+<h3 id="worked-trace-insert-10-20-30-then-delete-20">Worked Trace: Insert 10, 20, 30, then delete 20</h3>
+<pre><code>Step 1: INSERT_BEGIN(10)
+    List has 1 node: [10] → 10 (points to itself)
+    10.next = 10, 10.prev = 10
+    head = 10
 
-  <h4>3. Undo/Redo (Doubly Linked List)</h4>
-  <p>Each state is a node. Move backward (undo) or forward (redo) along the list.</p>
+Step 2: INSERT_BEGIN(20)
+    newNode = 20
+    tail = head.prev = 10
+    20.next = 10, 20.prev = 10
+    10.prev = 20, 10.next = 20
+    head = 20
+    List: 20 ⇄ 10 ⇄ (back to 20)
 
-  <h4>4. LRU Cache (Doubly Linked List + Hash Map)</h4>
-  <ul>
-    <li><strong>Hash map:</strong> key &rarr; node pointer (O(1) lookup).</li>
-    <li><strong>Doubly linked list:</strong> most recently used at head, least at tail.</li>
-    <li>On access: move node to head &rarr; O(1).</li>
-    <li>On eviction: remove tail &rarr; O(1).</li>
-  </ul>
+Step 3: INSERT_BEGIN(30)
+    newNode = 30
+    tail = head.prev = 10
+    30.next = 20, 30.prev = 10
+    20.prev = 30, 10.next = 30
+    head = 30
+    List: 30 ⇄ 20 ⇄ 10 ⇄ (back to 30)
 
-  <h4>5. Music Playlist (Circular List)</h4>
-  <p>Songs cycle back to the beginning after the last song.</p>
-</div>
+Step 4: DELETE_NODE(node pointing to 20)
+    20.prev = 30, 20.next = 10
+    30.next = 10    (skip over 20)
+    10.prev = 30    (skip back over 20)
+    free(20)
+    List: 30 ⇄ 10 ⇄ (back to 30)
 
+Verification — traverse forward from head:
+    30 → 10 → 30 → 10 → ... ✓ (circular)
+Traverse backward from head:
+    30 → 10 → 30 → 10 → ... ✓ (circular)
+</code></pre>
+<h3 id="complexity-summary-circular-doubly-linked-list">Complexity Summary — Circular Doubly Linked List</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Operation</th>
+<th>Time</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Insert at head / tail</td>
+<td>O(1)</td>
+</tr>
+<tr>
+<td>Delete at head / tail</td>
+<td>O(1)</td>
+</tr>
+<tr>
+<td>Delete given node</td>
+<td>O(1)</td>
+</tr>
+<tr>
+<td>Access tail from head</td>
+<td>O(1) via <code>head.prev</code></td>
+</tr>
+<tr>
+<td>Search</td>
+<td>O(n)</td>
+</tr>
+<tr>
+<td>Access by index</td>
+<td>O(n)</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="use-cases">Use Cases</h3>
+<ol>
+<li><strong>Fibonacci Heaps:</strong> The internal structure uses circular doubly linked lists for O(1) union operations.</li>
+<li><strong>Browser navigation:</strong> Forward/back with wrap-around through tab list.</li>
+<li><strong>Round-robin scheduling with bidirectional traversal:</strong> When the scheduler needs to move both forward and backward through the process list.</li>
+<li><strong>Undo/redo ring buffer:</strong> Stores a fixed number of states in a circle, overwriting the oldest when full.</li>
+</ol>
+<hr />
+<h2 id="246-array-vs-linked-list-comparison">2.4.6 Array vs. Linked List — Comparison</h2>
+<p>This is one of the most fundamental trade-offs in computer science. The choice affects performance, memory usage, and code complexity in nearly every program.</p>
+<h3 id="the-core-trade-off">The core trade-off</h3>
+<p><strong>Arrays give you O(1) random access but O(n) insertion/deletion.</strong>
+<strong>Linked lists give you O(1) insertion/deletion (at known positions) but O(n) access.</strong></p>
+<p>This trade-off is rooted in memory layout:</p>
+<ul>
+<li>
+<p><strong>Array:</strong> Contiguous block of memory. Element i lives at address <code>base + i × element_size</code>. The CPU can compute this address instantly — no traversal needed. But inserting in the middle requires shifting all subsequent elements to make room.</p>
+</li>
+<li>
+<p><strong>Linked list:</strong> Nodes scattered across memory, connected by pointers. To reach element i, you must follow i pointers from the head. But inserting at a known position just requires rewiring 2-3 pointers — no shifting.</p>
+</li>
+</ul>
+<h3 id="the-cache-performance-factor-often-overlooked">The cache performance factor (often overlooked)</h3>
+<p>In theory, arrays and linked lists have the same O(n) time for scanning all elements. In practice, arrays are <strong>significantly faster</strong> due to <strong>CPU cache locality</strong>.</p>
+<p>Modern CPUs don't fetch individual bytes from RAM — they fetch entire <strong>cache lines</strong> (typically 64 bytes). When you access <code>array[0]</code>, the CPU fetches a block of memory containing <code>array[0]</code> through <code>array[15]</code> (for 4-byte integers). Subsequent accesses to <code>array[1]</code>, <code>array[2]</code>, etc. are <strong>cache hits</strong> — already in the fast L1 cache.</p>
+<p>Linked list nodes are scattered across memory. Each <code>node.next</code> access is likely a <strong>cache miss</strong> — the CPU must wait for data to be fetched from slower RAM. This can make linked list traversal 5-10x slower than array traversal for the same number of elements.</p>
+<p>This is why the practical advice is: <strong>default to arrays unless you have a specific reason to use linked lists.</strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Aspect</th>
+<th>Array</th>
+<th>Linked List</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Memory</strong></td>
+<td>Contiguous block</td>
+<td>Scattered nodes + pointer overhead</td>
+</tr>
+<tr>
+<td><strong>Access by index</strong></td>
+<td><strong>O(1)</strong> — direct</td>
+<td>O(n) — must traverse</td>
+</tr>
+<tr>
+<td><strong>Insert at beginning</strong></td>
+<td>O(n) — shift all</td>
+<td><strong>O(1)</strong></td>
+</tr>
+<tr>
+<td><strong>Insert at end</strong></td>
+<td>O(1) amortised (dynamic array)</td>
+<td>O(1) with tail pointer</td>
+</tr>
+<tr>
+<td><strong>Insert in middle</strong></td>
+<td>O(n) — shift</td>
+<td>O(1) after finding position</td>
+</tr>
+<tr>
+<td><strong>Delete</strong></td>
+<td>O(n) — shift</td>
+<td>O(1) if node pointer given (doubly)</td>
+</tr>
+<tr>
+<td><strong>Search</strong></td>
+<td>O(n) unsorted, O(log n) sorted</td>
+<td>O(n) — cannot binary search</td>
+</tr>
+<tr>
+<td><strong>Cache performance</strong></td>
+<td><strong>Excellent</strong> — contiguous</td>
+<td>Poor — scattered</td>
+</tr>
+<tr>
+<td><strong>Memory waste</strong></td>
+<td>Possible (unused capacity)</td>
+<td>Per-node pointer overhead</td>
+</tr>
+<tr>
+<td><strong>Size</strong></td>
+<td>Fixed (or amortised growth)</td>
+<td>Dynamic</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="when-to-use-what">When to Use What</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Use Array When</th>
+<th>Use Linked List When</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Frequent random access (index-based).</td>
+<td>Frequent insertions/deletions at arbitrary positions.</td>
+</tr>
+<tr>
+<td>Size is known or roughly known.</td>
+<td>Size is highly unpredictable.</td>
+</tr>
+<tr>
+<td>Cache performance matters.</td>
+<td>Memory is fragmented / allocation is per-element.</td>
+</tr>
+<tr>
+<td>Need binary search on sorted data.</td>
+<td>Implementing stacks/queues (push/pop at ends).</td>
+</tr>
+</tbody>
+</table></div>
+<hr />
+<h2 id="247-list-applications">2.4.7 List Applications</h2>
+<ol>
+<li>
+<p><strong>Polynomial Representation:</strong> Each node stores a coefficient and exponent. Addition/multiplication by traversing both lists.</p>
+</li>
+<li>
+<p><strong>Sparse Matrix Representation:</strong> Only non-zero elements stored as (row, col, value) nodes. Saves memory for matrices that are mostly zeros.</p>
+</li>
+<li>
+<p><strong>Undo/Redo (Doubly Linked List):</strong> Each state is a node. Move backward (undo) or forward (redo) along the list.</p>
+</li>
+<li>
+<p><strong>LRU Cache (Doubly Linked List + Hash Map):</strong></p>
+</li>
+<li>Hash map: key → node pointer (O(1) lookup).</li>
+<li>Doubly linked list: most recently used at head, least recently used at tail.</li>
+<li>On access: move node to head → O(1).</li>
+<li>
+<p>On eviction: remove tail → O(1).</p>
+</li>
+<li>
+<p><strong>Music Playlist (Circular List):</strong> Songs cycle back to the beginning after the last song.</p>
+</li>
+</ol>
+<h2 id="-_4">---</h2>
+<h1 id="practice-problems-with-solutions">Practice Problems with Solutions</h1>
+<hr />
+<h3 id="p1-implement-a-min-stack">P1. Implement a Min-Stack</h3>
+<p><strong>Problem:</strong> Design a stack that supports push, pop, top, and retrieving the minimum element — all in O(1) time.</p>
+<p><strong>Solution:</strong> Use two stacks: one for data, one for tracking minimums.</p>
+<pre><code>struct MinStack:
+    dataStack = empty Stack
+    minStack = empty Stack
 
-<!-- ============================================================ -->
-<!-- PRACTICE PROBLEMS -->
-<!-- ============================================================ -->
-<div class="sec-h1" id="practice">Practice Problems with Solutions</div>
-
-<div class="scard">
-  <h4>P1. MinStack &mdash; O(1) push, pop, top, getMin</h4>
-  <p><strong>Problem:</strong> Design a stack supporting push, pop, top, and retrieving the minimum &mdash; all in O(1).</p>
-  <p><strong>Solution:</strong> Use two stacks: one for data, one tracking current minimums.</p>
-  <pre><code>push(x):
+push(x):
     dataStack.push(x)
-    if minStack.isEmpty() OR x &le; minStack.top():
+    if minStack.isEmpty() OR x ≤ minStack.top():
         minStack.push(x)
 
 pop():
@@ -951,104 +2503,131 @@ pop():
         minStack.pop()
     return val
 
+top():
+    return dataStack.top()
+
 getMin():
-    return minStack.top()</code></pre>
-  <p><strong>Why it works:</strong> minStack only pushes when a new minimum arrives. When that minimum is popped from dataStack, it's also popped from minStack, revealing the previous minimum.</p>
-  <p><strong>All operations: O(1) time. O(n) space.</strong></p>
-</div>
-
-<div class="scard">
-  <h4>P2. Evaluate <code>3 4 + 2 * 7 /</code> (Postfix)</h4>
-  <table>
-    <tr><th>Token</th><th>Action</th><th>Stack</th></tr>
-    <tr><td>3</td><td>push</td><td>[3]</td></tr>
-    <tr><td>4</td><td>push</td><td>[3, 4]</td></tr>
-    <tr><td>+</td><td>pop 4, 3 &rarr; 3+4=7</td><td>[7]</td></tr>
-    <tr><td>2</td><td>push</td><td>[7, 2]</td></tr>
-    <tr><td>*</td><td>pop 2, 7 &rarr; 7&times;2=14</td><td>[14]</td></tr>
-    <tr><td>7</td><td>push</td><td>[14, 7]</td></tr>
-    <tr><td>/</td><td>pop 7, 14 &rarr; 14/7=2</td><td>[2]</td></tr>
-  </table>
-  <div class="tip"><strong>Result: 2</strong> &check;</div>
-</div>
-
-<div class="scard">
-  <h4>P3. Prove MULTIPOP amortised cost is O(1)</h4>
-  <p><strong>Proof (Aggregate Method):</strong></p>
-  <ol>
-    <li>Over n operations, max PUSH operations &le; n.</li>
-    <li>Each element pushed at most once.</li>
-    <li>Each element popped at most once (by POP or MULTIPOP).</li>
-    <li>Total pops across all POP and MULTIPOP calls &le; total pushes &le; n.</li>
-    <li>Total cost = (all pushes) + (all pops) &le; n + n = 2n.</li>
-    <li><strong>Amortised cost = 2n / n = O(1).</strong> &marker;</li>
-  </ol>
-</div>
-
-<div class="scard">
-  <h4>P4. Prove Two-Stack Queue amortised cost is O(1)</h4>
-  <p><strong>Proof (Aggregate Method):</strong></p>
-  <p>Each element goes through at most 4 moves: push S1 (1) + pop S1 (1) + push S2 (1) + pop S2 (1) = 4.</p>
-  <p>At most n elements processed. <strong>Total cost &le; 4n. Amortised = 4n/n = O(1).</strong> &marker;</p>
-</div>
-
-<div class="scard">
-  <h4>P5. Reverse a Linked List (Iterative + Recursive)</h4>
-  <h4 style="color:var(--accent)">Iterative</h4>
-  <pre><code>reverse(head):
+    return minStack.top()
+</code></pre>
+<p><strong>Why it works:</strong> minStack only pushes when a new minimum arrives. When that minimum is popped from dataStack, it's also popped from minStack, revealing the previous minimum.</p>
+<p><strong>All operations: O(1) time. O(n) space.</strong></p>
+<hr />
+<h3 id="p2-evaluate-3-4-2-7-postfix">P2. Evaluate <code>3 4 + 2 * 7 /</code> (Postfix)</h3>
+<p><strong>Trace:</strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Token</th>
+<th>Action</th>
+<th>Stack</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>3</td>
+<td>push</td>
+<td>[3]</td>
+</tr>
+<tr>
+<td>4</td>
+<td>push</td>
+<td>[3, 4]</td>
+</tr>
+<tr>
+<td>+</td>
+<td>pop 4, 3 → 3+4=7</td>
+<td>[7]</td>
+</tr>
+<tr>
+<td>2</td>
+<td>push</td>
+<td>[7, 2]</td>
+</tr>
+<tr>
+<td>*</td>
+<td>pop 2, 7 → 7*2=14</td>
+<td>[14]</td>
+</tr>
+<tr>
+<td>7</td>
+<td>push</td>
+<td>[14, 7]</td>
+</tr>
+<tr>
+<td>/</td>
+<td>pop 7, 14 → 14/7=2</td>
+<td>[2]</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Result: 2</strong> ✓</p>
+<hr />
+<h3 id="p3-starting-from-an-empty-stack-a-sequence-of-n-push-and-multipop-operations-is-performed-prove-the-amortised-cost-per-operation-is-o1">P3. Starting from an empty stack, a sequence of n PUSH and MULTIPOP operations is performed. Prove the amortised cost per operation is O(1).</h3>
+<p><strong>Proof (Aggregate Method):</strong></p>
+<ol>
+<li>Over n operations, the maximum number of PUSH operations ≤ n.</li>
+<li>Each element is pushed at most once.</li>
+<li>Each element can be popped at most once (by POP or as part of MULTIPOP).</li>
+<li>Total pops across all POP and MULTIPOP calls ≤ total pushes ≤ n.</li>
+<li>Total cost = (cost of all pushes) + (cost of all pops) ≤ n + n = 2n.</li>
+<li><strong>Amortised cost = 2n / n = O(1).</strong> ∎</li>
+</ol>
+<hr />
+<h3 id="p4-a-queue-is-implemented-using-two-stacks-show-that-the-amortised-cost-of-enqueue-and-dequeue-is-o1">P4. A queue is implemented using two stacks. Show that the amortised cost of enqueue and dequeue is O(1).</h3>
+<p><strong>Proof (Aggregate Method):</strong></p>
+<p>Consider a sequence of n enqueue and dequeue operations.</p>
+<p>Each element goes through at most 3 moves:
+1. Pushed onto S1 (during enqueue) — cost 1.
+2. Popped from S1 and pushed onto S2 (during transfer) — cost 2.
+3. Popped from S2 (during dequeue) — cost 1.</p>
+<p>Total cost per element ≤ 4. At most n elements processed.</p>
+<p><strong>Total cost ≤ 4n. Amortised cost = 4n / n = O(1).</strong> ∎</p>
+<hr />
+<h3 id="p5-reverse-a-linked-list-iteratively-and-recursively">P5. Reverse a linked list iteratively and recursively.</h3>
+<p><strong>Iterative:</strong></p>
+<pre><code>reverse(head):
     prev = NULL
     current = head
-    while current &ne; NULL:
+    while current ≠ NULL:
         next = current.next
         current.next = prev     // reverse the link
         prev = current
         current = next
-    return prev                 // new head</code></pre>
-  <table>
-    <tr><th>Step</th><th>prev</th><th>curr</th><th>List state</th></tr>
-    <tr><td>Start</td><td>NULL</td><td>1</td><td>1&rarr;2&rarr;3&rarr;NULL</td></tr>
-    <tr><td>1</td><td>1</td><td>2</td><td>NULL&larr;1 &nbsp; 2&rarr;3&rarr;NULL</td></tr>
-    <tr><td>2</td><td>2</td><td>3</td><td>NULL&larr;1&larr;2 &nbsp; 3&rarr;NULL</td></tr>
-    <tr><td>3</td><td>3</td><td>NULL</td><td>3&rarr;2&rarr;1&rarr;NULL &check;</td></tr>
-  </table>
-
-  <h4 style="color:var(--accent)">Recursive</h4>
-  <pre><code>reverse(head):
+    return prev                 // new head
+</code></pre>
+<p><strong>Trace (1 → 2 → 3 → NULL):</strong></p>
+<pre><code>Step 1: prev=NULL, curr=1 → 1.next=NULL, prev=1, curr=2
+Step 2: prev=1, curr=2 → 2.next=1, prev=2, curr=3
+Step 3: prev=2, curr=3 → 3.next=2, prev=3, curr=NULL
+Return 3. List: 3 → 2 → 1 → NULL ✓
+</code></pre>
+<p><strong>Recursive:</strong></p>
+<pre><code>reverse(head):
     if head == NULL or head.next == NULL:
         return head
     rest = reverse(head.next)
-    head.next.next = head      // next node points back to us
-    head.next = NULL            // remove forward pointer
-    return rest                 // rest is the new head</code></pre>
-  <p><strong>Both: O(n) time. Iterative = O(1) space. Recursive = O(n) stack space.</strong></p>
-</div>
-
-<div class="scard">
-  <h4>P6. Floyd's Cycle Detection (Tortoise and Hare)</h4>
-  <pre><code>hasCycle(head):
+    head.next.next = head      // make the next node point back to us
+    head.next = NULL            // remove our forward pointer
+    return rest                 // rest is the new head (originally the last node)
+</code></pre>
+<p><strong>Both: O(n) time, O(1) iterative space / O(n) recursive stack space.</strong></p>
+<hr />
+<h3 id="p6-detect-a-cycle-in-a-linked-list-floyds-tortoise-and-hare">P6. Detect a cycle in a linked list (Floyd's Tortoise and Hare).</h3>
+<pre><code>hasCycle(head):
     slow = head
     fast = head
-    while fast &ne; NULL AND fast.next &ne; NULL:
+    while fast ≠ NULL AND fast.next ≠ NULL:
         slow = slow.next           // move 1 step
         fast = fast.next.next      // move 2 steps
         if slow == fast:
             return True            // cycle detected
-    return False                   // no cycle</code></pre>
-  <p><strong>Why it works:</strong> If there's a cycle, fast will eventually &ldquo;lap&rdquo; slow inside the cycle (gains 1 step per iteration). If no cycle, fast reaches NULL.</p>
-  <p><strong>Time: O(n). Space: O(1).</strong></p>
-
-  <h4>Finding the Cycle Start</h4>
-  <p>After detecting (slow == fast), reset slow to head. Move both one step at a time. They meet at the <strong>cycle start</strong>.</p>
-  <div class="info"><strong>Proof:</strong> Let d = distance from head to cycle start, k = distance from cycle start to meeting point. When they meet: slow traveled d+k, fast traveled 2(d+k). Difference d+k is a multiple of cycle length L. So d = mL - k. Starting from head (d away) and meeting point (L-k away from cycle start): both reach the cycle start after d steps.</div>
-</div>
-
-</div><!-- end container -->
-
-<a href="#" class="back-top" id="backTop">&uarr;</a>
-<script>
-window.addEventListener('scroll',()=>{
-  document.getElementById('backTop').classList.toggle('visible',window.scrollY>400);
-});
-</script>
-</body>
-</html>
+    return False                   // no cycle (fast reached end)
+</code></pre>
+<p><strong>Why it works:</strong> If there's a cycle, fast will eventually "lap" slow inside the cycle. If there's no cycle, fast reaches NULL.</p>
+<p><strong>Time: O(n). Space: O(1).</strong></p>
+<p><strong>Finding the cycle start:</strong> After detecting the cycle (slow == fast), reset slow to head. Move both one step at a time. They meet at the <strong>cycle start</strong>.</p>
+<hr />
+<p><em>End of Chapter 2</em></p>
+</main><button class="back-top" id="bt">&#8593;</button>
+<script>var b=document.getElementById("bt");window.onscroll=function(){b.classList.toggle("show",document.documentElement.scrollTop>400)};b.onclick=function(){window.scrollTo({top:0,behavior:"smooth"})};</script>
+</body></html>
