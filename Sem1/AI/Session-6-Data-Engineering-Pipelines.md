@@ -1088,6 +1088,10 @@ Step 2: New data arrives
 
 ## 6.8 Data Drift, Skew, and Monitoring
 
+### Production ML is Different from Kaggle
+
+Machine learning in production is fundamentally different from ML in a Kaggle competition. In Kaggle, you get a **fixed, static dataset** for training and are evaluated on another fixed dataset during testing. In production, **data is constantly changing** across multiple dimensions — time-wise (customer behavior evolves) and system-wise (new features, new data sources, infrastructure changes). This is why monitoring the predictive performance of an ML model in production has emerged as a **crucial area of MLOps.** Two common causes of decay in a model's predictive performance over time are **Data Drift** and **Concept Drift.**
+
 ### Why Does Data Change?
 
 You trained your ML model on data from January. It's now September. The world has changed — customer behavior has shifted, new products exist, economic conditions are different. **If your model still thinks it's January, its predictions will degrade.**
