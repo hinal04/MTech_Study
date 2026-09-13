@@ -23,6 +23,18 @@
 
 ---
 
+## Learning Objectives
+
+At the end of this session, you should be able to:
+
+- **Differentiate AI models from AI systems** — understand that a model alone is not a system
+- **Understand the lifecycle of production AI systems** — from business goal to deployment, monitoring, and retraining
+- **Identify critical components of enterprise AI platforms** — data pipelines, feature stores, orchestrators, featurizers, and serving infrastructure
+- **Analyse why many AI projects fail despite having accurate models** — the 80% beyond model training that most teams underestimate
+- **Evaluate AI opportunities within your organisation** — know when ML is the right tool and when simpler approaches work better
+
+---
+
 ## 1.1 What is Artificial Intelligence?
 
 ### Simple Definition
@@ -56,6 +68,20 @@ An AI system includes:
 - **Application layer** — the app or website users interact with
 
 > The model (algorithm) is typically less than 5% of the total code in a production AI system. The other 95% is everything around it.
+
+### Model = 20% Effort, Remaining 80% is Everything Else
+
+Even beyond code lines, think about **effort and time.** Building the model itself may take only about **20% of the total effort.** The remaining **80%** goes into:
+
+- **Data integration** — collecting, cleaning, and joining data from multiple sources
+- **Pipeline automation** — making the data flow and model training run automatically
+- **Monitoring** — tracking model health in production
+- **Deployment** — getting the model from a notebook to a live system
+- **Retraining** — keeping the model up to date as data changes
+- **Business process integration** — connecting the model's output to actual business actions
+
+> **Example — Credit Risk Prediction at a Bank:**
+> A bank builds a model to predict which loan applicants are likely to default. The actual model training is about 20% of the work. The other 80% includes: sourcing data from credit bureaus and internal records, running compliance checks (regulatory rules on what data you can use), integrating the model with the loan origination system so loan officers see the prediction, setting up ongoing monitoring for data drift, and retraining the model quarterly with fresh repayment data. Without that 80%, the model is just an experiment — it never actually helps the bank make better lending decisions.
 
 ---
 
@@ -137,6 +163,20 @@ It figures out the features AND the rules, all by itself.
 | Data is complex (images, speech, text) | Deep Learning | Neural networks handle complexity well |
 | Very little data available | Traditional AI | ML/DL need lots of data to learn |
 | Data is abundant and compute is available | Deep Learning | More data + more compute = better DL |
+
+### AI/ML/DL in the Enterprise — Real Use Cases by Function
+
+In enterprises, AI, ML, and DL are applied across many business functions. Here is how different departments use these technologies:
+
+| Business Function | Use Case | How It Works |
+|---|---|---|
+| **Banking / Finance** | Credit scoring | ML models predict the probability of a borrower defaulting based on income, credit history, and spending patterns |
+| **Logistics / Supply Chain** | Route optimisation | ML algorithms find the fastest and cheapest delivery routes considering traffic, weather, and fuel costs |
+| **Legal** | Intelligent document processing | NLP models read, classify, and extract key clauses from thousands of contracts and legal documents automatically |
+| **Search** | Enterprise search | ML-powered search ranks internal documents, emails, and knowledge base articles by relevance — not just keyword matching |
+| **Manufacturing** | Predictive maintenance | Sensor data from machines is fed into ML models that predict equipment failure before it happens, reducing downtime |
+
+> These are not futuristic ideas — they are running in production at major companies today. When you hear "AI in the enterprise," think of these practical, behind-the-scenes applications that save time and money.
 
 ---
 
@@ -287,6 +327,24 @@ Before the lifecycle even begins, you must **translate a business goal into an M
 | "Build a better search" | "Better" is not measurable | "Increase click-through rate on search results from 25% to 35%" |
 | "Use deep learning" | Choosing solution before understanding problem | First define the problem, then pick the simplest model that works |
 
+### The Business Goal Phase — Step by Step
+
+Before any model is built, the business goal phase is a structured set of steps that teams must walk through. Skipping any of these leads to the failures described in Section 1.4.
+
+1. **Understand business requirements** — What does the business actually need? Talk to stakeholders, not just engineers.
+2. **Form a business question** — Turn the requirement into a clear, answerable question (e.g., "Which customers will churn in the next 30 days?").
+3. **Review ML feasibility** — Is this problem solvable with ML? Do patterns exist in the data?
+4. **Evaluate costs** — Consider the cost of data acquisition, model training (compute), inference (serving predictions), and the cost of wrong predictions (a false positive in fraud detection blocks a real customer).
+5. **Review published work** — Has anyone solved a similar problem? Check research papers, Kaggle competitions, and industry case studies in similar domains.
+6. **Define key performance metrics** — Decide how you will measure success (accuracy, precision, recall, F1, business KPIs like revenue impact).
+7. **Define the ML task** — Is this classification, regression, ranking, clustering, or anomaly detection?
+8. **Identify must-have features** — What data signals are essential? What features do you absolutely need?
+9. **Design small, focused POCs** — Build a quick proof of concept on a small dataset to validate the approach before investing heavily.
+10. **Evaluate external data sources** — Would third-party data (credit bureau, weather, social media) improve the model?
+11. **Establish pathways to production** — Plan how the model will go from a notebook to a live system that serves real users.
+
+> **Key takeaway:** Steps 1-5 happen *before* anyone writes a single line of ML code. Most failed AI projects skip these steps and jump straight to model building.
+
 ### Why is it a Cycle?
 
 In traditional software, code doesn't degrade over time — a function that calculates tax will calculate tax correctly forever (unless tax rules change).
@@ -401,6 +459,19 @@ Where does the data come from?
 | **Third-party** | Census data, credit bureau data, map data | Cost, licensing, freshness |
 | **Sensors/IoT** | Machine sensors, GPS trackers, cameras | Volume (millions of readings per day) |
 
+**Data from Vendors and External Providers:**
+
+In enterprises, a large portion of data comes from **external vendors and data providers.** This data rarely arrives clean and ready to use. Common issues include:
+
+- **Missing values** — some fields are empty or marked as null
+- **Duplicates** — the same records appear multiple times
+- **Schema mismatches** — vendor A sends "customer_name" while vendor B sends "cust_nm" for the same field
+- **Outliers** — incorrect or extreme values caused by errors in the vendor's system
+
+Vendors send data in many **formats** — ZIP archives, XML files, CSV spreadsheets, JSON payloads, or even flat text files. Each format needs a different parser.
+
+This raw vendor data goes through **data engineering (ETL pipelines)** — Extract, Transform, Load — before landing in a **data lake** where it becomes usable. During the transformation step, irrelevant features may be deleted and new useful features may be added based on what the model actually needs.
+
 **Sampling strategies:**
 - **Random sampling:** Pick examples randomly (good default)
 - **Stratified sampling:** Ensure each category is fairly represented (important when data is imbalanced — e.g., 99% non-fraud, 1% fraud)
@@ -449,6 +520,33 @@ This is the **creative** part — making new features from raw data that help th
 | Last 10 transactions | Average transaction amount, max, min, std | Captures spending behaviour |
 
 > **Live Example (Ola):** Ola's ride pricing model doesn't just use "distance" as a feature. They engineer features like: time_since_last_ride, rides_in_last_7_days, is_airport_pickup, surge_zone_demand, driver_density_in_3km_radius, rain_intensity. These engineered features are what make their pricing model accurate — raw GPS coordinates alone wouldn't be enough.
+
+### How Model Training Actually Works — Discovering Hidden Patterns
+
+When a model is trained, it does one key thing: it **discovers a mapping function** from input variables (features) to the target variable (what you want to predict). In other words, the model finds **hidden patterns** in the data that connect inputs to outputs.
+
+During training, the fundamental question is: **"Do my features have any new information for the model to learn?"** If two features carry the same information, the model gets confused rather than smarter.
+
+**Correlation threshold rule:** If two features correlate more than **60%** with each other, consider dropping one of them. They are telling the model the same story. Keeping both adds noise and slows training without improving accuracy.
+
+**Dimensionality reduction — from many features to the important few:**
+
+Real-world datasets can be very wide — hundreds or thousands of columns. But not all features are useful. Here is how dimensionality reduction works in practice:
+
+```
+Start:     1 billion rows × 400 features  (raw dataset — very wide)
+                        │
+                        ▼
+           Feature selection + reduction techniques
+           (remove correlated, low-variance, irrelevant features)
+                        │
+                        ▼
+Result:    1 billion rows × 50 important features  (lean, focused dataset)
+```
+
+By trimming from 400 features down to 50, the model trains faster, generalises better, and is easier to interpret — without losing meaningful information.
+
+> **Think of it this way:** If you're predicting house prices, having "number of bedrooms" and "number of rooms" is mostly redundant — they carry very similar information. Dropping one makes the model simpler and often more accurate.
 
 ---
 
@@ -516,6 +614,72 @@ Most people think AI = the model. In reality, the model is the **tip of the iceb
 
 **Why this matters for your career:** If you only learn model training, you know 5% of what's needed. The industry desperately needs people who understand Levels 2 and 3 — that's where the jobs and salaries are.
 
+### The Featurizer — Turning Raw IDs into Feature Vectors
+
+When an AI system makes predictions about a customer, the input is usually just a **customer_id.** But the model doesn't understand IDs — it needs a full **feature vector** (a list of numbers representing that customer's characteristics). That's where the **featurizer** comes in.
+
+A featurizer is a **microservice** that takes a raw identifier (like customer_id) and computes the full set of features the model needs by querying databases and performing calculations.
+
+```
+Input:  customer_id = "C12345"
+                │
+                ▼
+        ┌───────────────┐
+        │  Featurizer    │  ← queries databases, computes aggregations
+        │  (microservice)│
+        └───────┬───────┘
+                │
+                ▼
+Output: [purchase_count=47, avg_order_value=₹850, days_since_last_order=3,
+         preferred_category="electronics", city="Mumbai", age_group="25-34"]
+```
+
+**Two types of featurization:**
+
+| Type | What It Does | When to Use | Example |
+|---|---|---|---|
+| **Batch featurization** | Pre-computes features on a schedule (e.g., nightly). Stores them in a feature store for quick lookup. | For features that don't change often — demographics, total lifetime purchases, account age | A customer's "total orders in the last 12 months" is computed overnight and stored. |
+| **Real-time featurization** | Computes "hot features" on the fly at prediction time. These change rapidly and can't be pre-computed. | For features that change every minute — recent activity, live location, current demand | A food delivery app computing "average delivery time of this restaurant in the last 30 minutes" right when you place the order. |
+
+Featurizers query databases, perform aggregations (sums, averages, counts), and may have **configurable parameters** (e.g., "compute average over last 7 days" vs "last 30 days").
+
+> **Why this matters:** Without the featurizer, you'd have to manually compute features every time you want a prediction. The featurizer automates this and ensures that training and serving use features computed the same way — avoiding training-serving skew.
+
+### The Orchestrator — The Brain of the ML System
+
+The **orchestrator** is the central component that ties the entire ML system together. It talks to every other component — data pipelines, featurizers, model training, evaluation, and deployment — and coordinates the end-to-end workflow.
+
+**The orchestrator's workflow:**
+
+```
+┌──────────────┐     ┌──────────────┐     ┌──────────────┐
+│ 1. ETL +     │────→│ 2. Send data │────→│ 3. Prepare   │
+│ Split raw    │     │ for          │     │ featurized   │
+│ data         │     │ featurization│     │ train/val/   │
+└──────────────┘     └──────────────┘     │ test sets    │
+                                           └──────┬───────┘
+                                                  │
+        ┌──────────────┐     ┌──────────────┐    │
+        │ 6. Deploy    │←────│ 5. Evaluate  │←───┘
+        │ best model   │     │ on test set  │
+        │ to production│     │              │     ┌──────────────┐
+        └──────────────┘     └──────────────┘←────│ 4. Send to   │
+                                                   │ model builder│
+                                                   │ → get optimal│
+                                                   │ model        │
+                                                   └──────────────┘
+```
+
+**Key points about the orchestrator:**
+
+- It can start as a **manual process** (a data scientist running steps one by one in a notebook) but **must be automated** for any system that needs frequent updates. Manual orchestration does not scale.
+- It decides *when* to retrain, *what data* to use, *which model* to promote, and *when* to deploy.
+- It handles parallelisation — for example, running multiple model experiments at the same time to find the best one.
+
+**End-to-end ML platforms** like **Kubeflow**, **AWS SageMaker Pipelines**, **Google Vertex AI Pipelines**, and **Azure ML Pipelines** provide built-in orchestrators that let you define the full ML pipeline as code, run it automatically, and parallelise steps where possible.
+
+> **Analogy:** Think of the orchestrator as the project manager of the ML system. It doesn't do the actual work (data cleaning, training, serving) itself — but it tells every component what to do, when to do it, and in what order. Without the orchestrator, you have isolated pieces that don't work together.
+
 ### Ground-Truth Collector — Getting the "Right Answers"
 
 A model makes predictions, but how do you know if those predictions were correct? You need **ground truth** — the actual outcome that happened in reality.
@@ -573,6 +737,48 @@ Monitor detects issue
 - Data drift score exceeds 0.2 (input distribution has shifted significantly)
 - A new category of data appears that the model has never seen (e.g., a new payment method)
 - Business rules change (e.g., new delivery zones added)
+
+### Deployment in Detail — From Model to Production
+
+Getting a model from a notebook to production is more involved than it sounds. Here are the key deployment options and the full production pipeline.
+
+**Deployment Options:**
+
+| Option | How It Works | When to Use |
+|---|---|---|
+| **Real-time endpoints (API)** | Model is hosted as a REST API. Applications send a request, get a prediction back in milliseconds. | When users need instant predictions — fraud detection at payment time, product recommendations on page load |
+| **Batch transform** | Model processes an entire dataset at once (e.g., overnight). Results are stored for later use. | When predictions don't need to be instant — scoring all customers for a marketing campaign, generating weekly risk reports |
+| **Edge deployment (on-device)** | Model runs directly on the user's device (phone, IoT sensor, car). No internet needed. | When low latency is critical or connectivity is unreliable — self-driving cars, voice assistants, factory sensors |
+
+**The Production Pipeline — QA to Production:**
+
+A trained model doesn't go straight to users. It passes through several stages:
+
+```
+Model Training Complete
+        │
+        ▼
+┌──────────────┐     ┌──────────────┐     ┌──────────────┐     ┌──────────────┐
+│   QA         │────→│  Staging      │────→│   UAT        │────→│  Production  │
+│ (Unit Tests) │     │ (Integration) │     │ (User Accept)│     │ (Live Users) │
+└──────────────┘     └──────────────┘     └──────────────┘     └──────────────┘
+```
+
+- **QA (Quality Assurance):** Unit tests verify the model loads correctly, returns expected output formats, and handles edge cases (null inputs, extreme values).
+- **Staging:** The model runs in a production-like environment with real data but no real users. Check for performance, latency, and integration issues.
+- **UAT (User Acceptance Testing):** Business stakeholders test the model's outputs to confirm they make sense and meet business requirements.
+- **Production:** The model serves real users. Monitoring begins immediately.
+
+**Retraining Triggers — When to Update the Model:**
+
+Models are not "deploy once and forget." There are two types of retraining triggers:
+
+| Trigger Type | How It Works | Example |
+|---|---|---|
+| **Scheduled (CI/CD pipeline)** | Retraining runs automatically at fixed times — e.g., 10 AM, 4 PM, 10 PM daily | A delivery time prediction model retrains three times a day with the latest order data |
+| **Event-based** | Retraining is triggered by a specific event — e.g., a data provider uploads a new file | A credit scoring model retrains whenever the credit bureau sends updated customer data |
+
+> Both approaches can coexist. Scheduled retraining keeps the model fresh on a regular basis, while event-based retraining handles unexpected data changes quickly.
 
 One of the biggest problems in AI systems is **training-serving skew** — when the data or features used during training are different from what's available during serving.
 
@@ -742,6 +948,36 @@ Start here
 ```
 
 > **Rule of thumb:** XGBoost wins ~80% of tabular data competitions on Kaggle. Don't use deep learning for spreadsheet-style data unless you have a very good reason.
+
+### Distributed Training — Training Faster Across Multiple Machines
+
+When models are very large or datasets are massive, training on a single machine takes too long — sometimes days or weeks. **Distributed training** splits the work across multiple computing instances to reduce training time from days to hours.
+
+There are two main approaches:
+
+| Approach | How It Works | When to Use |
+|---|---|---|
+| **Model parallelism** | The model itself is split across multiple devices. Each device holds a portion of the model (e.g., different layers of a neural network). | When the model is too large to fit in a single GPU's memory (common with large language models) |
+| **Data parallelism** | The training data is split into mini-batches. Each node (machine) gets a fraction of the data and trains a copy of the full model. Results are combined after each round. | When the dataset is huge but the model fits on one GPU. This is the more common approach. |
+
+```
+Data Parallelism (simplified):
+
+Full Training Data: [████████████████████████████████]
+                          │
+          ┌───────────────┼───────────────┐
+          ▼               ▼               ▼
+     Node 1 (GPU)    Node 2 (GPU)    Node 3 (GPU)
+     Mini-batch 1    Mini-batch 2    Mini-batch 3
+     Train model     Train model     Train model
+          │               │               │
+          └───────┬───────┘───────────────┘
+                  ▼
+         Combine results → Updated model
+         (repeat until done)
+```
+
+> **Result:** What would take 3 days on one GPU can be done in hours across 8-16 GPUs. Cloud platforms like AWS SageMaker, Google Vertex AI, and Azure ML make it easy to spin up multiple GPU instances for distributed training.
 
 ### Step 2: Handle Common Challenges
 
