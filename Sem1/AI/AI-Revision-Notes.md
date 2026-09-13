@@ -1,578 +1,977 @@
-# AI Systems — Quick Revision Notes
-> BITS Pilani | Sessions 1-8 | Last-Minute Reference
+# AI Systems — Theory Revision Notes (Exam Ready)
+
+> BITS Pilani — **SS ZG662: Introduction to AI Systems**
+> Sessions 1–8 | Categories · Classifications · Types · Advantages · Disadvantages · Comparisons
 
 ---
 
-## Session 1: Introduction to AI
+## SESSION 1: FOUNDATIONS OF AI SYSTEMS
 
-### AI vs ML vs DL (Nested Relationship)
+### AI vs ML vs DL — Classification
+
+| | AI | ML | DL |
+|---|---|---|---|
+| **Definition** | Any system that mimics human intelligence | Subset of AI — learns patterns from data | Subset of ML — uses deep neural networks |
+| **How it works** | Rules, heuristics, search, logic, OR learning | Algorithm finds rules from data automatically | Network discovers features AND rules from raw data |
+| **Who writes logic?** | Human programmer | Algorithm learns from data | Network learns everything automatically |
+| **Feature engineering** | Manual rules | Manual feature engineering needed | Automatic feature learning |
+| **Data needed** | Little or none | Thousands–millions of examples | Millions–billions of examples |
+| **Compute needed** | Low | Medium | High (GPUs/TPUs) |
+| **Best when** | Rules are clear, data is scarce | Patterns exist but hard to write as rules | Data is abundant, features are complex (images, text) |
+| **Example** | Chess engine, thermostat | Spam filter, fraud detection | Image recognition, ChatGPT |
+
+### When to Use What — Decision Guide
+
+| Situation | Approach |
+|---|---|
+| Rules are clear and simple | Traditional AI (rule-based) |
+| Historical data available, patterns exist | Machine Learning |
+| Complex data (images, text, audio) + lots of data | Deep Learning |
+| Very little data available | Rule-based (not ML/DL) |
+| Need explainability | Simple ML (decision trees) or rules |
+
+### Three Levels of ML Software (Iceberg Metaphor)
+
+| Level | What It Covers | Size |
+|---|---|---|
+| **Level 1: ML Code** | Model training, feature engineering | Smallest (~5%) |
+| **Level 2: ML Infrastructure** | Data pipelines, serving, monitoring, feature store | Large |
+| **Level 3: ML Operations (MLOps)** | CI/CD, testing, governance, team workflows | Largest |
+
+> The model is the tip of the iceberg. Infrastructure and operations are the massive hidden base.
+
+### Why AI Projects Fail — 85% Failure Rate
+
+| Reason | Explanation |
+|---|---|
+| Wrong problem framing | Solving the wrong problem with AI |
+| Poor data quality | Garbage in = garbage out |
+| No clear success metric | Can't measure if AI is working |
+| Trying AI where rules suffice | Over-engineering simple problems |
+| Lack of MLOps infrastructure | Model works in notebook, fails in production |
+| No business alignment | AI team builds what's cool, not what's needed |
+| Ignoring the 80% | Focus on model, neglect pipelines/monitoring/deployment |
+
+### Model = 20% Effort, System = 80%
+
 ```
-AI (broadest) ⊃ ML ⊃ DL
+Building the model:     20% of effort
+Remaining 80%:
+├── Data integration & pipelines
+├── Feature engineering
+├── Deployment infrastructure
+├── Monitoring & alerting
+├── Retraining automation
+├── Business process integration
+└── Governance & compliance
 ```
-- **AI** — machines mimicking human intelligence (reasoning, learning, problem-solving)
-- **ML** — subset of AI; systems learn from data without explicit programming
-- **DL** — subset of ML; neural networks with many layers; learns features automatically
 
-| Aspect | AI | ML | DL |
-|--------|----|----|-----|
-| Data needed | Varies | Moderate | Large |
-| Feature engineering | Manual | Manual | Automatic |
-| Interpretability | Varies | Moderate | Low (black box) |
-| Example | Expert systems, robotics | Random Forest, SVM | CNNs, Transformers |
+### AI System Lifecycle — 6 Stages (Circular)
 
-### AI System Lifecycle (6 Stages — Circular)
-1. **Problem Framing** — define business problem as ML problem
-2. **Data Engineering** — collect, clean, transform data
-3. **Model Development** — train, evaluate, select model
-4. **Deployment** — serve model in production
-5. **Monitoring** — track performance, detect drift
-6. **Maintenance** — retrain, update, iterate
-→ Circular: monitoring feeds back to problem framing
+| Stage | What Happens | Key Activity |
+|---|---|---|
+| **1. Problem Definition** | Translate business problem → ML problem | Define success metric |
+| **2. Data Collection & Prep** | Gather, clean, label, split data | Handle missing values, bias |
+| **3. Model Development** | Train, tune, evaluate models | Feature engineering, hyperparameter tuning |
+| **4. Deployment** | Put model into production | API serving, batch/edge deployment |
+| **5. Monitoring** | Track performance over time | Detect drift, degradation |
+| **6. Iteration** | Improve based on feedback | Retrain with new data |
+
+> **Why circular?** Unlike traditional software, ML models degrade over time (data drift, concept drift). Continuous retraining needed.
 
 ### 6 Components of an AI System
-1. Data pipelines
-2. Feature engineering
-3. Model training
-4. Model serving/inference
-5. Monitoring & observability
-6. Infrastructure & orchestration
 
-### Model = 5% of Code
-- ML model code is only ~5% of a production AI system
-- Remaining 95% = data pipelines, feature stores, serving infra, monitoring, configuration, testing
-- Key insight: AI engineering is mostly **systems engineering**, not model building
+| Component | Purpose |
+|---|---|
+| **Data Pipeline** | Collect, clean, transform, store data |
+| **Feature Pipeline** | Convert raw data → ML features |
+| **Model Pipeline** | Train, evaluate, version, register models |
+| **Serving Infrastructure** | Host model, serve predictions via API |
+| **Monitoring** | Track accuracy, drift, latency, errors |
+| **Application Layer** | UI/app that users interact with |
 
-### Why AI Projects Fail
-- **85% of AI projects fail** to reach production
-- Common reasons: unclear problem framing, poor data quality, lack of MLOps, no monitoring, skill gaps, organizational silos, unrealistic expectations
+### ML Lifecycle Architecture — 9 Components
+
+| Component | Role |
+|---|---|
+| **Ground-Truth Collector** | Collects correct answers for model comparison |
+| **Data Labeller** | Creates labels for training data (manual/automated) |
+| **Evaluator** | Measures model accuracy on test cases |
+| **Performance Monitor** | Tracks metrics on production data over time |
+| **Featurizer** | Computes features from raw data (batch + real-time) |
+| **Orchestrator** | Coordinates the entire ML pipeline (ETL → train → deploy) |
+| **Model Builder** | Trains and tunes models |
+| **Model Server** | Hosts model API for predictions |
+| **Front-End** | User-facing application |
 
 ### Explainable AI (XAI)
 
-| Method | Type | How It Works |
-|--------|------|-------------|
-| **SHAP** | Model-agnostic | Shapley values from game theory; assigns contribution of each feature |
-| **LIME** | Model-agnostic | Locally approximates model with interpretable model around a prediction |
+| Technique | What It Does |
+|---|---|
+| **SHAP** | Shows each feature's contribution to a prediction |
+| **LIME** | Explains individual predictions by approximating locally |
+| **Attention Visualization** | Shows which input tokens the model focused on |
 
-- XAI matters for: trust, debugging, compliance (GDPR right to explanation), fairness audits
+| Trade-off | |
+|---|---|
+| High interpretability → | Lower performance (decision trees, logistic regression) |
+| Low interpretability → | Higher performance (neural networks = black box) |
 
-### ML Engineering vs Data Science
+### Problem → Solution → ML Framing
 
-| Data Science | ML Engineering |
-|-------------|---------------|
-| Exploratory, research-oriented | Production-oriented |
-| Notebooks, prototyping | Pipelines, APIs, CI/CD |
-| Focus: model accuracy | Focus: reliability, scalability, latency |
-| One-off analysis | Repeatable, automated systems |
+```
+Business Problem → Can clear rules solve it?
+                     ├── YES → Rule-Based Solution
+                     └── NO → Need to learn patterns from data?
+                                  └── YES → Machine Learning
+```
 
-### Problem → Solution → ML Framing Pipeline
-1. **Business Problem** — "reduce customer churn"
-2. **Solution Approach** — "predict which customers will churn next month"
-3. **ML Framing** — binary classification, features = usage patterns, label = churned/not
-
-### Three Levels of ML Software (Iceberg)
-1. **Top (visible)** — ML algorithm/model code (~5%)
-2. **Middle** — ML pipeline code (data processing, training, evaluation)
-3. **Bottom (hidden, largest)** — infrastructure (serving, monitoring, data storage, orchestration)
+**Framing example:** "Reduce customer churn" → ML problem: "Predict which customers will churn in 30 days" → Binary classification
 
 ---
 
-## Session 2: Categories of AI Systems
+## SESSION 2: CATEGORIES OF AI SYSTEMS
 
-### 6 Categories at a Glance
+### 6 Categories of AI Systems — Master Table
 
-| Category | Core Task | Key Example |
-|----------|-----------|------------|
-| Predictive AI | Forecast outcomes from data | Fraud detection, demand forecasting |
-| Generative AI | Create new content | ChatGPT, DALL-E, Midjourney |
-| Recommender | Suggest relevant items | Netflix, Spotify, Amazon |
-| Conversational | Human-like dialogue | Chatbots, voice assistants |
-| Computer Vision | Understand images/video | Self-driving, medical imaging |
-| Autonomous | Act independently in world | Waymo, drones, robotics |
-
-### Predictive AI — Sub-types
-
-| Type | Output | Example |
-|------|--------|---------|
-| **Classification** | Category/label | Spam or not spam |
-| **Regression** | Continuous value | House price prediction |
-| **Time-series** | Future values in sequence | Stock price, demand forecast |
-| **Anomaly detection** | Normal vs abnormal | Fraud, network intrusion |
-| **Uplift modelling** | Incremental impact of action | "Will this coupon change behavior?" |
-
-### Generative AI — Key Concepts
-- **LLMs** — Large Language Models (GPT-4, Claude, Gemini); trained on massive text corpora
-- **Diffusion models** — generate images by denoising (Stable Diffusion, DALL-E)
-- **Hallucination** — model generates plausible but factually incorrect content
-- **Temperature** — controls randomness (0 = deterministic, 1+ = creative/random)
-- **RLHF** — Reinforcement Learning from Human Feedback; aligns model to human preferences
-- **Tokens** — basic units of text (word fragments); GPT ~1 token ≈ 4 characters
-- **Context window** — max tokens model can process at once (e.g., GPT-4: 128K tokens)
-
-### Recommender Systems
-
-| Type | Approach | Limitation |
-|------|----------|-----------|
-| **Collaborative filtering** | "Users like you also liked..." (user-item interactions) | Cold start for new users/items |
-| **Content-based** | Recommend items similar to what user liked (item features) | Limited diversity |
-| **Hybrid** | Combine collaborative + content-based | Complex to implement |
-
-- **Cold start problem** — can't recommend when no interaction data exists for new user/item
-
-### Conversational AI — Evolution
-1. **Rule-based** — hardcoded if-then rules; brittle
-2. **Intent-based** — NLU classifies intent + extracts entities (Dialogflow, Lex)
-3. **LLM-powered** — general-purpose language understanding (ChatGPT)
-4. **RAG (Retrieval-Augmented Generation)** — LLM + external knowledge base for grounded answers
-
-### Computer Vision — Tasks
-
-| Task | What It Does | Output |
-|------|-------------|--------|
-| **Classification** | What is in the image? | Label (cat, dog) |
-| **Object Detection** | Where are objects? | Bounding boxes + labels |
-| **Segmentation** | Pixel-level object boundaries | Pixel masks |
-
-- **CNNs** — Convolutional Neural Networks; standard architecture for vision tasks
-
-### Autonomous Systems
-- **SAE Levels of Driving Automation**:
-
-| Level | Name | Description |
-|-------|------|-------------|
-| 0 | No Automation | Human does everything |
-| 1 | Driver Assistance | Steering OR acceleration assist (not both) |
-| 2 | Partial | Both steering and acceleration; human monitors |
-| 3 | Conditional | System drives; human takes over on request |
-| 4 | High | System drives in defined conditions; no human needed |
-| 5 | Full | System drives everywhere, all conditions |
-
-- **Sensor fusion** — combining LIDAR + camera + radar + GPS for robust perception
-- **Waymo** — Level 4 autonomous taxi service (Alphabet/Google)
+| Category | Input | Output | Technique | Example |
+|---|---|---|---|---|
+| **Predictive AI** | Historical structured data | Predicted number/label | Supervised ML | Swiggy delivery time prediction |
+| **Generative AI** | Text prompt / seed | New text/image/code/audio | LLMs, Diffusion Models | ChatGPT writing an email |
+| **Recommender System** | User behavior + item features | Ranked list of items | Collaborative/Content/Hybrid filtering | Netflix "Top Picks for You" |
+| **Conversational AI** | Natural language message | Natural language response | NLU + Dialog Manager + LLMs | HDFC Bank chatbot |
+| **Computer Vision** | Images / video | Labels, bounding boxes, segments | CNNs | Google Lens identifying a flower |
+| **Autonomous System** | Sensor data (camera, LiDAR, radar) | Physical actions (steer, brake) | Sensor fusion + planning + control | Waymo self-driving car |
 
 ---
 
-## Session 3: AI System Architecture
+### PREDICTIVE AI
 
-### 5 Layers of AI System Architecture
+#### 4 Types of Prediction Tasks
+
+| Type | Predicts | Output | Example |
+|---|---|---|---|
+| **Classification** | Which category? | Discrete label (spam/not-spam) | Email spam detection |
+| **Regression** | What number? | Continuous value (₹85 lakhs) | House price prediction |
+| **Time-series Forecasting** | What happens next? | Future values | Stock price, demand forecast |
+| **Anomaly Detection** | Is this unusual? | Normal/Anomalous | Credit card fraud detection |
+
+#### Classification vs Regression
+
+| Aspect | Classification | Regression |
+|---|---|---|
+| Output | Discrete label (Yes/No, A/B/C) | Continuous number |
+| Question | "Which group?" | "How much / how many?" |
+| Metrics | Accuracy, Precision, Recall, F1, AUC-ROC | MAE, RMSE, R² |
+| Example | Is this fraud? Will customer churn? | What will delivery time be? |
+
+#### Predictive AI Metrics
+
+| Model Metric | Measures |
+|---|---|
+| **Accuracy** | Overall correctness (correct / total) |
+| **Precision** | Of predicted positives, how many were right? |
+| **Recall** | Of actual positives, how many did we catch? |
+| **F1-Score** | Harmonic mean of Precision and Recall |
+| **AUC-ROC** | Model's ability to distinguish classes |
+
+| Business KPI | Measures |
+|---|---|
+| Revenue uplift | Extra revenue from model |
+| Cost saved | Money saved by automation |
+| Customer retention rate | % at-risk customers retained |
+| False positive cost | Cost of wrong positive predictions |
+
+#### Uplift Modelling — 4 Groups
+
+| Group | Buy without action? | Buy with action? | Strategy |
+|---|---|---|---|
+| **Persuadables** ✅ | No | Yes | TARGET these — action causes the sale |
+| **Sure Things** | Yes | Yes | Don't waste coupons |
+| **Lost Causes** | No | No | Don't bother |
+| **Sleeping Dogs** ⚠️ | Yes | No | AVOID — action pushes them away |
+
+#### Deployment Challenges
+
+| Challenge | Description |
+|---|---|
+| **Data Drift** | Input data distribution changes over time |
+| **Concept Drift** | Relationship between features and target changes |
+| **Feature Availability** | Feature used in training not available at serving time |
+| **Latency** | Model too slow for real-time use |
+| **A/B Testing** | Need to prove new model is better than old |
+| **Shadow Deployment** | Run new model silently alongside old one to compare |
+
+---
+
+### GENERATIVE AI
+
+#### Types of Generative AI
+
+| Type | Creates | Technology | Example |
+|---|---|---|---|
+| **Text generation** | Articles, code, emails | LLMs (predict next token) | ChatGPT, Claude, Gemini |
+| **Image generation** | Photos, art, designs | Diffusion Models (noise → image) | DALL-E 3, Midjourney |
+| **Code generation** | Code in any language | LLMs trained on code | GitHub Copilot |
+| **Music/Audio** | Songs, voice cloning | Audio diffusion, neural codecs | Suno, ElevenLabs |
+| **Video generation** | Video clips from text | Video diffusion | Sora, Runway Gen-3 |
+
+#### Key GenAI Concepts
+
+| Concept | Definition |
+|---|---|
+| **Prompt** | Instruction/question given to the AI |
+| **Prompt Engineering** | Art of writing better prompts for better outputs |
+| **Hallucination** | AI confidently generates WRONG information |
+| **Temperature** | Controls creativity: 0 = safe/repetitive, 1 = creative/risky |
+| **Fine-tuning** | Training a general model further on specific data |
+| **Token** | Basic unit LLM works with (~3/4 of a word) |
+| **Context Window** | How much text model can "remember" at once |
+| **RLHF** | Reinforcement Learning from Human Feedback |
+
+#### ChatGPT — 3 Steps
+
+| Step | What Happens |
+|---|---|
+| **1. Pre-training** | Train on massive internet text → learns grammar, facts, reasoning |
+| **2. RLHF** | Human evaluators rate responses → model fine-tuned to maximize helpfulness |
+| **3. Serving** | User sends prompt → model generates word-by-word → safety filters → response |
+
+#### Prompting vs RAG vs Fine-Tuning
+
+| Approach | When | Data Needed | Cost | Time | Best For |
+|---|---|---|---|---|---|
+| **Prompting** | No data, quick start | None | Lowest | Minutes | Prototyping |
+| **RAG** | Have documents | Documents (no labelling) | Low-Medium | Hours-Days | Factual Q&A, customer support |
+| **Fine-Tuning** | Need custom behavior | Labelled examples | High | Days-Weeks | Domain adaptation, tone matching |
+
+#### Productivity vs Automation
+
+| Mode | Description | Human Role |
+|---|---|---|
+| **Productivity (Copilot)** | AI assists human, human decides | Reviews, edits, approves |
+| **Automation (Autopilot)** | AI acts on its own | None |
+
+> 90%+ of enterprise GenAI is productivity (human-in-loop), not full automation.
+
+#### 3 Risks of Generative AI
+
+| Risk | Description |
+|---|---|
+| **Hallucination** | Confidently wrong answers, fake sources/citations |
+| **Bias** | Reproduces biases from training data (gender, race) |
+| **Data/Privacy Risk** | Proprietary data leakage through prompts, copyright issues |
+
+---
+
+### RECOMMENDER SYSTEMS
+
+#### 3 Types of Recommender Systems
+
+| Type | How It Works | Strength | Weakness |
+|---|---|---|---|
+| **Collaborative Filtering** | "People like you liked X" | Discovers unexpected items | Cold start problem |
+| **Content-Based Filtering** | "Items similar to what you liked" | Works for new items | Filter bubble (more of same) |
+| **Hybrid** | Combines both | Best accuracy | More complex |
+
+#### Cold Start Problem
+
+| Scenario | Problem | Solution |
+|---|---|---|
+| New user | No history | Ask preferences at signup, show popular items |
+| New item | No interactions | Use content features (genre, description) |
+
+#### Recommendation Architecture (Production)
+
+```
+10M items → Candidate Generation (fast, ~1000) → Ranking (accurate, ~20) → Business Rules → Display
+```
+
+#### Recommendation Metrics
+
+| Metric | Measures |
+|---|---|
+| **CTR (Click-Through Rate)** | % of recommended items clicked |
+| **Conversion Rate** | % of clicks that lead to purchase |
+| **NDCG** | Quality of ranking order |
+| **Coverage** | % of catalog actually recommended |
+| **Diversity** | How varied the recommendations are |
+
+---
+
+### CONVERSATIONAL AI
+
+#### 4 Types (Simple → Advanced)
+
+| Type | Smartness | Example |
+|---|---|---|
+| **Rule-based chatbot** | Low — fixed scripts, keyword matching | IRCTC IVR system |
+| **Intent-based bot** | Medium — classifies intent, extracts entities | HDFC Bank's Eva |
+| **LLM-based assistant** | High — handles open-ended conversations | ChatGPT, Claude |
+| **RAG-based assistant** | High + Accurate — answers from real documents | Enterprise Q&A bots |
+
+#### LLM Chatbots vs Traditional Chatbots
+
+| Aspect | Traditional | LLM-based |
+|---|---|---|
+| Training | Manually define intents | Trained on massive text |
+| Flexibility | Only pre-defined questions | Open-ended questions |
+| Multi-turn context | Struggles | Naturally maintains context |
+| Language support | Each language separately | 50+ languages with one model |
+| Accuracy (known Qs) | Very high (scripted) | Good but may hallucinate |
+| Maintenance | Manual updates per change | Update knowledge base (RAG) |
+
+#### RAG — How It Works
+
+```
+User question → RETRIEVE relevant documents → AUGMENT prompt with docs → LLM GENERATES answer grounded in docs
+```
+
+> Without RAG: hallucination. With RAG: factual, citable answers.
+
+#### Enterprise Conversational AI Architecture
+
+```
+User → Channel Adapter → NLU Engine → Dialog Manager → Knowledge Base/APIs → Response Generator → Channel Adapter → User
+```
+
+#### Human-in-the-Loop Patterns
+
+| Pattern | How |
+|---|---|
+| AI drafts, human sends | AI generates draft → human reviews → sends |
+| AI acts, human reviews | AI responds → human reviews afterward |
+| AI escalates | AI tries → if uncertain → passes to human |
+
+#### Escalation Triggers
+
+- Low confidence (<70%)
+- Emotional/angry user
+- Complex multi-step issue
+- Sensitive topics (legal, complaint)
+- User explicitly requests human
+
+---
+
+### COMPUTER VISION
+
+#### 6 Key Tasks
+
+| Task | What It Does | Example |
+|---|---|---|
+| **Image Classification** | Labels entire image | Google Photos tagging |
+| **Object Detection** | Finds + locates objects with bounding boxes | Self-driving cars |
+| **Semantic Segmentation** | Labels every pixel | Medical imaging |
+| **Face Recognition** | Identifies person from face | iPhone Face ID |
+| **OCR** | Reads text from images | Google Lens translation |
+| **Image Generation** | Creates images from text | DALL-E |
+
+#### CNN — How It Works (Layer by Layer)
+
+```
+Pixels → Edges/Lines (Layer 1) → Shapes/Textures (Layer 2) → Parts (Layer 3) → Objects (Layer 4)
+```
+
+#### CV Enterprise Pipeline
+
+```
+Data Collection → Annotation → Training → Validation → Deployment → Monitoring
+```
+
+#### CV Deployment Challenges
+
+| Challenge | Description |
+|---|---|
+| Lighting changes | Different lighting = different accuracy |
+| Camera angle variations | Camera bumped = accuracy drops |
+| Rare defects (class imbalance) | 99% good, 1% defective = model just says "good" |
+| Edge computing constraints | Limited GPU on factory floor |
+| Data privacy | Facial recognition regulation |
+| Continuous annotation cost | New products = new labels needed |
+
+---
+
+### AUTONOMOUS SYSTEMS
+
+#### Sense → Think → Act Loop
+
+```
+SENSE (cameras, LiDAR, radar) → THINK (AI decides what to do) → ACT (steer, brake, pick up)
+         ↑                                                                    │
+         └────────────────────── continuous feedback ─────────────────────────┘
+```
+
+#### SAE Levels of Autonomy (0-5)
+
+| Level | Name | Who Drives? | Example |
+|---|---|---|---|
+| **0** | No Automation | Human | Old car |
+| **1** | Driver Assistance | Human + 1 AI function | Adaptive cruise control |
+| **2** | Partial Automation | Human + steering + speed | Tesla Autopilot |
+| **3** | Conditional | AI in specific conditions | Mercedes Drive Pilot |
+| **4** | High Automation | AI in specific areas, no human needed | Waymo robotaxis |
+| **5** | Full Automation | AI everywhere | Does NOT exist yet |
+
+#### Decision-Making, Planning, Control
+
+| Component | Does What | Time Budget |
+|---|---|---|
+| **Decision-Making** | What to do (go/stop/yield) | <10ms |
+| **Planning** | Path from A to B avoiding obstacles | <50ms |
+| **Control** | Translate plan to steering/throttle/brake | <10ms |
+
+> All three must complete in <100ms (humans: ~1500ms).
+
+#### Waymo Sensors
+
+| Sensor | Purpose |
+|---|---|
+| 29 cameras | 360° visual view |
+| 4 LiDAR | 3D point cloud map (distance to objects) |
+| 6 radar | Detect objects in fog/rain |
+| GPS + IMU | Precise location and motion |
+| Microphones | Detect emergency sirens |
+
+---
+
+### THREE CASE STUDIES — COMPARISON
+
+| Case | Category | Key Lesson |
+|---|---|---|
+| **ChatGPT** | Generative + Conversational | RLHF + safety systems beyond the model. System matters as much as model. |
+| **Netflix** | Recommender | Multiple models + personalisation at every touchpoint + A/B testing. 80% watched from recommendations. |
+| **Waymo** | Autonomous | Sensor fusion + real-time <100ms + safety engineering is the hardest part. |
+
+---
+
+## SESSION 3: AI SYSTEM ARCHITECTURE
+
+### 5-Layer Architecture
 
 | Layer | Purpose | Key Tools |
-|-------|---------|-----------|
-| **Data** | Collect, store, process data | Kafka, Spark, Airflow, dbt |
-| **Model** | Train, evaluate, version models | MLflow, Weights & Biases, SageMaker |
-| **Application** | Serve predictions, build APIs | FastAPI, TensorFlow Serving, Triton |
-| **Infrastructure** | Compute, storage, orchestration | Kubernetes, Docker, Terraform, GPUs |
-| **Monitoring** | Track performance, detect issues | Prometheus, Grafana, Evidently, WhyLabs |
+|---|---|---|
+| **Data Layer** | Collect, store, process, serve data | Kafka, S3, Spark, Airflow, Feast |
+| **Model Layer** | Train, evaluate, version, serve models | MLflow, TensorFlow Serving, Triton |
+| **Application Layer** | User-facing app, business logic, A/B testing | FastAPI, React, LaunchDarkly |
+| **Infrastructure Layer** | Compute, storage, networking, containers | Kubernetes, Docker, Terraform, GPU |
+| **Monitoring Layer** | Logs, metrics, drift detection, alerts | Prometheus, Grafana, Great Expectations |
 
-### Architecture Walkthrough — Swiggy ETA Example
-- **Problem**: Predict delivery time for food orders
-- **Data layer**: Real-time order data, restaurant prep times, traffic, weather (Kafka streaming)
-- **Feature layer**: Distance, time of day, restaurant load, driver availability
-- **Model layer**: Regression model trained on historical deliveries
-- **Serving layer**: Real-time inference API (<100ms latency)
-- **Monitoring**: Track prediction accuracy, data drift, model staleness
+### Data Layer Components
 
-### Zillow Failure — $881M Loss
-- **Zillow Offers**: used AI to predict home prices for automated buying/selling
-- **What went wrong**: monitoring layer failure
-  - Model overestimated home values during market shift
-  - No effective drift detection or model retraining triggers
-  - Bought homes at inflated prices
-- **Result**: $881M write-down, 2,000 layoffs, program shut down
-- **Lesson**: monitoring is not optional; models degrade over time
+| Component | Purpose | Examples |
+|---|---|---|
+| Data Ingestion | Pull data from sources | Kafka, Kinesis, Airbyte |
+| Data Storage | Store raw + processed data | S3 (lake), BigQuery (warehouse) |
+| Data Processing | Clean, transform, aggregate | Spark, dbt, Airflow |
+| Feature Store | Serve ML features consistently | Feast, Tecton, Hopsworks |
+| Data Quality | Monitor completeness, freshness, anomalies | Great Expectations, Deequ |
+
+### What to Monitor in Production
+
+| Monitor | Why | Metric |
+|---|---|---|
+| **Model Performance** | Accuracy degrades over time | Accuracy, F1 over time |
+| **Data Drift** | Input data changes vs training | KS test, PSI |
+| **Prediction Drift** | Output distribution changes | Score distribution over time |
+| **System Health** | Infra issues | Latency p50/p95/p99, error rate |
+| **Business Metrics** | Does AI improve outcomes? | Revenue, retention, CTR |
+
+### Zillow Failure Case Study
+
+- Zillow built AI to predict house prices for home-buying business
+- Model overpredicted prices (data drift from COVID market changes)
+- No adequate monitoring to catch the drift early
+- **Lost $881 million**, shut down business unit, laid off 2,000 employees
+- **Lesson:** Without monitoring, AI silently serves wrong predictions
 
 ---
 
-## Session 4: AI Ecosystem & Marketplaces
+## SESSION 4: AI ECOSYSTEM & MODEL MARKETPLACES
 
-### Foundation Models
-- **Definition**: large models trained on broad data; adapted to many downstream tasks
-- **Characteristics**: massive scale, self-supervised pre-training, emergent abilities, fine-tunable
+### Foundation Models — Characteristics
 
-| Model | Provider | Type | Notable Trait |
-|-------|----------|------|--------------|
-| GPT-4 | OpenAI | Proprietary | Multimodal, strongest reasoning |
-| Claude | Anthropic | Proprietary | Long context, safety-focused |
-| Gemini | Google | Proprietary | Multimodal, integrated with Google |
-| LLaMA | Meta | Open-weight | Popular open model family |
-| Mistral | Mistral AI | Open-weight | Efficient, strong for size |
+| Characteristic | Description |
+|---|---|
+| Trained on massive data | Billions of tokens/images |
+| General-purpose | Not task-specific — adapts to many tasks |
+| Transfer learning | Knowledge transfers to new tasks |
+| Emergent abilities | Capabilities not explicitly trained for |
+| Very expensive to train | GPT-4: ~$100M+ |
+| Accessible via APIs/fine-tuning | Regular devs can use without training from scratch |
 
-### Open-Source Benefits (5)
-1. **No API cost** — run on your own infrastructure
-2. **Privacy** — data stays in your environment
-3. **Customization** — fine-tune for your domain
-4. **No vendor lock-in** — switch models freely
-5. **Community** — rapid innovation, shared improvements
+### Notable Foundation Models
 
-### Model Hubs
+| Model | Company | Type | Key Fact |
+|---|---|---|---|
+| GPT-4/GPT-4o | OpenAI | Text + multimodal | Most capable general-purpose |
+| Claude 3.5/4 | Anthropic | Text + vision | Safety focus, 200K context |
+| Gemini | Google | Multimodal | Natively multimodal |
+| LLaMA 3 | Meta | Text (open-source) | Free, huge community |
+| Mistral | Mistral AI | Text (open-source) | Efficient for size |
+| Stable Diffusion | Stability AI | Image (open-source) | Free image generation |
 
-| Hub | Provider | Specialty |
-|-----|----------|-----------|
-| **Hugging Face** | Independent | Largest open model hub; 500K+ models |
-| **AWS Bedrock** | Amazon | Managed API for foundation models |
-| **Model Garden** | Google Cloud | Vertex AI model catalog |
-| **Azure AI** | Microsoft | OpenAI models + open models |
-| **NGC** | NVIDIA | GPU-optimized models and containers |
+### Open-Source vs Proprietary Models
 
-### API vs Fine-tune vs Build — Decision Framework
+| Aspect | Open-Source | Proprietary (API) |
+|---|---|---|
+| Cost | Free weights, pay for compute | Pay per token/request |
+| Data privacy | Data stays on your servers | Data sent to provider |
+| Customization | Full fine-tuning possible | Prompt engineering only |
+| Vendor lock-in | None | High |
+| Maintenance | You manage everything | Provider handles |
+| Best for | Production at scale, sensitive data | Prototyping, low volume |
 
-| Approach | When to Use | Cost | Effort | Control |
-|----------|------------|------|--------|---------|
-| **API** | Generic tasks, quick start | Per-call | Low | Low |
-| **Fine-tune** | Domain-specific, need customization | Medium | Medium | Medium |
-| **Build** | Unique data, full control needed | High | High | Full |
+### 5 Benefits of Open-Source Models
 
-### Build vs Buy Comparison
+1. No API costs (run on own infrastructure)
+2. Data privacy (data never leaves your servers)
+3. Full customization (fine-tune, modify)
+4. No vendor lock-in (switch freely)
+5. Community innovation (500K+ models on Hugging Face)
 
-| Factor | Build | Buy (API) |
-|--------|-------|-----------|
-| Time to market | Slow (months) | Fast (days) |
-| Cost upfront | High (compute, team) | Low (pay-per-use) |
-| Customization | Full | Limited |
-| Data privacy | Full control | Data sent to provider |
-| Maintenance | Your responsibility | Provider handles |
-| Expertise needed | High | Low |
+### Cloud Model Marketplaces
 
-### Benchmarks
+| Platform | Provider | Key Benefit |
+|---|---|---|
+| **AWS Bedrock** | Amazon | Switch models without changing code |
+| **Google Model Garden** | Google | Vertex AI integration |
+| **Azure Model Catalog** | Microsoft | Only way to get GPT-4 with Azure compliance |
+| **NVIDIA NGC** | NVIDIA | GPU-optimized models, 2-5x faster |
 
-| Benchmark | Measures |
-|-----------|---------|
-| **MMLU** | Massive Multitask Language Understanding (broad knowledge) |
-| **HumanEval** | Code generation accuracy |
-| **MT-Bench** | Multi-turn conversation quality |
+### License Types
 
-### Gateway / Router Pattern
-- AI Gateway sits between application and multiple model providers
-- Routes requests to optimal model based on cost, latency, task type
-- Benefits: fallback, load balancing, cost optimization, unified API
+| License | Freedom | Restriction | Example Models |
+|---|---|---|---|
+| **Apache 2.0** | Most free | None | Mistral, Whisper |
+| **Llama License** | Mostly free | Restricted >700M MAU | LLaMA 2, LLaMA 3 |
+| **Commercial** | Paid | Must purchase | Some medical/legal models |
+
+### Build vs Buy vs Fine-Tune
+
+| Aspect | API | Fine-Tune Open-Source | Build from Scratch |
+|---|---|---|---|
+| Time to deploy | Hours-days | Days-weeks | Months-years |
+| Upfront cost | Zero | Moderate | Very high |
+| Data privacy | Data to 3rd party | Data stays local | Full control |
+| Customization | Prompt engineering only | High | Maximum |
+| Team needed | 1-2 developers | 2-5 ML engineers | 10-50 researchers |
+| Best for | Prototyping, generic tasks | Domain-specific, privacy-sensitive | Core competitive advantage |
+
+### Gateway/Router Pattern
+
+```
+App → Gateway → Simple queries → Small model (cheap, fast)
+             → Complex queries → Large model (expensive, accurate)
+```
+**Benefit:** 78% cost reduction by routing 80% of simple queries to cheap models.
 
 ### Enterprise Procurement Scorecard
-- Evaluate AI vendors on: accuracy, latency, cost, security, compliance, support, SLAs, data privacy, scalability, vendor stability
 
-### License Terms
+| Factor | Weight | What It Measures |
+|---|---|---|
+| Capability | 30% | Performance on your tasks |
+| Cost | 25% | Total cost of ownership |
+| Latency | 15% | Response time (p50/p95/p99) |
+| Privacy | 15% | Data residency, compliance |
+| Support | 10% | Enterprise support, SLAs |
+| Lock-in | 5% | Ease of switching |
 
-| License | Permissions | Restrictions |
-|---------|------------|-------------|
-| **Apache 2.0** | Commercial use, modify, distribute | Must include license |
-| **Llama License** | Research + commercial (with limits) | >700M monthly users need Meta approval |
-| **Commercial/Proprietary** | Use via API only | No modification, no self-hosting |
+### Benchmarks (How Models Are Compared)
+
+| Benchmark | Measures |
+|---|---|
+| **MMLU** | General knowledge (57 subjects) |
+| **HumanEval** | Code generation ability |
+| **MT-Bench** | Multi-turn conversation quality |
+| **GSM8K** | Math reasoning |
+| **TruthfulQA** | Factual accuracy / avoiding hallucinations |
+
+> ⚠️ High benchmark ≠ good for YOUR task. Always evaluate on your own data.
 
 ---
 
-## Session 5: Data
+## SESSION 5: DATA — TYPES, QUALITY, GOVERNANCE
 
-### Data Types
+### 3 Types of Data
 
-| Type | Format | Examples |
-|------|--------|---------|
-| **Structured** | Tables, rows/columns | SQL databases, CSV |
-| **Semi-structured** | Schema embedded in data | JSON, XML, logs |
-| **Unstructured** | No predefined format | Images, text, audio, video |
-
-### Internal vs External Data
-
-| Source | Examples |
-|--------|---------|
-| **Internal** | Transaction logs, CRM, user events, operational DBs |
-| **External** | Social media, public APIs, third-party data vendors, open datasets |
-
-### 6 Dimensions of Data Quality
-1. **Accuracy** — correct values
-2. **Completeness** — no missing data
-3. **Consistency** — same data across systems
-4. **Timeliness** — up-to-date
-5. **Validity** — conforms to format/rules
-6. **Uniqueness** — no duplicates
-
-### Data Governance — 7 Components
-1. Data ownership
-2. Data quality standards
-3. Data access policies
-4. Data lineage tracking
-5. Data cataloging
-6. Privacy & compliance
-7. Data lifecycle management
-
-### Key Regulations
-
-| Regulation | Scope | Key Points |
-|-----------|-------|------------|
-| **GDPR** | EU citizens' data | Right to erasure, consent, DPO, fines up to 4% revenue |
-| **India DPDP Act (2023)** | Indian citizens' data | Consent-based, data fiduciary obligations, Data Protection Board |
-
-### Data Contracts, Data Products, SLAs
-- **Data contract** — formal agreement on schema, quality, freshness, ownership between producer and consumer
-- **Data product** — curated, documented, trustworthy dataset treated as a product
-- **SLA** — service level agreement on data availability, latency, quality metrics
-
-### Enterprise Data Maturity Model (5 Levels)
-1. **Ad hoc** — no formal processes, data in silos
-2. **Managed** — basic processes, some documentation
-3. **Defined** — standardized processes across organization
-4. **Measured** — metrics-driven, quality monitored
-5. **Optimized** — continuous improvement, data-driven culture
-
-### Synthetic Data
-- Artificially generated data that mimics real data distributions
-- Use cases: privacy preservation, augmenting small datasets, testing
-- Caution: may not capture real-world edge cases
-
-### Labels as Business Judgments
-- Labels encode human decisions and biases
-- Labeling = business judgment, not ground truth
-- Different labelers → different labels → different models
+| Type | Format | Storage | Query | % of Enterprise Data | ML Approach |
+|---|---|---|---|---|---|
+| **Structured** | Fixed rows & columns | SQL databases | SQL | ~20% | Tabular ML (XGBoost) |
+| **Semi-Structured** | Flexible (JSON, XML) | Document DBs, Data Lakes | JSON queries | ~10% | Parse + tabular |
+| **Unstructured** | No format (text, images) | Object storage (S3) | AI models, vector search | ~70% | Deep Learning |
 
 ### Event Data vs State Data
 
-| Type | Description | Example |
-|------|-------------|---------|
-| **Event data** | Records something that happened (immutable) | "User clicked buy at 3:01 PM" |
-| **State data** | Current snapshot (mutable, overwritten) | "User's cart has 3 items" |
+| Aspect | Event Data | State Data |
+|---|---|---|
+| Records | What HAPPENED | What IS (now) |
+| Nature | Immutable (append-only) | Mutable (overwritten) |
+| Example | "User clicked Buy at 10pm" | "User's balance is ₹5000" |
+| ML use | Training (historical patterns) | Serving (current context) |
 
-### GenAI Governance Challenges
-- Hallucination monitoring, IP/copyright concerns, prompt injection attacks
-- Data leakage through prompts, bias amplification, lack of provenance
-- Need: guardrails, content filtering, audit trails, human-in-the-loop
+### 6 Dimensions of Data Quality
+
+| Dimension | Definition |
+|---|---|
+| **Accuracy** | Values correctly represent reality |
+| **Completeness** | No missing values where expected |
+| **Consistency** | Same fact represented same way everywhere |
+| **Timeliness** | Data reflects current state |
+| **Validity** | Data follows expected format/rules |
+| **Uniqueness** | No unintended duplicates |
+
+### Common Data Quality Issues
+
+| Issue | Problem | Fix |
+|---|---|---|
+| Missing values | Rows with NULLs | Impute (mean/median) or create "is_missing" feature |
+| Outliers | Extreme values | Clip, log transform, or investigate |
+| Duplicates | Same entity appears multiple times | Deduplicate by key fields |
+| Label noise | Wrong labels in training | Manual audit, multiple annotators |
+| Data leakage | Future info in training | Strict temporal train/test split |
+| Class imbalance | One class dominates | SMOTE, class weights, threshold tuning |
+| Schema drift | Data format changes over time | Schema validation + alerts |
+
+### Data Governance — 7 Components
+
+| Component | What It Covers |
+|---|---|
+| **Data Ownership** | Who is responsible for each data source |
+| **Access Control** | Who can access what, for what purpose |
+| **Data Lineage** | Where data came from, how transformed |
+| **Data Cataloging** | Central inventory of all data assets |
+| **Privacy & Compliance** | GDPR, DPDP Act, HIPAA compliance |
+| **Data Retention** | How long data is kept, when deleted |
+| **Quality Standards** | Defined thresholds (completeness >95%) |
+
+### Centralized vs Federated Governance
+
+| Model | How | Pro | Con |
+|---|---|---|---|
+| **Centralized** | One team controls all | Consistent | Bottleneck |
+| **Federated** | Each domain governs own | Fast | Inconsistent |
+| **Data Mesh** | Federated ownership + centralized standards | Best of both | Complex |
+
+### GDPR vs India's DPDP Act
+
+| | GDPR (EU) | DPDP Act (India) |
+|---|---|---|
+| Max fine | 4% of global revenue | ₹250 crore |
+| Right to deletion | Yes | Yes |
+| Consent required | Yes | Yes |
+| Data Protection Officer | Required | Required |
+| Applies to | EU data subjects | Indian data principals |
+
+### Enterprise Data Maturity Model
+
+| Level | Name | Description | AI Readiness |
+|---|---|---|---|
+| 1 | Ad-hoc | Spreadsheets, no governance | Not ready |
+| 2 | Managed | Databases, some documentation | Simple ML possible |
+| 3 | Defined | Data catalog, quality metrics | ML with effort |
+| 4 | Quantified | Automated quality, SLAs, monitoring | ML at scale |
+| 5 | Optimized | Data products, self-service, AI-ready | Full maturity |
+
+### Synthetic Data — When and Why
+
+| Use When | Benefit | Risk |
+|---|---|---|
+| Privacy restrictions | No real PII needed | Bias amplification |
+| Rare events | Balance dataset | Distribution mismatch |
+| Expensive to collect | Lower cost | Overfitting to generator |
+| Dangerous scenarios | Safe simulation | May not capture real complexity |
+
+### 5 Types of Bias in Data
+
+| Bias Type | Description | Example |
+|---|---|---|
+| **Reporting Bias** | Unusual events overreported | News reports plane crashes, not safe landings |
+| **Automation Bias** | Over-relying on AI output | Loan officer blindly follows AI recommendation |
+| **Selection Bias** | Training data not representative | Model trained on urban users fails for rural |
+| **Group Attribution Bias** | Group stat applied to individuals | "City X spends less" → penalise all from City X |
+| **Implicit Bias** | Unconscious assumptions in data | "CEO" → images of men, "nurse" → images of women |
+
+### Data Contracts
+
+| Component | Specifies |
+|---|---|
+| Schema | Exact columns, data types, formats |
+| Freshness SLA | Update frequency (every 4 hours) |
+| Quality thresholds | <1% nulls, <0.1% duplicates |
+| Ownership | Who is responsible |
+| Access policies | Who can read/write |
+| Change management | 14-day notice before breaking changes |
+
+### Facebook/Cambridge Analytica — Governance Failure
+
+- Quiz app harvested 87M users' data without consent
+- Data used for targeted political ads
+- No access control, no audit trail, no consent verification
+- **$5 billion FTC fine** + global GDPR enforcement catalyst
 
 ---
 
-## Session 6: Data Engineering Pipelines
-
-### Data Pipeline
-```
-Source → Extract → Transform → Load → Destination
-```
+## SESSION 6: DATA ENGINEERING PIPELINES
 
 ### ETL vs ELT
 
 | Aspect | ETL | ELT |
-|--------|-----|-----|
-| Transform | Before loading (staging area) | After loading (in warehouse) |
-| Best for | Structured data, legacy systems | Big data, cloud warehouses |
-| Tools | Informatica, Talend | dbt, Snowflake, BigQuery |
-| Performance | Limited by staging compute | Leverages warehouse compute |
+|---|---|---|
+| Order | Extract → Transform → Load | Extract → Load → Transform |
+| Transform where | Separate processing server | Inside warehouse/lake |
+| Raw data kept? | No | Yes |
+| Flexibility | Low | High |
+| Best for | On-premise, regulated | Cloud, big data, AI/ML |
 
 ### Batch vs Streaming
 
 | Aspect | Batch | Streaming |
-|--------|-------|-----------|
-| Latency | Minutes to hours | Milliseconds to seconds |
-| Processing | Fixed data chunks | Continuous event flow |
-| Tools | Spark, Airflow, Hadoop | Kafka, Flink, Kinesis |
-| Use case | Reports, training data | Real-time alerts, fraud detection |
+|---|---|---|
+| Processing | Chunks on schedule | Each event as it arrives |
+| Latency | Minutes–hours | Milliseconds–seconds |
+| Complexity | Simpler | More complex |
+| Cost | Lower | Higher |
+| Use case | Reports, model training | Fraud detection, real-time recs |
 
-### Lambda Architecture
-- **Batch layer** — processes all historical data (complete but slow)
-- **Speed layer** — processes real-time data (fast but approximate)
-- **Serving layer** — merges batch + speed views for queries
-- Drawback: maintaining two separate pipelines (complexity)
+> **Lambda Architecture** = Batch + Streaming together (most real-world systems).
 
-### Data Lake vs Data Warehouse vs Data Lakehouse
+### Data Lake vs Warehouse vs Lakehouse
 
-| Feature | Data Lake | Data Warehouse | Data Lakehouse |
-|---------|-----------|---------------|----------------|
-| Data type | Raw, all formats | Structured, processed | All formats + structure |
-| Schema | Schema-on-read | Schema-on-write | Schema enforcement optional |
-| Cost | Low (cheap storage) | High (compute + storage) | Medium |
-| Users | Data engineers, scientists | Business analysts | All users |
-| Examples | S3, ADLS | Snowflake, Redshift | Databricks, Delta Lake |
+| Aspect | Data Lake | Data Warehouse | Data Lakehouse |
+|---|---|---|---|
+| Data types | Any | Structured only | Any |
+| Schema | Schema-on-read | Schema-on-write | Both |
+| Cost | Very low | High | Low |
+| Query speed | Slow | Very fast | Fast |
+| Best for | ML/AI, raw archive | BI dashboards | ML + BI unified |
 
 ### Storage Types
 
-| Type | Description | Use Case |
-|------|-------------|----------|
-| **File storage** | Hierarchical directories | Shared drives, NFS |
-| **Block storage** | Fixed-size blocks; low latency | Databases, VMs (EBS) |
-| **Object storage** | Key-value; highly scalable | Data lakes, backups (S3) |
-| **Cache** | In-memory; fastest | Real-time features (Redis) |
-| **HDFS** | Distributed file system | Hadoop big data workloads |
+| Type | What | Best For | Example |
+|---|---|---|---|
+| **File Storage** | Files in directories | Shared files, logs | NAS, NFS |
+| **Block Storage** | Fixed-size blocks | Databases | EBS, SAN |
+| **Object Storage** | Objects with metadata | Data lakes, ML data | S3, GCS |
+| **Cache/Memory** | In-RAM storage | Real-time features | Redis, Memcached |
+| **HDFS** | Distributed file system | Big data processing | Hadoop |
+| **Streaming** | Append-only logs | Real-time events | Kafka, Kinesis |
 
-### Data Validation
+### Streaming Concepts
 
-| Tool | Provider | Approach |
-|------|----------|----------|
-| **Deequ** | Amazon | Declarative data quality checks on Spark |
-| **TFDV** | Google (TensorFlow) | Schema inference, anomaly detection |
+| Concept | Definition |
+|---|---|
+| **Delivery Guarantees** | At-most-once / At-least-once / Exactly-once |
+| **TTL (Time to Live)** | How long messages retained before deletion |
+| **Dead-Letter Queue** | Queue for failed/unprocessable messages |
+| **Replay** | Ability to re-read already consumed events |
+| **Consumer Pull vs Push** | Pull: consumer polls. Push: broker sends. |
 
-### Data Drift, Schema Skew, Concept Drift
+### Data Validation Tools
 
-| Issue | Definition |
-|-------|-----------|
-| **Data drift** | Input data distribution changes over time (feature drift) |
-| **Concept drift** | Relationship between features and target changes |
-| **Schema skew** | Training and serving data have different schemas or feature types |
+| Tool | Approach | Ecosystem |
+|---|---|---|
+| **Deequ** (Amazon) | Constraint-based (you write rules) | Apache Spark |
+| **TFDV** (Google) | Schema-based (auto-generated) | TensorFlow |
+| **Great Expectations** | Python-native, flexible | Any |
 
-### Data Leakage (2 Causes)
-1. **Target leakage** — features contain information from the future / derived from target
-2. **Train-test contamination** — test data leaks into training set
+### Types of Data Drift
 
-### Fairness & Bias (5 Types)
-1. **Historical bias** — real-world prejudices reflected in data
-2. **Representation bias** — underrepresentation of certain groups
-3. **Measurement bias** — inconsistent data collection across groups
-4. **Aggregation bias** — one model for all subgroups (ignores differences)
-5. **Evaluation bias** — benchmark doesn't represent deployment population
+| Type | What Changes | Example |
+|---|---|---|
+| **Data Drift** | Input feature distribution | Average order value shifts |
+| **Schema Skew** | Data schema/structure | New column added, type changed |
+| **Distribution Skew** | Statistical distribution | Feature becomes bimodal |
+| **Concept Drift** | Feature→target relationship | What "spam" looks like changes |
+| **Training-Serving Skew** | Features differ train vs serve | Different code paths for same feature |
 
-### Data Partitioning
+### Data Leakage — 2 Causes
 
-| Type | How | Use Case |
-|------|-----|----------|
-| **Horizontal** | Split by rows | Distribute users across shards |
-| **Vertical** | Split by columns | Separate frequently/rarely accessed columns |
-| **Functional** | Split by domain/function | Orders DB vs Users DB |
+| Cause | Description |
+|---|---|
+| **Feature hiding target** | Feature directly encodes the answer (e.g., "approved_date" in loan approval prediction) |
+| **Feature from future** | Data not available at prediction time (e.g., using next-day volume to predict today's price) |
+
+### Data Partitioning — 3 Types
+
+| Type | Splits By | Reconstruct | Example |
+|---|---|---|---|
+| **Horizontal (Sharding)** | Rows | UNION | Orders split by region |
+| **Vertical** | Columns | JOIN | Hot data (name) vs cold data (profile_pic) |
+| **Functional** | Business function | Separate services | Orders DB vs Users DB vs Products DB |
 
 ---
 
-## Session 7: Feature Engineering
+## SESSION 7: FEATURE ENGINEERING
 
 ### What is a Feature?
-- A measurable property of data used as model input
-- **Feature engineering** = transforming raw data into features that improve model performance
-- Often the difference between a mediocre and great model
 
-### Feature Extraction by Data Type
+A **feature** is a measurable property used as input to an ML model. Feature engineering converts raw data → features the model can understand.
 
-| Data Type | Extraction Methods |
-|-----------|-------------------|
-| **Structured** | Aggregations, ratios, rolling windows, time-based features |
-| **Text** | TF-IDF, bag of words, n-grams, embeddings (BERT, Word2Vec) |
-| **Image** | Pixel values, CNN features, edge detection, color histograms |
-| **Audio** | MFCCs, spectrograms, pitch, energy |
+> "Applied ML is basically feature engineering" — Andrew Ng
 
-### Feature Transformation
+### Feature Extraction — By Data Type
 
-| Technique | Method | When to Use |
-|-----------|--------|-------------|
-| **Min-Max Scaling** | (x - min) / (max - min) → [0, 1] | Neural networks, distance-based |
-| **Z-Score (Standardization)** | (x - μ) / σ → mean=0, std=1 | Linear models, SVM |
-| **Log Transform** | log(x) | Skewed distributions |
-| **One-Hot Encoding** | Binary column per category | Nominal categories (color, city) |
-| **Label Encoding** | Integer per category | Ordinal categories (low/med/high) |
-| **Target Encoding** | Replace category with target mean | High cardinality categories |
-| **Missing Values** | Mean/median/mode imputation, flag column | Always handle before training |
-| **Binning** | Group continuous values into buckets | Reduce noise, create categories |
+| Data Type | Technique | Output |
+|---|---|---|
+| **Structured** | Direct use, aggregation, ratio, date extraction | Numbers/categories |
+| **Text** | Bag of Words, TF-IDF, Word Embeddings, Sentence Embeddings | Vectors |
+| **Image** | Pre-trained CNN features, object detection | Feature vectors |
+| **Audio** | MFCCs, speech-to-text | Frequency features or text |
 
-### Feature Selection Methods
+### Feature Transformation — Types
 
-| Method | Approach | Examples |
-|--------|----------|---------|
-| **Filter** | Statistical tests, independent of model | Correlation, chi-squared, mutual info |
-| **Wrapper** | Use model performance to select | Forward selection, backward elimination, RFE |
-| **Embedded** | Feature selection built into model training | Lasso (L1), tree-based feature importance |
+| Technique | What | When |
+|---|---|---|
+| **Min-Max Scaling** | Scale to [0,1] | Need bounded values |
+| **Standard Scaling (Z-score)** | Mean=0, Std=1 | Normally distributed data |
+| **Log Transformation** | log(x) | Highly skewed data |
+| **One-Hot Encoding** | Binary columns per category | Nominal data (city, color) |
+| **Label Encoding** | Number per category | Ordinal data (education level) |
+| **Target Encoding** | Replace category with avg target | High-cardinality |
+| **Binning** | Continuous → bins/categories | Non-linear relationships |
+
+> ⚠️ Never use Label Encoding for nominal data — model thinks Delhi is "between" Mumbai and Bangalore.
+
+### Feature Selection — 3 Methods
+
+| Method | How | Speed | Accuracy |
+|---|---|---|---|
+| **Filter** | Statistical tests per feature (correlation, chi-squared) | Fast | Lower |
+| **Wrapper** | Train model with different feature subsets | Slow | Higher |
+| **Embedded** | Model learns importance during training (L1/Lasso, XGBoost importance) | Moderate | Good |
+
+### Why Not All Features?
+
+- **Overfitting** — irrelevant features add noise
+- **Curse of dimensionality** — more features need exponentially more data
+- **Slower** — more computation time
+- **Harder to explain** — 5 features easier to audit than 500
 
 ### Embeddings
-- Dense vector representations that capture semantic meaning
-- **Word embeddings** — Word2Vec, GloVe (similar words → close vectors)
-- **Sentence embeddings** — BERT, Sentence-BERT (similar sentences → close vectors)
-- **Image embeddings** — CNN feature maps (similar images → close vectors)
-- **User/Product embeddings** — learned from interaction data (recommendations)
-- Key: similar items have similar embeddings (measured by cosine similarity)
 
-### Feature Design Examples
+Convert high-dimensional sparse data → low-dimensional dense vectors. Similar items have similar vectors.
 
-| Domain | Example Features |
-|--------|-----------------|
-| **Fraud detection** | Transaction amount deviation, frequency last 1hr, location mismatch, merchant risk score |
-| **Recommendations** | User embedding, item embedding, interaction history, popularity score, time since last visit |
-| **Delivery ETA** | Distance, time of day, traffic conditions, restaurant prep time, driver rating, weather |
+| Type | Embeds | Dimensions | Example |
+|---|---|---|---|
+| Word (Word2Vec) | Individual words | 100-300 | "king" ≈ "queen" in vector space |
+| Sentence (BERT) | Sentences/paragraphs | 384-1024 | Semantic search |
+| Image (ResNet) | Images | 512-2048 | Find visually similar products |
+| User | Users | 64-256 | Netflix taste profile |
+| Product | Products | 64-256 | Amazon similar items |
+
+> **key - man + woman ≈ queen** (vector arithmetic captures meaning)
 
 ---
 
-## Session 8: Feature Stores
+## SESSION 8: FEATURE STORES
 
 ### What is a Feature Store?
-- Centralized platform to store, manage, serve, and reuse ML features
-- Single source of truth for features across training and serving
 
-### 5 Problems Solved
-1. **Feature reuse** — avoid re-engineering same features across teams
-2. **Training-serving consistency** — same features in training and production
-3. **Feature discovery** — catalog of available features with metadata
-4. **Point-in-time correctness** — prevent data leakage in historical features
-5. **Low-latency serving** — precomputed features for real-time inference
+A centralized system that stores, manages, and serves ML features consistently for both training and serving.
 
-### Offline Store vs Online Store
+### 5 Problems It Solves
 
-| Feature | Offline Store | Online Store |
-|---------|--------------|-------------|
-| Purpose | Training data, batch scoring | Real-time inference |
-| Latency | Seconds to minutes | Milliseconds (p99 < 10ms) |
-| Storage | Data warehouse, data lake | Key-value store (Redis, DynamoDB) |
-| Data volume | Months/years of history | Latest feature values |
-| Access pattern | Batch read (full table scan) | Point lookup by entity key |
+| Problem | Without Feature Store | With Feature Store |
+|---|---|---|
+| Training-serving skew | Features computed differently | Single source of truth |
+| Duplicate work | 5 teams build same feature | Compute once, share across teams |
+| Slow serving | Compute on-the-fly (slow) | Pre-computed, cached (<1ms) |
+| No discovery | Don't know what features exist | Searchable catalog |
+| No versioning | Feature changes break models | Versioned features |
 
-### Feature Pipelines
+### Offline vs Online Store
 
-| Pipeline | Frequency | Source | Use Case |
-|----------|-----------|--------|----------|
-| **Batch** | Hourly/daily/weekly | Data warehouse | User lifetime value, 30-day averages |
-| **Streaming** | Real-time | Kafka, Kinesis | Last-5-min transaction count, live location |
+| Aspect | Offline Store | Online Store |
+|---|---|---|
+| Computed | Batch (nightly/hourly) | Real-time (as events happen) |
+| Represents | Historical aggregations | Current state |
+| Latency | Minutes–hours OK | Must be <1-10ms |
+| Storage | Data warehouse (BigQuery) | Key-value store (Redis) |
+| Used for | Model training | Real-time predictions |
+| Size | Very large (months of history) | Small (latest values only) |
 
-### Training-Serving Skew (4 Types)
+### Training-Serving Skew — 4 Types
 
-| Type | Cause |
-|------|-------|
-| **Schema skew** | Different data schema in training vs serving |
-| **Feature skew** | Different feature computation logic |
-| **Distribution skew** | Serving data distribution differs from training |
-| **Temporal skew** | Stale features served (not updated in time) |
+| Type | What Goes Wrong |
+|---|---|
+| **Feature computation skew** | Training computes feature one way, serving computes differently |
+| **Data distribution skew** | Training data has different distribution than live data |
+| **Feature availability skew** | Feature available in training is not available at serving time |
+| **Time-travel skew** | Training accidentally uses future information |
 
-- Training-serving skew = silent model performance degradation
+### Two-Stage Recommendation Architecture
 
-### Two-Stage Recommendation System
-1. **Candidate Generation** — narrow millions of items to ~100 candidates
-   - Uses **ANN (Approximate Nearest Neighbor)** search on embeddings
-   - Fast but approximate (trade accuracy for speed)
-2. **Ranking** — score ~100 candidates with complex model, return top-K
-   - Uses rich features from feature store
-   - Slower but more accurate
+| Stage | Purpose | Input | Output | Speed |
+|---|---|---|---|---|
+| **Candidate Generation** | Quick rough filter | All items (millions) | ~1000 candidates | Very fast (ANN search) |
+| **Ranking** | Accurate detailed scoring | ~1000 candidates | Top 20-50 items | Slower but precise |
 
-### Zillow Case Study (Training-Serving Skew)
-- Pricing model trained on historical data (stable market)
-- Served in volatile market (COVID-era price swings)
-- **Distribution skew**: serving data distribution ≠ training distribution
-- No drift detection or retraining triggers
-- Result: systematically overpriced home purchases → $881M loss
+> Why two stages? Running ranking model on all 10M items takes too long. Filter first, rank second.
 
-### Popular Feature Store Tools
+### Feature Store Tools
 
-| Tool | Type | Strengths |
-|------|------|-----------|
-| **Feast** | Open-source | Lightweight, cloud-agnostic, good for getting started |
-| **Tecton** | Managed (commercial) | Real-time features, enterprise-grade, built by Feast creators |
-| **Hopsworks** | Open-source + managed | Feature pipelines, great for streaming features |
+| Tool | Type | Best For |
+|---|---|---|
+| **Feast** | Open-source | Startups, mid-size |
+| **Tecton** | Commercial SaaS | Large enterprises |
+| **Hopsworks** | Open-source + Commercial | Research + enterprise |
+| **SageMaker Feature Store** | AWS managed | AWS users |
 
 ---
 
-## Quick-Fire Numbers & Key Facts
+## QUICK-FIRE NUMBERS TO REMEMBER
 
-| Fact | Value |
-|------|-------|
-| AI project failure rate | **85%** |
-| Model code in production AI system | **~5%** |
-| Zillow loss | **$881M** |
-| GPT-4 context window | **128K tokens** |
-| 1 token ≈ | **4 characters** |
-| SAE Level 4 | High automation (no human needed in defined conditions) |
-| S3 durability | 11 nines |
-| Data quality dimensions | 6 (accuracy, completeness, consistency, timeliness, validity, uniqueness) |
-| Data governance components | 7 |
-| Data maturity levels | 5 |
-| Bias types | 5 (historical, representation, measurement, aggregation, evaluation) |
-| Training-serving skew types | 4 (schema, feature, distribution, temporal) |
-| Feature selection methods | 3 (filter, wrapper, embedded) |
-| Recommendation stages | 2 (candidate generation → ranking) |
-
----
-
-## Key Comparisons to Remember
-- **ETL** = transform first, load second | **ELT** = load first, transform in warehouse
-- **Batch** = high latency, high throughput | **Streaming** = low latency, continuous
-- **Data Lake** = raw, cheap, schema-on-read | **Warehouse** = structured, schema-on-write
-- **Offline store** = training (batch) | **Online store** = serving (real-time)
-- **Filter** = independent of model | **Wrapper** = uses model | **Embedded** = during training
-- **SHAP** = global + local explanations | **LIME** = local explanations only
-- **Collaborative filtering** = user behavior | **Content-based** = item features
+| Fact | Number |
+|---|---|
+| Model code as % of AI system | **5%** |
+| Model effort vs system effort | **20% vs 80%** |
+| AI projects that fail | **85%** |
+| Netflix content from recommendations | **80%** |
+| Netflix savings from recommendations | **$1 billion/year** |
+| Amazon revenue from recommendations | **35%** |
+| Data collection/prep time in ML project | **80%** |
+| Zillow loss from AI failure | **$881 million** |
+| GPT-4 training cost | **~$100 million** |
+| Cambridge Analytica FTC fine | **$5 billion** |
+| DPDP Act max penalty | **₹250 crore** |
+| Waymo autonomous miles driven | **20+ million** |
+| Human reaction time | **~1500ms** |
+| Autonomous system reaction time | **<100ms** |
 
 ---
 
-*Good luck with the exam!*
+## KEY COMPARISONS FOR EXAM
+
+### AI vs ML vs DL
+→ Nested: AI ⊃ ML ⊃ DL. AI is broadest, DL is most specialized.
+
+### Supervised vs Unsupervised
+→ Supervised: labelled data (classification, regression). Unsupervised: no labels (clustering, dimensionality reduction).
+
+### Classification vs Regression
+→ Classification: discrete labels. Regression: continuous numbers.
+
+### Collaborative vs Content-Based Filtering
+→ Collaborative: "similar users liked X." Content-based: "similar features to what you liked."
+
+### RAG vs Fine-Tuning
+→ RAG: search documents first, then answer (factual). Fine-tuning: retrain model on your data (behavioral change).
+
+### ETL vs ELT
+→ ETL: transform before loading (traditional). ELT: load raw then transform (modern, flexible).
+
+### Batch vs Streaming
+→ Batch: scheduled chunks (reports, training). Streaming: real-time per event (fraud, alerts).
+
+### Data Lake vs Warehouse
+→ Lake: any data, cheap, flexible, schema-on-read. Warehouse: structured, fast queries, schema-on-write.
+
+### Offline vs Online Features
+→ Offline: batch, historical, for training. Online: real-time, current, for serving.
+
+### BFS vs DFS (if asked)
+→ BFS: queue, level-by-level, shortest path. DFS: stack, go deep, cycle detection.
+
+---
+
+*Good luck with your exam!* 🎯
