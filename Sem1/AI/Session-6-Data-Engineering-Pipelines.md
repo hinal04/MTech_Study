@@ -93,6 +93,8 @@ LOAD:
 
 ## 6.2 ETL vs ELT
 
+**ETL vs ELT — the two dominant data pipeline patterns.** Every data pipeline must decide: do you transform data before loading it (ETL), or load it raw first and transform later (ELT)? This choice shapes your entire architecture.
+
 ### ETL — Extract, Transform, Load
 
 **ETL** is the traditional approach: data is **transformed before** it's loaded into the destination.
@@ -589,6 +591,31 @@ Integration: Database A + API B + CSV C → clean, merge, resolve conflicts → 
 ## 6.4 Storage Types Deep Dive
 
 Before we talk about data lakes and warehouses, let's understand the **fundamental storage types** that underpin all of them.
+
+### Raw Ingredients of Data Storage
+
+The raw ingredients underlying all storage systems are physical hardware components. Every database, data lake, and feature store ultimately reads and writes to these:
+
+| Component | What It Does | Speed | Cost | Use In AI/ML |
+|---|---|---|---|---|
+| **HDD (Hard Disk Drive)** | Spinning magnetic disks. Stores data cheaply in bulk. | Slow (100-200 MB/s) | Very cheap (~$0.02/GB) | Bulk archival storage, cold data in data lakes |
+| **SSD (Solid State Drive)** | Flash memory chips. No moving parts. | Fast (500-5000 MB/s) | Moderate (~$0.10/GB) | Databases, feature stores, model serving |
+| **RAM (Memory)** | Volatile memory. Data lost when power is off. | Very fast (25-50 GB/s) | Expensive (~$5/GB) | Caching (Redis), in-memory computation (Spark), real-time features |
+| **Networking** | Moves data between machines over Ethernet, fibre, or InfiniBand. | Variable (1-100 Gbps) | Depends on infrastructure | Distributed storage, streaming (Kafka), cloud storage access |
+
+> **Key insight:** Higher-level systems (file storage, block storage, object storage, streaming storage) are all **abstractions built on top of these four physical components**. Understanding the raw layer helps you understand why some systems are fast but expensive (RAM-based caches) while others are slow but cheap (HDD-based data lakes).
+
+### Data Storage Abstractions — Lake, Warehouse, Lakehouse
+
+Storage abstractions sit above the raw storage types and provide higher-level ways to organise and query data:
+
+| Abstraction | What It Does | Stores | Built On Top Of | Best For |
+|---|---|---|---|---|
+| **Data Lake** | Stores everything in raw format. No schema required when writing. | Any data — structured, semi-structured, unstructured | Object storage (S3, GCS, Azure Blob) | ML/AI workloads, keeping raw data for future use |
+| **Data Warehouse** | Stores cleaned, structured data optimised for fast SQL queries. | Structured data only (tables with rows and columns) | Block storage + columnar formats | BI dashboards, business reports, analytics |
+| **Data Lakehouse** | Combines the flexibility of a lake with the query speed of a warehouse. | Any data, with optional schema enforcement | Object storage + table formats (Delta Lake, Iceberg) | Unified ML + BI — one platform for data scientists and analysts |
+
+> **Think of it this way:** Raw storage (HDD/SSD/RAM) → Storage types (file/block/object) → Storage abstractions (lake/warehouse/lakehouse). Each layer adds more structure and functionality on top of the layer below.
 
 ### Storage Layering Concept
 

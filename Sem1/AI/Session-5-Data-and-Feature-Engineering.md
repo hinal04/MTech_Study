@@ -252,6 +252,8 @@ Example: When a new transaction comes in, check:
 
 AI systems consume data from many places. Knowing these sources helps you design good data pipelines.
 
+**Enterprise data sources** include: transactional databases, CRM systems, ERP systems, data warehouses, application logs, IoT devices, and third-party data providers. Each source has different formats, freshness, and access patterns — understanding these is the first step to building any AI system.
+
 ### Internal Data Sources (From Within Your Company)
 
 | Source | What Data It Has | AI Use Case Example |
@@ -356,6 +358,8 @@ Cohen's kappa (κ) measures how much two annotators agree **beyond random chance
 ### Labels Are Business Judgments
 
 Here's something most textbooks don't tell you: **a label in ML is not objective truth — it's a business decision.** The same raw data can be labelled differently depending on how the business defines the problem.
+
+Labels are business judgments — the definition of "churned customer" (30 days? 60 days? 90 days inactive?) is a business decision that directly affects model behavior. Change the definition and you change the model.
 
 > **Analogy:** Is a student who scored 39/100 a "fail"? Depends on the passing mark! If it's 35, they passed. If it's 40, they failed. The score is the same — the LABEL changes based on the threshold YOU define.
 
@@ -574,6 +578,8 @@ In AI, poor governance = **serious consequences:**
 
 ### Key Components of Data Governance
 
+> **Important principle:** Governance should be embedded into data pipelines from the start, not bolted on as an afterthought. Retroactive governance is 10x more expensive than built-in governance. Build quality checks, access controls, and lineage tracking into your pipelines from day one.
+
 | Component | What It Means (Simple) | Why AI Needs It | Live Example |
 |---|---|---|---|
 | **Data Ownership** | Who is responsible for each data source? | Clear accountability. Know who to ask when questions arise. | "Customer data is owned by the CRM team. They approve access." |
@@ -740,6 +746,8 @@ AI DATA CONTRACT ADDITIONS:
 
 Generative AI (ChatGPT, Gemini, Stable Diffusion) creates **entirely new governance challenges** that traditional frameworks weren't designed for.
 
+GenAI changes data governance fundamentally: training data copyright concerns, generated content ownership questions, prompt injection risks, and the need to track what data was used for fine-tuning. Traditional governance frameworks cover none of these.
+
 | Traditional AI Governance | NEW GenAI Governance Challenge |
 |---|---|
 | "What data trained this model?" | "What data trained this foundation model?" (often unknown — OpenAI doesn't reveal GPT-4's training data) |
@@ -857,6 +865,28 @@ One corrupted table → five downstream systems broken.
                 (People + Process + Technology)
 ```
 
+### AI Data Classification
+
+AI data classification categorizes data by sensitivity and usage:
+
+| Sensitivity Level | Description | Example |
+|---|---|---|
+| **Public** | Open to anyone | Published product catalog, public API docs |
+| **Internal** | Visible within the company | Employee directory, internal dashboards |
+| **Confidential** | Restricted to specific teams | Customer PII, financial records |
+| **Restricted** | Highest sensitivity, strict access controls | Payment card data, health records, Aadhaar numbers |
+
+For AI specifically, data also needs classification by **usage stage**:
+
+| AI Usage Category | Governance Needs |
+|---|---|
+| **Training data** | Consent verification, bias auditing, version control |
+| **Evaluation data** | Strict separation from training, representativeness checks |
+| **Production inference data** | Real-time privacy compliance, logging policies |
+| **Feedback data** | User consent for feedback loops, retention policies |
+
+Each category has different governance needs — training data needs copyright clearance, evaluation data needs separation guarantees, and production data needs real-time compliance.
+
 ### Live Example: Facebook/Cambridge Analytica (2018) — Governance Failure
 
 This is the most famous data governance failure in history:
@@ -890,6 +920,8 @@ India's **Digital Personal Data Protection Act (DPDP, 2023)** directly impacts A
 ### Enterprise Data Management vs ML-Ready Data Management
 
 Most companies already have data management systems — databases, warehouses, dashboards. But **managing data for BI reports is very different from managing data for ML models.**
+
+The gap between enterprise data management and AI data management is significant: enterprise DM focuses on reporting and compliance, while AI data management requires versioning, lineage, feature computation, and training/serving consistency. Most companies discover this gap only after their first ML project fails.
 
 > **Analogy:** A library has books neatly organised on shelves (enterprise data management). But if you want to train a student, you don't just hand them the entire library — you need to select the right books, organise them in a curriculum, track which chapters they've studied, and test them on what they learned. That's ML-ready data management — it needs much more than just storage and retrieval.
 
@@ -964,6 +996,10 @@ LEVEL 5 (Optimized):
 
 The way companies store and process data has fundamentally changed in the last decade. Understanding both architectures helps you see where data for AI comes from.
 
+**Traditional enterprise data architecture:** OLTP → ETL → Data Warehouse → BI dashboards. This is batch-only, structured-only, and has no native ML support.
+
+**Modern enterprise data architecture:** Event Streams + Object Storage → ELT → Lakehouse → ML + BI + Real-time applications. This supports all data types, batch and streaming, and ML is a first-class citizen.
+
 **Traditional Architecture (2000-2015):**
 
 ```
@@ -1009,6 +1045,8 @@ The way companies store and process data has fundamentally changed in the last d
 | **Cost** | Very expensive (Oracle/Teradata licenses) | Pay-per-use cloud pricing |
 | **Key tech** | Oracle, Teradata, Informatica | Kafka, Spark, Databricks, Snowflake, S3 |
 
+**Supporting Multiple AI Consumers:** A modern data architecture must support multiple AI consumers simultaneously: batch ML training, real-time inference, analytics dashboards, and ad-hoc exploration — all from the same underlying data platform. If each team builds its own data pipeline, you get inconsistent data, duplicated effort, and conflicting results.
+
 **Indian Example:** **Zerodha** (India's largest stock broker) moved from a traditional Oracle-based architecture to a modern event-streaming architecture (Kafka + ClickHouse). This allowed them to: (1) process millions of stock trades in real-time, (2) feed real-time data to ML models for risk management, (3) reduce infrastructure costs by 60%.
 
 ### Data Products, Contracts, and SLAs
@@ -1018,6 +1056,8 @@ A **data product** is a dataset treated like a product — it has an owner, docu
 > **Analogy:** Think of data like a dish at a restaurant. A random home-cooked meal has no consistency — different every time. But a restaurant dish is a **product** — it has a recipe (schema), quality standards (taste), consistent portions (SLA), and a chef responsible (owner). Data products bring the same discipline to data.
 
 **What Makes Data a "Product":**
+
+A **data product contract** specifies: schema, freshness SLA, quality thresholds, access policies, ownership, and versioning rules. Without this contract, consumers have no guarantee about what they're getting.
 
 | Property | Raw Data | Data Product |
 |---|---|---|
@@ -1140,6 +1180,34 @@ Week 11-12:
 **Key Principle:** Start small, show results fast, then scale. Don't try to build a perfect data platform before training your first model. Pick one high-value use case, make it work end-to-end, then expand.
 
 **Indian Example:** **Lenskart** followed this approach — they didn't build a massive data platform first. They picked ONE use case (virtual try-on using face images), built the data pipeline for just that use case, proved it worked, then used that success to get leadership buy-in for a broader data platform investment.
+
+### What the Target Enterprise AI Architecture Should Look Like
+
+The target enterprise AI architecture should include these integrated components:
+
+```
+┌──────────────────────────────────────────────────────────────────┐
+│                    GOVERNANCE LAYER (across everything)          │
+│  Access control · Lineage · Compliance · Bias monitoring         │
+├──────────────────────────────────────────────────────────────────┤
+│                                                                  │
+│  ┌────────────────┐  ┌──────────────┐  ┌────────────────────┐   │
+│  │ Unified Data    │  │ Feature      │  │ Model Registry     │   │
+│  │ Platform        │  │ Store        │  │ (MLflow, etc.)     │   │
+│  │ (Lakehouse)     │→ │ (Feast, etc.)│→ │                    │   │
+│  └────────────────┘  └──────────────┘  └────────────────────┘   │
+│          ↓                   ↓                    ↓              │
+│  ┌────────────────────────────────────────────────────────────┐  │
+│  │            Automated ML Pipelines (train → deploy)         │  │
+│  └────────────────────────────────────────────────────────────┘  │
+│          ↓                                                       │
+│  ┌────────────────────────────────────────────────────────────┐  │
+│  │            Monitoring Dashboards (drift, quality, cost)     │  │
+│  └────────────────────────────────────────────────────────────┘  │
+└──────────────────────────────────────────────────────────────────┘
+```
+
+The key principle: **integrated, not siloed.** The data platform, feature store, model registry, ML pipelines, monitoring, and governance layer must work together as one system. Siloed tools create gaps where data quality, compliance, and reproducibility fall through.
 
 ---
 
