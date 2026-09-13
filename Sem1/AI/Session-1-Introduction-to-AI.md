@@ -219,7 +219,22 @@ ML is **not always the answer**. Before choosing ML, ask: can a simpler approach
 
 ### Step 3: Frame as an ML Problem
 
-Once you've decided ML is the right tool, you need to pick the **type** of ML task:
+Once you've decided ML is the right tool, you need to pick the **type** of ML task.
+
+But before jumping straight to the task type, follow this structured **ML Problem Framing checklist** (Slide P31) — these steps ensure you don't skip anything critical:
+
+1. **Define criteria for successful outcome** — What does "done" look like? Be specific: "reduce delivery time prediction error to within 5 minutes for 90% of orders."
+2. **Establish an observable and quantifiable performance metric** — Pick a metric you can actually measure: accuracy, precision, recall, F1-score, RMSE, etc.
+3. **Ensure business stakeholders understand and agree on the metric** — If the data science team optimizes for precision but the business cares about recall, you'll build the right model for the wrong goal.
+4. **Formulate the ML question in terms of inputs, desired outputs, and performance metric** — "Given [these input features], predict [this output] with [this metric] ≥ [this threshold]."
+5. **Evaluate whether ML is actually the right approach** — Some problems are better solved with simple business rules. If a rule-based system achieves 95% of the desired outcome, the added complexity of ML may not be justified.
+6. **Check if sufficient data exists** — ML needs data to learn from. If you only have 50 examples, most ML algorithms won't work well. Estimate how much data you need based on the problem complexity.
+7. **Create a strategy for data sourcing and data annotation** — Where will training data come from? Who will label it? How much will labelling cost? How long will it take?
+8. **Start with a simple model that is easy to interpret** — Begin with logistic regression or a decision tree, not a deep neural network. Simple models are easier to debug, and debugging is easier when you can understand what the model is doing. You can always add complexity later if needed.
+
+> **Example:** A bank wants to predict loan defaults. Following this checklist: (1) Success = catch 80% of defaults before they happen. (2) Metric = recall at 80%, with precision ≥ 50%. (3) Business agrees that catching more defaults is worth some false alarms. (4) Input = income, credit score, employment years, existing debt; Output = default probability; Metric = recall ≥ 0.8. (5) ML is appropriate because default patterns are complex and change over time. (6) They have 5 years of loan data (200,000 records) — sufficient. (7) Labels = historical repayment outcomes (already available). (8) Start with logistic regression before trying XGBoost.
+
+Now, pick the **type** of ML task:
 
 | ML Task Type | What It Predicts | Output Example | Real Example |
 |---|---|---|---|
@@ -434,11 +449,94 @@ The 6 stages above are what you *do*. The architecture below is *what you build*
 | **Ground Truth Collector** | Collects the "correct answers" that model predictions are compared against | Without ground truth, you can't measure if the model is getting better or worse |
 | **Metadata Store** | Records experiment details, pipeline runs, data lineage, model lineage | When something goes wrong, you need to trace back to find what changed |
 
+#### Architecture Support Components — Keeping the System Running Automatically (Slide P34)
+
+Beyond the core pipeline components listed above, a production ML system needs several **support components** that handle automation, alerting, and reproducibility:
+
+**1. Model Drift Feedback Loop:**
+
+The drift feedback loop automates the process of updating models when they start degrading. It connects the **production deployment phase back to the data processing phase**, creating a closed loop:
+
+```
+┌──────────┐     ┌──────────┐     ┌───────────┐     ┌──────────────┐
+│ Model in  │────→│ Monitor  │────→│ Drift     │────→│ Re-trigger   │
+│ Production│     │ detects  │     │ Feedback  │     │ Data         │
+│           │     │ drift    │     │ Loop      │     │ Processing + │
+│           │     │          │     │           │     │ Retraining   │
+└──────────┘     └──────────┘     └───────────┘     └──────────────┘
+```
+
+When model monitoring detects that prediction quality is dropping (data drift, concept drift), the feedback loop automatically kicks off the retraining pipeline — no human intervention needed.
+
+**2. Alarm Manager:**
+
+The alarm manager is the **notification hub** of the ML system. It receives alerts from the model monitoring system and takes action:
+
+| Alarm Manager Action | What Happens | Example |
+|---|---|---|
+| **Publish notifications** | Sends alerts to team members via email, Slack, PagerDuty | "⚠️ Fraud model precision dropped below 90% — investigate" |
+| **Trigger retraining** | Automatically starts the retraining pipeline when thresholds are breached | Accuracy drops below 85% for 3 consecutive days → retraining begins |
+| **Escalate** | Routes critical alerts to senior engineers or on-call teams | Model serving latency spikes to 500ms (SLA is 100ms) → page the on-call engineer |
+
+**3. Scheduler:**
+
+The scheduler initiates **retraining at business-defined intervals** — independent of whether drift is detected. This is a proactive approach to keeping models fresh.
+
+| Schedule Type | Frequency | Why |
+|---|---|---|
+| **Daily** | Every 24 hours | For models where data changes rapidly (e.g., news recommendation, stock prediction) |
+| **Weekly** | Every Monday at 2 AM | For models where patterns shift gradually (e.g., customer churn, demand forecasting) |
+| **Monthly** | First of each month | For models with slow-changing data (e.g., credit scoring, real estate pricing) |
+
+The scheduler works alongside the drift feedback loop — scheduled retraining keeps the model fresh on a regular cadence, while drift-based retraining handles unexpected shifts.
+
+**4. Lineage Tracker:**
+
+The lineage tracker enables **reproducible ML experiences.** It records everything that went into creating a specific model version so you can **re-create the exact same ML environment at any point in time.**
+
+What the lineage tracker records:
+
+| What It Tracks | Why It Matters | Example |
+|---|---|---|
+| **Data lineage** | Which exact dataset version was used for training | "Model v2.3 was trained on dataset snapshot from 2024-01-15, containing 500K rows" |
+| **Model lineage** | Which algorithm, hyperparameters, and code version produced the model | "XGBoost v1.7.5, max_depth=6, learning_rate=0.1, commit hash abc123" |
+| **Infrastructure lineage** | What compute resources were used | "Trained on 4x NVIDIA A100 GPUs for 2.5 hours on AWS p4d.24xlarge" |
+| **Environment lineage** | Exact library versions and dependencies | "Python 3.10.4, scikit-learn 1.2.2, pandas 2.0.1" |
+
+> **Why reproducibility matters:** Imagine a model works great in January but fails in March. With lineage tracking, you can go back to the January version — same data, same code, same environment — and compare it to the March version to find exactly what changed. Without lineage tracking, debugging production ML failures is like finding a needle in a haystack.
+
 > **Live Example (PhonePe):** PhonePe's fraud detection system has all these components. Data ingestion pulls in millions of UPI transactions per hour. Data validation flags if the transaction format changes. The feature store computes features like "number of transactions in last 10 minutes" consistently for both training and serving. The model registry tracks which fraud model version is live. Monitoring alerts the team if false positive rates spike after a festival season.
 
 ### Data Processing — Where 80% of Your Time Goes
 
 If there's one thing every data scientist agrees on, it's this: **data preparation consumes 80% of project time.** The actual model training? That's the easy part.
+
+#### What is Data Engineering / Data Preparation? (Gartner Definition)
+
+According to Gartner, **data preparation** is: *"An iterative and agile process for exploring, combining, cleaning, and transforming raw data into curated datasets for data integration, data science, data discovery, and analytics/BI use cases."*
+
+In plain English: you take messy, raw data from different places — databases, CSV files, APIs, spreadsheets — and turn it into clean, well-organized data that a model can actually learn from.
+
+**Why this matters so much:**
+- Data preparation is reported to be **the most expensive step** in the entire ML pipeline in terms of both time and resources. Teams regularly spend 60-80% of their project budget just getting data ready.
+- If you don't clean data properly, errors **propagate forward** into the analysis and model training phases. A model trained on bad data will make bad predictions — no amount of algorithm tuning can fix garbage input.
+
+> **Example:** Imagine you're building a model to predict house prices. If your dataset has missing values for "number of bedrooms" in 30% of rows, and you just ignore them, the model might learn that houses with missing bedroom data are cheaper (because smaller apartments often have incomplete listings). That's a false pattern — it came from dirty data, not from reality. This is exactly why data preparation is critical.
+
+#### The 4 Functions of Data in ML (Slide P35)
+
+Data in ML workloads serves **4 distinct functions** — it's not just "training data." Understanding this helps you see why data management is so complex:
+
+| Function | What It Does | Example |
+|---|---|---|
+| **1. Defining the goal** | The output representation and input/output pairs define what the system is trying to learn | For a spam filter: input = email text, output = spam/not-spam. These pairs *define* the task. |
+| **2. Training the algorithm** | The training data teaches the algorithm to associate inputs with correct outputs | Showing the model 100,000 labelled emails so it learns what spam looks like |
+| **3. Measuring performance** | A held-out test set evaluates whether the model met its performance target | Testing the trained spam filter on 10,000 unseen emails to check if accuracy is above 95% |
+| **4. Building baselines for monitoring** | Production data establishes baseline performance metrics so you can detect when the deployed model starts degrading | Tracking the spam filter's precision over weeks — if it drops from 96% to 89%, something has changed |
+
+**Critical rule:** The **same sequence of data processing steps** applied to training data **must also be applied to inference requests** (live predictions). If you normalize features during training, you must normalize them the same way during serving. If you don't, the model sees data in a different format than what it learned from, and predictions become unreliable. This is the root cause of **training-serving skew**.
+
+> **Example:** During training, you scale customer income to a 0-1 range where ₹0 maps to 0.0 and ₹10,00,000 maps to 1.0. If your serving system doesn't apply the same scaling and sends raw income values like ₹50,000 to the model, the model thinks this customer has an income 50,000x the maximum it ever saw — completely meaningless predictions result.
 
 Data processing has four major steps:
 
@@ -449,6 +547,8 @@ Raw Data ──→ Collection ──→ Preparation ──→ Preprocessing ─�
 
 #### Step 1: Data Collection
 
+The first step in any ML project is to **identify what data is needed** and **evaluate the means for collecting it.** You need to answer: What data sources exist? Is the data labelled? How will we ingest it?
+
 Where does the data come from?
 
 | Source Type | Examples | Challenge |
@@ -458,6 +558,94 @@ Where does the data come from?
 | **User-generated** | Reviews, clicks, search queries | Noisy, unstructured |
 | **Third-party** | Census data, credit bureau data, map data | Cost, licensing, freshness |
 | **Sensors/IoT** | Machine sensors, GPS trackers, cameras | Volume (millions of readings per day) |
+| **Time-series data** | Stock prices over time, temperature readings, heart rate monitors | Temporal ordering matters — can't shuffle like regular data |
+| **Events and streams** | Clickstreams, IoT device pings, social media posts in real-time | Arrives continuously — need streaming infrastructure |
+
+**Data Ingestion — Getting Data Into Your System:**
+
+Data ingestion is the process of collecting and importing data for immediate or later use. There are two modes:
+
+| Ingestion Mode | How It Works | When to Use | Technologies |
+|---|---|---|---|
+| **Batch ingestion** | Collect large volumes of historical data at scheduled intervals (hourly, daily, weekly) | When you're training a model on past data or generating periodic reports | Apache Spark, HDFS, CSV/Parquet files, ETL pipelines |
+| **Real-time / Streaming ingestion** | Collect data as it arrives, event by event, with minimal delay | When you need live predictions — fraud detection, real-time recommendations | Apache Kafka, Apache Flink, AWS Kinesis |
+
+Data ingestion may also include:
+- **Synthetic data generation** — creating artificial data when real data is scarce or sensitive (e.g., generating fake patient records for healthcare ML without privacy concerns)
+- **Data enrichment** — adding extra context to existing data from external sources (e.g., adding weather data to delivery records to improve delivery time predictions)
+
+**Data Exploration — Understanding What You Have:**
+
+Before you clean or process data, you need to **understand** it. Data exploration (also called **data profiling**) examines the content and structure of your dataset to produce **metadata** — summary information about the data.
+
+| Metadata You Compute | What It Tells You | Example |
+|---|---|---|
+| **Min / Max values** | The range of each feature | Age ranges from 18 to 95 |
+| **Average (Mean)** | The central tendency | Average order value is ₹750 |
+| **Standard deviation** | How spread out values are | Income has high variance (₹10K to ₹50L) — will need scaling |
+| **Missing value count** | How many blanks exist per column | "Phone number" is missing in 15% of rows |
+| **Unique value count** | Number of distinct values | "City" has 482 unique values |
+| **Data type** | What format is each column | "Age" stored as string instead of integer (needs fixing) |
+
+> **Example:** Before building a customer churn model, you profile the dataset and discover that 40% of customers have no "last_login_date" — it's blank. This is critical information. You now know you either need to impute (fill in) those values, drop those rows, or create a binary feature "has_login_data = yes/no." Without exploration, you might train the model on incomplete data and never realize why accuracy is poor.
+
+**Data Validation — Catching Errors Automatically:**
+
+Data validation uses **user-defined error detection functions** that scan the dataset to spot errors before they corrupt your model. Think of validation as automated quality control.
+
+| Validation Check | What It Catches | Example |
+|---|---|---|
+| **Schema validation** | Wrong column names, missing columns, wrong data types | Expected column "customer_age" (integer) but received "cust_age" (string) |
+| **Range checks** | Values outside expected bounds | Age = -5 or Age = 350 → clearly an error |
+| **Null checks** | Unexpected missing values | A mandatory field like "transaction_amount" is null |
+| **Distribution checks** | Sudden shifts in data distribution | Last week's average transaction was ₹500, this week it's ₹50 — data pipeline might be broken |
+| **Referential integrity** | Foreign keys that don't match | An order references customer_id = "C999" but that customer doesn't exist |
+
+> **Why validation matters:** Without automated validation, bad data silently enters your pipeline. The model trains on garbage, produces garbage predictions, and you don't discover the problem until customers complain weeks later. Validation is your early warning system.
+
+**Data Wrangling (Cleaning) — Fixing the Mess:**
+
+Data wrangling (also called data cleaning) is the process of **re-formatting attributes and correcting errors** in the dataset. This is hands-on, detailed work.
+
+Key wrangling activities:
+- **Reformatting:** Converting dates from "25/12/2024" to "2024-12-25," standardizing currency formats, fixing encoding issues
+- **Correcting errors:** Fixing typos in categorical fields (e.g., "Mumabi" → "Mumbai"), removing duplicates
+- **Missing values imputation:** Filling in blank values using strategies like mean/median fill, forward fill (use last known value), or model-based imputation (use another model to predict the missing value)
+
+> **Example:** In a retail dataset, the "product_category" column has entries like "Electronics," "electronics," "ELECTRONICS," and "Electonics." Data wrangling standardizes all of these to "Electronics" — one consistent value. Without this, the model treats them as 4 different categories.
+
+**Data Labelling — Tagging Each Data Point:**
+
+For **supervised learning** (the most common type of ML), each data point must be **assigned to a specific category** — this is labelling. The label is the "correct answer" that the model learns from.
+
+| Data Type | What Labelling Looks Like | Who Does It |
+|---|---|---|
+| **Emails** | Each email tagged as "spam" or "not spam" | Automated rules + human verification |
+| **Images** | Each image tagged with what it contains ("cat," "dog," "car") | Human annotators using labelling tools |
+| **Medical scans** | Each X-ray marked as "pneumonia" or "normal" | Specialist doctors |
+| **Text reviews** | Each review tagged as "positive," "negative," or "neutral" | Crowdsource workers or NLP rules |
+
+Labelling is often the **most tedious and expensive** part of data preparation. A single image in a self-driving car dataset may need every pixel labelled (car, road, pedestrian, tree, sky).
+
+**Data Splitting — Dividing Data for Training, Validation, and Testing:**
+
+After cleaning and labelling, data is split into three separate sets:
+
+```
+Full Labelled Dataset (100%)
+        │
+        ├── Training Set (70-80%)    → Model learns from this
+        ├── Validation Set (10-15%)  → Used to tune hyperparameters during training
+        └── Test Set (10-15%)        → Used ONLY at the end to evaluate final model performance
+```
+
+| Set | Purpose | Key Rule |
+|---|---|---|
+| **Training set** | The model learns patterns from this data | Largest portion — model needs lots of examples to learn |
+| **Validation set** | Used during training to tune hyperparameters and check for overfitting | Must be separate from training data so you get an unbiased performance estimate |
+| **Test set** | Final evaluation of the finished model | **Never touch this during training.** It's the "final exam" — looking at it early is like peeking at the answer key |
+
+> **Example:** You have 100,000 customer records for a churn prediction model. You split: 70,000 for training, 15,000 for validation, 15,000 for testing. The model trains on the 70K, you tune it using the 15K validation set, and only when you're satisfied do you run it once on the 15K test set to get the real accuracy number.
 
 **Data from Vendors and External Providers:**
 
@@ -484,7 +672,39 @@ This raw vendor data goes through **data engineering (ETL pipelines)** — Extra
 
 #### Step 2: Data Preparation (Cleaning)
 
-Real-world data is **always messy.** Here's what you'll find and how to fix it:
+Real-world data is **always messy.** And here's the fundamental truth: **ML models are only as good as the data used to train them.** No matter how sophisticated your algorithm is, if the training data is dirty, incomplete, or biased, the model will learn the wrong patterns.
+
+The goal of data preparation is to ensure that suitable training data is **optimized for learning and generalization** — meaning the model learns real patterns (not noise) and performs well on new, unseen data.
+
+**The Key Role of Exploratory Data Analysis (EDA):**
+
+Before jumping into cleaning, smart teams first perform **Exploratory Data Analysis (EDA)** — a systematic process of visualizing and summarizing the data to identify patterns, anomalies, and relationships.
+
+| EDA Technique | What It Reveals | Tool Example |
+|---|---|---|
+| **Histograms** | Distribution of each feature (is it skewed? normal? bimodal?) | matplotlib, seaborn |
+| **Scatter plots** | Relationships between two features (are they correlated?) | plotly, matplotlib |
+| **Box plots** | Outliers and spread of data | seaborn |
+| **Correlation heatmaps** | Which features are highly correlated (redundant?) | pandas + seaborn |
+| **Missing value heatmaps** | Patterns in missing data (is data missing randomly or systematically?) | missingno library |
+
+> **Example:** While exploring a customer churn dataset through EDA, you plot a histogram of "monthly charges" and notice a spike at exactly ₹0. Investigating further, you find these are free-trial customers who never converted. This insight changes your approach — you decide to either exclude free-trial users or create a separate model for them.
+
+**Wrangler Tools — Interactive Data Analysis:**
+
+Modern **data wrangler tools** provide no-code/low-code interfaces for interactive data analysis, dramatically improving productivity:
+
+| Tool | Type | What It Does |
+|---|---|---|
+| **AWS DataWrangler** | Cloud-based | Visual data preparation within SageMaker — click-based transforms, no code needed |
+| **Google Cloud Dataprep** | Cloud-based | Intelligent data service for visually exploring, cleaning, and preparing data |
+| **Trifacta** | Enterprise | Visual data wrangling with AI-powered suggestions for cleaning steps |
+| **OpenRefine** | Open-source | Free tool for cleaning messy data and transforming it |
+| **pandas Profiling** | Python library | Auto-generates comprehensive data quality reports from a DataFrame |
+
+These tools let data scientists explore data visually, apply transformations by clicking (not coding), and see immediate previews of the results — making the 80% data preparation phase significantly faster.
+
+Here's what you'll find in messy data and how to fix it:
 
 | Problem | Example | Fix |
 |---|---|---|
@@ -497,6 +717,46 @@ Real-world data is **always messy.** Here's what you'll find and how to fix it:
 
 #### Step 3: Data Preprocessing
 
+Data preprocessing **puts data into the right shape and quality** for model training. While data preparation (Step 2) focuses on finding and fixing problems, preprocessing focuses on transforming data into a format that ML algorithms can work with efficiently.
+
+**Core Preprocessing Strategies:**
+
+The full set of preprocessing strategies covers a wide range of transformations. Think of it as a toolkit — you pick the strategies that your specific dataset needs:
+
+| Strategy | What It Does | When You Need It |
+|---|---|---|
+| **Clean** | Remove outliers and duplicates, replace inaccurate data, correct missing data using imputation | Always — every real dataset has quality issues |
+| **Balance** | Ensure classes are equally represented (or weighted) | When one class dominates — e.g., 99% non-fraud, 1% fraud |
+| **Replace** | Substitute invalid or corrupted values with valid alternatives | When data has encoding errors, garbled text, or wrong-format entries |
+| **Impute** | Fill in missing values using statistical methods (mean, median, mode) or model-based prediction | When dropping rows with missing data would lose too much information |
+| **Partition** | Split data into training, validation, and test sets | Always — you need separate sets for learning and evaluation |
+| **Scale** | Normalize or standardize numerical features to similar ranges | When features have very different scales (income in lakhs vs age in years) |
+| **Augment** | Artificially increase the amount of training data by creating modified copies | When you don't have enough real data — common in image/text tasks |
+| **Unbias** | Detect and mitigate biases that could lead to unfair predictions | When the model's predictions could affect people differently based on demographics |
+
+**Cleaning in Detail — Handling Missing Data:**
+
+Missing data is the most common preprocessing challenge. Here are the main imputation strategies:
+
+| Imputation Method | How It Works | Best For |
+|---|---|---|
+| **Mean/Median fill** | Replace missing values with the average or middle value of that column | Numerical features with roughly normal distribution |
+| **Mode fill** | Replace with the most common value | Categorical features (e.g., fill missing "city" with the most frequent city) |
+| **Forward/Backward fill** | Use the previous (or next) row's value | Time-series data where values don't change rapidly |
+| **Model-based imputation** | Train a small model to predict the missing values from other features | When missing data has complex relationships with other features |
+| **Drop rows** | Simply remove rows with missing values | When very few rows are affected (<5%) and data is abundant |
+
+**Partitioning — Splitting Data Carefully:**
+
+When splitting data into train/validation/test sets, you must be careful to **avoid data leakage** — where information from the test set accidentally leaks into training.
+
+Common leakage mistakes:
+- **Normalizing before splitting** — if you compute the mean of the entire dataset (including test data) and use it to normalize, the test set's statistics have leaked into training
+- **Time-series shuffling** — shuffling time-series data randomly puts future data points in the training set, which the model shouldn't have access to
+- **Duplicate rows across splits** — if the same customer appears in both training and test sets, the model has effectively "seen" the test data
+
+> **Rule:** Always split first, then preprocess each split independently. Never let information flow from test → training.
+
 Transform data into a format that ML algorithms can work with:
 
 | Technique | What It Does | When to Use | Example |
@@ -507,9 +767,115 @@ Transform data into a format that ML algorithms can work with:
 | **Label encoding** | Converts categories to numbers | For ordinal features (have order) | Education: High School=1, Bachelor's=2, Master's=3 |
 | **Text tokenisation** | Splits text into words/tokens | For NLP tasks | "I love chai" → ["I", "love", "chai"] |
 
+**Scaling, Normalization, and Standardization — In Depth:**
+
+Scaling ensures that features are on **similar scales** and close to normally distributed. This makes each feature **equally important** to the model. Without scaling, features with larger numerical ranges dominate the learning process.
+
+| Technique | Formula (Simplified) | Output Range | Best When |
+|---|---|---|---|
+| **Normalization (Min-Max)** | (value - min) / (max - min) | 0 to 1 | Data has known bounds, no extreme outliers |
+| **Standardization (Z-score)** | (value - mean) / std_dev | Typically -3 to +3 | Data has outliers, or when algorithm assumes normal distribution |
+
+**Why does scaling matter?** Consider K-Means clustering on a customer dataset with "age" (18-80) and "income" (₹10,000-₹10,00,000). Without scaling, income dominates because its numbers are much larger. The algorithm thinks a ₹1,000 difference in income is more important than a 10-year age difference — which may not be true. Scaling fixes this.
+
+**Key insight:** Standardization handles outliers better than normalization. If your data has extreme outliers (e.g., one customer with ₹1 crore income when everyone else earns ₹5-10 lakhs), normalization squashes all normal values into a tiny range. Standardization is more robust because it uses mean and standard deviation rather than min and max.
+
+**Algorithms that NEED scaling:**
+- **K-Means Clustering** — uses distance calculations (affected by scale)
+- **K-Nearest Neighbors (KNN)** — uses distance to find similar points
+- **Principal Component Analysis (PCA)** — finds directions of maximum variance
+- **Gradient Descent-based models** — converges faster with scaled features (neural networks, logistic regression)
+
+**Algorithms that DON'T need scaling:** Decision trees, Random Forest, XGBoost (they split on thresholds, so scale doesn't matter).
+
+**Unbiasing / Balancing — Ensuring Fairness:**
+
+Detecting and mitigating bias is critical to avoid inaccurate and unfair results. **Biases** are imbalances in accuracy across different groups — the model might work great for one demographic but poorly for another.
+
+| Bias Type | What It Looks Like | Example | Mitigation |
+|---|---|---|---|
+| **Class imbalance** | One class has far more examples than another | Fraud dataset: 99.5% legitimate, 0.5% fraud | Oversampling minority class (SMOTE), undersampling majority, or adjusting class weights |
+| **Representation bias** | Certain groups are underrepresented in training data | A hiring model trained mostly on male resumes may score female candidates lower | Collect more diverse data, use fairness-aware algorithms |
+| **Measurement bias** | Data is collected differently for different groups | Income data is self-reported for some groups but verified for others | Standardize data collection methods |
+| **Historical bias** | Training data reflects past discrimination | Loan approval data from an era when women were routinely denied credit | Apply fairness constraints, audit model predictions across groups |
+
+> **Example:** Amazon famously scrapped an AI hiring tool because it was biased against women. The model was trained on 10 years of resumes — mostly from men (because tech hiring was male-dominated). It learned to penalize resumes containing words like "women's" (as in "women's chess club"). This is representation bias embedded in historical data.
+
+**Data Augmentation — Creating More Data Artificially:**
+
+When you don't have enough real data, you can **synthesize new data** by applying transformations to existing examples. This is especially common in computer vision and NLP.
+
+| Domain | Augmentation Technique | What It Does | Example |
+|---|---|---|---|
+| **Images** | Rotation | Rotate image by random degrees | A cat photo rotated 15° is still a cat |
+| **Images** | Flipping | Mirror image horizontally/vertically | A flipped stop sign is still a stop sign |
+| **Images** | Cropping | Random crop of a portion of the image | Forces model to recognize objects even when partially visible |
+| **Images** | Color jitter | Randomly adjust brightness, contrast, saturation | Trains model to handle different lighting conditions |
+| **Text** | Synonym replacement | Replace words with synonyms | "The movie was great" → "The film was excellent" |
+| **Text** | Back-translation | Translate to another language and back | English → Hindi → English (creates paraphrase) |
+| **Audio** | Speed perturbation | Play audio slightly faster or slower | Speech recognition becomes robust to speaking speed |
+
+> **Example:** A medical imaging team has only 500 X-ray images of a rare lung condition. By applying rotation, flipping, zooming, and brightness changes, they augment this to 5,000 training images. The model now sees enough variation to learn robust patterns instead of memorizing the 500 originals.
+
 #### Step 4: Feature Engineering
 
-This is the **creative** part — making new features from raw data that help the model learn better.
+This is the **creative** part — making new features from raw data that help the model learn better. Feature engineering is widely considered the most impactful step for improving model accuracy. A mediocre algorithm with excellent features will outperform a sophisticated algorithm with poor features.
+
+Feature engineering has **4 sub-steps**, each building on the previous:
+
+**Sub-step 1: Feature Creation — Building New Features from Existing Data**
+
+Feature creation involves transforming raw data into new, more informative features. Common techniques:
+
+| Technique | What It Does | Example |
+|---|---|---|
+| **One-hot encoding** | Converts a categorical feature into multiple binary (0/1) columns | City: "Mumbai" → [1,0,0], "Delhi" → [0,1,0], "Bangalore" → [0,0,1] |
+| **Binning** | Groups continuous values into discrete buckets | Age: 18→"teen," 25→"young_adult," 45→"middle_aged," 70→"senior" |
+| **Splitting** | Breaks one feature into multiple useful parts | Full name → first_name + last_name; Address → city + state + pincode |
+| **Calculated features** | Create new features by combining existing ones mathematically | BMI = weight / (height²); Price_per_sqft = price / area |
+| **Aggregation features** | Summarize transaction history into useful statistics | total_orders_last_30_days, avg_order_value, max_single_purchase |
+
+**Sub-step 2: Feature Transformation — Handling Missing and Non-Valid Features**
+
+Feature transformation deals with making features model-ready by handling edge cases and applying mathematical transformations:
+
+| Technique | What It Does | When to Use |
+|---|---|---|
+| **Cartesian products** | Create interaction features by combining two features | Combining "day_of_week" × "time_of_day" = "Monday_Morning," "Friday_Evening" (captures patterns like Friday evening shopping surges) |
+| **Non-linear transformations** | Apply log, square root, or polynomial transforms to skewed features | Income is right-skewed (most people earn ₹3-10L, few earn ₹1Cr+). Log(income) makes it more normally distributed, helping linear models. |
+| **Domain-specific features** | Create features using domain expertise that the algorithm can't discover on its own | In finance: debt_to_income_ratio = total_debt / annual_income (a standard creditworthiness metric that domain experts know matters) |
+
+**Sub-step 3: Feature Extraction — Reducing Dimensionality**
+
+When your dataset has hundreds or thousands of features, many are redundant or noisy. Feature extraction uses mathematical techniques to **reduce the number of features** while preserving the most important information.
+
+| Technique | How It Works | Best For |
+|---|---|---|
+| **PCA (Principal Component Analysis)** | Finds the directions of maximum variance in the data and projects features onto a smaller number of "principal components" | General-purpose dimensionality reduction — works well when features are correlated |
+| **ICA (Independent Component Analysis)** | Separates data into statistically independent components | Signal processing, separating mixed audio signals |
+| **LDA (Linear Discriminant Analysis)** | Finds feature combinations that best separate different classes | Classification tasks where you want features that maximize class separation |
+
+**Why reduce dimensions?**
+- **Reduces memory usage** — fewer features = smaller dataset
+- **Reduces computing power needed** — faster training and inference
+- **Reduces overfitting** — fewer features means less chance of the model memorizing noise
+- **Improves visualization** — you can plot 2-3 principal components to see data clusters
+
+> **Example:** A text classification model starts with 10,000 word features (one per unique word). PCA reduces this to 200 principal components that capture 95% of the variance. Training is 50x faster, and accuracy barely changes because most of the 10,000 words were redundant or rare.
+
+**Sub-step 4: Feature Selection — Picking the Best Features**
+
+After creating, transforming, and extracting features, you still may have more than you need. Feature selection picks the **subset of features most relevant to minimizing the model's error rate.**
+
+| Method | How It Works | Example |
+|---|---|---|
+| **Filter methods** | Rank features by statistical measures (correlation, mutual information, chi-squared test) and keep the top-K | Select the 20 features with highest correlation to the target variable |
+| **Wrapper methods** | Try different feature subsets and evaluate model performance for each | Forward selection: start with no features, add one at a time, keep the one that improves accuracy most |
+| **Embedded methods** | The algorithm itself selects features during training | LASSO regression sets unimportant feature weights to zero; Random Forest ranks features by importance |
+
+> **Note on Deep Learning:** With deep learning models (neural networks), feature engineering is largely **automated as part of the algorithm.** The network learns to extract and select features on its own during training. This is one of the main advantages of deep learning — but it requires much more data and computing power than manual feature engineering.
+
+Here are practical examples of feature engineering:
 
 | Raw Data | Engineered Feature | Why It Helps |
 |---|---|---|
@@ -700,9 +1066,176 @@ Some ground truth takes a long time to arrive:
 
 > **Live Example (CRED):** CRED's credit score prediction model predicts if a user will pay their credit card bill on time. But ground truth (did they actually pay?) only arrives after the due date — sometimes 30 days later. CRED's ground-truth collector waits for payment data, then feeds it back to compare against the model's predictions and trigger retraining if accuracy drops.
 
-### Performance Monitor — The AI System's Health Dashboard
+### Data Labeller — Creating Ground Truth When It Doesn't Exist (Slide P64)
+
+The ground-truth collector gathers labels from real-world outcomes. But what happens when you have **plenty of input data but need to create ground-truth labels manually?** That's where the data labeller component comes in.
+
+**When you need a data labeller:**
+- You have thousands of images but no one has tagged what's in them
+- You have millions of emails but they're not marked as spam/not-spam
+- You have audio recordings but no transcriptions
+- You have customer support tickets but they're not categorized by issue type
+
+**Examples of manual labelling tasks:**
+
+| Task | Input Data | Labels Needed | Who Labels |
+|---|---|---|---|
+| **Spam detector** | Thousands of emails | Each email tagged "spam" or "not spam" | Crowdsource workers + automated rules |
+| **Object detector** | Thousands of images | Bounding boxes drawn around every object (car, person, tree) | Trained annotators using specialized tools |
+| **Sentiment analysis** | Product reviews | Each review tagged "positive," "negative," or "neutral" | NLP rules + human verification |
+| **Medical diagnosis** | X-ray images | Each scan labelled with diagnosis (normal, pneumonia, fracture) | Specialist doctors (expensive but necessary) |
+| **Self-driving car** | Street-view camera footage | Every pixel labelled (road, car, pedestrian, sign, sky) | Combination of automated tools + human review |
+
+**Data Labelling Tools:**
+
+| Tool | Type | What It Does |
+|---|---|---|
+| **Label Studio** | Open-source | Free tool for labelling images, text, audio, video, and time-series data. Supports multiple annotators and quality control. |
+| **Figure Eight (now Appen)** | Commercial platform | Provides access to a global workforce of human annotators for large-scale labelling projects |
+| **Google's Data Labeling Service** | Cloud service | Part of Google Cloud — provides human labellers via Google's workforce for labelling data used in AutoML |
+| **Amazon SageMaker Ground Truth** | Cloud service | Combines automated labelling (using ML) with human review for cost-effective large-scale labelling |
+| **Labelbox** | Commercial platform | Enterprise-grade labelling for computer vision and NLP with built-in quality assurance |
+
+**Dedicated labelling services** exist for outsourcing manual labelling tasks. Companies like Appen, Scale AI, and Labelbox employ thousands of annotators worldwide who can label millions of data points for you — at a cost, of course.
+
+> **Example:** A startup building a food recognition app for calorie counting has 50,000 food photos but no labels. They use Label Studio (free, open-source) to set up a labelling project and hire 10 freelance annotators on Appen. Each annotator labels 500 images per day. In 10 days, they have 50,000 labelled images ready for training. Total cost: ~₹2-3 lakhs. Without labels, the 50,000 images are useless for supervised learning.
+
+### Evaluator — Measuring Whether Your Model Actually Works (Slide P65)
+
+Before building models, you must **define how to evaluate the ML system.** The evaluator component provides a standardized way to measure model quality and compare different models.
+
+**What the evaluator measures:**
+
+| Measurement Category | What It Tracks | Examples |
+|---|---|---|
+| **Prediction accuracy** | How often the model gets the right answer | Accuracy, precision, recall, F1-score, AUC-ROC, RMSE |
+| **Short-term business impact** | Immediate effect on application-level metrics | Click-through rate increased by 5%, customer support ticket resolution time decreased by 20% |
+| **Long-term business impact** | Sustained effect on business outcomes over weeks/months | Customer churn reduced by 3% over the quarter, revenue per user increased by ₹50/month |
+| **System metrics** | Technical performance of the serving infrastructure | Prediction latency (lag), throughput (requests per second), uptime, error rate |
+
+**The evaluator serves two critical objectives:**
+
+1. **Comparing models against each other** — When you have 5 candidate models (logistic regression, random forest, XGBoost, neural net, ensemble), the evaluator provides a standardized comparison across all metrics. Without this, you're comparing apples to oranges.
+
+2. **Deciding whether it's safe to integrate the model into the application** — Even the best model in a lab environment might not be ready for production. The evaluator checks if the model meets all deployment criteria (accuracy thresholds, latency requirements, fairness standards).
+
+**How evaluation works in practice:**
+
+The evaluator runs the model on **predetermined test cases with known correct predictions** (ground truth). By comparing model predictions against known answers, it computes all the relevant metrics.
+
+```
+┌──────────────┐     ┌──────────────┐     ┌──────────────┐
+│ Test Cases   │────→│  Model makes │────→│  Evaluator   │
+│ (input +     │     │  predictions │     │  compares    │
+│  known       │     │  on inputs   │     │  predictions │
+│  correct     │     │              │     │  vs. known   │
+│  answers)    │     │              │     │  answers     │
+└──────────────┘     └──────────────┘     └──────┬───────┘
+                                                   │
+                                                   ▼
+                                           ┌──────────────┐
+                                           │ Metrics      │
+                                           │ Report:      │
+                                           │ Accuracy=92% │
+                                           │ Latency=45ms │
+                                           │ F1=0.89      │
+                                           └──────────────┘
+```
+
+> **Example:** Before deploying a new recommendation model at Flipkart, the evaluator runs it against 50,000 test cases where the team already knows what users bought. The evaluator reports: accuracy = 88%, precision@10 = 0.35 (35% of top-10 recommendations are relevant), mean latency = 32ms, throughput = 8,000 RPS. The team compares these against the current production model's metrics (accuracy = 85%, precision@10 = 0.30, latency = 28ms) and against the deployment thresholds (accuracy ≥ 80%, latency < 50ms). All criteria pass, so the model is approved for A/B testing.
+
+### Performance Monitor — The AI System's Health Dashboard (Slides P25, P55-56, P66)
 
 Once your model is in production, you need to **watch it like a hawk.** Models don't crash like regular software — they silently start giving worse answers over time.
+
+The performance monitor ensures the model **maintains desired performance** through **early detection and mitigation** of issues. Think of it as a continuous health check for your AI system.
+
+**What to Monitor — The Complete List:**
+
+| Monitoring Area | What It Tracks | Why It Matters |
+|---|---|---|
+| **Data ingestion issues** | Is data arriving on time? Is the schema correct? Are there missing fields? | If input data stops flowing or changes format, the model receives garbage input |
+| **Data drift** | Has the distribution of input features changed compared to training data? | If customers' behavior shifts (e.g., new spending patterns), the model's training data no longer represents reality |
+| **Model degradation** | Is prediction accuracy declining over time? | Models degrade silently — you need metrics to catch the decline early |
+| **Concept drift** | Has the relationship between features and outcomes changed? | What was true yesterday may not be true today (e.g., COVID changed consumer behavior overnight) |
+| **Bias / fairness issues** | Is the model treating different demographic groups differently? | A model might become unfair over time as data distributions shift |
+| **Feature attribution drift** | Are the features that are most important to the model's decisions changing? | If "income" was the #1 predictor last month but now "age" is #1, something fundamental has changed |
+
+**Model Performance Monitoring — Observing Live, Unseen Data (Slide P25):**
+
+Performance monitoring specifically focuses on observing model performance based on **live, previously unseen data** — real production traffic that the model has never encountered before.
+
+The system is interested in **ML-specific signals** like:
+- **Prediction deviation from previous model performance** — if the current model's predictions start diverging significantly from how the previous version would have predicted, something is off
+- **Confidence score distribution shifts** — if the model suddenly becomes less confident in its predictions (more outputs near 0.5 instead of near 0 or 1), the input data may have drifted
+- **Error rate trends** — tracking whether errors are increasing, stable, or decreasing over time
+
+These ML-specific signals are used as **triggers for model re-training.** When signals cross predefined thresholds, the system automatically initiates the retraining pipeline.
+
+**Model Performance Logging — Recording Everything (Slide P25):**
+
+Every inference request through the model results in a **log record** containing:
+- **Input features** — the exact values the model received
+- **Prediction** — the model's output (class, probability, score)
+- **Timestamp** — when the prediction was made
+- **Latency** — how long the prediction took
+
+These logs serve multiple purposes: debugging incorrect predictions, computing accuracy once ground truth arrives, detecting drift patterns, and satisfying audit/compliance requirements.
+
+**The Performance Monitor as a System Component (Slide P66):**
+
+The performance monitor is the **next step toward deciding whether a model can be integrated into a production application.** It works as follows:
+
+1. **Use the model on production data** in a production-like setting
+2. **Monitor performance through time** — not just a one-time test, but continuous observation over days/weeks
+3. This requires: **acquiring and storing production inputs, ground truths, and predictions** in a database
+
+```
+┌──────────────┐     ┌──────────────┐     ┌──────────────┐
+│ Production   │────→│  Database     │────→│ Performance  │
+│ Inputs +     │     │ (stores      │     │ Monitor      │
+│ Model        │     │  inputs,     │     │ Program      │
+│ Predictions  │     │  predictions,│     │              │
+│              │     │  ground      │     │              │
+│              │     │  truths)     │     │              │
+└──────────────┘     └──────────────┘     └──────┬───────┘
+                                                   │
+                                                   ▼
+                                           ┌──────────────┐
+                                           │ Calls        │
+                                           │ Evaluator    │
+                                           │ → Updates    │
+                                           │ Dashboard    │
+                                           │ showing      │
+                                           │ performance  │
+                                           │ evolution    │
+                                           └──────────────┘
+```
+
+The **performance monitor program** reads from the database, calls the evaluator (see below), and **updates a dashboard showing how performance evolves over time.** This gives the team a clear visual of whether the model is stable, improving, or degrading.
+
+**Dashboards and Reports:**
+
+Effective monitoring requires clear **dashboards** that provide visibility into model health at a glance:
+
+| Dashboard View | What It Shows | Audience |
+|---|---|---|
+| **Real-time metrics** | Live prediction volume, latency, error rates | On-call ML engineers |
+| **Daily trends** | Accuracy, precision, recall trends over the past 30 days | ML team lead, data scientists |
+| **Drift reports** | Feature distribution comparisons (training vs. current) | Data engineers, ML engineers |
+| **Business impact** | Model's effect on business KPIs (revenue, conversion, churn) | Business stakeholders, product managers |
+
+**Timely Notifications for Corrective Action:**
+
+The monitoring system sends **alerts** when metrics breach thresholds, enabling the team to take corrective action before users are significantly affected:
+
+| Alert Level | Trigger | Action |
+|---|---|---|
+| **Warning** | Accuracy drops 5% below baseline for 24 hours | Team investigates — may be temporary (e.g., holiday traffic) |
+| **Critical** | Accuracy drops 10%+ below baseline, or latency exceeds SLA | Immediate investigation + potential rollback to previous model |
+| **Emergency** | Model serving is down, or producing clearly wrong predictions at scale | Automatic rollback + page the on-call engineer |
+
+When performance drops, the standard response is to **retrain the model with the latest data.** This is why the monitoring system connects back to the retraining pipeline — forming the complete feedback loop.
 
 A performance monitor tracks four types of metrics:
 
@@ -738,17 +1271,28 @@ Monitor detects issue
 - A new category of data appears that the model has never seen (e.g., a new payment method)
 - Business rules change (e.g., new delivery zones added)
 
-### Deployment in Detail — From Model to Production
+### Deployment in Detail — From Model to Production (Slides P52-54)
 
 Getting a model from a notebook to production is more involved than it sounds. Here are the key deployment options and the full production pipeline.
 
 **Deployment Options:**
 
-| Option | How It Works | When to Use |
+| Option | How It Works | When to Use | Example |
+|---|---|---|---|
+| **Real-time endpoints (API)** | Model is hosted as a REST API. Applications send a request, get a prediction back in milliseconds. Each request = one prediction. | When users need instant predictions — fraud detection at payment time, product recommendations on page load | PhonePe sends each UPI transaction to the fraud model API → gets back "fraud probability: 0.03" in 15ms → allows the transaction |
+| **Batch transform** | Model processes an entire dataset at once (e.g., overnight). Results are stored for later use. No real-time interaction. | When predictions don't need to be instant — scoring all customers for a marketing campaign, generating weekly risk reports | A bank scores all 5 million customers overnight to determine credit risk tiers for the next month's marketing campaign |
+| **Edge deployment (on-device)** | Model runs directly on the user's device (phone, IoT sensor, car). No internet needed. Predictions happen locally. | When low latency is critical or connectivity is unreliable — self-driving cars, voice assistants, factory sensors | Google's on-device speech recognition in Pixel phones — works in airplane mode because the model runs locally |
+
+**Model Serving — Making Predictions Available:**
+
+Model serving is the infrastructure that takes prediction requests and returns results. Key considerations:
+
+| Concern | What It Means | How to Handle |
 |---|---|---|
-| **Real-time endpoints (API)** | Model is hosted as a REST API. Applications send a request, get a prediction back in milliseconds. | When users need instant predictions — fraud detection at payment time, product recommendations on page load |
-| **Batch transform** | Model processes an entire dataset at once (e.g., overnight). Results are stored for later use. | When predictions don't need to be instant — scoring all customers for a marketing campaign, generating weekly risk reports |
-| **Edge deployment (on-device)** | Model runs directly on the user's device (phone, IoT sensor, car). No internet needed. | When low latency is critical or connectivity is unreliable — self-driving cars, voice assistants, factory sensors |
+| **Load balancing** | Distribute incoming requests across multiple model instances to avoid overload | Use load balancers (Nginx, cloud ALB) to spread traffic evenly |
+| **Auto-scaling** | Automatically add/remove model instances based on traffic | Cloud platforms scale from 2 instances during quiet hours to 20 during peak |
+| **Model versioning** | Multiple model versions may be live simultaneously (for A/B testing or gradual rollout) | Route X% of traffic to new model, (100-X)% to old model |
+| **Failover** | If one model instance crashes, traffic is rerouted to healthy instances | Health checks every 10 seconds; unhealthy instances removed from rotation |
 
 **The Production Pipeline — QA to Production:**
 
@@ -779,6 +1323,41 @@ Models are not "deploy once and forget." There are two types of retraining trigg
 | **Event-based** | Retraining is triggered by a specific event — e.g., a data provider uploads a new file | A credit scoring model retrains whenever the credit bureau sends updated customer data |
 
 > Both approaches can coexist. Scheduled retraining keeps the model fresh on a regular basis, while event-based retraining handles unexpected data changes quickly.
+
+**Concept Drift Detection and Data Quality Monitoring (Slides P52-54):**
+
+Two critical monitoring aspects during deployment:
+
+| Issue | What It Is | How to Detect | Example |
+|---|---|---|---|
+| **Concept drift** | The relationship between inputs and outputs changes. The "rules" the model learned are no longer correct. | Monitor prediction distribution shifts, compare model performance against recent ground truth | During COVID, "number of flights booked" used to predict travel spending. After COVID, the relationship changed — people book fewer but more expensive flights. |
+| **Data quality degradation** | Input data quality drops — missing values increase, formats change, new categories appear | Automated data validation checks on every incoming batch | A data provider changes their API format, and 30% of fields start arriving as null |
+
+**Rollback Strategy — When Things Go Wrong:**
+
+Every deployment must have a **rollback plan** — the ability to quickly revert to the previous model version if the new one causes problems.
+
+| Rollback Trigger | Action | Timeline |
+|---|---|---|
+| Accuracy drops >10% within first 24 hours | Automatic rollback to previous model version | Immediate (seconds) |
+| Latency exceeds SLA for >5 minutes | Route traffic back to previous model | Immediate (seconds) |
+| Business metrics (revenue, conversion) drop significantly | Manual investigation + rollback if confirmed | Hours (requires human decision) |
+
+> **Live Example:** Uber deployed a new surge pricing model that accidentally set prices too high in certain neighborhoods. Their monitoring system detected a 40% drop in ride acceptance within 2 hours. The rollback strategy kicked in — the previous model was restored automatically, and prices normalized within minutes.
+
+**Model Performance Logging — Recording Every Prediction:**
+
+Every inference request through the deployed model results in a **log record.** This log is essential for debugging, auditing, and monitoring.
+
+| Log Field | What It Records | Why It Matters |
+|---|---|---|
+| **Input features** | The exact feature values sent to the model | Allows you to replay predictions and debug incorrect ones |
+| **Prediction output** | The model's prediction (class label, probability, score) | Needed to compare against ground truth later |
+| **Timestamp** | Exact time the prediction was made | Helps identify when problems started |
+| **Latency** | How long the prediction took (in milliseconds) | Detects performance degradation |
+| **Model version** | Which model version served the prediction | Critical for A/B testing analysis and debugging |
+
+> **Example:** A fraud detection system logs every transaction prediction. Months later, an auditor asks: "Why was transaction TX-1234567 flagged as fraud on March 15?" The team can look up the log record, see exactly which features the model received, what score it produced (0.87 — above the 0.7 threshold), and which model version made the decision. Without logging, answering this question would be impossible.
 
 One of the biggest problems in AI systems is **training-serving skew** — when the data or features used during training are different from what's available during serving.
 
@@ -949,6 +1528,131 @@ Start here
 
 > **Rule of thumb:** XGBoost wins ~80% of tabular data competitions on Kaggle. Don't use deep learning for spreadsheet-style data unless you have a very good reason.
 
+### Model Development — The Training and Tuning Process (Slide P44)
+
+Once you've selected an algorithm to start with, the actual model development process follows these steps:
+
+1. **Select an ML algorithm appropriate for the problem** — Match algorithm type to task type. Classification? Try logistic regression, random forest, XGBoost. Regression? Try linear regression, gradient boosting. Image data? Try CNNs. Text? Try transformers.
+
+2. **Provide the algorithm with training data** — Feed the prepared, preprocessed, feature-engineered training dataset to the algorithm. The algorithm iterates over the data multiple times (epochs), adjusting its internal parameters to minimize prediction error.
+
+3. **Set an objective metric for the model to optimize** — Tell the algorithm what "good" means. This is the **loss function** — the mathematical formula the model tries to minimize during training.
+
+   | Task Type | Common Objective Metrics |
+   |---|---|
+   | Binary classification | Log loss (binary cross-entropy), AUC-ROC |
+   | Multi-class classification | Categorical cross-entropy, multi-class log loss |
+   | Regression | Mean Squared Error (MSE), Mean Absolute Error (MAE), RMSE |
+   | Ranking | NDCG (Normalized Discounted Cumulative Gain), MAP |
+
+4. **Set hyperparameters to optimize the training process** — Hyperparameters are knobs that control *how* the model learns (not *what* it learns). They are set before training begins and don't change during training.
+
+   | Hyperparameter | What It Controls | Example |
+   |---|---|---|
+   | **Learning rate** | How big each step is during optimization — too high = overshoot, too low = too slow | 0.001, 0.01, 0.1 |
+   | **Number of epochs** | How many times the model sees the entire training data | 10, 50, 100, 500 |
+   | **Batch size** | How many examples the model processes before updating its weights | 32, 64, 128, 256 |
+   | **Max depth (trees)** | How deep each decision tree can grow | 3, 6, 10, 15 |
+   | **Regularization strength** | How much to penalize model complexity (prevents overfitting) | L1/L2 penalty: 0.01, 0.1, 1.0 |
+
+> **Example:** Training an XGBoost model for credit scoring: you set learning_rate=0.05, max_depth=6, n_estimators=500, and the objective metric to log_loss. The model trains on 70% of data, and after each round of trees, you check validation loss. If validation loss stops improving for 20 rounds (early stopping), training stops automatically to prevent overfitting.
+
+### Debugging and Profiling During Training (Slides P47-48)
+
+Training doesn't always go smoothly. Two critical activities during training are:
+
+**Debugging — Checking for Convergence Issues:**
+
+| Problem | What It Looks Like | Fix |
+|---|---|---|
+| **Loss not decreasing** | Training loss stays flat after many epochs | Learning rate may be too low, or features have no signal. Try higher learning rate or better features. |
+| **Loss exploding (NaN)** | Loss suddenly jumps to infinity or NaN | Learning rate too high, or data has extreme outliers. Reduce learning rate, clip gradients, check data. |
+| **Training loss decreasing but validation loss increasing** | Classic overfitting — model memorizes training data | Add regularization, reduce model complexity, add dropout, get more data. |
+| **Both losses high** | Underfitting — model too simple for the data | Use a more powerful model, add more features, train longer. |
+
+**Profiling — Measuring Performance and Finding Bottlenecks:**
+
+Profiling measures the **step time** (how long each training iteration takes) and identifies **system bottlenecks** that slow training down:
+
+| Bottleneck | Symptom | Fix |
+|---|---|---|
+| **GPU underutilization** | GPU is idle 50%+ of the time, waiting for data | Speed up data loading pipeline (use prefetching, more data loader workers) |
+| **Memory overflow** | Training crashes with "out of memory" error | Reduce batch size, use gradient checkpointing, use mixed precision training |
+| **Slow data loading** | CPU is busy reading/processing data while GPU waits | Use faster storage (SSD), cache data in memory, use optimized data formats (Parquet, TFRecord) |
+| **Communication overhead** | In distributed training, nodes spend more time syncing than training | Use gradient compression, reduce sync frequency, optimize network topology |
+
+### Model Evaluation — Offline and Online (Slides P47-48)
+
+After training, you need to evaluate whether the model is actually good enough. There are two distinct evaluation approaches:
+
+**Offline Evaluation — Testing Before Deployment:**
+
+Offline evaluation happens on **held-out data** that the model has never seen during training.
+
+| Method | How It Works | When to Use |
+|---|---|---|
+| **Hold-out test set** | Train on 80% of data, test on the remaining 20% | Quick evaluation, sufficient when data is abundant |
+| **K-fold cross-validation** | Rotate which portion is the test set (see Step 4 in Section 1.9) | When data is limited and you need a more reliable estimate |
+| **Stratified evaluation** | Evaluate separately on different subgroups (by age, gender, region) | When fairness across groups matters (lending, hiring) |
+
+**Online Evaluation — Testing in Production with Real Users:**
+
+Even if a model passes offline evaluation, it may behave differently in the real world. Online evaluation tests the model on **live traffic:**
+
+| Method | How It Works | Risk Level |
+|---|---|---|
+| **A/B testing** | Split real users randomly — 50% see old model (A), 50% see new model (B). Compare business metrics. | Low — controlled experiment with easy rollback |
+| **Canary deployment** | Deploy new model to a tiny fraction (1-5%) of traffic first. If metrics look good, gradually increase to 100%. | Very low — limits blast radius of a bad model |
+| **Shadow mode** | New model runs alongside the production model but its predictions are **not shown to users.** You log both models' predictions and compare offline. | Zero — no user impact, purely observational |
+
+> **Example:** Spotify wants to test a new playlist recommendation model. They deploy it in shadow mode for 2 weeks — the old model serves users as usual, but the new model also generates recommendations that are logged but never shown. After 2 weeks, they compare: the new model would have generated 15% more playlist plays. Confident in the results, they move to A/B testing with 5% of users, then gradually roll out to everyone.
+
+### Model Validation — Confirming Generalization (Slides P49-50)
+
+Model validation is a **separate step from evaluation.** While evaluation measures accuracy on test data, validation **confirms the model can generalize to truly unseen data** and meets all requirements for deployment.
+
+| Validation Check | What It Confirms | Example |
+|---|---|---|
+| **Performance vs. baseline** | New model beats the current production model or a simple baseline | New fraud model recall = 92% vs. current model recall = 87% ✅ |
+| **Performance vs. target** | Model meets the business-defined performance threshold | Target: precision ≥ 85%. Model precision = 88% ✅ |
+| **Fairness check** | Model performs similarly across demographic groups | Loan approval rate for men = 65%, for women = 63% (within acceptable range) ✅ |
+| **Robustness check** | Model handles edge cases and adversarial inputs gracefully | Model given corrupted input → returns "low confidence" instead of crashing ✅ |
+
+### Model Testing — Beyond Accuracy (Slides P49-50)
+
+Model testing goes beyond prediction accuracy to verify **operational requirements** — can this model actually run reliably in production?
+
+| Test Type | What It Checks | Pass Criteria Example |
+|---|---|---|
+| **Latency testing** | How fast the model returns a prediction | P99 latency < 100ms (99% of predictions complete within 100ms) |
+| **Throughput testing** | How many predictions per second the model can handle | Sustain 5,000 requests per second during peak traffic |
+| **Infrastructure testing** | Model works on the target deployment infrastructure | Model loads correctly on the production Kubernetes cluster, GPU memory usage < 80% |
+| **Operational testing** | Model handles failures gracefully | If the model server crashes, it restarts within 30 seconds and doesn't lose requests |
+
+> **Key insight:** A model can have 95% accuracy but still fail in production because it takes 2 seconds per prediction (too slow), can't handle 1,000 concurrent requests (insufficient throughput), or crashes when it receives unexpected input formats. Model testing catches these problems before they affect users.
+
+### Model Selection — Choosing the Best Model for Production (Slide P51)
+
+After training, evaluating, validating, and testing multiple candidate models, you need to select the one that goes to production. The selection criteria go far beyond just accuracy:
+
+| Selection Criterion | What It Means | Trade-off |
+|---|---|---|
+| **Prediction accuracy** | How often the model gets the right answer | Higher accuracy often requires more complex (and slower) models |
+| **Latency** | How fast the model returns predictions | Simpler models are faster; deep learning models are slower |
+| **Model size** | How much memory/storage the model needs | Smaller models can run on edge devices; large models need cloud servers |
+| **Maintenance cost** | How much effort is needed to keep the model updated | Complex ensemble models need more maintenance than simple models |
+| **Explainability** | Can you explain why the model made a specific prediction? | Linear models are fully explainable; deep learning is a black box |
+| **Alignment with business objectives** | Does the model optimize what the business actually cares about? | A model optimizing for accuracy may not optimize for revenue |
+
+Once the best model is selected, it is **registered in the model registry** — a versioned store that tracks:
+- Model version number
+- Training date and data snapshot used
+- Hyperparameters and algorithm used
+- Performance metrics (accuracy, latency, throughput)
+- Who approved the model for deployment
+
+> **Example:** After evaluating 5 candidate models for a real-time fraud detection system, the team selects XGBoost over a neural network. Why? XGBoost has 91% recall (neural net has 93%), but XGBoost has 15ms latency (neural net has 200ms). For real-time fraud detection at payment time, the 2% recall difference isn't worth the 13x latency increase. The XGBoost model is registered as v3.1 in the model registry and promoted to production.
+
 ### Distributed Training — Training Faster Across Multiple Machines
 
 When models are very large or datasets are massive, training on a single machine takes too long — sometimes days or weeks. **Distributed training** splits the work across multiple computing instances to reduce training time from days to hours.
@@ -1058,12 +1762,33 @@ For exams and interviews, knowing **specific company examples** with **concrete 
 | **Inference / Serving** | Using a trained model to make predictions on new, unseen data |
 | **Feature** | A measurable property used as input to a model (e.g., age, income, number of clicks) |
 | **Feature Engineering** | Creating new, more useful features from raw data (e.g., extracting "hour of day" from a timestamp) |
+| **Feature Creation** | Building new features from existing data using techniques like one-hot encoding, binning, and calculated fields |
+| **Feature Transformation** | Handling missing/invalid features and applying mathematical transforms (log, Cartesian products) |
+| **Feature Extraction** | Reducing dimensionality using techniques like PCA, ICA, and LDA to keep important information with fewer features |
+| **Feature Selection** | Choosing the subset of features that are most relevant to minimizing the model's error rate |
 | **Feature Store** | A centralised repository that stores and serves pre-computed features consistently for training and serving |
+| **Data Preparation (Gartner)** | An iterative, agile process for exploring, combining, cleaning, and transforming raw data into curated datasets |
+| **Data Ingestion** | Collecting and importing data from various sources using batch or streaming methods |
+| **Data Exploration / Profiling** | Examining data content and structure to produce metadata (min, max, avg, missing counts) |
+| **Data Validation** | Automated checks (schema, range, null, distribution) that scan datasets to spot errors before training |
+| **Data Wrangling** | Re-formatting attributes and correcting errors in the dataset, including missing value imputation |
+| **Data Labelling** | Assigning each data point to a specific category for supervised learning |
+| **Data Splitting** | Dividing data into training, validation, and test sets |
+| **EDA (Exploratory Data Analysis)** | Systematic process of visualizing and summarizing data to identify patterns, anomalies, and relationships |
+| **Imputation** | Filling in missing values using statistical methods (mean, median, mode) or model-based prediction |
+| **Data Augmentation** | Artificially increasing training data by creating modified copies (rotation, flipping, synonym replacement) |
+| **Normalization** | Scaling feature values to a 0-1 range using (value - min) / (max - min) |
+| **Standardization** | Scaling features to mean=0, std=1 using z-score — handles outliers better than normalization |
+| **PCA (Principal Component Analysis)** | Dimensionality reduction technique that finds directions of maximum variance to reduce feature count |
 | **Overfitting** | When a model memorises training data too well and fails on new data (like memorising answers vs understanding concepts) |
 | **Underfitting** | When a model is too simple to capture the patterns in data (like fitting a straight line to curved data) |
 | **Data Drift** | When real-world data changes over time, making the model's training data outdated |
+| **Concept Drift** | When the relationship between inputs and outputs changes (the "rules" the model learned no longer hold) |
+| **Feature Attribution Drift** | When the relative importance of features changes over time |
 | **Training-Serving Skew** | When data or features differ between training and production, causing unexpected errors |
 | **A/B Testing** | Comparing two versions (A and B) on real users to see which performs better |
+| **Canary Deployment** | Deploying a new model to a tiny fraction of traffic first, then gradually increasing |
+| **Shadow Mode** | Running a new model alongside production but not showing its predictions to users — for safe comparison |
 | **ML Problem Framing** | Translating a business goal into a specific ML task type (classification, regression, ranking, etc.) |
 | **Binary Classification** | Predicting one of two categories (yes/no, spam/not-spam, fraud/not-fraud) |
 | **Regression** | Predicting a continuous number (price, delivery time, temperature) |
@@ -1072,11 +1797,20 @@ For exams and interviews, knowing **specific company examples** with **concrete 
 | **SHAP** | SHapley Additive exPlanations — calculates each feature's contribution to a prediction using game theory |
 | **LIME** | Local Interpretable Model-agnostic Explanations — explains individual predictions using simple local models |
 | **Ground Truth** | The actual correct outcome used to measure if a model's prediction was right |
+| **Data Labeller** | A component/tool for manually or semi-automatically assigning labels to training data |
+| **Evaluator** | A component that measures model performance against test cases and decides if deployment is safe |
+| **Performance Monitor** | A system that continuously tracks model health in production and triggers alerts/retraining |
 | **Model Registry** | A versioned store for trained models — like Git but for ML models |
 | **Hyperparameter Tuning** | Finding the best settings (knobs) for an ML algorithm to improve performance |
+| **Loss Function** | The mathematical formula the model tries to minimize during training (e.g., log loss, MSE) |
 | **Cross-Validation** | Testing model performance across multiple train/test splits for a more reliable accuracy estimate |
 | **Imbalanced Data** | When one class heavily outnumbers another (e.g., 99% non-fraud, 1% fraud) — requires special techniques |
 | **Data Leakage** | When training data accidentally contains future information that won't be available during serving |
+| **Drift Feedback Loop** | Automated system that connects model monitoring back to retraining when performance degrades |
+| **Alarm Manager** | Component that receives monitoring alerts and triggers notifications, retraining, or escalation |
+| **Scheduler** | Component that initiates model retraining at business-defined intervals (daily, weekly, monthly) |
+| **Lineage Tracker** | Component that records all data, model, and infrastructure details to enable reproducible ML experiments |
+| **Rollback** | Reverting to a previous model version when the new model causes problems in production |
 
 ---
 
