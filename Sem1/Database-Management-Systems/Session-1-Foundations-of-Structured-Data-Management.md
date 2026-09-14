@@ -60,6 +60,60 @@ A DBMS facilitates:
 
 **Examples:** MySQL, PostgreSQL, MongoDB, Oracle, SQL Server, CockroachDB.
 
+### Database System Environment
+
+*(From class slide P10)*
+
+A database does not operate in isolation — it exists within a **Database System Environment** consisting of five interacting components:
+
+| Component | Description |
+|---|---|
+| **Hardware** | Physical devices — servers, storage disks, network infrastructure, client machines. The database software runs on this hardware. |
+| **Software** | Three layers: (1) the **DBMS software** itself (Oracle, PostgreSQL, etc.), (2) the **Operating System** (manages hardware resources for the DBMS), and (3) **Application Programs** (user-facing software that accesses the database through the DBMS). |
+| **Data** | The actual information stored in the database — both the user data (rows in tables) and the **metadata** (schema definitions, constraints, stored in the system catalog). |
+| **Users** | People who interact with the database system (see user types below). |
+| **Procedures** | Documented rules, instructions, and guidelines for using and administering the database system — how to log in, how to run backups, how to request schema changes, etc. |
+
+**User types in the database environment:**
+
+| User Type | Role | Example |
+|---|---|---|
+| **Database Administrator (DBA)** | Manages the database system: schema design, access control, backup/recovery, performance tuning, security. Responsible for the overall health of the system. | Senior DBA managing a production Oracle database. |
+| **Database Designers** | Design the conceptual and logical schema — decide what tables, attributes, relationships, and constraints the database needs. Work closely with stakeholders. | A data architect designing the schema for a new e-commerce platform. |
+| **End Users** | People who query and update the database through application interfaces. May be casual (occasional ad-hoc queries) or parametric/naïve (repetitive, predefined transactions like bank tellers). | A bank teller processing deposits, a manager running monthly reports. |
+| **Application Programmers** | Write software (in Java, Python, C#, etc.) that accesses the database via SQL or APIs. The applications they build are what end users interact with. | A developer building a student registration web application. |
+
+**How these components interact:**
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                         USERS                                   │
+│  DBA │ Database Designers │ App Programmers │ End Users          │
+└──────┴────────────────────┴─────────────────┴───────────────────┘
+       │                    │                 │
+       ▼                    ▼                 ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                    SOFTWARE                                      │
+│  Application Programs ──→ DBMS Software ──→ Operating System     │
+└─────────────────────────────────────────────────────────────────┘
+       │                                      │
+       ▼                                      ▼
+┌──────────────────┐              ┌────────────────────────┐
+│   PROCEDURES     │              │      HARDWARE          │
+│ (Rules &         │              │  Servers, Disks,       │
+│  Guidelines)     │              │  Network, Clients      │
+└──────────────────┘              └────────────────────────┘
+                                          │
+                                          ▼
+                                  ┌───────────────┐
+                                  │     DATA      │
+                                  │ (Stored in    │
+                                  │  Database)    │
+                                  └───────────────┘
+```
+
+Users interact with the database through software (application programs and the DBMS). The DBMS runs on the operating system, which manages the hardware. Procedures govern how all participants use the system. Data — the core asset — is stored on hardware, managed by the DBMS, and accessed by users through software.
+
 ### Why Do We Need Formal Data Management?
 
 In any organisation — a university, a bank, a hospital, an e-commerce company — data is generated continuously: student enrolments, financial transactions, patient records, customer orders. Without a systematic way to manage this data, organisations face chaos.
@@ -429,6 +483,46 @@ This is the standard algorithm for converting an ER diagram into relational tabl
 | Composite attribute | Include only the simple component sub-attributes (not the composite name). | The composite name is just a grouping; only leaf-level attributes are stored. |
 | Derived attribute | Usually not stored; computed at query time (or materialised for performance). | Storing derived values risks inconsistency if the source changes. |
 
+### 1.5.6 ER Diagram Notations (Symbol Reference)
+
+*(From class slide P38)*
+
+The following standard symbols are used in ER diagrams. Knowing these is essential for reading and drawing ER models:
+
+| Symbol | Represents | Description |
+|---|---|---|
+| **Rectangle** | Entity | A strong entity type (e.g. EMPLOYEE, DEPARTMENT). |
+| **Double Rectangle** | Weak Entity | An entity that cannot be uniquely identified by its own attributes alone (e.g. DEPENDENT). |
+| **Oval** | Attribute | A property of an entity or relationship (e.g. Name, Salary). |
+| **Double Oval** | Multi-valued Attribute | An attribute that can have multiple values (e.g. Phone_Numbers, Dlocation). |
+| **Dashed Oval** | Derived Attribute | An attribute computed from other attributes (e.g. Age derived from Bdate). |
+| **Underlined text in oval** | Key Attribute | The attribute(s) that uniquely identify the entity (e.g. SSN, Dnumber). Shown with an underline. |
+| **Diamond** | Relationship | An association between entity types (e.g. WORKS_FOR, MANAGES). |
+| **Double Diamond** | Identifying Relationship | A relationship that connects a weak entity to its owner/identifying entity (e.g. DEPENDENTS_OF). |
+| **Single line** | Partial Participation | Not every entity instance participates in the relationship (e.g. not every Employee manages a Department). |
+| **Double line** | Total Participation | Every entity instance must participate in the relationship (e.g. every Employee must WORK_FOR a Department). |
+| **1, M, N on lines** | Cardinality | Numbers placed near entities on the relationship lines indicate the cardinality ratio: 1:1, 1:M (one-to-many), or M:N (many-to-many). |
+
+**Visual summary:**
+
+```
+  ┌───────────┐                    ╔═══════════╗
+  │  ENTITY   │  (Strong)          ║ WEAK ENTITY║  (Double border)
+  └───────────┘                    ╚═══════════╝
+
+  (  Attribute  )     ((Multi-valued))     (- - Derived - -)
+
+  ( _Key_Attr_ )      (underlined = key)
+
+    ◇ Relationship ◇   (Diamond)        ◆◆ Identifying Rel ◆◆  (Double diamond)
+
+  ────── Single line = Partial participation
+  ══════ Double line = Total participation
+
+  ──1────◇────M──  = 1:M cardinality
+  ──M────◇────N──  = M:N cardinality
+```
+
 ---
 
 ## 1.7 COMPANY Database — Worked ER Exercise
@@ -499,7 +593,57 @@ Normalisation is the systematic process of decomposing relations to eliminate re
 
 ### 1.6.1 Functional Dependencies (FDs)
 
-A functional dependency **X → Y** means: if two tuples agree on X, they must agree on Y. Knowing X uniquely determines Y.
+A **functional dependency X → Y** means: if two tuples agree on the values of attribute set X, they must agree on the values of attribute set Y. In other words, knowing the value of X **uniquely determines** the value of Y.
+
+**Formal definition:** In a relation R, X → Y holds if and only if for any two tuples t₁ and t₂ in R: if t₁[X] = t₂[X], then t₁[Y] = t₂[Y].
+
+**Example:** Student_ID → Student_Name. Knowing a student's ID uniquely determines their name — two different students cannot share the same ID but have different names.
+
+#### Trivial vs. Non-trivial FDs
+
+| Type | Definition | Example |
+|---|---|---|
+| **Trivial FD** | X → Y where Y ⊆ X (Y is a subset of X). Always true by definition. | {Student_ID, Name} → Student_ID (trivially true) |
+| **Non-trivial FD** | X → Y where Y is NOT a subset of X. These are the meaningful dependencies. | Student_ID → Student_Name (non-trivial, tells us something useful) |
+
+#### Armstrong's Axioms
+
+Armstrong's Axioms are a set of inference rules used to derive **all** functional dependencies implied by a given set of FDs. They are **sound** (every derived FD is correct) and **complete** (every valid FD can be derived).
+
+| Axiom | Rule | Explanation | Example |
+|---|---|---|---|
+| **Reflexivity** | If Y ⊆ X, then X → Y | A set of attributes always determines any subset of itself. | {A, B} → A (trivial) |
+| **Augmentation** | If X → Y, then XZ → YZ | Adding the same attributes to both sides preserves the dependency. | If A → B, then AC → BC |
+| **Transitivity** | If X → Y and Y → Z, then X → Z | Dependencies chain together. | If Emp_ID → Dept_ID and Dept_ID → Dept_Name, then Emp_ID → Dept_Name |
+
+**Derived rules** (from Armstrong's Axioms):
+- **Union:** If X → Y and X → Z, then X → YZ
+- **Decomposition:** If X → YZ, then X → Y and X → Z
+- **Pseudo-transitivity:** If X → Y and WY → Z, then WX → Z
+
+#### Closure of an Attribute Set (X⁺)
+
+The **closure** of an attribute set X (written X⁺) is the set of **all attributes** that are functionally determined by X, given a set of functional dependencies F.
+
+**Algorithm to compute X⁺:**
+1. Start with X⁺ = X
+2. For each FD (A → B) in F: if A ⊆ X⁺, then X⁺ = X⁺ ∪ B
+3. Repeat step 2 until X⁺ doesn't change
+
+**Example:** Given FDs F = {A → B, B → C, C → D}
+
+```
+Compute A⁺:
+  Start: A⁺ = {A}
+  A → B:  A ⊆ {A}? Yes → A⁺ = {A, B}
+  B → C:  B ⊆ {A, B}? Yes → A⁺ = {A, B, C}
+  C → D:  C ⊆ {A, B, C}? Yes → A⁺ = {A, B, C, D}
+  No more changes → A⁺ = {A, B, C, D}
+```
+
+**Usefulness:** If X⁺ contains all attributes of the relation, then X is a **superkey**. This is how you check whether a set of attributes can serve as a key.
+
+#### Types of FDs in Normalisation Context
 
 | Type | Definition | Example |
 |---|---|---|
@@ -518,11 +662,136 @@ A functional dependency **X → Y** means: if two tuples agree on X, they must a
 
 ### 1.6.3 Update Anomalies (Why Normalise?)
 
-| Anomaly | Problem | Example |
+Anomalies arise when a relation contains **redundant data** due to poor design (non-normalised tables). They are the primary motivation for normalisation.
+
+**Concrete example — An un-normalised table:**
+
+Consider a single table that stores both employee and department information together:
+
+```
+EMP_DEPT (un-normalised):
+┌────────┬──────────┬─────────┬───────────┬─────────────────┐
+│ Emp_ID │ Emp_Name │ Dept_ID │ Dept_Name │ Dept_Location   │
+├────────┼──────────┼─────────┼───────────┼─────────────────┤
+│ 101    │ Alice    │ D10     │ Finance   │ London          │
+│ 102    │ Bob      │ D10     │ Finance   │ London          │
+│ 103    │ Carol    │ D10     │ Finance   │ London          │
+│ 104    │ Dave     │ D20     │ IT        │ Mumbai          │
+│ 105    │ Eve      │ D20     │ IT        │ Mumbai          │
+└────────┴──────────┴─────────┴───────────┴─────────────────┘
+
+Problem: "Finance" and "London" are repeated for EVERY Finance employee.
+         "IT" and "Mumbai" are repeated for EVERY IT employee.
+```
+
+Now let's see all three anomalies in action:
+
+| Anomaly | Problem | Example on EMP_DEPT table |
 |---|---|---|
-| **Insertion** | Cannot insert data without unrelated data. | Can't add a new department unless at least one employee exists in it. |
-| **Deletion** | Deleting data causes unintended loss. | Deleting the last employee in a department loses the department info entirely. |
-| **Update** | Must update the same fact in multiple rows. | Renaming a department requires updating every employee row in that department. |
+| **Update Anomaly** | Changing a fact requires updating **every** row where it appears. Missing even one row creates inconsistency. | Renaming "Finance" to "Financial Services" requires updating rows 101, 102, AND 103. If you update only rows 101 and 102 but miss 103, the database now shows two different names for the same department — contradictory data. |
+| **Insertion Anomaly** | Cannot insert new data without also inserting unrelated data that may not exist yet. | Want to create a new department "HR" (D30) but haven't hired any employees for it yet. You **cannot** insert a row because Emp_ID (the PK) would be NULL, violating entity integrity. The department can't exist without an employee. |
+| **Deletion Anomaly** | Deleting data causes **unintended loss** of other unrelated data. | If Dave (104) and Eve (105) both leave the company and their rows are deleted, we lose not just employee information but also the fact that department D20 ("IT") exists and is in Mumbai. The entire department's information is accidentally destroyed. |
+
+**Solution through normalisation:** Decompose EMP_DEPT into two tables:
+
+```
+EMPLOYEE(Emp_ID PK, Emp_Name, Dept_ID FK)     DEPARTMENT(Dept_ID PK, Dept_Name, Dept_Location)
+┌────────┬──────────┬─────────┐               ┌─────────┬───────────┬─────────────────┐
+│ Emp_ID │ Emp_Name │ Dept_ID │               │ Dept_ID │ Dept_Name │ Dept_Location   │
+├────────┼──────────┼─────────┤               ├─────────┼───────────┼─────────────────┤
+│ 101    │ Alice    │ D10     │               │ D10     │ Finance   │ London          │
+│ 102    │ Bob      │ D10     │               │ D20     │ IT        │ Mumbai          │
+│ 103    │ Carol    │ D10     │               └─────────┴───────────┴─────────────────┘
+│ 104    │ Dave     │ D20     │
+│ 105    │ Eve      │ D20     │
+└────────┴──────────┴─────────┘
+
+✓ Update: Rename "Finance" once in DEPARTMENT. All employees automatically reflect it.
+✓ Insert: Add department "HR" to DEPARTMENT without needing any employees.
+✓ Delete: Deleting Dave and Eve from EMPLOYEE doesn't touch DEPARTMENT — IT still exists.
+```
+
+### 1.6.4 Decomposition
+
+**Decomposition** is the process of breaking a poorly structured (un-normalised) relation into two or more well-structured relations to eliminate redundancy and anomalies. It is the fundamental technique used in normalisation.
+
+However, not all decompositions are equal. A **good decomposition** must satisfy two properties:
+
+#### a) Lossless Join (Non-loss) Decomposition
+
+The original relation can be **perfectly reconstructed** by joining the decomposed relations. No data is lost, and no spurious (false) tuples are introduced.
+
+**Test:** A decomposition of R into R₁ and R₂ is lossless if the common attributes (R₁ ∩ R₂) form a **superkey** of either R₁ or R₂.
+
+#### b) Dependency Preserving Decomposition
+
+All functional dependencies from the original relation can be verified (checked) in the decomposed relations **without needing to join them back together**. Each original FD should be enforceable by looking at a single decomposed table.
+
+**Why it matters:** If an FD can only be checked by joining two tables, every INSERT or UPDATE requires an expensive join just to validate constraints — defeating the purpose of decomposition.
+
+#### Both Properties Should Be Satisfied
+
+A good decomposition is both lossless-join AND dependency-preserving. Sometimes achieving BCNF requires sacrificing dependency preservation (in which case 3NF is preferred as it always allows a dependency-preserving decomposition).
+
+**Example:**
+
+```
+Original (un-normalised):
+  EMPLOYEE(EmpID, Name, DeptID, DeptName)
+  FDs: EmpID → Name, DeptID, DeptName
+       DeptID → DeptName
+
+Decompose into:
+  EMPLOYEE(EmpID PK, Name, DeptID FK)
+  DEPARTMENT(DeptID PK, DeptName)
+
+Lossless? Yes — common attribute is DeptID, which is the PK
+  (superkey) of DEPARTMENT. Joining on DeptID perfectly
+  reconstructs the original.
+
+Dependency Preserving? Yes:
+  • EmpID → Name, DeptID  → checked in EMPLOYEE table
+  • DeptID → DeptName     → checked in DEPARTMENT table
+  No join needed to verify any FD. ✓
+```
+
+### 1.6.5 Denormalisation
+
+**Denormalisation** is the intentional reintroduction of redundancy into a normalised database to improve **read/query performance**. It reverses some of the work done by normalisation.
+
+#### Why Denormalise?
+
+Normalised databases require many **JOINs** to reassemble related data for queries. While JOINs are logically clean, they can be **expensive** — especially when joining large tables or when queries must cross multiple tables. For read-heavy applications (dashboards, reports, search), this overhead can be unacceptable.
+
+#### How Denormalisation Works
+
+| Technique | Description | Example |
+|---|---|---|
+| **Redundant columns** | Copy a frequently needed column from one table into another to avoid a JOIN. | Add `Dept_Name` directly to the EMPLOYEE table (even though it exists in DEPARTMENT). |
+| **Pre-joined tables** | Merge two normalised tables into one wider table. | Combine EMPLOYEE and DEPARTMENT into a single EMP_DEPT table. |
+| **Summary/aggregate tables** | Pre-compute and store aggregated data (counts, sums, averages). | A `MONTHLY_SALES_SUMMARY` table with pre-calculated totals instead of computing them from millions of transaction rows. |
+| **Materialised views** | Store the result of a complex query physically on disk. Refresh periodically. | A materialised view joining ORDER, CUSTOMER, and PRODUCT for a reporting dashboard. |
+
+#### The Trade-off
+
+| Benefit | Cost |
+|---|---|
+| **Faster reads** — fewer JOINs, data is pre-combined | **Slower writes** — redundant data must be updated in multiple places |
+| **Simpler queries** — fewer tables to join | **More storage** — duplicate data uses extra disk space |
+| **Better read throughput** for dashboards and reports | **Risk of inconsistency** — if one copy is updated but another is not, data contradicts itself |
+
+#### When to Denormalise
+
+| ✅ Good use cases | ❌ Avoid when |
+|---|---|
+| Read-heavy systems (dashboards, analytics, reporting) | Transaction-heavy OLTP systems (banking, order processing) |
+| Caching layers and data warehouses | Data changes frequently |
+| Search-optimised read replicas | Consistency is critical |
+| When **measured** query performance is a proven bottleneck | As a first resort (always normalise first, denormalise selectively) |
+
+**Example:** Adding `department_name` directly to the Employee table (even though it's in the Department table) avoids a JOIN every time you need to display employee + department name. But now, renaming a department requires updating both the Department table AND every Employee row — the same update anomaly normalisation was designed to prevent.
+
+**Rule of thumb:** Normalise first for correctness. Denormalise selectively for **measured** performance problems, not hypothetical ones.
 
 ---
 

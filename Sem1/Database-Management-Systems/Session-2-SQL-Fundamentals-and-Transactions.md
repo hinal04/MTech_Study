@@ -601,17 +601,69 @@ Real-world databases change over time. Schema evolution means modifying the sche
 - **Enables rollback** if a schema change introduces issues (revert to previous version).
 - **Facilitates collaboration** among multiple developers working on the same database.
 
+#### Maintaining Multiple Schema Versions Simultaneously
+
+In production systems, you often cannot upgrade all applications and databases at the same instant. During a rollout, some services may be running against the **old schema** while others are already on the **new schema**. This requires maintaining **multiple schema versions simultaneously**.
+
+**Scenarios where this arises:**
+- **Rolling deployments:** Application servers are updated one at a time. During the rollout window, some servers expect the old schema and others expect the new one.
+- **Microservices with shared databases:** Different services may update on different schedules. Service A may have migrated while Service B hasn't.
+- **Blue-green / canary deployments:** The "old" and "new" versions run side by side with live traffic split between them.
+
+#### Forward and Backward Compatibility
+
+| Compatibility Type | Definition | Example |
+|---|---|---|
+| **Backward compatibility** | The **new** schema can handle data and queries written for the **old** schema. Old applications still work after the schema change. | Adding a new column with a DEFAULT value. Old applications that don't know about the column still work — they simply don't read or write it. |
+| **Forward compatibility** | The **old** schema/application can handle data written by the **new** schema. Applications not yet upgraded can still function. | A new application adds a JSON column. The old application ignores it. If the new column is nullable or has a default, the old app's INSERTs still succeed. |
+
+**Best practices for safe schema evolution:**
+
+| Practice | Why |
+|---|---|
+| **Only add, never remove** (initially) | Dropping a column breaks old applications that reference it. Add new columns first; remove old ones after all applications have migrated. |
+| **Use nullable or default values for new columns** | Existing rows and old application INSERTs won't fail. |
+| **Expand-then-contract pattern** | Phase 1: Add new column (expand). Phase 2: Migrate data and update applications. Phase 3: Drop old column (contract). Each phase is a separate, deployable migration. |
+| **Version your migration files** | Use sequential numbers or timestamps (V001_add_email_column.sql). Apply migrations in order. |
+| **Never modify a deployed migration** | Deployed migrations are immutable history. If a migration was wrong, create a new migration that corrects it. |
+
 **Tools for schema versioning:** Flyway, Liquibase, Alembic (Python/SQLAlchemy), Django migrations, Rails migrations. These tools track schema changes as numbered migration files in version control (Git), ensuring every environment applies the same changes in the same order.
 
 ### Denormalisation
 
 **Normalisation** removes redundancy (1NF → 2NF → 3NF → BCNF). **Denormalisation** intentionally reintroduces it for read performance.
 
-| When to denormalise | Technique | Trade-off |
+#### Why Denormalise?
+
+Normalised databases store each fact exactly once — this is ideal for data integrity. But answering a typical user query (e.g., "show me each employee with their department name and manager name") may require joining 3 or more tables. At web scale (millions of rows, thousands of concurrent users), these JOINs become expensive bottlenecks. Denormalisation trades write complexity for read speed.
+
+#### Techniques
+
+| Technique | How it works | Example |
 |---|---|---|
-| Frequent expensive joins | Store redundant columns to avoid the join. | Faster reads; slower writes; inconsistency risk. |
-| Repeated aggregations | Materialised views or summary tables. | Stale data if not refreshed. |
-| Read-heavy workloads | Duplicate data for specific read patterns. | Storage overhead; update anomalies. |
+| **Redundant columns** | Copy a frequently-needed column from a referenced table into the referencing table. | Add `Dept_Name` column to EMPLOYEE (even though it exists in DEPARTMENT) to avoid a JOIN. |
+| **Pre-joined (merged) tables** | Combine two normalised tables into one wider table. | Merge EMPLOYEE and DEPARTMENT into EMP_DEPT, eliminating the JOIN entirely. |
+| **Summary / aggregate tables** | Pre-compute and store aggregated results (counts, totals, averages). | A `DAILY_SALES_SUMMARY(Date, Product_ID, Total_Qty, Total_Revenue)` table instead of re-aggregating millions of ORDER_ITEM rows each time. |
+| **Materialised views** | Store the result of a complex query physically on disk. Refresh on schedule or on demand. | A materialised view joining ORDER, CUSTOMER, and PRODUCT for a reporting dashboard — refreshed every hour. |
+| **Storing derived/computed values** | Pre-calculate values that would otherwise require computation at query time. | Storing `total_order_value` on the ORDER table instead of SUM-ing ORDER_ITEM every time. |
+
+#### Trade-offs
+
+| Benefit | Cost |
+|---|---|
+| Faster reads — fewer or no JOINs | Slower writes — redundant data must be updated in multiple places |
+| Simpler read queries | More storage — duplicate data consumes disk |
+| Better throughput for dashboards and reports | Inconsistency risk — if one copy is updated but not the other |
+| Reduced CPU for aggregation | Application complexity — code must maintain redundant copies |
+
+#### When to Denormalise
+
+| ✅ Good use cases | ❌ Avoid when |
+|---|---|
+| Read-heavy systems (dashboards, analytics, BI reports) | Transaction-heavy OLTP systems (banking, order processing) |
+| Data warehouses and data marts | Data changes frequently and consistency is critical |
+| Caching layers and search-optimised read replicas | As a first resort (normalise first, denormalise selectively) |
+| When **measured** query performance is a proven bottleneck | Based on hypothetical rather than observed performance issues |
 
 **Rule:** Normalise first for correctness. Denormalise selectively for **measured** performance problems.
 
@@ -619,18 +671,32 @@ Real-world databases change over time. Schema evolution means modifying the sche
 
 ## 2.11 Limits of Relational Systems
 
-The relational model excels for structured data with stable schemas, but faces challenges at web scale:
+*(From class slide P29)*
+
+The relational model excels for structured data with stable schemas, but faces challenges at web scale. These limitations are the **primary motivation for NoSQL** databases.
 
 | Limitation | Explanation |
 |---|---|
-| **Rigid schema** | ALTER TABLE on large tables can lock for hours. Web apps evolve features every sprint. |
-| **Impedance mismatch** | OO application objects don't map cleanly to flat tables; ORM complexity grows. |
-| **Horizontal scaling is hard** | Sharding breaks joins, FK constraints, and distributed transactions. |
-| **Unstructured data** | JSON, graphs, time-series, key-value pairs don't fit rows/columns naturally. |
-| **High write throughput** | WAL + ACID can bottleneck at millions of writes/sec. |
-| **Global distribution** | Strong consistency across continents is expensive (speed-of-light latency). |
+| **Rigid schema** | Every row must conform to the same fixed schema. ALTER TABLE on large tables (millions of rows) can lock the table for hours. Modern web apps evolve features every sprint — rigid schemas slow down development velocity. |
+| **Impedance mismatch** | Object-oriented application objects (nested, hierarchical) don't map cleanly to flat relational tables. ORM (Object-Relational Mapping) tools bridge this gap but add complexity, and complex mappings can hurt performance. |
+| **Horizontal scaling is hard** | Relational databases are designed for a single server. **Sharding** (splitting data across servers) breaks JOIN operations, foreign key constraints, and distributed transactions. Most RDBMSs were never designed for this. |
+| **Expensive JOINs at scale** | JOINs are the relational model's key strength — but also its Achilles' heel at scale. Joining two billion-row tables across shards requires moving data over the network, which can be prohibitively slow. Denormalisation helps but reintroduces the very problems normalisation solved. |
+| **Not ideal for unstructured data** | JSON documents, graphs, time-series, key-value pairs, images, and free text don't fit naturally into rows and columns. While modern RDBMSs add JSON support, it's bolted on — not native. |
+| **High write throughput** | The WAL (Write-Ahead Log) + ACID guarantees add overhead to every write. For applications needing millions of writes per second (IoT sensor data, click streams), this overhead becomes a bottleneck. |
+| **Global distribution** | Strong consistency across continents is expensive — the speed of light imposes minimum ~100-200ms round-trip latency between distant data centres. Distributed transactions (2PC) across these distances are slow and fragile. |
 
-**NoSQL alternatives:** Key-Value (Redis), Document (MongoDB), Column-Family (Cassandra), Graph (Neo4j). They trade ACID for scalability and flexibility (BASE model — Session 4).
+**The core tension:** Relational databases prioritise **consistency and correctness** (ACID). But at internet scale, applications often need **availability and partition tolerance** more than strict consistency (the CAP theorem trade-off covered in Session 4).
+
+**NoSQL alternatives** address specific limitations:
+
+| NoSQL Type | Addresses | Examples |
+|---|---|---|
+| **Key-Value** | Simple lookups at massive scale, high write throughput | Redis, DynamoDB |
+| **Document** | Flexible schemas, impedance mismatch (stores JSON natively) | MongoDB, CouchDB |
+| **Column-Family** | Write-heavy workloads, horizontal scaling | Cassandra, HBase |
+| **Graph** | Highly connected data, relationship traversals | Neo4j, Amazon Neptune |
+
+These systems trade ACID for scalability and flexibility, following the **BASE model** (Basically Available, Soft state, Eventually consistent) — covered in Session 4.
 
 ---
 

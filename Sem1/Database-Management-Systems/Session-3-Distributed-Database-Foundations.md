@@ -274,15 +274,27 @@ After fragmentation, **data allocation** determines which site stores which frag
 
 ## 3.3.5 Challenges in Distributed Systems
 
-*(From class slide 6)*
+*(From class slides 6, 11)*
 
 Before diving into replication, it's worth explicitly listing the fundamental challenges that make distributed databases harder than centralised ones:
 
 1. **Communication delays** — Messages between nodes travel over a network with non-zero latency (milliseconds within a data centre, hundreds of milliseconds across continents). Every inter-node operation is slower than a local one.
+
 2. **Node failures** — Individual nodes can crash, restart, or become unreachable at any time. The system must continue operating despite partial failures.
-3. **Maintaining consistency** — When data is replicated, all copies must eventually agree. Keeping them in sync in the face of concurrent writes and network delays is extremely difficult.
-4. **Concurrency control** — Multiple transactions at different sites may try to modify the same data simultaneously. Distributed locking and deadlock detection are harder than their single-node equivalents.
-5. **Coordination overhead** — Any protocol that requires agreement between nodes (2PC, consensus) adds latency and complexity. The more nodes involved, the higher the overhead.
+
+3. **Network partitions** — The network itself can fail: links between nodes may drop, causing some nodes to be unable to communicate with others even though all nodes are individually healthy. The system must decide whether to prioritise availability (serve possibly stale data) or consistency (refuse requests until the partition heals) — this is the essence of the **CAP theorem** (covered in Session 4).
+
+4. **Maintaining data consistency** — When data is replicated, all copies must eventually agree. Keeping them in sync in the face of concurrent writes, network delays, and partitions is extremely difficult. A write at one site may not yet be visible at another — leading to stale reads, conflicts, or contradictions.
+
+5. **Concurrency control complexity** — Multiple transactions at different sites may try to modify the same data simultaneously. Distributed locking is harder than single-node locking: locks must be acquired across the network, and **distributed deadlocks** can involve transactions spanning multiple sites (harder to detect than local deadlocks).
+
+6. **Query processing complexity** — A single SQL query may require data from multiple sites. The distributed query optimizer must decide: which fragments to access, where to execute joins (ship data to a central site, or push the join to a remote site?), and how to minimise data transfer over the network. This is significantly harder than single-site query optimization.
+
+7. **Security across sites** — Each site may have different security policies, authentication systems, and access controls. Ensuring consistent authorization across all sites — especially in heterogeneous environments — adds complexity. Data travelling over the network must also be encrypted to prevent eavesdropping.
+
+8. **Recovery complexity** — When a transaction spans multiple sites (global transaction), crash recovery is more complex. If one site crashes mid-transaction, the other participating sites must wait (or use protocols like 2PC — Two-Phase Commit) to determine whether to commit or abort. Recovery must handle scenarios where some sites committed and others didn't (the **coordinator failure problem**).
+
+9. **Coordination overhead** — Any protocol that requires agreement between nodes (2PC, consensus, distributed locking) adds latency and complexity. The more nodes involved, the higher the overhead. This is why many modern systems try to minimise cross-node coordination.
 
 ---
 
@@ -468,6 +480,27 @@ Designing a distributed database requires answering four key questions:
 
 ### 3.7.3 The Replication Trade-off
 
+*(From class slide P19)*
+
+The **fundamental replication trade-off** is:
+
+> **More replicas = better availability + better read performance, BUT higher write cost + harder consistency.**
+
+This is the single most important design decision in distributed databases. Every additional replica:
+
+**Benefits:**
+- Improves **read performance** — more nodes can serve read requests in parallel.
+- Improves **availability** — data survives more simultaneous node failures (N replicas tolerate N-1 failures).
+- Reduces **read latency** — replicas placed closer to users geographically reduce network round-trips.
+
+**Costs:**
+- Increases **write latency** — every write must propagate to more nodes (synchronous replication) or creates more stale-data windows (asynchronous replication).
+- Increases **consistency complexity** — more replicas means more copies to keep in sync. The window for inconsistency grows.
+- Increases **storage cost** — each replica stores a full copy of the data.
+- Increases **network traffic** — replication messages consume bandwidth.
+
+**Summary by replication level:**
+
 ```
                    Read-heavy workload          Write-heavy workload
                    ──────────────────           ────────────────────
@@ -476,7 +509,12 @@ No replication     Worst (remote reads)         Best (write to one site)
 Partial rep.       Balanced                     Balanced
 ```
 
-The right replication strategy depends entirely on your read/write ratio and consistency requirements.
+**Practical guidance:**
+- **Read-heavy, write-rare data** (reference tables, product catalogs) → replicate aggressively.
+- **Write-heavy data** (event logs, sensor streams) → minimise replicas; partition instead.
+- **Mixed workloads** → use partial replication — replicate hot read data, partition write-heavy data.
+
+The right replication strategy depends entirely on your **read/write ratio** and **consistency requirements**.
 
 ---
 
