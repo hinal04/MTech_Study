@@ -210,6 +210,127 @@ This layered architecture provides security (IAM + VPC), scalability (EC2 Auto S
 ---
 ---
 
+---
+
+## ADDITIONAL PAST YEAR QUESTIONS (from 2024 Mid-Sem Paper)
+
+### Q4. [6 Marks] — VMM and Unmodified Guest OS
+
+**Question:** A Virtual Machine Monitor (VMM) uses the trap-and-emulate approach to virtualize a Linux-like operating system designed to run directly on bare-metal hardware. The OS uses privileged instructions to interact with hardware (CPU, memory, I/O devices). On the x86 architecture, some instructions are "sensitive but not privileged" — they behave differently depending on the CPU ring but do NOT trigger a trap when executed outside Ring 0.
+
+(a) Explain why the VMM cannot simply execute the unmodified OS binary directly on the hardware. [3 marks]
+(b) Can the VMM run this OS as a guest without modifying its source code and achieve correct virtualization? Justify your answer. [3 marks]
+
+**Answer:**
+
+**(a) Why VMM cannot execute the unmodified OS directly:**
+
+The VMM cannot run the unmodified OS because of the fundamental x86 virtualization challenge:
+
+1. **Ring conflict:** The OS kernel expects to run at Ring 0 (highest privilege) with full hardware access. But in a virtualized environment, the VMM must run at Ring 0 to maintain control. If the guest OS also runs at Ring 0, it would have direct hardware access and could bypass the VMM — breaking isolation between VMs.
+
+2. **Sensitive but not privileged instructions:** On x86, there are approximately 17 instructions that are "sensitive" (they behave differently depending on the ring level) but NOT "privileged" (they don't trigger a trap/fault when run outside Ring 0). When the guest OS executes these instructions at a lower ring, they **silently execute incorrectly** instead of trapping to the VMM. The VMM never gets a chance to intercept and emulate them.
+
+3. **Trap-and-emulate breaks:** The standard trap-and-emulate technique (which works on architectures like IBM mainframes) relies on ALL sensitive instructions trapping when executed by the guest. On x86, this assumption fails — the 17 sensitive-but-unprivileged instructions slip through without trapping, causing the guest OS to produce incorrect results silently.
+
+Therefore, the VMM cannot execute the unmodified OS binary correctly using basic trap-and-emulate on x86.
+
+**(b) Can it run without source code modification?**
+
+**No, with only trap-and-emulate, the VMM cannot run this unmodified OS correctly.** The sensitive-but-unprivileged instructions will execute incorrectly without the VMM being able to intercept them.
+
+**However, two workarounds exist that do NOT require modifying the guest OS source code:**
+
+| Solution | How It Works | Modifies Guest Source? |
+|---|---|---|
+| **Binary Translation** (VMware's approach, 1999) | The VMM scans the guest's instruction stream at runtime, identifies the 17 problematic instructions, and replaces them with safe equivalents that DO trap. The guest OS runs at Ring 1 (ring deprivileging). | **No** — translation happens on the binary, not the source code |
+| **Hardware-Assisted Virtualization** (Intel VT-x / AMD-V, 2006) | The CPU adds a new privilege level below Ring 0 (VMX root mode for VMM, VMX non-root mode for guest). ALL sensitive instructions now correctly trap via hardware support. | **No** — the CPU hardware handles the problem |
+
+**Conclusion:** Using only basic trap-and-emulate → **No**, the unmodified OS cannot be correctly virtualized. Using binary translation (software fix) or VT-x/AMD-V (hardware fix) → **Yes**, the unmodified OS CAN run correctly without source code changes.
+
+> **Note:** Para-virtualization (e.g., Xen) DOES require modifying the guest OS source code (replacing privileged instructions with explicit hypercalls). This is the only approach that needs source modification.
+
+---
+
+### Q5. [4 Marks] — Why Are Containers More Lightweight Than VMs?
+
+**Question:** Why are containers often considered more lightweight compared to virtual machines? Explain in terms of architecture, boot time, and resource overhead.
+
+**Answer:**
+
+Containers are lighter than VMs because of fundamental architectural differences:
+
+| Aspect | Virtual Machine | Container |
+|---|---|---|
+| **What is virtualized** | Entire hardware stack — each VM runs its own OS kernel | Only the application layer — containers share the host OS kernel |
+| **OS overhead** | Each VM includes a full OS (2-10 GB per VM) | No separate OS — shares host kernel (container image is typically 50-500 MB) |
+| **Boot time** | Seconds to minutes (must boot full OS) | Milliseconds to seconds (just starts a process) |
+| **Resource overhead** | High — OS processes, drivers, services consume CPU/memory per VM | Minimal — only the application and its dependencies |
+| **Density** | 10-50 VMs per host | 100-1000+ containers per host |
+| **Isolation mechanism** | Hypervisor provides hardware-level isolation | Linux namespaces + cgroups provide process-level isolation |
+
+**Why lighter:**
+- A VM includes: Guest OS + kernel + drivers + system services + application = heavy
+- A container includes: Application + libraries + dependencies only = light
+- Example: 3 VMs running Node.js apps on a 64GB host → each VM uses ~10GB for OS + 2GB for app = 36GB consumed. 3 containers on the same host → each uses ~2GB for app = 6GB consumed. The containers leave 58GB free vs 28GB with VMs.
+
+**Trade-off:** Containers are lighter but share the host kernel — a kernel vulnerability affects ALL containers. VMs are heavier but provide stronger isolation (separate kernels).
+
+---
+
+### Q6. [6 Marks] — IAM Authentication, Authorization, Roles, and Policies
+
+**Question:** Explain how AWS Identity and Access Management (IAM) handles authentication and authorization. Define IAM Users, Groups, Roles, and Policies with examples.
+
+**Answer:**
+
+**Authentication ("Who are you?"):**
+IAM verifies identity through:
+- **Console access:** Username + password + optional MFA (Multi-Factor Authentication)
+- **Programmatic access:** Access Key ID + Secret Access Key (for CLI/SDK/API)
+- **Temporary credentials:** Security Token Service (STS) for short-lived access via roles
+
+**Authorization ("What can you do?"):**
+After authentication, IAM evaluates policies to determine allowed actions:
+- Every API call is checked against attached policies
+- Default: everything is **denied** unless explicitly allowed
+- Explicit deny always overrides allow
+
+**IAM Components:**
+
+| Component | What It Is | Example |
+|---|---|---|
+| **IAM User** | Identity for a person or service needing long-term AWS access | Employee "hinal" with console login + access keys |
+| **IAM Group** | Collection of users with shared permissions | "Developers" group — all members can access EC2 and S3 |
+| **IAM Role** | Temporary identity assumed by users/services — no permanent credentials | EC2 instance assumes "S3ReadOnlyRole" to access S3 without hardcoded keys |
+| **IAM Policy** | JSON document defining permissions (Effect + Action + Resource) | Policy allowing `s3:GetObject` on `arn:aws:s3:::my-bucket/*` |
+
+**Example IAM Policy (JSON):**
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": ["s3:GetObject", "s3:ListBucket"],
+      "Resource": [
+        "arn:aws:s3:::my-bucket",
+        "arn:aws:s3:::my-bucket/*"
+      ]
+    }
+  ]
+}
+```
+This policy allows reading objects from `my-bucket` but NOT writing, deleting, or accessing other buckets.
+
+**Best Practices:**
+- Use **root account** only for initial setup — never for daily tasks
+- Enable **MFA** on root and all human users
+- Use **roles** for EC2/Lambda instead of embedding access keys
+- Follow **principle of least privilege** — grant only the minimum permissions needed
+
+---
+
 ## SECTION 2: PRACTICE PAPERS (Same Pattern — 3 × 10 = 30 Marks)
 
 > 5 complete practice papers following the exact mid-semester pattern.
