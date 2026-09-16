@@ -36,6 +36,15 @@
 | **Ω(f(n))** | "At least" — lower bound | ∃ c, n₀ > 0 : g(n) ≥ c·f(n) ∀ n ≥ n₀ |
 | **Θ(f(n))** | "Exactly" — tight bound | c₁·f(n) ≤ g(n) ≤ c₂·f(n) |
 
+**Also know (less common but asked in True/False):**
+
+| Notation | English | Key difference from Big-O/Ω |
+|----------|---------|---------------------------|
+| **o(f(n))** | "Strictly less than" | Uses **∀c** (for ALL c), not ∃c. Example: n = o(n²) but n ≠ o(n) |
+| **ω(f(n))** | "Strictly greater than" | Uses **∀c** (for ALL c). Example: n² = ω(n) but n ≠ ω(n) |
+
+> **Tip:** Big-O/Ω use ∃c ("there exists"), little-o/ω use ∀c ("for all"). Little = strictly smaller/bigger.
+
 **Master Theorem — The Most Important Formula:**
 
 For T(n) = aT(n/b) + f(n):
@@ -151,6 +160,99 @@ a=7, b=2, n^(log₂7) = n^2.807. f(n) = n² = O(n^(2.807-0.807)). Case 1 → Θ(
 <details><summary>Answer</summary>
 FALSE. This is a subtraction recurrence (n-1, not n/b). Master Theorem requires DIVISION by a constant. This solves to T(n) = Θ(n) by direct expansion.
 </details>
+
+### 1.5 Divide and Conquer — The Paradigm
+
+Many algorithms follow this 3-step pattern:
+
+```
+1. DIVIDE:   Break the problem into smaller subproblems
+2. CONQUER:  Solve subproblems recursively (base case = solve directly)
+3. COMBINE:  Merge solutions of subproblems into solution for original
+```
+
+| Algorithm | Divide | Conquer | Combine |
+|-----------|--------|---------|---------|
+| **Merge Sort** | Split array in half | Sort each half | Merge two sorted halves — O(n) |
+| **Binary Search** | Pick middle element | Search left or right half | No combining needed |
+| **Strassen's** | Split matrices into 4 sub-matrices | 7 recursive multiplications (not 8) | Add/subtract sub-results |
+
+### 1.6 Recursion Tree Method (When Master Theorem Doesn't Apply)
+
+**Steps:**
+1. **Draw the tree** — root = f(n), each node splits into `a` children of size n/b
+2. **Compute cost per level** — level 0: f(n), level 1: a·f(n/b), level 2: a²·f(n/b²), ...
+3. **Count levels** — tree has log_b(n) levels
+4. **Sum all levels** — look for geometric/arithmetic pattern
+5. **Identify pattern:**
+   - Costs **increasing** → last level (leaves) dominates → like Case 1
+   - Costs **equal** → multiply by number of levels → like Case 2
+   - Costs **decreasing** → root dominates → like Case 3
+
+**Example:** T(n) = 4T(n/2) + cn
+
+```
+Level 0:  cn                           cost = cn
+Level 1:  4 × c(n/2) = 2cn            cost = 2cn
+Level 2:  16 × c(n/4) = 4cn           cost = 4cn
+...
+Level k:  cost = 2^k · cn
+Levels = log₂n
+
+Total = cn(1 + 2 + 4 + ... + 2^(log₂n)) = cn · (2n-1)/(2-1) ≈ cn · 2n
+→ T(n) = Θ(n²)   [leaves dominate — geometric series with ratio 2 > 1]
+```
+
+### 1.7 Substitution Method (Guess and Prove)
+
+**Steps:**
+1. **Guess** the answer (from Master Theorem or recursion tree)
+2. **Assume** it holds for all sizes < n (inductive hypothesis)
+3. **Substitute** into the recurrence and simplify
+4. **Prove** the bound holds for n
+5. **Verify** the base case
+
+**Example:** Prove T(n) = 2T(n/2) + n is O(n log n)
+
+```
+Guess: T(n) ≤ cn log n
+
+Assume: T(n/2) ≤ c(n/2) log(n/2)
+
+Substitute:
+T(n) = 2T(n/2) + n
+     ≤ 2 · c(n/2) log(n/2) + n
+     = cn log(n/2) + n
+     = cn(log n - 1) + n
+     = cn log n - cn + n
+     ≤ cn log n        ← TRUE when c ≥ 1 ✓
+```
+
+### 1.8 Loop Invariants (Correctness Proofs)
+
+**What is it?** A condition that is TRUE before and after every iteration of a loop. Used to PROVE an algorithm is correct.
+
+**3 Properties to show:**
+1. **Initialization:** Invariant is true BEFORE the first iteration
+2. **Maintenance:** If true before an iteration, still true after it
+3. **Termination:** When loop ends, the invariant gives us the desired result
+
+**Example — Selection Sort:**
+
+```
+SelectionSort(A, n):
+    for i = 0 to n-2:
+        minIdx = i
+        for j = i+1 to n-1:
+            if A[j] < A[minIdx]: minIdx = j
+        swap(A[i], A[minIdx])
+```
+
+**Loop Invariant:** "At the start of iteration i, A[0..i-1] contains the i smallest elements in sorted order."
+
+- **Initialization (i=0):** A[0..-1] is empty — trivially sorted ✓
+- **Maintenance:** We find the minimum of A[i..n-1] and place it at A[i]. So A[0..i] now has i+1 smallest elements sorted ✓
+- **Termination (i=n-1):** A[0..n-2] has n-1 smallest elements sorted. The last element must be the largest → entire array sorted ✓
 
 ---
 
@@ -301,6 +403,62 @@ INFIX-TO-POSTFIX(expression):
 <details><summary>Answer</summary>
 5+3=8, 8-2=6, 8×6 = **48**
 </details>
+
+### 2.4 Other Stack Applications You Should Know
+
+**Balanced Parentheses:**
+```
+Scan left to right:
+  Opening bracket ( [ {  →  PUSH
+  Closing bracket ) ] }  →  POP, check if it matches the top
+  If mismatch or stack empty on pop → NOT BALANCED
+At end: stack must be EMPTY for balanced
+```
+
+Example: `{[()]}` → Push {, [, ( → see ), matches ( pop → see ], matches [ pop → see }, matches { pop → stack empty → **BALANCED** ✓
+
+Example: `{[(])}` → Push {, [, ( → see ], but top is ( → **NOT BALANCED** ✗
+
+**Prefix Evaluation (scan RIGHT to LEFT):**
+```
+Scan RIGHT to LEFT:
+  Operand → PUSH
+  Operator → POP two (op1 first, then op2), compute op1 ○ op2, PUSH result
+  ⚠️ In prefix: op1 is popped FIRST (opposite of postfix!)
+```
+
+**Infix Evaluation (Two-Stack Method):**
+```
+Use two stacks: VALS (values) and OPS (operators)
+Scan left to right:
+  Number → push to VALS
+  Operator → while OPS top has ≥ precedence: APPLY_TOP, then push to OPS
+  '(' → push to OPS
+  ')' → APPLY_TOP until '(' found
+At end: APPLY_TOP until OPS empty
+
+APPLY_TOP: pop operator from OPS, pop 2 from VALS, compute, push result to VALS
+```
+
+**Expression Trees:**
+```
+Preorder traversal of expression tree → PREFIX notation
+Inorder traversal of expression tree  → INFIX notation
+Postorder traversal of expression tree → POSTFIX notation
+```
+
+Example tree for `(a + b) * c`:
+```
+        *
+       / \
+      +   c
+     / \
+    a   b
+
+Preorder:  * + a b c  (prefix)
+Inorder:   a + b * c  (infix — but needs parentheses for correct meaning)
+Postorder: a b + c *  (postfix)
+```
 
 ---
 
@@ -565,6 +723,18 @@ TRUE. Decision tree argument: n! leaves → height ≥ log₂(n!) = Ω(n log n).
 - Min height with n nodes = **⌊log₂ n⌋**
 - Full binary tree: L = I + 1 (leaves = internal nodes + 1)
 
+**Binary Tree Types (know these definitions):**
+
+| Type | Definition | Example |
+|------|-----------|---------|
+| **Full** | Every node has 0 or 2 children (never 1) | Decision tree |
+| **Complete** | All levels full except possibly last, filled left-to-right | Heap is always a complete BT |
+| **Perfect** | ALL levels completely full | 2^(h+1)−1 nodes exactly |
+| **Balanced** | Height of left and right subtree differ by at most 1 | AVL tree |
+| **Degenerate/Skewed** | Every node has only 1 child — basically a linked list | Worst-case BST |
+
+> **Exam trap:** A Complete tree is NOT necessarily Full. A Full tree is NOT necessarily Complete. A Perfect tree is BOTH Full and Complete.
+
 **BST Property:** Left < Root < Right (for every node)
 
 | BST Operation | Average | Worst (skewed) |
@@ -715,6 +885,22 @@ Right side: C = root. Inorder: Left={F}, Right={}
 Inorder (Left → Root → Right)
 </details>
 
+### 5.4 BST vs Heap — Don't Confuse Them!
+
+| Feature | BST | Heap |
+|---------|-----|------|
+| **Ordering** | Left < Root < Right | Parent ≥ Children (max) or Parent ≤ Children (min) |
+| **Shape** | Any shape (can be skewed) | Always a **complete** binary tree |
+| **Find max** | O(log n) balanced, O(n) skewed — go rightmost | **O(1)** — just return root |
+| **Search** | **O(log n)** balanced — go left/right | O(n) — no ordering to guide search |
+| **Sorted output** | **O(n)** — inorder traversal | O(n log n) — need repeated extraction |
+| **Insert** | O(log n) | O(log n) |
+| **Delete** | O(log n) | O(log n) |
+| **Array storage** | Wastes space for non-complete trees | Perfect — always complete |
+| **Use case** | Dictionary, ordered data, range queries | Priority queue, scheduling, sorting |
+
+> **Key difference in one line:** BST gives you **search** and **sorted order**. Heap gives you **fast max/min** and **priority queue**.
+
 ---
 
 ## TOPIC 6: BFS & DFS ⭐⭐⭐
@@ -731,6 +917,53 @@ Inorder (Left → Root → Right)
 | **Shortest path** | ✅ Yes (unweighted) | ❌ No |
 | **Cycle detection** | Via visited check | Via **back edges** |
 | **Pick when** | Shortest path, level-order | Cycle detection, topological sort |
+
+**Graph Basics — Terminology You Must Know:**
+
+```
+Graph G = (V, E)  where V = set of vertices, E = set of edges
+
+Undirected: edges are {u,v} — go both ways (friendship)
+Directed:   edges are (u,v) — one way only (follows on Instagram)
+Weighted:   each edge has a cost/distance
+```
+
+| Term | Meaning | Example |
+|------|---------|---------|
+| **Degree** | Number of edges connected to a vertex | In undirected: deg(v). In directed: in-degree + out-degree |
+| **Path** | Sequence of vertices connected by edges | A→B→C→D |
+| **Cycle** | Path that starts and ends at the same vertex | A→B→C→A |
+| **Connected** | Path exists between every pair of vertices | |
+| **Complete graph** | Edge between every pair of vertices | n(n-1)/2 edges |
+| **Bipartite** | Vertices can be split into 2 groups with edges only between groups | |
+
+**Handshaking Lemma:** In undirected graph, Σ degree = **2|E|** (each edge contributes 2 to total degree)
+
+**Graph Representation — Which to Pick:**
+
+| | Adjacency Matrix | Adjacency List |
+|-|-------------------|----------------|
+| **Space** | O(V²) | O(V + E) |
+| **Check if edge exists** | **O(1)** — just look up matrix[u][v] | O(degree) — scan neighbour list |
+| **List all neighbours** | O(V) — scan entire row | **O(degree)** — just iterate list |
+| **Best for** | **Dense** graphs (many edges) | **Sparse** graphs (few edges) |
+| **Memory** | Wastes space if few edges | Efficient |
+
+> **Exam tip:** Most real-world graphs are sparse → adjacency list is the default choice.
+
+**DFS Discovery & Finish Times:**
+```
+DFS tracks two timestamps for each vertex:
+  discovery[v] = time when v is first visited
+  finish[v]    = time when all of v's descendants are fully explored
+
+Edge classification using these times:
+  Back edge (u→v):    discovery[v] < discovery[u] < finish[u] < finish[v]
+                       v is an ANCESTOR of u → CYCLE detected!
+  Tree edge (u→v):    discovery[u] < discovery[v] < finish[v] < finish[u]
+  Forward edge (u→v): v is a descendant, already finished
+  Cross edge (u→v):   v is in a different branch, already finished
+```
 
 **BFS Algorithm:**
 ```
@@ -853,6 +1086,23 @@ DEQUEUE():  If S2 empty → transfer all S1→S2   → O(n) worst, O(1) amortize
             Return S2.pop()
 ```
 
+**Deque (Double-Ended Queue):**
+- Insert and remove at **BOTH ends** — O(1)
+- **Input-restricted deque:** insert at one end only, delete from both
+- **Output-restricted deque:** delete from one end only, insert at both
+- Used in: sliding window maximum, 0-1 BFS, palindrome check
+
+**Priority Queue — Which Implementation to Pick:**
+
+| Implementation | Insert | Delete-min/max | Find-min/max |
+|---------------|--------|----------------|-------------|
+| Unsorted array | **O(1)** | O(n) | O(n) |
+| Sorted array | O(n) | **O(1)** | **O(1)** |
+| **Binary Heap** ← best | O(log n) | O(log n) | **O(1)** |
+| Balanced BST | O(log n) | O(log n) | O(log n) |
+
+> **Use binary heap** for priority queue — it's the best balance of all operations.
+
 ### 7.2 Solved Past Paper Questions
 
 **Q1. [Past Year 2024] Circular queue size 5, front=0, rear=-1. Operations:**
@@ -906,6 +1156,7 @@ Enqueue(E): OVERFLOW! Queue is full. Cannot insert.
 | **MULTIPOP stack** | Total pops ≤ total pushes across all operations | **O(1)** per op |
 | **Dynamic array (doubling)** | Copy costs: 1+2+4+...+n < 2n | **O(1)** per insert |
 | **Two-stack queue** | Each element: push S1, pop S1, push S2, pop S2 = 4 ops | **O(1)** per op |
+| **Binary counter** | Bit i flips every 2ⁱ increments → total flips < 2n | **O(1)** per increment |
 
 **Why doubling gives O(1) but constant increment gives O(n):**
 - **Doubling:** Copy costs = 1+2+4+8+...+n = 2n-1 < 2n → geometric series → O(1) amortized
@@ -1019,8 +1270,12 @@ This shows **primary clustering** — all keys hash to 0 and cluster together.
 |------|-------------|----------|
 | **Singly** | One pointer (next) | Simple, forward traversal |
 | **Doubly** | Two pointers (prev + next) | O(1) delete with pointer, LRU cache |
-| **Circular** | Last→First | Round-robin scheduling |
-| **Circular Doubly** | Both directions + circular | Most flexible |
+| **Circular** | Last→First (last.next = head) | Round-robin scheduling, Josephus problem |
+| **Circular Doubly** | Both directions + circular | Most flexible — traverse any direction, no NULL |
+
+> **Circular list difference:** No node has NULL pointer. To detect end, check if you've returned to the head.
+
+**ADT (Abstract Data Type) concept:** An ADT defines WHAT operations a data structure supports (the interface) but not HOW it's implemented. Example: Stack ADT says "push, pop, peek" — you can implement it with array or linked list.
 
 **Array vs Linked List:**
 
@@ -1277,6 +1532,12 @@ f(n) BIGGER  → Θ(f(n))               [Case 3 — root wins]
 10. ✅ Inorder traversal of BST gives sorted output
 11. ✅ In a full binary tree, leaves = internal nodes + 1
 12. ❌ Heap is a BST — NO, heap only guarantees parent vs children, not left < right ordering
+13. ✅ Adjacency list is better for sparse graphs; adjacency matrix for dense
+14. ✅ A Complete binary tree is NOT necessarily a Full binary tree
+15. ❌ Preorder + Postorder can uniquely reconstruct a binary tree — NO, need inorder
+16. ✅ In DFS, a back edge indicates a cycle in a directed graph
+17. ✅ little-o(f) means strictly less than f (for ALL constants c, not just some)
+18. ✅ Loop invariant must hold: before first iteration, after each iteration, and at termination
 
 ---
 
