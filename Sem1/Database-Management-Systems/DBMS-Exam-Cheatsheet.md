@@ -9,50 +9,50 @@
 
 ### SQL vs NoSQL — Which to Pick?
 
-| Scenario | Pick | Why |
+| Scenario | Pick | Why (write this in exam) |
 |---|---|---|
-| Banking / Financial transactions | **SQL** | ACID needed, consistency critical, audit trails |
-| Social media (posts, likes, follows) | **NoSQL (MongoDB)** | Flexible schema, high write volume, horizontal scaling |
-| Hospital / Patient records | **SQL** | Structured data, referential integrity, regulatory compliance |
-| IoT sensor data (1M events/sec) | **NoSQL (Cassandra/InfluxDB)** | Massive write throughput, append-only, no complex joins |
-| E-commerce product catalog | **NoSQL (MongoDB)** | Varying attributes per product type (clothes vs electronics) |
-| Government tax system | **SQL** | Fixed forms, complex reporting, ACID for financial data |
-| Session management / Caching | **Redis** | In-memory, sub-millisecond reads, TTL for auto-expiry |
-| Real-time leaderboard | **Redis (Sorted Set)** | O(log n) insert/rank, real-time scoring |
-| Shopping cart | **Redis** | Fast, TTL for abandoned carts |
-| Complex reporting + joins | **SQL** | Powerful JOIN, GROUP BY, window functions |
-| Chat messages | **NoSQL (MongoDB)** | Flexible, ordered, scalable |
-| Recommendation engine | **NoSQL + Redis** | MongoDB for user profiles, Redis for real-time features |
+| Banking / Financial transactions | **SQL (PostgreSQL)** | **ACID is mandatory.** A bank transfer must be atomic (debit+credit both succeed or both fail). Consistency ensures balances never go negative. Isolation prevents double-spending. Durability means committed transactions survive crashes. NoSQL's eventual consistency is unacceptable — a customer seeing wrong balance even for 1 second is a regulatory failure. Also needs complex joins (customer → accounts → transactions → branches). |
+| Social media (posts, likes, follows) | **NoSQL (MongoDB + Redis)** | **Flexible schema:** Posts can be text, image, video, poll — each with different fields. Fixed SQL schema would need many NULL columns or complex EAV pattern. **Horizontal scaling:** 100M users generating billions of posts — must shard across servers. **Denormalized reads:** Show a post with author name, like count, comments inline — embedding avoids expensive joins. Redis caches hot feeds for sub-millisecond reads. |
+| Hospital / Patient records | **SQL (PostgreSQL)** | **Data integrity is life-critical.** Wrong drug dosage from data error can kill a patient. FK constraints ensure prescriptions reference real patients/doctors. ACID needed for concurrent access (multiple nurses updating same patient). **Regulatory:** HIPAA/DPDP require audit trails, access logging — SQL triggers and stored procedures support this. Structured schema (patient always has name, DOB, blood group) fits relational model perfectly. |
+| IoT sensor data (1M events/sec) | **NoSQL (Cassandra / InfluxDB)** | **Write throughput:** 1M inserts/sec — SQL databases choke at this volume. Cassandra is designed for massive writes across distributed nodes. **Simple data model:** Each reading is {device_id, timestamp, value} — no joins needed. **Time-series optimized:** InfluxDB/TimescaleDB handle time-bucketed queries (avg temp last hour) natively. **Horizontal scaling:** Add nodes as devices grow. SQL vertical scaling hits hardware limits. |
+| E-commerce product catalog | **NoSQL (MongoDB)** | **Varying attributes:** A shirt has {size, color, fabric}. A laptop has {RAM, CPU, screen_size, weight}. In SQL, you'd need one giant table with 100+ columns (mostly NULL) or a complex EAV table. MongoDB stores each product as a document with only its relevant fields — clean, simple, no NULLs. **Nested data:** Product variants (size S/M/L × color Red/Blue) stored as nested arrays naturally. |
+| Government tax system | **SQL (Oracle/PostgreSQL)** | **Fixed schema:** Tax forms have predetermined fields (PAN, income, deductions) — perfect for relational tables. **Complex reporting:** "Total tax collected by state, by income bracket, by quarter" requires multi-table JOINs and GROUP BY — SQL excels at this. **ACID for financial accuracy:** Tax calculations must be 100% correct. **Audit trail:** Every change must be logged — SQL triggers and transaction logs provide this. |
+| Session management / Caching | **Redis** | **In-memory = sub-millisecond reads.** Sessions are accessed on every page load — must be instant. **TTL (Time to Live):** Set session to auto-expire after 30 minutes — `SETEX session:abc 1800 data`. No cron job needed. **Key-value simplicity:** Session is just a key (session_id) → value (user_data). Redis HSET stores structured session data (user_id, role, login_time). |
+| Real-time leaderboard | **Redis (Sorted Set)** | **Sorted Set:** `ZADD leaderboard score player` inserts in O(log n). `ZREVRANGE leaderboard 0 9` returns top 10 instantly. `ZREVRANK leaderboard "Rahul"` returns rank in O(log n). No other database can do rank queries this fast. In SQL, ranking requires sorting entire table (O(n log n)) on every query. |
+| Shopping cart | **Redis (Hash)** | **Speed:** Cart is read/updated on every product add/remove — must be instant. **TTL:** Abandoned carts auto-expire after 24 hours. **Hash structure:** `HSET cart:user123 product:456 2` (quantity). `HGETALL cart:user123` retrieves full cart. **Ephemeral data:** Cart doesn't need ACID or durability — if Redis restarts, customer rebuilds cart (acceptable UX). |
+| Complex reporting + joins | **SQL** | **JOINs:** "Revenue by region by product category for Q3" requires joining orders → products → regions → time_periods. SQL handles multi-table JOINs elegantly. **Window functions:** Running totals, rankings, moving averages — built into SQL. **GROUP BY + HAVING:** Aggregation with filtering. MongoDB's $lookup is limited to simple joins and can't match SQL's expressive power for analytics. |
+| Chat messages | **NoSQL (MongoDB)** | **Flexible message types:** Text, image, file, location, reaction — each has different fields. **Ordered by timestamp:** MongoDB's natural insertion order + index on timestamp gives efficient message retrieval. **Scalable:** Millions of chat rooms with billions of messages — sharding by chat_room_id distributes load. **Embedded reactions/replies:** Nested within message document — no joins needed. |
+| Recommendation engine features | **MongoDB + Redis** | **MongoDB:** Store user profiles (purchase history, preferences, demographics) as rich documents. Complex queries for batch feature computation. **Redis:** Store real-time features (items viewed in last 5 min, current cart) in sorted sets/hashes for <1ms serving. The combination gives both rich querying (MongoDB) and ultra-fast serving (Redis). |
 
 ### Replication Strategy — Which to Pick?
 
-| Scenario | Strategy | Why |
+| Scenario | Strategy | Why (write this in exam) |
 |---|---|---|
-| Read-heavy, few writes | **Leader-Follower** | Single writer, many read replicas |
-| Multi-region writes needed | **Multi-Leader** | Each region has its own leader |
-| Maximum availability | **Leaderless (Quorum)** | No single point of failure |
-| Strong consistency required | **Synchronous replication** | All replicas updated in same transaction |
-| Low latency writes needed | **Asynchronous replication** | Write returns immediately, replicas catch up |
-| Banking across countries | **CP (Consistency + Partition tolerance)** | Correct data > availability during partition |
-| Social media feed | **AP (Availability + Partition tolerance)** | Always respond, eventual consistency OK |
+| Read-heavy, few writes (e-commerce product pages) | **Leader-Follower** | Single leader handles all writes (simple, no conflicts). Multiple follower replicas serve reads — distribute read load across nodes. If leader fails, promote a follower. **Example:** Flipkart product catalog — millions of reads/sec but products updated a few times/day. |
+| Multi-region writes (global app, offices in India + US + UK) | **Multi-Leader** | Each region has its own leader — users write to nearest leader (low latency). Leaders sync asynchronously. **Trade-off:** Write conflicts possible (two leaders update same record). Need conflict resolution (last-write-wins, or application-level merge). **Example:** Google Docs — edits in India and US simultaneously, conflicts merged. |
+| Maximum availability, no single point of failure | **Leaderless (Quorum)** | Any node accepts reads/writes. No leader to fail. Use quorum: W+R>N ensures reads see latest write. **Example:** Cassandra, DynamoDB — designed for "always available" systems. |
+| Strong consistency required (banking, inventory) | **Synchronous replication** | All replicas updated within the SAME transaction. Write only succeeds when ALL replicas confirm. **Guarantees:** Every read from any replica returns the latest data. **Cost:** Higher write latency (must wait for all replicas). **When:** Financial transactions where "you have ₹50,000" must be correct on every read, every replica. |
+| Low latency writes (social media posts, IoT) | **Asynchronous replication** | Write returns immediately after leader confirms. Replicas catch up in the background. **Fast** but temporarily inconsistent — a read from a follower may return stale data for a few milliseconds. **When:** Social media feed — if a "like" appears 500ms late on another device, that's acceptable. |
+| Banking across countries | **CP (Consistency + Partition tolerance)** | During a network partition between India and US, the system **refuses writes** rather than risk inconsistent data. A bank transfer must either fully succeed or fully fail — never partially applied. **Example:** If Mumbai-Delhi network breaks, transactions from Delhi to Mumbai are blocked until network recovers. Better to be unavailable for 5 minutes than to process a wrong transfer. |
+| Social media feed | **AP (Availability + Partition tolerance)** | During a network partition, the system **keeps serving requests** even if data is slightly stale. If a user posts in Delhi and the post takes 2 seconds to appear in Mumbai, that's fine. Users would rather see a slightly stale feed than get an error page. **Example:** Instagram — you always see your feed, even if a new post from someone else is delayed by a few seconds. |
 
 ### Fragmentation — Which to Pick?
 
-| Scenario | Type | Reconstruct |
-|---|---|---|
-| Split customers by region | **Horizontal** (rows) | UNION |
-| Separate frequently accessed columns from large blobs | **Vertical** (columns) | JOIN on PK |
-| Region-based rows + separate hot/cold columns | **Mixed/Hybrid** | UNION + JOIN |
+| Scenario | Type | How It Works | Reconstruct | When to Pick |
+|---|---|---|---|---|
+| Split customers by region (North/South/West) | **Horizontal** (split rows) | Each fragment contains rows for one region. Fragment 1: all North customers. Fragment 2: all South customers. Same columns in every fragment. | **UNION** all fragments | Data is naturally partitioned by a geographic, temporal, or categorical attribute. Queries usually filter by that attribute. **Example:** Swiggy orders — Delhi orders stay in Delhi DB, Mumbai orders in Mumbai DB. Most queries are regional ("show my orders" — user is in one city). |
+| Separate frequently accessed columns from large blobs | **Vertical** (split columns) | Fragment 1: {EmpID, Name, Email, Phone} — accessed 100x/day. Fragment 2: {EmpID, ProfilePhoto, Resume, Bio} — accessed 1x/month. Both share PK (EmpID) for joining. | **JOIN** on PK | Some columns are queried constantly (hot data) while others are rarely needed (cold data). Separating them means hot queries don't waste I/O reading large cold columns. **Example:** LinkedIn — profile header (name, headline) loaded instantly; activity history loaded on scroll. |
+| Region-based rows + hot/cold columns | **Mixed/Hybrid** | First horizontally fragment by region, then vertically fragment each piece by access frequency. | **UNION + JOIN** | Large-scale systems where BOTH row-level distribution AND column-level optimization are needed. **Example:** A global bank — accounts split by country (horizontal), then within each country, split into core data (balance, name) and archive data (10-year history). |
 
-### Normalisation vs Denormalisation
+### Normalisation vs Denormalisation — Which to Pick?
 
-| Scenario | Pick | Why |
+| Scenario | Pick | Why (write this in exam) |
 |---|---|---|
-| OLTP (transactions, writes) | **Normalise** (3NF) | No anomalies, data integrity |
-| OLAP (analytics, reads, dashboards) | **Denormalise** | Fewer joins = faster reads |
-| Data warehouse | **Denormalise** (star schema) | Pre-joined for query speed |
-| Frequently updated data | **Normalise** | Update in one place |
-| Read-heavy, rarely updated | **Denormalise** | Pre-compute for speed |
+| OLTP (online transactions — banking, inventory, orders) | **Normalise (3NF)** | Transactions involve frequent writes (INSERT, UPDATE, DELETE). Normalisation eliminates redundancy → updates happen in ONE place. No anomalies: no risk of updating a department name in one row but missing it in another. **Data integrity** is paramount — constraints, FK, and normalization enforce correctness. |
+| OLAP (analytics — dashboards, reports, BI) | **Denormalise** | Analytics involves complex read queries with many JOINs. Denormalisation pre-joins data → fewer runtime JOINs → faster queries. Reports are read-only — update anomalies don't apply. **Star schema** (fact + dimension tables) is the standard denormalized pattern for data warehouses. |
+| Data warehouse (Snowflake, BigQuery, Redshift) | **Denormalise (Star Schema)** | Warehouses are optimized for reads, not writes. Pre-computed joins in fact tables make dashboard queries fast. ETL pipeline handles data loading (writes are batched, not real-time). **Example:** A sales dashboard showing "revenue by region by quarter" — pre-join sales+products+regions into one fact table for instant queries. |
+| Frequently updated data (employee records, prices) | **Normalise** | If product price changes, update it in ONE table (Products). All orders reference it via FK. With denormalization, you'd need to update price in every order row — slow and error-prone. |
+| Read-heavy, rarely updated (product catalog, reference data) | **Denormalise** | Product details rarely change but are read millions of times. Pre-joining product+category+brand into one document (MongoDB) or one wide table eliminates JOIN overhead on every read. Cache-friendly. |
 
 ---
 
