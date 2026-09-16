@@ -445,6 +445,95 @@ GET cache:product:123                         # Check cache first
 # On product update → DEL cache:product:123   # Invalidate
 ```
 
+### Relational Division Pattern — ALL / EVERY / EACH
+
+**When to use:** Anytime the question says "find X that has ALL / EVERY / EACH of Y."
+
+**English logic:** *"There does NOT EXIST a required item that the entity does NOT have."*
+
+```
+Keyword Spotted         What It Means
+─────────────────       ─────────────────────────────────────
+ALL / EVERY / EACH  →   You need Relational Division
+                    →   Double NOT EXISTS pattern
+```
+
+**The Thought Process (step by step):**
+
+```
+ALL / EVERY / EACH
+       ↓
+Find Missing Items          ← "Is there ANY required item this entity DOESN'T have?"
+       ↓
+Inner NOT EXISTS            ← Check: entity doesn't have this particular item
+       ↓
+No Missing Items            ← "If NO item is missing..."
+       ↓
+Outer NOT EXISTS            ← "...then this entity qualifies"
+       ↓
+Relational Division ✓
+```
+
+**Generic SQL Template:**
+
+```sql
+-- "Find all X that have EVERY Y"
+SELECT x.X_id
+FROM Entity x
+WHERE NOT EXISTS (
+    -- For each required item...
+    SELECT 1
+    FROM RequiredItems y
+    WHERE NOT EXISTS (
+        -- ...check if this entity has it
+        SELECT 1
+        FROM Relationship r
+        WHERE r.X_id = x.X_id
+        AND   r.Y_id = y.Y_id
+    )
+);
+```
+
+**Concrete Example: "Find students who have enrolled in ALL courses"**
+
+```sql
+SELECT s.StudentName
+FROM Student s
+WHERE NOT EXISTS (
+    -- Is there ANY course...
+    SELECT 1
+    FROM Course c
+    WHERE NOT EXISTS (
+        -- ...that this student has NOT enrolled in?
+        SELECT 1
+        FROM Enrollment e
+        WHERE e.StudentID = s.StudentID
+        AND   e.CourseID  = c.CourseID
+    )
+);
+-- If no such course exists → student has enrolled in ALL courses ✓
+```
+
+**Another Example: "Find suppliers who supply ALL red parts"**
+
+```sql
+SELECT sp.SupplierName
+FROM Supplier sp
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM Part p
+    WHERE p.Color = 'Red'
+    AND NOT EXISTS (
+        SELECT 1
+        FROM Supply s
+        WHERE s.SupplierID = sp.SupplierID
+        AND   s.PartID     = p.PartID
+    )
+);
+```
+
+> **Exam Tip:** Whenever you see ALL/EVERY/EACH in a query question, immediately write the double NOT EXISTS skeleton. It's the only reliable way to express relational division in standard SQL.
+
 ---
 
 ## 4. SQL ↔ MongoDB EQUIVALENTS (Quick Map)
