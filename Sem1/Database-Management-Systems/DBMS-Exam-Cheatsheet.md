@@ -112,10 +112,25 @@ STEP 2: Check for 2NF violation (only if composite PK)
 STEP 3: Check for 3NF violation
 ─────────────────────────────────
 ❓ Non-key attribute determines another non-key attribute?
+   Rule: Non-key should NOT determine non-key
    Example: DeptID → DeptName (both are non-key, DeptName depends
             on DeptID, not on the primary key directly)
 → VIOLATION of 3NF! (Transitive dependency)
 → FIX: Create separate table — DEPARTMENT(DeptID, DeptName)
+
+STEP 4: Check for BCNF violation
+─────────────────────────────────
+❓ Is the LEFT SIDE of EVERY functional dependency a candidate key or super key?
+   Rule: Left side of EVERY FD must be a candidate/super key
+   Example: PK = {CourseID, TimeSlot}
+            FD: InstructorID → Room
+            InstructorID is NOT a candidate key → BCNF violation!
+→ VIOLATION of BCNF!
+→ FIX: Split table using the violating FD
+        Original: SCHEDULE(CourseID, InstructorID, Room, TimeSlot)
+        Split into:
+          INSTRUCTOR_ROOM(InstructorID, Room)        ← violating FD becomes its own table
+          SCHEDULE(CourseID, InstructorID, TimeSlot)  ← remaining attributes
 ```
 
 **One-line memory for 3NF:** *"The key, the whole key, and nothing but the key — so help me Codd."*
@@ -123,6 +138,18 @@ STEP 3: Check for 3NF violation
 - **1NF** = "the key" (every row uniquely identified, atomic values)
 - **2NF** = "the WHOLE key" (no partial dependencies — depend on full PK)
 - **3NF** = "NOTHING BUT the key" (no transitive dependencies — non-keys don't determine other non-keys)
+- **BCNF** = "EVERY determinant is a key" (left side of every FD must be a superkey)
+
+**Key Difference — 3NF vs BCNF:**
+```
+3NF:  Non-key should not determine non-key
+      (only checks non-key → non-key dependencies)
+
+BCNF: Left side of EVERY FD must be a candidate/super key
+      (checks ALL FDs, including key → non-key)
+
+BCNF is STRICTER than 3NF. Every BCNF table is in 3NF, but not every 3NF table is in BCNF.
+```
 
 **Quick Decision Flowchart:**
 
@@ -137,7 +164,11 @@ Is PK composite AND does part of PK determine a non-key?
 
 Does any non-key attribute determine another non-key?
   YES → Not in 3NF → Move transitive dependency to new table
-  NO  → ✅ In 3NF!
+  NO  ↓
+
+Is the left side of EVERY FD a candidate/super key?
+  NO  → Not in BCNF → Split table using the violating FD
+  YES → ✅ In BCNF!
 ```
 
 ### Types of Constraints
