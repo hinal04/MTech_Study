@@ -259,4 +259,213 @@ docker volume create mydata     # Create persistent volume
 
 ---
 
+## 10. CLOUD COMPUTING — Definition & Advantages/Disadvantages
+
+### NIST Definition
+> "On-demand network access to shared pool of configurable computing resources that can be rapidly provisioned and released with minimal management effort"
+
+### Advantages (7)
+
+| # | Advantage | Details |
+|---|---|---|
+| 1 | **Cost reduction** | CapEx → OpEx, pay only for what you use |
+| 2 | **Scalability** | Scale up/down based on demand |
+| 3 | **Elasticity** | Auto-scaling — resources grow/shrink automatically |
+| 4 | **Global reach** | Deploy in any region worldwide |
+| 5 | **Reliability** | Multi-AZ, auto-failover |
+| 6 | **Speed of deployment** | Minutes vs weeks for physical servers |
+| 7 | **Focus on business** | No infrastructure maintenance |
+
+### Disadvantages (6)
+
+| # | Disadvantage | Details |
+|---|---|---|
+| 1 | **Security concerns** | Data on provider's servers |
+| 2 | **Vendor lock-in** | Hard to migrate between providers |
+| 3 | **Downtime risk** | Provider outages affect you |
+| 4 | **Data sovereignty** | Data must stay in specific countries |
+| 5 | **Internet dependency** | No internet = no cloud |
+| 6 | **Cost management** | Easy to overspend without monitoring |
+
+---
+
+## 11. VIRTUALIZATION — Complete Details
+
+- **Definition:** Creating virtual version of physical resources (server, storage, network)
+- **Why it matters:** Foundation of cloud computing — enables multi-tenancy, elasticity, resource pooling
+- **VM Definition (Popek-Goldberg):** "Efficient, isolated duplicate of a real machine"
+
+### VM Advantages
+- Multiple OS co-exist on same hardware
+- Isolation between VMs
+- Snapshots/rollback
+- Rapid provisioning
+- Live migration (move running VM between hosts)
+
+### VM Disadvantages
+- Performance overhead (2-10%)
+- Noisy neighbour problem
+- Resource contention
+- Hypervisor attack surface
+
+> **Key insight:** Hypervisor = "OS for VMs" (manages VMs like an OS manages processes)
+
+---
+
+## 12. VIRTUALIZATION TYPES — Detailed Comparison
+
+### Full Virtualization
+
+| Aspect | Details |
+|---|---|
+| **How it works** | Binary translation — VMM scans guest instructions, replaces privileged ones |
+| **Pro** | Guest OS runs unmodified (any OS works) |
+| **Con** | Overhead from translation |
+| **Example** | VMware Workstation (early), QEMU |
+| **When to pick** | Need to run unmodified OS on old hardware without VT-x support |
+
+### Para-Virtualization
+
+| Aspect | Details |
+|---|---|
+| **How it works** | Guest OS modified to use hypercalls instead of privileged instructions |
+| **Pro** | Better performance (no binary translation overhead) |
+| **Con** | Must modify guest OS source code (can't run Windows) |
+| **Example** | Xen (PV mode) |
+| **When to pick** | Open-source guest OS + need maximum performance without HW-assisted support |
+
+### Hardware-Assisted Virtualization
+
+| Aspect | Details |
+|---|---|
+| **How it works** | CPU adds VMX root/non-root mode (VT-x/AMD-V). Hardware handles traps. |
+| **Pro** | Best of both — unmodified OS + near-native performance |
+| **Con** | Needs modern CPU (all CPUs since 2006 have it) |
+| **Example** | KVM, ESXi, Hyper-V — **DOMINANT TODAY** |
+| **When to pick** | Default choice for all modern deployments |
+
+### OS-Level Virtualization (Containers)
+
+| Aspect | Details |
+|---|---|
+| **How it works** | Share host kernel, isolate using namespaces + cgroups |
+| **Pro** | Millisecond boot, minimal overhead, 100-1000 per host |
+| **Con** | Weaker isolation (shared kernel), same OS family only |
+| **Example** | Docker, LXC |
+| **When to pick** | Microservices, fast scaling, high density, same OS workloads |
+
+---
+
+## 13. STORAGE VIRTUALIZATION — Details
+
+| Type | How | Pros | Cons |
+|---|---|---|---|
+| **Host-based (LVM)** | Volume manager on host | Simple setup | Per-host only, not shared |
+| **Device-based** | Storage array controller handles it | No extra hardware needed | Same-vendor only |
+| **Network-based (SAN)** | Most common. Heterogeneous storage. | Works across vendors, centralized | More complex, needs SAN infrastructure |
+
+### Network-based: In-band vs Out-of-band
+
+| | In-band | Out-of-band |
+|---|---|---|
+| **Data path** | Data flows through the virtualization device | Only metadata through device |
+| **Advantage** | Caching possible | Lower latency |
+| **Disadvantage** | Adds latency (data passes through extra hop) | Needs host software agent |
+
+---
+
+## 14. CPU & MEMORY OVERCOMMITMENT — Exam Points
+
+### CPU Overcommitment
+
+- **vCPU ratio** = virtual CPUs : physical cores
+- **CPU Ready Time** = time a VM waits for a physical core to become available
+
+| Ratio | Safe For | Risk |
+|---|---|---|
+| **1:1** | Databases, real-time, latency-sensitive | Lowest |
+| **3:1–5:1** | Mixed workloads | Moderate |
+| **>8:1** | Only idle VMs | **High risk** |
+
+### Memory Overcommitment
+
+- **Key fact:** Memory CAN'T be time-sliced like CPU — a page is either in RAM or it isn't
+- 4 techniques ordered least → most invasive:
+
+| Order | Technique | How | Impact |
+|---|---|---|---|
+| 1st | **TPS (Transparent Page Sharing)** | Merge identical pages across VMs | Minimal — transparent |
+| 2nd | **Ballooning** | Guest driver reclaims memory from guest processes | Low-moderate |
+| 3rd | **Compression** | Compress pages in memory instead of swapping | Moderate — CPU overhead |
+| 4th | **Host Swapping** | Swap pages to disk without guest cooperation | **Severe** — disk is 100,000× slower |
+
+---
+
+## 15. AWS SERVICES — Scenario-Based Selection
+
+| I need to... | Use | Why |
+|---|---|---|
+| Run a virtual server | **EC2** | Full control over OS, apps, networking |
+| Store files/images/videos | **S3** | Object storage, 11 nines durability, unlimited |
+| Attach a disk to EC2 | **EBS** | Block storage, persistent, snapshots |
+| Share files across multiple servers | **EFS** | Managed NFS, auto-scaling |
+| Archive data cheaply | **Glacier** | Cheapest storage, hours to retrieve |
+| Managed database | **RDS** | MySQL/PostgreSQL/Aurora, Multi-AZ, backups |
+| Isolate my network | **VPC** | Subnets, security groups, route tables |
+| Control who accesses what | **IAM** | Users, roles, policies, MFA |
+| Distribute content globally | **CloudFront** | CDN, edge caching, low latency |
+| Handle 10x traffic spike | **Auto Scaling + ELB** | Add/remove EC2 instances automatically |
+
+---
+
+## 16. DOCKER — Advantages/Disadvantages
+
+### Advantages
+- **Consistent environments** — "works on my machine" problem solved
+- **Lightweight** — MB not GB
+- **Fast startup** — milliseconds not minutes
+- **Portable** — run anywhere Docker runs
+- **Microservices-friendly** — one container per service
+
+### Disadvantages
+- **Shared kernel** — weaker isolation than VM
+- **Linux-only** containers on Linux host
+- **Persistent storage** complexity
+- **Networking** complexity
+- **Security** — kernel vulnerability affects all containers
+
+---
+
+## 17. KUBERNETES — Advantages/Disadvantages
+
+### Advantages
+- **Auto-scaling** — scale pods based on CPU/memory/custom metrics
+- **Self-healing** — restarts failed pods automatically
+- **Rolling updates** — zero-downtime deployment
+- **Service discovery** — automatic DNS for services
+- **Load balancing** — distribute traffic across pods
+- **Declarative configuration** — YAML desired state, K8s makes it happen
+
+### Disadvantages
+- **Complex to set up and manage** — many components (etcd, API server, scheduler, etc.)
+- **Steep learning curve** — YAML, networking, RBAC, etc.
+- **Overkill for simple apps** — monolith doesn't need K8s
+- **Resource overhead** — control plane consumes resources
+- **Debugging distributed systems is hard** — tracing across pods/services
+
+---
+
+## 18. CLOUD-NATIVE — Key Principles
+
+| # | Principle | What It Means |
+|---|---|---|
+| 1 | **Microservices** | Small, independent services — each does one thing well |
+| 2 | **Containers** | Package each service with its dependencies |
+| 3 | **Declarative deployment** | YAML desired state — system converges automatically |
+| 4 | **CI/CD** | Automated build → test → deploy pipeline |
+| 5 | **Observability** | Logging, monitoring, tracing — know what's happening |
+| 6 | **Portability** | Run on any cloud — avoid vendor lock-in |
+
+---
+
 *Good luck with your exam!* 🎯
