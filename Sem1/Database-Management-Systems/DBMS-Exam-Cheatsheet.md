@@ -71,13 +71,74 @@
 
 ### Good Primary Key Checklist
 
-| ✅ Good PK | ❌ Bad PK |
-|---|---|
-| System-generated (auto-increment, UUID) | Natural data (name, phone — can change) |
-| Immutable (never changes) | Mutable (email changes, Aadhaar can be re-issued) |
-| Short and numeric | Long strings (slower indexing) |
-| No business meaning | Business-meaningful (ties to external system) |
-| Single column preferred | Too many composite columns |
+**Easy Memory Trick — Ask 3 Questions:**
+
+```
+1. Unique?      → Can two rows have the same value?
+2. Not Null?    → Can it ever be empty/blank?
+3. Stable?      → Will it ever change after creation?
+
+If ALL THREE = YES → ✅ Good Primary Key
+If ANY = NO       → ❌ Bad Primary Key
+```
+
+| ✅ Good PK | ❌ Bad PK | Why Bad? |
+|---|---|---|
+| System-generated (auto-increment, UUID) | Name | Not unique (two "Rahul Sharma"), changes (marriage) |
+| EmpID (numeric, auto-generated) | Phone number | Changes when user switches carrier |
+| OrderID (system-assigned) | Email | Changes (switches provider), privacy concerns |
+| StudentRollNo (institution-assigned) | Aadhaar | 12 digits (long), can be re-issued, privacy issues |
+| Immutable, short, numeric | Business-meaningful data | Ties to external system, may change |
+
+### Normal Forms — Easy Memory Trick
+
+```
+STEP 1: Check for 1NF violation
+─────────────────────────────────
+❓ Comma in a field? Multiple values in one cell?
+   Example: Skills = "Python, SQL, Java"
+→ VIOLATION of 1NF!
+→ FIX: Split into separate rows (one skill per row)
+   OR create a separate SKILLS table
+
+STEP 2: Check for 2NF violation (only if composite PK)
+───────────────────────────────────────────────────────
+❓ Part of composite key determines a non-key attribute?
+   Example: PK = {StudentID, CourseID}
+            But CourseName depends ONLY on CourseID (not full PK)
+→ VIOLATION of 2NF! (Partial dependency)
+→ FIX: Create separate table — COURSE(CourseID, CourseName)
+
+STEP 3: Check for 3NF violation
+─────────────────────────────────
+❓ Non-key attribute determines another non-key attribute?
+   Example: DeptID → DeptName (both are non-key, DeptName depends
+            on DeptID, not on the primary key directly)
+→ VIOLATION of 3NF! (Transitive dependency)
+→ FIX: Create separate table — DEPARTMENT(DeptID, DeptName)
+```
+
+**One-line memory for 3NF:** *"The key, the whole key, and nothing but the key — so help me Codd."*
+
+- **1NF** = "the key" (every row uniquely identified, atomic values)
+- **2NF** = "the WHOLE key" (no partial dependencies — depend on full PK)
+- **3NF** = "NOTHING BUT the key" (no transitive dependencies — non-keys don't determine other non-keys)
+
+**Quick Decision Flowchart:**
+
+```
+Is there a comma/list in any cell?
+  YES → Not in 1NF → Split rows or create child table
+  NO  ↓
+
+Is PK composite AND does part of PK determine a non-key?
+  YES → Not in 2NF → Move partial dependency to new table
+  NO  ↓
+
+Does any non-key attribute determine another non-key?
+  YES → Not in 3NF → Move transitive dependency to new table
+  NO  → ✅ In 3NF!
+```
 
 ### Types of Constraints
 
