@@ -1557,7 +1557,69 @@ If f(n) = Θ(n^(log_b a)), then:
 
 **Interpretation:** The work is **evenly distributed** across all levels of the recursion tree. Each level contributes about the same amount of work, and there are log_b n levels, so we multiply by log n.
 
-*Note: The more general CLRS version allows f(n) = Θ(n^(log_b a) · (log n)^k), giving T(n) = Θ(n^(log_b a) · (log n)^(k+1)). For k = 0 we get the standard case above.*
+---
+
+#### Extended Case 2: f(n) matches n^(log_b a) with an extra log factor
+
+The basic Case 2 only handles f(n) = Θ(n^(log_b a)). But what if f(n) has an **extra log^k factor**?
+
+```
+If f(n) = Θ(n^(log_b a) · (log n)^k)  for some constant k ≥ 0, then:
+
+    T(n) = Θ(n^(log_b a) · (log n)^(k+1))
+```
+
+**Rule:** When f(n) equals n^(log_b a) times (log n)^k, **add 1 to the exponent of log**.
+
+**Why it works:** At each level of the recursion tree, the work is n^(log_b a) · (log n)^k. There are log_b(n) levels, and summing the log^k contributions across all levels results in the exponent increasing by 1.
+
+**When k = 0:** f(n) = Θ(n^(log_b a) · (log n)^0) = Θ(n^(log_b a)), and T(n) = Θ(n^(log_b a) · log n) — this is just the standard Case 2.
+
+##### Extended Case 2 — Worked Examples
+
+**Example A: T(n) = 2T(n/2) + n log n**
+
+```
+a = 2,  b = 2
+n^(log_b a) = n^(log_2 2) = n^1 = n
+
+f(n) = n log n  →  n · (log n)^1
+
+Is f(n) = Θ(n^(log_b a) · (log n)^k)?
+→ f(n) = Θ(n · (log n)^1)   so k = 1  ✓
+
+Extended Case 2: T(n) = Θ(n · (log n)^(1+1)) = Θ(n log² n)
+```
+
+**Example B: T(n) = 4T(n/2) + n² log n**
+
+```
+a = 4,  b = 2
+n^(log_b a) = n^(log_2 4) = n^2
+
+f(n) = n² log n  →  n² · (log n)^1
+
+Is f(n) = Θ(n² · (log n)^k)?
+→ f(n) = Θ(n² · (log n)^1)   so k = 1  ✓
+
+Extended Case 2: T(n) = Θ(n² · (log n)^(1+1)) = Θ(n² log² n)
+```
+
+**Example C: T(n) = T(n/2) + log²n**
+
+```
+a = 1,  b = 2
+n^(log_b a) = n^(log_2 1) = n^0 = 1
+
+f(n) = log²n = 1 · (log n)^2
+
+Is f(n) = Θ(1 · (log n)^k)?
+→ f(n) = Θ((log n)^2)   so k = 2  ✓
+
+Extended Case 2: T(n) = Θ((log n)^(2+1)) = Θ(log³ n)
+```
+
+> **Exam tip:** This extended case solves the "gap" recurrences that the basic 3-case version cannot handle. If f(n) = n^(log_b a) · (log n)^k, don't say "Master Theorem doesn't apply" — use Extended Case 2!
 
 ---
 

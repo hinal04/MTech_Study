@@ -48,10 +48,23 @@ T(n) = aT(n/b) + f(n)
 Step 1: Compute n^(log_b a)
 Step 2: Compare f(n) with n^(log_b a)
 
-Case 1: f(n) < n^(log_b a)  → T(n) = Θ(n^(log_b a))         [recursion dominates]
-Case 2: f(n) = n^(log_b a)  → T(n) = Θ(n^(log_b a) · log n)  [tie → multiply by log n]
-Case 3: f(n) > n^(log_b a)  → T(n) = Θ(f(n))                  [work dominates]
+Case 1: f(n) < n^(log_b a)           → T(n) = Θ(n^(log_b a))              [recursion dominates]
+Case 2: f(n) = n^(log_b a)           → T(n) = Θ(n^(log_b a) · log n)      [tie → multiply by log n]
+Case 2 EXTENDED: f(n) = n^(log_b a) · (log n)^k
+                                      → T(n) = Θ(n^(log_b a) · (log n)^(k+1)) [add 1 to log exponent]
+Case 3: f(n) > n^(log_b a)           → T(n) = Θ(f(n))                      [work dominates]
 ```
+
+**Extended Case 2 — Quick Examples:**
+
+| Recurrence | n^(log_b a) | f(n) | k | Answer |
+|---|---|---|---|---|
+| T(n)=2T(n/2)+n log n | n | n·log n | 1 | **Θ(n log² n)** |
+| T(n)=4T(n/2)+n² log n | n² | n²·log n | 1 | **Θ(n² log² n)** |
+| T(n)=T(n/2)+log²n | 1 | log²n | 2 | **Θ(log³ n)** |
+| T(n)=2T(n/2)+n log²n | n | n·log²n | 2 | **Θ(n log³ n)** |
+
+> **When to use:** f(n) matches n^(log_b a) but has an extra (log n)^k factor. Don't say "doesn't apply" — use Extended Case 2!
 
 **Key log values to memorize:**
 
@@ -67,6 +80,8 @@ Case 3: f(n) > n^(log_b a)  → T(n) = Θ(f(n))                  [work dominates
 | T(n)=2T(n/2)+n | 2 | 2 | n¹ | 2 | **Θ(n log n)** — Merge Sort |
 | T(n)=4T(n/2)+n | 4 | 2 | n² | 1 | **Θ(n²)** |
 | T(n)=4T(n/2)+n² | 4 | 2 | n² | 2 | **Θ(n² log n)** |
+| T(n)=2T(n/2)+n log n | 2 | 2 | n | 2-ext (k=1) | **Θ(n log² n)** |
+| T(n)=4T(n/2)+n² log n | 4 | 2 | n² | 2-ext (k=1) | **Θ(n² log² n)** |
 | T(n)=4T(n/2)+n³ | 4 | 2 | n² | 3 | **Θ(n³)** |
 | T(n)=7T(n/2)+n² | 7 | 2 | n^2.807 | 1 | **Θ(n^2.807)** — Strassen |
 | T(n)=9T(n/3)+n² | 9 | 3 | n² | 2 | **Θ(n² log n)** |

@@ -70,9 +70,13 @@ For recurrences of the form: **T(n) = aT(n/b) + f(n)** where a ≥ 1, b > 1
 |------|-----------|--------|
 | **Case 1** | f(n) = O(n^(log_b(a) − ε)) for some ε > 0 | T(n) = **Θ(n^(log_b a))** |
 | **Case 2** | f(n) = Θ(n^(log_b a)) | T(n) = **Θ(n^(log_b a) · log n)** |
+| **Case 2 Extended** | f(n) = Θ(n^(log_b a) · (log n)^k) for k ≥ 0 | T(n) = **Θ(n^(log_b a) · (log n)^(k+1))** |
 | **Case 3** | f(n) = Ω(n^(log_b(a) + ε)) for some ε > 0 **AND** af(n/b) ≤ cf(n) for c < 1 | T(n) = **Θ(f(n))** |
 
 > **Memory trick**: Compare f(n) vs n^(log_b a) — whichever is "heavier" dominates. Tie → multiply by log n.
+>
+> **Extended Case 2 trick**: If f(n) = n^(log_b a) · (log n)^k, just **add 1 to the log exponent** → (log n)^(k+1).
+> Example: T(n) = 2T(n/2) + n log n → n^(log_b a) = n, f(n) = n·log n, k=1 → **Θ(n log² n)**
 
 **Quick examples**:
 - T(n) = 2T(n/2) + n → log₂2 = 1, f(n) = n = Θ(n¹) → **Case 2** → Θ(n log n) ← Merge Sort
