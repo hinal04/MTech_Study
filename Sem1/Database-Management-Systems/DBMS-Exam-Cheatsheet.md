@@ -672,4 +672,73 @@ Phase 2: DECISION
 
 ---
 
+## 10. SQL QUERY PATTERN RECOGNITION — Trigger Words → Solution
+
+| Question Type | Trigger Words | Memory Trick | Pattern |
+|---|---|---|---|
+| Highest Salary | Highest, Maximum | `MAX()` | `MAX(Salary)` |
+| 2nd Highest Salary | Second Highest | `MAX(< MAX())` | `MAX(Salary WHERE Salary < MAX(Salary))` |
+| Nth Highest Salary | 3rd, 4th, Nth | Sort Descending | `ORDER BY Salary DESC LIMIT 1 OFFSET N-1` |
+| Highest per Department | Per Department | `GROUP BY + MAX` | `GROUP BY DeptID` |
+| Duplicates | Duplicate Names/Emails | `COUNT(*) > 1` | `GROUP BY ... HAVING COUNT(*) > 1` |
+| More than N Employees | More than, At least | `GROUP BY + HAVING` | `HAVING COUNT(*) > N` |
+| Above Department Average | Average per Dept | Correlated Subquery | `Salary > AVG(Dept Salary)` |
+| No Matching Records | Not assigned, No project | `NOT EXISTS` | Missing Relationship |
+| At Least One Match | Exists | `EXISTS` | Match Found |
+| ALL / EVERY / EACH | All courses, Every dept | Double `NOT EXISTS` | Relational Division |
+
+---
+
+## 11. EXISTS vs NOT EXISTS — Quick Meaning
+
+| Clause | Meaning |
+|---|---|
+| `EXISTS` | At least one row found |
+| `NOT EXISTS` | No row found |
+| Inner `NOT EXISTS` | Missing item (entity doesn't have this one) |
+| Outer `NOT EXISTS` | No missing item (entity has ALL of them) |
+
+---
+
+## 12. NORMALISATION — Quick Identification Table
+
+| NF | How to Identify | Problem | Fix |
+|---|---|---|---|
+| **1NF** | Comma / Multiple values in one field | Non-atomic values | Split into multiple rows |
+| **2NF** | Part of composite key → attribute | Partial Dependency | Move dependent attributes to new table |
+| **3NF** | Non-key → Non-key | Transitive Dependency | Create separate table |
+| **BCNF** | Determinant is not a Candidate Key | BCNF Violation | Decompose using violating FD |
+
+### Spot the Violation — Example Patterns
+
+| Dependency Pattern | NF Violation |
+|---|---|
+| `StudentID → Subjects(DBMS, OS, CN)` | **1NF** — multi-valued field |
+| `(StudentID, CourseID) → Grade` and `StudentID → StudentName` | **2NF** — partial dependency (StudentName depends only on StudentID, not full PK) |
+| `EmpID → DeptID → DeptName` | **3NF** — transitive dependency (DeptName depends on DeptID, not on EmpID directly) |
+| `InstructorID → Room` where InstructorID is not a key | **BCNF** — determinant is not a candidate key |
+
+---
+
+## 13. LAST-MINUTE RECALL — One Line Each
+
+| Concept | Remember |
+|---|---|
+| Highest Salary | `MAX()` |
+| 2nd Highest Salary | `MAX(< MAX())` |
+| Per Department | `GROUP BY` |
+| Group Filter | `HAVING` |
+| Duplicate Rows | `COUNT(*) > 1` |
+| Missing Records | `NOT EXISTS` |
+| ALL / EVERY | Relational Division (Double NOT EXISTS) |
+| ALL | No Missing Items |
+| EXISTS | Match Found |
+| NOT EXISTS | Match Missing |
+| 1NF | Atomic Values (no commas in a field) |
+| 2NF | Whole Key Dependency (no partial) |
+| 3NF | No Transitive Dependency (non-key ✗→ non-key) |
+| BCNF | Every Determinant is a Key |
+
+---
+
 *Good luck with your exam!* 🎯
