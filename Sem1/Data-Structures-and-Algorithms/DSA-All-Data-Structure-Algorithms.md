@@ -875,13 +875,819 @@ TRAVERSE_BACKWARD():
 
 ---
 
+# 11. BINARY TREE — Linked Representation & Operations
+
+> **Think of it as:** Each node is a box with THREE things: LEFT pointer, DATA, RIGHT pointer.
+> **Key property:** Each node has at most 2 children (left and right).
+
+```
+Node Structure:
+  [LEFT | DATA | RIGHT]
+
+Tree Example:
+            [50]
+           /    \
+        [30]    [70]
+        /  \      \
+     [20] [40]   [80]
+```
+
+### Node Structure (Linked Representation)
+
+```
+struct Node:
+    data        ← the value stored
+    left        ← pointer to left child (NULL if no left child)
+    right       ← pointer to right child (NULL if no right child)
+```
+
+### Count Nodes — O(n)
+
+```
+COUNT(node):
+    if node == NULL:
+        return 0
+    return 1 + COUNT(node.left) + COUNT(node.right)
+```
+
+### Find Height — O(n)
+
+```
+HEIGHT(node):
+    if node == NULL:
+        return -1                   ← empty tree has height -1
+    leftH = HEIGHT(node.left)
+    rightH = HEIGHT(node.right)
+    return 1 + max(leftH, rightH)
+```
+
+### Find Number of Leaves — O(n)
+
+```
+COUNT_LEAVES(node):
+    if node == NULL:
+        return 0
+    if node.left == NULL AND node.right == NULL:
+        return 1                    ← this IS a leaf
+    return COUNT_LEAVES(node.left) + COUNT_LEAVES(node.right)
+```
+
+---
+---
+
+# 12. BINARY TREE TRAVERSALS
+
+> **4 ways to visit every node.** Each visits ALL nodes, just in different ORDER.
+> **Memory trick:** The name tells you when you visit the ROOT — Pre=first, In=middle, Post=last.
+
+### Preorder (Root → Left → Right) — NLR — O(n)
+
+```
+Visit the root FIRST, then go left, then go right.
+Mnemonic: "NLR" = Node, Left, Right
+
+PREORDER(node):
+    if node == NULL: return
+    PRINT node.data              ← visit root FIRST
+    PREORDER(node.left)          ← then left subtree
+    PREORDER(node.right)         ← then right subtree
+```
+
+**Example:**
+```
+        50
+       /  \
+      30   70
+     / \     \
+    20  40   80
+
+Preorder: 50, 30, 20, 40, 70, 80
+(Visit root 50 → go left to 30 → go left to 20 → back → go right to 40 → back → go right to 70 → go right to 80)
+```
+
+### Inorder (Left → Root → Right) — LNR — O(n)
+
+```
+Go left FIRST, then visit root, then go right.
+⭐ For a BST, inorder gives SORTED output!
+Mnemonic: "LNR" = Left, Node, Right
+
+INORDER(node):
+    if node == NULL: return
+    INORDER(node.left)           ← go left first
+    PRINT node.data              ← visit root in MIDDLE
+    INORDER(node.right)          ← then go right
+```
+
+**Example (same tree):**
+```
+Inorder: 20, 30, 40, 50, 70, 80   ← SORTED! (because it's a BST)
+```
+
+### Postorder (Left → Right → Root) — LRN — O(n)
+
+```
+Go left, then right, visit root LAST.
+Used for: deleting a tree (delete children before parent)
+Mnemonic: "LRN" = Left, Right, Node
+
+POSTORDER(node):
+    if node == NULL: return
+    POSTORDER(node.left)         ← go left first
+    POSTORDER(node.right)        ← then right
+    PRINT node.data              ← visit root LAST
+```
+
+**Example (same tree):**
+```
+Postorder: 20, 40, 30, 80, 70, 50
+```
+
+### Level-Order (BFS — level by level) — O(n)
+
+```
+Visit level 0, then level 1, then level 2, ...
+Uses a QUEUE.
+
+LEVEL_ORDER(root):
+    if root == NULL: return
+    queue = empty queue
+    enqueue(root)
+    while queue is not empty:
+        node = dequeue()
+        PRINT node.data
+        if node.left != NULL:  enqueue(node.left)
+        if node.right != NULL: enqueue(node.right)
+```
+
+**Example:**
+```
+Level-order: 50, 30, 70, 20, 40, 80
+(Level 0: 50 → Level 1: 30, 70 → Level 2: 20, 40, 80)
+```
+
+### Quick Summary Table
+
+| Traversal | Order | Mnemonic | BST Gives | Used For |
+|---|---|---|---|---|
+| **Preorder** | Root→Left→Right | NLR | — | Copy tree, serialize |
+| **Inorder** | Left→Root→Right | LNR | **Sorted output** | Print sorted BST |
+| **Postorder** | Left→Right→Root | LRN | — | Delete tree, evaluate expression |
+| **Level-order** | Level by level | Queue | — | BFS, shortest depth |
+
+---
+---
+
+# 13. RECONSTRUCT TREE FROM TRAVERSALS
+
+> Given TWO traversals, can you build the UNIQUE tree? Here are the rules and algorithms.
+
+### Rule: Which Combinations Work?
+
+| Combination | Can Build Unique Tree? | Why |
+|---|---|---|
+| **Preorder + Inorder** | ✅ Yes | Preorder gives root; inorder splits left/right subtrees |
+| **Postorder + Inorder** | ✅ Yes | Postorder gives root (last element); inorder splits left/right |
+| **Preorder + Postorder** | ❌ No (not unique) | Can't determine left vs right for nodes with only one child |
+
+### Algorithm: Build Tree from Preorder + Inorder — O(n)
+
+```
+KEY INSIGHT:
+  - First element of PREORDER = ROOT
+  - Find root in INORDER → everything LEFT of it = left subtree, RIGHT of it = right subtree
+  - Recurse for left and right subtrees
+
+BUILD_FROM_PRE_IN(preorder, inorder):
+    if preorder is empty: return NULL
+    
+    root = preorder[0]                           ← first of preorder is always the root
+    rootIndex = find root in inorder             ← find where root sits in inorder
+    
+    leftInorder  = inorder[0 ... rootIndex-1]    ← everything LEFT of root in inorder
+    rightInorder = inorder[rootIndex+1 ... end]  ← everything RIGHT of root in inorder
+    
+    leftSize = length of leftInorder
+    leftPreorder  = preorder[1 ... leftSize]     ← next leftSize elements in preorder
+    rightPreorder = preorder[leftSize+1 ... end] ← remaining elements in preorder
+    
+    node = create Node(root)
+    node.left  = BUILD_FROM_PRE_IN(leftPreorder, leftInorder)
+    node.right = BUILD_FROM_PRE_IN(rightPreorder, rightInorder)
+    return node
+```
+
+**Worked Example:**
+```
+Preorder: A B D E C F
+Inorder:  D B E A F C
+
+Step 1: Root = A (first of preorder)
+        Find A in inorder: index 3
+        Left inorder:  [D B E]     Right inorder:  [F C]
+        Left preorder: [B D E]     Right preorder: [C F]
+
+Step 2 (left): Root = B (first of [B D E])
+        Find B in [D B E]: index 1
+        Left: [D]    Right: [E]
+
+Step 3 (right): Root = C (first of [C F])
+        Find C in [F C]: index 1
+        Left: [F]    Right: []
+
+Result:
+        A
+       / \
+      B   C
+     / \ /
+    D  E F
+```
+
+### Algorithm: Build Tree from Postorder + Inorder — O(n)
+
+```
+KEY INSIGHT:
+  - LAST element of POSTORDER = ROOT
+  - Find root in INORDER → splits left/right
+  - Build RIGHT subtree first, then LEFT (process postorder from end)
+
+BUILD_FROM_POST_IN(postorder, inorder):
+    if postorder is empty: return NULL
+    
+    root = postorder[LAST]                       ← LAST of postorder is the root
+    rootIndex = find root in inorder
+    
+    leftInorder  = inorder[0 ... rootIndex-1]
+    rightInorder = inorder[rootIndex+1 ... end]
+    
+    leftSize = length of leftInorder
+    leftPostorder  = postorder[0 ... leftSize-1]
+    rightPostorder = postorder[leftSize ... end-1]  ← exclude last (root)
+    
+    node = create Node(root)
+    node.left  = BUILD_FROM_POST_IN(leftPostorder, leftInorder)
+    node.right = BUILD_FROM_POST_IN(rightPostorder, rightInorder)
+    return node
+```
+
+**Worked Example:**
+```
+Postorder: D E B F C A
+Inorder:   D B E A F C
+
+Step 1: Root = A (last of postorder)
+        Find A in inorder: index 3
+        Left inorder:  [D B E]     Right inorder:  [F C]
+        Left postorder: [D E B]    Right postorder: [F C]
+
+Step 2 (left): Root = B (last of [D E B])
+        Left: [D]    Right: [E]
+
+Step 3 (right): Root = C (last of [F C])
+        Left: [F]    Right: []
+
+Same result:  A → B(D,E), C(F,_)
+```
+
+### Why Preorder + Postorder is NOT Unique
+
+```
+Example: Preorder = [A, B]   Postorder = [B, A]
+
+This could be:      OR this:
+    A                   A
+   /                     \
+  B                       B
+
+Both give Preorder [A, B] and Postorder [B, A].
+Without inorder, you can't tell if B is left or right child.
+```
+
+---
+---
+
+# 14. BINARY SEARCH TREE (BST)
+
+> **Think of it as:** A binary tree where LEFT < ROOT < RIGHT for EVERY node.
+> **Key property:** Inorder traversal gives sorted output. Search is O(log n) on balanced tree.
+
+```
+BST Rule:  Left subtree values < Node < Right subtree values
+
+Example:
+        50
+       /  \
+      30   70
+     / \   / \
+    20  40 60  80
+
+Inorder: 20, 30, 40, 50, 60, 70, 80  ← SORTED!
+```
+
+### BST Search — O(h) where h = height
+
+```
+WHAT: Find if a value exists. Start at root, go left or right based on comparison.
+
+BST_SEARCH(node, key):
+    if node == NULL:
+        return NULL                  ← not found
+    if key == node.data:
+        return node                  ← found!
+    if key < node.data:
+        return BST_SEARCH(node.left, key)    ← go LEFT (smaller)
+    else:
+        return BST_SEARCH(node.right, key)   ← go RIGHT (bigger)
+```
+
+**Why O(h)?** You go down ONE path from root to leaf. On balanced tree h = log n → O(log n). On skewed tree h = n → O(n).
+
+### BST Insert — O(h)
+
+```
+WHAT: Insert a new value. Search for the right position, then add as a LEAF.
+
+BST_INSERT(node, key):
+    if node == NULL:
+        return create Node(key)      ← found the spot! Create leaf here
+    if key < node.data:
+        node.left = BST_INSERT(node.left, key)    ← go left
+    else if key > node.data:
+        node.right = BST_INSERT(node.right, key)   ← go right
+    // if key == node.data, duplicate — do nothing (or handle as needed)
+    return node
+```
+
+**Example: Insert 35 into BST:**
+```
+        50                        50
+       /  \                      /  \
+      30   70     →             30   70
+     / \                       / \
+    20  40                    20  40
+                                 /
+                                35  ← new leaf!
+
+Path: 50(go left) → 30(go right) → 40(go left) → NULL → insert here
+```
+
+### BST Find Min / Max — O(h)
+
+```
+FIND_MIN(node):                  FIND_MAX(node):
+    while node.left != NULL:         while node.right != NULL:
+        node = node.left                 node = node.right
+    return node                      return node
+
+Min = leftmost node               Max = rightmost node
+```
+
+### BST Delete — O(h) ⭐ (Most important — 3 cases)
+
+```
+WHAT: Delete a node. 3 cases depending on how many children it has.
+
+CASE 1: Node is a LEAF (no children)
+  → Just remove it. Set parent's pointer to NULL.
+
+CASE 2: Node has ONE child
+  → Replace node with its only child. (Child takes its place.)
+
+CASE 3: Node has TWO children ⭐ (tricky case)
+  → Find INORDER SUCCESSOR (smallest value in RIGHT subtree)
+  → Copy successor's value to the node being deleted
+  → Delete the successor (which will be Case 1 or Case 2)
+
+BST_DELETE(node, key):
+    if node == NULL: return NULL
+    
+    if key < node.data:
+        node.left = BST_DELETE(node.left, key)
+    else if key > node.data:
+        node.right = BST_DELETE(node.right, key)
+    else:
+        // Found the node to delete
+        
+        // CASE 1 & 2: Zero or one child
+        if node.left == NULL:
+            return node.right        ← replace with right child (or NULL)
+        if node.right == NULL:
+            return node.left         ← replace with left child
+        
+        // CASE 3: Two children
+        successor = FIND_MIN(node.right)       ← smallest in right subtree
+        node.data = successor.data             ← copy successor's value
+        node.right = BST_DELETE(node.right, successor.data)  ← delete successor
+    
+    return node
+```
+
+**Example: Delete 50 (two children):**
+```
+        50  ← delete this           60  ← successor takes its place
+       /  \                         /  \
+      30   70         →           30   70
+     / \   / \                   / \     \
+    20  40 60  80               20  40   80
+
+Step 1: Find inorder successor of 50 = smallest in right subtree = 60
+Step 2: Copy 60 into node (replace 50 with 60)
+Step 3: Delete the original 60 from right subtree (it was a leaf → Case 1)
+```
+
+**Example: Delete 30 (one child):**
+```
+        50                        50
+       /  \                      /  \
+      30   70     →             20   70
+     /
+    20
+
+30 has only left child (20). Replace 30 with 20.
+```
+
+### BST Inorder Successor — O(h)
+
+```
+WHAT: Find the next node in sorted order.
+
+Two cases:
+1. Node HAS right subtree → successor = leftmost node in right subtree
+2. Node has NO right subtree → successor = nearest ancestor where node is in LEFT subtree
+
+INORDER_SUCCESSOR(root, node):
+    if node.right != NULL:
+        return FIND_MIN(node.right)    ← Case 1: go right, then all the way left
+    
+    // Case 2: walk up from root
+    successor = NULL
+    current = root
+    while current != NULL:
+        if node.data < current.data:
+            successor = current        ← this could be the successor
+            current = current.left     ← go left (looking for closer ancestor)
+        else if node.data > current.data:
+            current = current.right
+        else:
+            break                      ← found the node
+    return successor
+```
+
+### BST Complexity Summary
+
+| Operation | Average (balanced) | Worst (skewed) |
+|---|---|---|
+| Search | **O(log n)** | O(n) |
+| Insert | **O(log n)** | O(n) |
+| Delete | **O(log n)** | O(n) |
+| Find Min/Max | **O(log n)** | O(n) |
+| Inorder (sorted) | **O(n)** | O(n) |
+
+> **When does worst case happen?** When you insert sorted data (1,2,3,4,5) → BST becomes a straight line (linked list) → height = n.
+
+---
+---
+
+# 15. MAX-HEAP
+
+> **Think of it as:** A COMPLETE binary tree where every parent ≥ both children. Root = MAXIMUM.
+> **Key property:** Root is always the largest. Used for priority queues and heap sort.
+> **Array representation (1-indexed):** Parent = ⌊i/2⌋, Left child = 2i, Right child = 2i+1
+
+```
+Max-Heap Example:
+        90
+       /  \
+      70   80
+     / \   /
+    50  60 40
+
+Array (1-indexed): [_, 90, 70, 80, 50, 60, 40]
+                       1   2   3   4   5   6
+```
+
+### Max-Heap Insert (Bubble UP) — O(log n)
+
+```
+WHAT: Add element at the END, then BUBBLE UP by swapping with parent while larger.
+
+HEAP_INSERT(H, value):
+    H.size = H.size + 1
+    H[H.size] = value               ← add at end (maintains complete tree shape)
+    
+    // BUBBLE UP
+    i = H.size
+    while i > 1 AND H[i] > H[i/2]:  ← while current > parent
+        swap(H[i], H[i/2])          ← swap with parent
+        i = i / 2                    ← move up to parent position
+```
+
+**Example: Insert 95 into [90, 70, 80, 50, 60, 40]:**
+```
+Step 1: Add at end → [90, 70, 80, 50, 60, 40, 95]
+                                                 ↑ index 7
+
+Step 2: Bubble up:
+  95 > parent(80 at index 3)? YES → swap → [90, 70, 95, 50, 60, 40, 80]
+  95 > parent(90 at index 1)? YES → swap → [95, 70, 90, 50, 60, 40, 80]
+  i = 1 (root) → stop
+
+Final: [95, 70, 90, 50, 60, 40, 80]
+
+        95
+       /  \
+      70   90
+     / \   /
+    50  60 80 40 → wait, let me recalculate...
+
+Actually: [95, 70, 90, 50, 60, 40, 80]
+Index:      1   2   3   4   5   6   7
+
+        95
+       /  \
+      70   90
+     / \  / \
+    50 60 40 80
+```
+
+### Max-Heap Delete Max / Extract Max (Bubble DOWN) — O(log n)
+
+```
+WHAT: Remove the root (maximum). Replace with LAST element, then BUBBLE DOWN (heapify).
+
+HEAP_EXTRACT_MAX(H):
+    if H.size == 0: ERROR "Heap empty"
+    
+    max = H[1]                       ← save the root (maximum value)
+    H[1] = H[H.size]                ← replace root with LAST element
+    H.size = H.size - 1             ← reduce size
+    
+    MAX_HEAPIFY(H, 1)               ← bubble down from root
+    return max
+
+MAX_HEAPIFY(H, i):
+    left = 2 * i
+    right = 2 * i + 1
+    largest = i
+    
+    if left <= H.size AND H[left] > H[largest]:
+        largest = left
+    if right <= H.size AND H[right] > H[largest]:
+        largest = right
+    
+    if largest != i:                 ← child is bigger than parent
+        swap(H[i], H[largest])       ← swap with larger child
+        MAX_HEAPIFY(H, largest)      ← continue bubbling down
+```
+
+**Example: Extract max from [95, 70, 90, 50, 60, 40, 80]:**
+```
+Step 1: Save max = 95
+Step 2: Move last to root: [80, 70, 90, 50, 60, 40]
+Step 3: Heapify from root:
+  80 vs children 70, 90 → largest = 90 → swap → [90, 70, 80, 50, 60, 40]
+  80 vs children 40 → 80 > 40 → stop
+
+Final: [90, 70, 80, 50, 60, 40]   max returned = 95
+```
+
+### Build Max-Heap (Bottom-Up Heapify) — O(n) ⭐
+
+```
+WHAT: Convert a random array into a max-heap. Heapify from BOTTOM to TOP.
+
+BUILD_MAX_HEAP(A):
+    H.size = length(A)
+    for i = H.size/2 down to 1:     ← start from LAST NON-LEAF, go up to root
+        MAX_HEAPIFY(H, i)
+
+Why start from H.size/2?
+  → Nodes from H.size/2+1 to H.size are LEAVES (no children to heapify)
+  → Only need to heapify internal nodes
+```
+
+**Why O(n) and NOT O(n log n)?**
+Most nodes are near the bottom and heapify very little. Nodes at height h do O(h) work. Sum = Σ (n/2^h) × h ≈ 2n → O(n).
+
+**Example: Build max-heap from [4, 10, 3, 5, 1]:**
+```
+Array:       4, 10, 3, 5, 1
+Indices:     1   2  3  4  5
+
+Start from i = 5/2 = 2 (last non-leaf)
+
+Heapify(2): Node 10, children 5(idx 4), 1(idx 5). 10 > both → no swap
+Heapify(1): Node 4, children 10(idx 2), 3(idx 3). Largest = 10 → swap 4↔10
+            → [10, 4, 3, 5, 1]
+            Continue at idx 2: Node 4, children 5(idx 4), 1(idx 5). Largest = 5 → swap 4↔5
+            → [10, 5, 3, 4, 1]
+
+Final max-heap: [10, 5, 3, 4, 1]
+
+        10
+       /  \
+      5    3
+     / \
+    4   1
+```
+
+### Heap Sort — O(n log n)
+
+```
+WHAT: Sort array using a max-heap.
+STEPS:
+  1. Build max-heap from array → O(n)
+  2. Repeatedly: swap root (max) with last → reduce size → heapify → O(n log n)
+
+HEAP_SORT(A):
+    BUILD_MAX_HEAP(A)                ← Step 1: O(n)
+    
+    for i = A.size down to 2:        ← Step 2: repeat n-1 times
+        swap(A[1], A[i])             ← move max to end (sorted position)
+        A.size = A.size - 1          ← shrink heap
+        MAX_HEAPIFY(A, 1)            ← fix the heap from root
+
+    // After: array is sorted in ASCENDING order
+```
+
+**Properties:** Time = O(n log n), Space = O(1) in-place, NOT stable.
+
+---
+---
+
+# 16. MIN-HEAP
+
+> **Same as max-heap but REVERSED: every parent ≤ both children. Root = MINIMUM.**
+
+### Min-Heap vs Max-Heap — The Only Difference
+
+| | Max-Heap | Min-Heap |
+|---|---|---|
+| Property | Parent ≥ Children | Parent ≤ Children |
+| Root | Maximum element | Minimum element |
+| Bubble UP condition | Swap if child > parent | Swap if child < parent |
+| Heapify condition | Swap with **larger** child | Swap with **smaller** child |
+| Use | Max priority queue, heap sort | Min priority queue, Dijkstra's |
+
+### Min-Heap Insert (Bubble UP) — O(log n)
+
+```
+MIN_HEAP_INSERT(H, value):
+    H.size = H.size + 1
+    H[H.size] = value
+    
+    i = H.size
+    while i > 1 AND H[i] < H[PARENT(i)]:    ← LESS THAN parent (opposite of max)
+        swap(H[i], H[PARENT(i)])
+        i = PARENT(i)
+```
+
+### Min-Heap Extract Min (Bubble DOWN) — O(log n)
+
+```
+HEAP_EXTRACT_MIN(H):
+    min = H[1]
+    H[1] = H[H.size]
+    H.size = H.size - 1
+    MIN_HEAPIFY(H, 1)
+    return min
+
+MIN_HEAPIFY(H, i):
+    left = 2 * i
+    right = 2 * i + 1
+    smallest = i                              ← find SMALLEST (not largest)
+    
+    if left <= H.size AND H[left] < H[smallest]:
+        smallest = left
+    if right <= H.size AND H[right] < H[smallest]:
+        smallest = right
+    
+    if smallest != i:
+        swap(H[i], H[smallest])
+        MIN_HEAPIFY(H, smallest)
+```
+
+### Build Min-Heap — O(n)
+
+```
+BUILD_MIN_HEAP(A):
+    H.size = length(A)
+    for i = H.size/2 down to 1:
+        MIN_HEAPIFY(H, i)
+```
+
+**Example: Build min-heap from [9, 6, 5, 0, 8, 2]:**
+```
+Start: [9, 6, 5, 0, 8, 2]
+
+Heapify(3): 5 vs child 2 → swap → [9, 6, 2, 0, 8, 5]
+Heapify(2): 6 vs children 0, 8 → smallest 0 → swap → [9, 0, 2, 6, 8, 5]
+Heapify(1): 9 vs children 0, 2 → smallest 0 → swap → [0, 9, 2, 6, 8, 5]
+            then 9 vs children 6, 8 → smallest 6 → swap → [0, 6, 2, 9, 8, 5]
+
+Final: [0, 6, 2, 9, 8, 5]
+
+        0
+       / \
+      6   2
+     / \ /
+    9  8 5
+```
+
+### Heap Increase Key / Decrease Key — O(log n)
+
+```
+MAX-HEAP:
+  INCREASE_KEY(H, i, newKey):        ← make a key BIGGER in max-heap
+      H[i] = newKey
+      BUBBLE UP from i              ← bigger key might need to go up
+
+  DECREASE_KEY(H, i, newKey):        ← make a key SMALLER in max-heap
+      H[i] = newKey
+      MAX_HEAPIFY(H, i)             ← smaller key might need to go down
+
+MIN-HEAP:
+  DECREASE_KEY(H, i, newKey):        ← make a key SMALLER in min-heap
+      H[i] = newKey
+      BUBBLE UP from i              ← smaller key might need to go up
+
+  INCREASE_KEY(H, i, newKey):        ← make a key BIGGER in min-heap
+      H[i] = newKey
+      MIN_HEAPIFY(H, i)             ← bigger key might need to go down
+```
+
+### Heap Delete (arbitrary position) — O(log n)
+
+```
+WHAT: Delete element at any position i (not just root).
+
+MAX_HEAP_DELETE(H, i):
+    H[i] = H[H.size]                ← replace with last element
+    H.size = H.size - 1
+    
+    if H[i] > H[PARENT(i)]:
+        BUBBLE_UP(H, i)             ← if new value is bigger than parent, go up
+    else:
+        MAX_HEAPIFY(H, i)           ← if new value is smaller, go down
+```
+
+> ⚠️ Common exam question: Why does DELETE need BOTH bubble up AND heapify down? Because the last element could be bigger OR smaller than the replaced node's parent.
+
+---
+---
+
+# 📋 UPDATED MASTER COMPARISON TABLE
+
+| Data Structure | Insert | Delete | Search | Find Min/Max | Special |
+|---|---|---|---|---|---|
+| **Array** | O(1) end, O(n) position | O(n) | O(n) | O(n) | O(1) access by index |
+| **Stack** | O(1) push | O(1) pop | O(n) | — | LIFO |
+| **Queue** | O(1) enqueue | O(1) dequeue | O(n) | — | FIFO |
+| **Circular Queue** | O(1) | O(1) | O(n) | — | Wraps around |
+| **Deque** | O(1) both ends | O(1) both ends | O(n) | — | Both ends |
+| **Singly LL** | O(1) head | O(1) head, O(n) any | O(n) | O(n) | Forward only |
+| **Doubly LL** | O(1) head | O(1) with pointer | O(n) | O(n) | Both directions |
+| **Circular LL** | O(1)* | O(1)* | O(n) | O(n) | No NULL |
+| **Circular Doubly LL** | O(1) both ends | O(1) with pointer | O(n) | O(n) | Most flexible LL |
+| **BST (balanced)** | O(log n) | O(log n) | **O(log n)** | O(log n) | Sorted order |
+| **BST (skewed)** | O(n) | O(n) | O(n) | O(n) | Worst case |
+| **Max-Heap** | O(log n) | O(log n) | O(n) | **O(1) max** | Priority queue |
+| **Min-Heap** | O(log n) | O(log n) | O(n) | **O(1) min** | Dijkstra's |
+
+*with tail pointer
+
+---
+
+# 🧠 TREE & HEAP MEMORY TRICKS
+
+| Concept | Remember As |
+|---|---|
+| **Preorder** | "Me first, then my kids" (Root → Left → Right) |
+| **Inorder** | "Left friend, then me, then right friend" — gives **SORTED** for BST |
+| **Postorder** | "Kids first, then me" (Left → Right → Root) — used to DELETE tree |
+| **BST Insert** | Search for the spot, add as a LEAF (never in the middle) |
+| **BST Delete 3 cases** | 0 kids = just remove. 1 kid = replace with kid. 2 kids = replace with inorder successor |
+| **Inorder successor** | Smallest in right subtree (go right once, then all the way left) |
+| **Heap insert** | Add at END, BUBBLE UP (swap with parent while bigger/smaller) |
+| **Heap delete max** | Swap root↔last, remove last, BUBBLE DOWN (heapify from root) |
+| **Build heap** | Start from last non-leaf, heapify downward. O(n) NOT O(n log n) |
+| **Max vs Min heap** | Max = parent ≥ children (root=max). Min = parent ≤ children (root=min). Same algorithms, flip the comparison. |
+| **Preorder+Inorder** | Can build unique tree ✅ |
+| **Postorder+Inorder** | Can build unique tree ✅ |
+| **Preorder+Postorder** | CANNOT build unique tree ❌ |
+
+---
+
 # ✅ EXAM WRITING TIPS
 
 1. **Always start with:** "Check if empty / full" before any operation
 2. **Show the update order:** Update pointers in the right order — if you update head.next before saving the old value, you lose the old chain
-3. **Draw a picture:** For linked list algorithms, drawing a before/after diagram gets partial marks even if pseudocode is wrong
-4. **Mention time complexity:** Write O(1) or O(n) after each algorithm — examiners look for this
-5. **Edge cases to mention:** Empty list, single element, insert/delete at head, insert/delete at tail
+3. **Draw a picture:** For linked list and tree algorithms, drawing a before/after diagram gets partial marks even if pseudocode is wrong
+4. **Mention time complexity:** Write O(1) or O(n) or O(log n) after each algorithm — examiners look for this
+5. **Edge cases to mention:** Empty tree, single node, leaf node, node with one child, node with two children
+6. **BST Delete:** Always mention all 3 cases explicitly — examiners check for completeness
+7. **Heap:** Always mention "complete binary tree" — heap is ALWAYS complete, that's why array works
+8. **Traversal questions:** Write the recursive version (3 lines) — it's the simplest and always correct
 
 ---
 
