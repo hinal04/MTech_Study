@@ -1636,6 +1636,487 @@ MAX_HEAP_DELETE(H, i):
 ---
 ---
 
+# 17. HEAPIFY — Detailed Step-by-Step
+
+> **Heapify (also called Sift-Down / Percolate-Down)** is the CORE operation of heaps.
+> It fixes ONE violation: when a node is smaller (max-heap) or larger (min-heap) than its children.
+
+### Max-Heapify — Full Algorithm with Trace
+
+```
+MAX_HEAPIFY(A, n, i):
+    // A = array, n = heap size, i = index to fix
+    
+    largest = i                      ← assume current node is largest
+    left = 2 * i                     ← left child index
+    right = 2 * i + 1                ← right child index
+    
+    // Step 1: Compare with left child
+    if left <= n AND A[left] > A[largest]:
+        largest = left
+    
+    // Step 2: Compare with right child
+    if right <= n AND A[right] > A[largest]:
+        largest = right
+    
+    // Step 3: If a child is larger, swap and continue
+    if largest != i:
+        swap(A[i], A[largest])
+        MAX_HEAPIFY(A, n, largest)   ← recurse on the swapped position
+```
+
+**Complete Trace: Max-Heapify on [4, 10, 3, 5, 1] at index 1**
+
+```
+Array (1-indexed): [_, 4, 10, 3, 5, 1]
+                       1   2  3  4  5
+
+Call MAX_HEAPIFY(A, 5, 1):
+  i=1, A[1]=4
+  left=2, A[2]=10
+  right=3, A[3]=3
+  
+  largest = 1 (initially)
+  A[2]=10 > A[1]=4? YES → largest = 2
+  A[3]=3 > A[2]=10? NO → largest stays 2
+  
+  largest(2) != i(1) → SWAP A[1]↔A[2]
+  Array becomes: [_, 10, 4, 3, 5, 1]
+  
+  Recurse: MAX_HEAPIFY(A, 5, 2)
+    i=2, A[2]=4
+    left=4, A[4]=5
+    right=5, A[5]=1
+    
+    largest = 2
+    A[4]=5 > A[2]=4? YES → largest = 4
+    A[5]=1 > A[4]=5? NO → largest stays 4
+    
+    largest(4) != i(2) → SWAP A[2]↔A[4]
+    Array becomes: [_, 10, 5, 3, 4, 1]
+    
+    Recurse: MAX_HEAPIFY(A, 5, 4)
+      i=4, left=8, right=9
+      left=8 > n=5? YES → no children → STOP
+    
+DONE! Final: [_, 10, 5, 3, 4, 1]
+
+        10
+       /  \
+      5    3
+     / \
+    4   1
+Max-heap property restored ✓
+```
+
+### Min-Heapify — Same but flip comparisons
+
+```
+MIN_HEAPIFY(A, n, i):
+    smallest = i
+    left = 2 * i
+    right = 2 * i + 1
+    
+    if left <= n AND A[left] < A[smallest]:     ← LESS THAN (flipped)
+        smallest = left
+    if right <= n AND A[right] < A[smallest]:
+        smallest = right
+    
+    if smallest != i:
+        swap(A[i], A[smallest])
+        MIN_HEAPIFY(A, n, smallest)
+```
+
+---
+---
+
+# 18. HEAP SORT — Complete Worked Trace
+
+> **Idea:** Build a max-heap, then repeatedly extract the maximum (swap root with last, shrink heap, heapify).
+> After all extractions, array is sorted in **ascending** order.
+
+### Algorithm
+
+```
+HEAP_SORT(A, n):
+    // Phase 1: BUILD MAX-HEAP — O(n)
+    for i = n/2 down to 1:
+        MAX_HEAPIFY(A, n, i)
+    
+    // Phase 2: EXTRACT MAX REPEATEDLY — O(n log n)
+    for i = n down to 2:
+        swap(A[1], A[i])             ← move current max to sorted position
+        MAX_HEAPIFY(A, i-1, 1)       ← fix heap (size reduced by 1)
+```
+
+### Complete Trace: Sort [4, 10, 3, 5, 1]
+
+```
+Input: A = [_, 4, 10, 3, 5, 1]   (1-indexed, n=5)
+
+═══ PHASE 1: BUILD MAX-HEAP ═══
+
+Heapify from i = 5/2 = 2 down to 1:
+
+Heapify(i=2): A[2]=10, children A[4]=5, A[5]=1. 10 > both → no swap.
+Heapify(i=1): A[1]=4, children A[2]=10, A[3]=3. Largest = 10 → swap A[1]↔A[2]
+  → [_, 10, 4, 3, 5, 1]
+  Continue at i=2: A[2]=4, children A[4]=5, A[5]=1. Largest = 5 → swap A[2]↔A[4]
+  → [_, 10, 5, 3, 4, 1]
+
+Max-heap built:
+        10
+       /  \
+      5    3
+     / \
+    4   1
+
+═══ PHASE 2: EXTRACT MAX ═══
+
+--- Iteration 1 (i=5): swap A[1]↔A[5], heapify size=4 ---
+  Swap 10↔1: [_, 1, 5, 3, 4, |10|]        sorted: [10]
+  Heapify(1) on [1, 5, 3, 4]:
+    1 vs 5, 3 → swap 1↔5 → [5, 1, 3, 4]
+    1 vs 4 → swap 1↔4 → [5, 4, 3, 1]
+  Heap: [_, 5, 4, 3, 1, |10|]
+
+--- Iteration 2 (i=4): swap A[1]↔A[4], heapify size=3 ---
+  Swap 5↔1: [_, 1, 4, 3, |5, 10|]          sorted: [5, 10]
+  Heapify(1) on [1, 4, 3]:
+    1 vs 4, 3 → swap 1↔4 → [4, 1, 3]
+  Heap: [_, 4, 1, 3, |5, 10|]
+
+--- Iteration 3 (i=3): swap A[1]↔A[3], heapify size=2 ---
+  Swap 4↔3: [_, 3, 1, |4, 5, 10|]          sorted: [4, 5, 10]
+  Heapify(1) on [3, 1]:
+    3 vs 1 → 3 > 1 → no swap
+  Heap: [_, 3, 1, |4, 5, 10|]
+
+--- Iteration 4 (i=2): swap A[1]↔A[2], heapify size=1 ---
+  Swap 3↔1: [_, 1, |3, 4, 5, 10|]          sorted: [3, 4, 5, 10]
+  Heapify(1) on [1]: single element → stop
+  
+FINAL: [_, 1, 3, 4, 5, 10]
+
+SORTED (ascending): 1, 3, 4, 5, 10 ✓
+```
+
+### Heap Sort Properties
+
+| Property | Value |
+|---|---|
+| Time (all cases) | **O(n log n)** |
+| Space | **O(1)** — in-place |
+| Stable? | **No** — swapping can reorder equal elements |
+| When to use | Need guaranteed O(n log n) + in-place + no extra memory |
+
+---
+---
+
+# 19. BFS (Breadth-First Search) — Graph Traversal
+
+> **Think of it as:** Exploring a graph LEVEL BY LEVEL, like ripples from a stone dropped in water.
+> **Uses:** Queue. Visit all neighbors first, then neighbors' neighbors.
+> **Finds:** Shortest path in UNWEIGHTED graphs.
+
+### Algorithm
+
+```
+BFS(Graph, startVertex):
+    create empty Queue Q
+    create visited[] array, all false
+    
+    visited[start] = true
+    enqueue(Q, start)
+    
+    while Q is not empty:
+        u = dequeue(Q)
+        PRINT u                          ← process/visit this vertex
+        
+        for each neighbor v of u:
+            if visited[v] == false:
+                visited[v] = true        ← mark visited BEFORE enqueuing
+                enqueue(Q, v)
+```
+
+### Complete Trace — BFS from vertex A
+
+```
+Graph (Adjacency List):
+  A: [B, C]
+  B: [A, D, E]
+  C: [A, F]
+  D: [B]
+  E: [B, F]
+  F: [C, E]
+
+  A --- B --- D
+  |     |
+  C --- F --- E
+  (B also connects to E)
+
+BFS from A:
+
+Step | Dequeue | Process Neighbors        | Queue After    | Visited
+-----|---------|--------------------------|----------------|--------
+  0  | —       | Start: enqueue A         | [A]            | {A}
+  1  | A       | Neighbors B,C → enqueue  | [B, C]         | {A,B,C}
+  2  | B       | Neighbors D,E → enqueue  | [C, D, E]      | {A,B,C,D,E}
+  3  | C       | Neighbor F → enqueue     | [D, E, F]      | {A,B,C,D,E,F}
+  4  | D       | Neighbor B → already visited | [E, F]      | {A,B,C,D,E,F}
+  5  | E       | Neighbors F → already visited | [F]        | {A,B,C,D,E,F}
+  6  | F       | All neighbors visited    | []             | {A,B,C,D,E,F}
+
+BFS ORDER: A → B → C → D → E → F
+
+BFS Tree (shortest path tree):
+        A
+       / \
+      B   C
+     / \   \
+    D   E   F
+```
+
+### BFS from Adjacency Matrix — Trace
+
+```
+Adjacency Matrix:
+    A  B  C  D  E
+A [ 0  1  1  0  0 ]
+B [ 1  0  0  1  1 ]
+C [ 1  0  0  0  1 ]
+D [ 0  1  0  0  0 ]
+E [ 0  1  1  0  0 ]
+
+BFS from A (index 0):
+  Dequeue A → check row A: B(1)✓, C(1)✓ → enqueue B, C
+  Dequeue B → check row B: A(visited), D(1)✓, E(1)✓ → enqueue D, E
+  Dequeue C → check row C: A(visited), E(visited) → nothing new
+  Dequeue D → check row D: B(visited) → nothing
+  Dequeue E → check row E: B(visited), C(visited) → nothing
+
+BFS ORDER: A, B, C, D, E ✓
+```
+
+### BFS Key Properties
+
+| Property | Value |
+|---|---|
+| Data structure | **Queue** |
+| Time | **O(V + E)** (visit each vertex + each edge once) |
+| Space | **O(V)** (queue + visited array) |
+| Shortest path | ✅ Yes — in **unweighted** graphs |
+| Complete | ✅ Yes — finds all reachable vertices |
+| Use when | Shortest path, level-order, connected components, bipartiteness |
+
+---
+---
+
+# 20. DFS (Depth-First Search) — Graph Traversal
+
+> **Think of it as:** Go as DEEP as possible before backtracking. Like exploring a maze — follow one path until you hit a dead end, then go back and try another.
+> **Uses:** Stack (or recursion = implicit stack).
+
+### Algorithm (Recursive)
+
+```
+DFS(Graph, startVertex):
+    create visited[] array, all false
+    DFS_VISIT(Graph, startVertex, visited)
+
+DFS_VISIT(Graph, u, visited):
+    visited[u] = true
+    PRINT u                              ← process/visit this vertex
+    
+    for each neighbor v of u:
+        if visited[v] == false:
+            DFS_VISIT(Graph, v, visited)  ← recurse (go deeper)
+```
+
+### Algorithm (Iterative with Stack)
+
+```
+DFS_ITERATIVE(Graph, start):
+    create empty Stack S
+    create visited[] array, all false
+    
+    push(S, start)
+    
+    while S is not empty:
+        u = pop(S)
+        if visited[u] == false:
+            visited[u] = true
+            PRINT u                      ← process/visit
+            
+            for each neighbor v of u (in REVERSE order for same output as recursive):
+                if visited[v] == false:
+                    push(S, v)
+```
+
+### Complete Trace — DFS from vertex A (Recursive)
+
+```
+Graph (same as BFS example):
+  A: [B, C]
+  B: [A, D, E]
+  C: [A, F]
+  D: [B]
+  E: [B, F]
+  F: [C, E]
+
+DFS from A (alphabetical adjacency order):
+
+Call Stack Trace:
+DFS_VISIT(A):
+  Visit A → print A. Neighbors: B, C
+  │
+  ├── DFS_VISIT(B):       ← first unvisited neighbor of A
+  │   Visit B → print B. Neighbors: A(visited), D, E
+  │   │
+  │   ├── DFS_VISIT(D):   ← first unvisited neighbor of B
+  │   │   Visit D → print D. Neighbors: B(visited)
+  │   │   No unvisited neighbors → BACKTRACK to B
+  │   │
+  │   └── DFS_VISIT(E):   ← next unvisited neighbor of B
+  │       Visit E → print E. Neighbors: B(visited), F
+  │       │
+  │       └── DFS_VISIT(F):   ← first unvisited neighbor of E
+  │           Visit F → print F. Neighbors: C(unvisited!), E(visited)
+  │           │
+  │           └── DFS_VISIT(C):   ← first unvisited neighbor of F
+  │               Visit C → print C. Neighbors: A(visited), F(visited)
+  │               No unvisited → BACKTRACK
+  │
+  All of A's reachable vertices visited → DONE
+
+DFS ORDER: A → B → D → E → F → C
+
+DFS Tree:
+  A → B → D
+       ↓
+       E → F → C
+```
+
+### DFS Edge Classification
+
+```
+When running DFS on a DIRECTED graph, edges are classified as:
+
+Tree Edge:    u → v where v is discovered for the first time
+              (forms the DFS tree)
+
+Back Edge:    u → v where v is an ANCESTOR of u in DFS tree
+              ⭐ BACK EDGE = CYCLE EXISTS
+
+Forward Edge: u → v where v is a DESCENDANT of u (but not tree edge)
+
+Cross Edge:   u → v where v is neither ancestor nor descendant
+              (different branch of DFS tree)
+```
+
+### DFS Cycle Detection
+
+```
+WHAT: Check if a directed graph has a cycle.
+KEY: A cycle exists if and only if DFS finds a BACK EDGE.
+
+HAS_CYCLE(Graph):
+    create color[] array, all WHITE
+    // WHITE = unvisited, GRAY = in progress, BLACK = finished
+    
+    for each vertex u:
+        if color[u] == WHITE:
+            if DFS_CYCLE(Graph, u, color):
+                return TRUE          ← cycle found!
+    return FALSE
+
+DFS_CYCLE(Graph, u, color):
+    color[u] = GRAY                  ← start processing u
+    
+    for each neighbor v of u:
+        if color[v] == GRAY:
+            return TRUE              ← BACK EDGE → CYCLE!
+        if color[v] == WHITE:
+            if DFS_CYCLE(Graph, v, color):
+                return TRUE
+    
+    color[u] = BLACK                 ← finished processing u
+    return FALSE
+```
+
+> **GRAY = currently being explored (on the current path). If you reach a GRAY node → you've found a cycle (you went in a circle back to a node on the current path).**
+
+### DFS Topological Sort
+
+```
+WHAT: Order vertices so that for every edge u→v, u comes before v.
+      Only works on DAGs (Directed Acyclic Graphs — no cycles).
+
+TOPOLOGICAL_SORT(Graph):
+    create empty Stack S
+    create visited[] array, all false
+    
+    for each vertex u:
+        if visited[u] == false:
+            TOPO_DFS(Graph, u, visited, S)
+    
+    // Pop stack → topological order
+    while S is not empty:
+        PRINT pop(S)
+
+TOPO_DFS(Graph, u, visited, S):
+    visited[u] = true
+    for each neighbor v of u:
+        if visited[v] == false:
+            TOPO_DFS(Graph, v, visited, S)
+    push(S, u)                       ← push AFTER all descendants are processed
+```
+
+**Example:**
+```
+Graph: A→B, A→C, B→D, C→D
+
+TOPO_DFS(A):
+  TOPO_DFS(B):
+    TOPO_DFS(D): push D. Stack: [D]
+  push B. Stack: [D, B]
+  TOPO_DFS(C):
+    D already visited
+  push C. Stack: [D, B, C]
+push A. Stack: [D, B, C, A]
+
+Pop all: A, C, B, D ← valid topological order
+(A before B, A before C, B before D, C before D ✓)
+```
+
+### DFS Key Properties
+
+| Property | Value |
+|---|---|
+| Data structure | **Stack** (or recursion = implicit stack) |
+| Time | **O(V + E)** |
+| Space | **O(V)** (stack + visited) |
+| Shortest path | ❌ No — DFS does NOT guarantee shortest path |
+| Cycle detection | ✅ Yes — via back edges (GRAY node detection) |
+| Topological sort | ✅ Yes — reverse postorder |
+| Use when | Cycle detection, topological sort, path existence, connected components |
+
+### BFS vs DFS — Quick Comparison
+
+| | BFS | DFS |
+|---|---|---|
+| **Data structure** | Queue | Stack / Recursion |
+| **Strategy** | Level by level (breadth) | Go deep, then backtrack (depth) |
+| **Visits** | Closest vertices first | Deepest vertices first |
+| **Shortest path** | ✅ (unweighted) | ❌ |
+| **Cycle detection** | ✅ (via visited check) | ✅ (via back edges — more standard) |
+| **Topological sort** | ✅ (Kahn's algorithm) | ✅ (reverse postorder) |
+| **Memory** | O(V) — can be large if many neighbors | O(V) — proportional to longest path |
+| **Pick when** | Shortest path, level-order | Cycle detection, topological sort, maze solving |
+
+---
+---
+
 # 📋 UPDATED MASTER COMPARISON TABLE
 
 | Data Structure | Insert | Delete | Search | Find Min/Max | Special |
