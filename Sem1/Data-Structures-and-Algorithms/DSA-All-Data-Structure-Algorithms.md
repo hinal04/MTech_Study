@@ -24,6 +24,14 @@ INSERT_END(A, value):
     size = size + 1
 ```
 
+**Example:**
+```
+Array: [10, 20, 30, _, _]   size=3
+INSERT_END(A, 40)
+  A[3] = 40, size = 4
+Result: [10, 20, 30, 40, _]   size=4
+```
+
 ### Insert at Position i — O(n)
 
 ```
@@ -44,6 +52,14 @@ INSERT_AT(A, i, value):
 
 **Why O(n)?** In worst case (insert at position 0), you shift ALL n elements.
 
+**Example: Insert 15 at position 1:**
+```
+Before: [10, 20, 30, _, _]   size=3
+  Shift: A[3]=A[2]=30, A[2]=A[1]=20
+  Place: A[1]=15, size=4
+After:  [10, 15, 20, 30, _]   size=4
+```
+
 ### Delete at Position i — O(n)
 
 ```
@@ -57,6 +73,14 @@ DELETE_AT(A, i):
     for j = i to size-2:            ← start from i, go forward
         A[j] = A[j+1]              ← shift left
     size = size - 1
+```
+
+**Example: Delete at position 1:**
+```
+Before: [10, 15, 20, 30]   size=4
+  Shift: A[1]=A[2]=20, A[2]=A[3]=30
+  size=3
+After:  [10, 20, 30, _]   size=3
 ```
 
 ### Search — O(n)
@@ -75,7 +99,12 @@ SEARCH(A, value):
     return -1
 ```
 
-### Access by Index — O(1)
+**Example: Search for 20:**
+```
+Array: [10, 20, 30]
+  i=0: A[0]=10 ≠ 20
+  i=1: A[1]=20 == 20 → return 1 ✓
+```
 
 ```
 Just return A[i]. That's it. Arrays give INSTANT access by index.
@@ -104,7 +133,12 @@ PUSH(S, value):
     S[top] = value
 ```
 
-### Pop (Remove from top) — O(1)
+**Example:**
+```
+Stack: [10, 20, _]  top=1
+PUSH(S, 30): top=2, S[2]=30
+Stack: [10, 20, 30]  top=2
+```
 
 ```
 WHAT: Remove and return the top element
@@ -121,7 +155,12 @@ POP(S):
     return value
 ```
 
-### Peek (Look at top without removing) — O(1)
+**Example:**
+```
+Stack: [10, 20, 30]  top=2
+POP(S): value=30, top=1, return 30
+Stack: [10, 20, _]  top=1
+```
 
 ```
 PEEK(S):
@@ -162,7 +201,12 @@ ENQUEUE(Q, value):
     Q[rear] = value
 ```
 
-### Dequeue (Remove from front) — O(1)
+**Example:**
+```
+Queue: [10, 20, _, _]  front=0, rear=1
+ENQUEUE(Q, 30): rear=2, Q[2]=30
+Queue: [10, 20, 30, _]  front=0, rear=2
+```
 
 ```
 WHAT: Remove and return the front element
@@ -179,7 +223,12 @@ DEQUEUE(Q):
     return value
 ```
 
-**Problem with linear queue:** When you dequeue, front moves right. Slots before front are WASTED. Even if there's space at the beginning, rear says "full". This is **phantom overflow** → solved by circular queue.
+**Example:**
+```
+Queue: [10, 20, 30]  front=0, rear=2
+DEQUEUE(Q): value=10, front=1, return 10
+Queue: [_, 20, 30]  front=1, rear=2
+``` When you dequeue, front moves right. Slots before front are WASTED. Even if there's space at the beginning, rear says "full". This is **phantom overflow** → solved by circular queue.
 
 ---
 ---
@@ -207,10 +256,17 @@ ENQUEUE(Q, value):
     count = count + 1
 ```
 
-### Dequeue — O(1)
-
+**Example (capacity=4):**
 ```
-WHAT: Remove element from front, wrapping around if needed
+Queue: [10, 20, 30, _]  front=0, rear=2, count=3
+ENQUEUE(Q, 40):
+  newRear = (2+1)%4 = 3
+  Q[3]=40, count=4
+Queue: [10, 20, 30, 40]  front=0, rear=3, count=4 (FULL)
+
+ENQUEUE(Q, 50):
+  newRear = (3+1)%4 = 0 → 0 == front → FULL! Can't insert.
+```
 STEPS:
   1. Save front value
   2. Move front: (front + 1) % capacity
@@ -225,7 +281,17 @@ DEQUEUE(Q):
     return value
 ```
 
-### How wrapping works — Example
+**Example (capacity=4, queue was full):**
+```
+Queue: [10, 20, 30, 40]  front=0, rear=3, count=4
+DEQUEUE(Q):
+  value=Q[0]=10, front=(0+1)%4=1, count=3
+Queue: [_, 20, 30, 40]  front=1, rear=3, count=3
+
+Now ENQUEUE(Q, 50):
+  newRear=(3+1)%4=0 → Q[0]=50 ← WRAPS AROUND!
+Queue: [50, 20, 30, 40]  front=1, rear=0, count=4
+```
 
 ```
 Capacity = 5, indices 0-4
@@ -262,7 +328,13 @@ INSERT_FRONT(D, value):
     count = count + 1
 ```
 
-### Insert at Rear — O(1)
+**Example (capacity=5):**
+```
+Deque: [_, 10, 20, _, _]  front=1, rear=2
+INSERT_FRONT(D, 5):
+  front = (1-1+5)%5 = 0, D[0]=5
+Deque: [5, 10, 20, _, _]  front=0, rear=2
+```
 
 ```
 INSERT_REAR(D, value):
@@ -271,7 +343,13 @@ INSERT_REAR(D, value):
     count = count + 1
 ```
 
-### Delete from Front — O(1)
+**Example:**
+```
+Deque: [5, 10, 20, _, _]  front=0, rear=2
+INSERT_REAR(D, 30):
+  rear=(2+1)%5=3, D[3]=30
+Deque: [5, 10, 20, 30, _]  front=0, rear=3
+```
 
 ```
 DELETE_FRONT(D):
@@ -281,7 +359,12 @@ DELETE_FRONT(D):
     return value
 ```
 
-### Delete from Rear — O(1)
+**Example:**
+```
+Deque: [5, 10, 20, 30, _]  front=0, rear=3
+DELETE_FRONT(D): value=5, front=(0+1)%5=1, return 5
+Deque: [_, 10, 20, 30, _]  front=1, rear=3
+```
 
 ```
 DELETE_REAR(D):
@@ -291,7 +374,12 @@ DELETE_REAR(D):
     return value
 ```
 
-**Two restricted types:**
+**Example:**
+```
+Deque: [_, 10, 20, 30, _]  front=1, rear=3
+DELETE_REAR(D): value=30, rear=(3-1+5)%5=2, return 30
+Deque: [_, 10, 20, _, _]  front=1, rear=2
+```
 - **Input-restricted deque:** Insert at ONE end only, delete from BOTH
 - **Output-restricted deque:** Delete from ONE end only, insert at BOTH
 
@@ -319,7 +407,16 @@ DELETE_MAX — O(n):  Scan entire array to find max, remove it
     size = size - 1
 ```
 
-### Using Sorted Array
+**Example (Unsorted Array):**
+```
+Insert 30, 10, 50, 20:
+  Array: [30, 10, 50, 20]   ← just add, no sorting
+
+DELETE_MAX:
+  Scan: max is 50 at index 2
+  Swap 50 ↔ 20 → [30, 10, 20, 50], size=3
+  Array: [30, 10, 20]   returned 50
+```
 
 ```
 INSERT — O(n):  Find correct position, shift right, insert (like insertion sort)
@@ -379,13 +476,13 @@ INSERT_HEAD(value):
     head = newNode                  ← head now points to new node
 ```
 
-**Visual:**
+**Example:**
 ```
-Before: HEAD → [10] → [20] → [30] → NULL
-Insert 5:
-  newNode [5].next = HEAD (which is [10])
-  HEAD = newNode
-After:  HEAD → [5] → [10] → [20] → [30] → NULL
+Before: HEAD → [10] → [20] → NULL
+INSERT_HEAD(5):
+  Create [5], [5].next = HEAD([10])
+  HEAD = [5]
+After:  HEAD → [5] → [10] → [20] → NULL
 ```
 
 ### Insert at Tail — O(n)
@@ -408,6 +505,15 @@ INSERT_TAIL(value):
     while current.next != NULL:    ← walk to end
         current = current.next
     current.next = newNode         ← last node now points to new node
+```
+
+**Example:**
+```
+Before: HEAD → [5] → [10] → NULL
+INSERT_TAIL(20):
+  Walk: [5].next=[10], [10].next=NULL → [10] is last
+  [10].next = [20], [20].next = NULL
+After:  HEAD → [5] → [10] → [20] → NULL
 ```
 
 **Why O(n)?** Must walk through ALL nodes to find the last one. (Can be O(1) if you keep a TAIL pointer.)
@@ -438,7 +544,12 @@ DELETE_HEAD():
     return value
 ```
 
-### Delete at Position i — O(n)
+**Example:**
+```
+Before: HEAD → [5] → [10] → [20] → NULL
+DELETE_HEAD(): value=5, HEAD = [10]
+After:  HEAD → [10] → [20] → NULL   returned 5
+```
 
 ```
 DELETE_AT(i):
@@ -473,7 +584,13 @@ SEARCH(value):
     return NULL                     ← not found
 ```
 
-### Reverse — O(n)
+**Example: Search for 20:**
+```
+HEAD → [5] → [10] → [20] → NULL
+  [5].data=5 ≠ 20 → next
+  [10].data=10 ≠ 20 → next
+  [20].data=20 == 20 → FOUND! return [20]
+```
 
 ```
 WHAT: Reverse the entire list
@@ -634,11 +751,13 @@ INSERT_HEAD(value):
     head = newNode
 ```
 
-**Visual:**
+**Example:**
 ```
-Before: NULL ← [10] ⇄ [20] ⇄ [30] → NULL
-Insert 5:
-After:  NULL ← [5] ⇄ [10] ⇄ [20] ⇄ [30] → NULL
+Before: NULL ← [10] ⇄ [20] → NULL
+INSERT_HEAD(5):
+  [5].prev=NULL, [5].next=[10]
+  [10].prev=[5], head=[5]
+After:  NULL ← [5] ⇄ [10] ⇄ [20] → NULL
 ```
 
 ### Insert at Tail — O(n) or O(1) with tail pointer
@@ -677,14 +796,13 @@ DELETE_NODE(node):
     free(node)
 ```
 
-**Visual (delete [20]):**
+**Example (delete [20]):**
 ```
 Before: NULL ← [10] ⇄ [20] ⇄ [30] → NULL
-                        ↑ delete this
-
-  [10].next = [20].next = [30]         ← skip forward
-  [30].prev = [20].prev = [10]         ← skip backward
-
+DELETE_NODE([20]):
+  [20].prev=[10], [20].next=[30]
+  [10].next = [30]     ← skip forward over [20]
+  [30].prev = [10]     ← skip backward over [20]
 After:  NULL ← [10] ⇄ [30] → NULL
 ```
 
@@ -755,6 +873,17 @@ INSERT_HEAD(value):
     head = newNode                      ← update head
 ```
 
+**Example (list has [10] ⇄ [20], circular):**
+```
+Before: [10] ⇄ [20] (head=[10], [20].next=[10], [10].prev=[20])
+INSERT_HEAD(5):
+  last = head.prev = [20]
+  [5].next=[10], [5].prev=[20]
+  [20].next=[5], [10].prev=[5]
+  head=[5]
+After: [5] ⇄ [10] ⇄ [20] → back to [5]
+```
+
 > **Beautiful thing:** We get the last node in O(1) via `head.prev`. No need to walk through the entire list!
 
 ### Insert at Tail — O(1)
@@ -776,7 +905,15 @@ INSERT_TAIL(value):
     head.prev = newNode                 ← head points backward to new last
 ```
 
-### Delete Head — O(1)
+**Example:**
+```
+Before: [5] ⇄ [10] ⇄ [20] → back to [5]
+INSERT_TAIL(30):
+  last=[20] (via head.prev)
+  [30].next=[5], [30].prev=[20]
+  [20].next=[30], [5].prev=[30]
+After: [5] ⇄ [10] ⇄ [20] ⇄ [30] → back to [5]
+```
 
 ```
 DELETE_HEAD():
