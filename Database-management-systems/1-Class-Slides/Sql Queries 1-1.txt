@@ -1,0 +1,144 @@
+ \sql
+ \connect root@localhost
+ 
+ Employee(Fname, Lname, SSN, ...., D.no);
+ Department (dnumber, Dname)
+
+Create table Student (ID INT, Name char(30));
+
+CREATE TABLE EMPLOYEE (	Fname     VARCHAR(30)	       	NOT NULL,	
+                        Minit     VARCHAR(30),
+						Lname     VARCHAR(30), 	
+						Ssn       CHAR(9),
+						Bdate     DATE,
+						Address	  VARCHAR (100), 
+						Gender	  CHAR(1),
+						Salary		 DECIMAL(10,2)      NOT NULL,   
+						Super_ssn CHAR(9),	
+						Dno	      	INT,  
+						PRIMARY KEY(Ssn));
+						
+  
+
+CREATE TABLE EMPLOYEE (	Fname     VARCHAR(30)	       NOT NULL,	
+                        Minit     VARCHAR(30),
+						Lname     VARCHAR(30), 	
+						Ssn       CHAR(9),
+						Bdate     DATE,
+						Address	  VARCHAR (100), 
+						Gender	  CHAR(1),
+						Salary	  DECIMAL(10,2) 	NOT NULL,
+						Super_ssn CHAR(9),	
+						Dno	      INTEGER,  
+						PRIMARY KEY(Ssn),
+						foreign key(Dno) references Department(Dnumber));
+
+
+
+
+CREATE TABLE DEPARTMENT( DNAME VARCHAR(15) NOT NULL,
+						 DNUMBER INT PRIMARY KEY,
+						 MGRSSN CHAR(9) NOT NULL,
+						 MGRSTARTDATE DATE);
+						 
+
+
+CREATE TABLE DEPARTMENT( DNAME VARCHAR(15) NOT NULL,
+						 DNUMBER INT PRIMARY KEY,
+						 MGRSSN CHAR(9) NOT NULL,
+						 MGRSTARTDATE DATE,
+						 FOREIGN KEY (MGRSSN)REFERENCES EMPLOYEE (SSN));
+
+						 
+	
+
+
+
+	
+						 
+ALTER TABLE EMPLOYEE ADD CONSTRAINT EMPFK FOREIGN KEY (DNO) references Department(Dnumber);
+
+ALTER TABLE DEPARTMENT ADD CONSTRAINT DEPTFK FOREIGN KEY (MGRSSN) references EMPLOYEE(ssn);
+
+ALTER TABLE DEPARTMENT DROP CONSTRAINT DEPTFK;
+
+/*select *
+from information_schema.table_constraints
+where constraint_schema = 'YOUR_DB'*/
+
+select *
+from information_schema.table_constraints
+where constraint_schema = 'test6'	
+	
+CREATE TABLE EMPLOYEE (	Fname     VARCHAR(30)	       NOT NULL,	
+                        Minit     VARCHAR(30),
+						Lname     VARCHAR(30) 	       DEFAULT 'abc',
+						Ssn       CHAR(9),
+						Bdate     DATE,
+						Address	  VARCHAR (100), 
+						Gender	  CHAR(1),
+						Salary	  DECIMAL(10,2) 	NOT NULL,
+						Super_ssn CHAR(9)	        NOT NULL,	
+						Dno	      INTEGER, 
+						PRIMARY KEY(Ssn),
+						foreign key(Dno) references Department(Dnumber) on delete set NULL);
+						
+					
+CREATE TABLE EMPLOYEE (	Fname     VARCHAR(30)	       NOT NULL,	
+                        Minit     VARCHAR(30),
+						Lname     VARCHAR(30), 	
+						Ssn       CHAR(9),
+						Bdate     DATE,
+						Address	  VARCHAR (100), 
+						Gender	  CHAR(1),
+						Salary	  DECIMAL(10,2) 	NOT NULL,
+						Super_ssn CHAR(9),	
+						Dno	      INTEGER, 
+						PRIMARY KEY(Ssn),
+						foreign key(Dno) references Department(Dnumber) on update cascade);
+
+ALTER TABLE EMPLOYEE ADD AGE INT;
+
+ALTER TABLE EMPLOYEE DROP AGE ;
+
+
+CREATE TABLE DEPARTMENT( DNAME VARCHAR(15) NOT NULL,
+						 DNUMBER INT Check (DNUMBER>0 and DNUMBER<21),
+						 PRIMARY KEY(DNUMBER)); 
+						 
+Insert into department values('Research',5);
+Insert into department values('Admin',10);
+Insert into department values('Payroll',15);
+
+
+//Insert into department values('DEFAULT',1);
+						 
+CREATE TABLE EMPLOYEE (	Fname     VARCHAR(30)	       	NOT NULL,	
+                        Minit     VARCHAR(30),
+						Lname     VARCHAR(30), 	
+						Ssn       CHAR(9),
+						Bdate     DATE,
+						Address	  VARCHAR (100), 
+						Gender	  CHAR(1),
+						Salary	  DECIMAL(10,2) 		NOT NULL,
+						Super_ssn CHAR(9),	
+						Dno	      INT 		    		NOT NULL,  
+						PRIMARY KEY(Ssn),
+						foreign key(Super_ssn) references EMPLOYEE(Ssn));
+						 
+Insert into Employee values('Rohit','k','goel','111111111','1987-07-01','Noida, UP', 'M', 80000.20,'222222222',10);
+
+Insert into Employee values('Mohan','k','goel','222222222','1987-07-01','Noida, UP', 'M', 80000.20,'222222222',10);	
+
+Insert into Employee(Fname,ssn,Bdate,Gender,Salary, Super_ssn,dno) values('Alok','333333333','1987-07-02','M', 90000.20,'333333333',10);					 
+
+DELETE FROM  EMPLOYEE WHERE	 Fname='Alok';
+
+DELETE FROM  EMPLOYEE WHERE	 Dno=10;
+
+UPDATE  EMPLOYEE    SET		  Lname='sehgal'  WHERE	 Ssn='111111111';
+
+Insert into Employee values('Mohit','k','goel','444444444','1987-07-01','Noida, UP', 'M', 85000.20,'222222222',10);
+
+
+

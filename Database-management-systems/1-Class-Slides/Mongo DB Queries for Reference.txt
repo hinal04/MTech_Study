@@ -1,0 +1,87 @@
+db.createCollection("mycol", { capped : true, autoIndexId : true, size : 6142800, max : 10000 } )
+
+
+db.inventory.insertOne(
+   { item: "canvas", qty: 100, tags: ["cotton"], size: { h: 28, w: 35.5, uom: "cm" } }
+   )
+
+
+db.inventory.insertMany([
+   { item: "journal", qty: 25, tags: ["blank", "red"], size: { h: 14, w: 21, uom: "cm" } },
+   { item: "mat", qty: 85, tags: ["gray"], size: { h: 27.9, w: 35.5, uom: "cm" } },
+   { item: "mousepad", qty: 25, tags: ["gel", "blue"], size: { h: 19, w: 22.85, uom: "cm" } }
+])
+
+db.inventory.insertMany([
+   { item: "journal", qty: 25, status:"A" },
+   { item: "notebook", qty: 85, size: { h: 27.9, w: 35.5, uom: "cm" }, status:"A" },
+   { item: "paper", qty: 25,  size: { h: 19, w: 22.85, uom: "cm" }, status:"D" },
+   { item: "Planner", qty: 85, status:"A" },
+   { item: "Postcard", qty: 25,size: { h: 19, w: 22.85, uom: "cm" }, status:"D" },
+   
+])
+
+
+db.inventory.find({})
+
+db.inventory.find({status:"D"})
+
+db.inventory.find({status:"A",item:"notebook"})
+
+db.inventory.find({status:"A",qty:{$lt:30}})
+
+db.inventory.find({$or:[{status:"A"},{qty:{$lt:30}}]})
+
+db.inventory.find({status:"A", $or:[{item:/^P/},{qty :{$lt:30}}]})
+
+db.inventory.insertMany([
+   { item: "journal", qty: 25, status:"A" },
+   { item: "notebook", qty: 85, size: { h: 27.9, w: 35.5, uom: "cm" }, status:"A" },
+   { item: "paper", qty: 25,  size: { h: 19, w: 22.85, uom: "in" }, status:"D" },
+   { item: "Planner", qty: 85, status:"A" },
+   { item: "Postcard", qty: 25,size: { h: 19, w: 22.85, uom: "cm" }, status:"D" },
+   { item: "journal", qty: 25, tags: ["blank", "red"], size: { h: 14, w: 21, uom: "cm" }, status:"A" },
+   { item: "mat", qty: 85, tags: ["gray"], size: { h: 27.9, w: 35.5, uom: "cm" }, status:"A" },
+   { item: "mousepad", qty: 25, tags: ["gel", "blue"], size: { h: 19, w: 22.85, uom: "cm" }, status:"A" }
+])
+
+db.inventory.updateOne(
+     { item: "paper" },
+     {
+         $set: { "size.uom": "cm", status: "P" },
+         $currentDate: { lastModified: true }
+     }
+    )
+	
+db.inventory.updateMany(
+   { "qty": { $lt: 50 } },
+   {
+     $set: { "size.uom": "in", status: "P" },
+     $currentDate: { lastModified: true }
+   }
+)
+
+db.inventory.updateOne(
+   { "qty": { $lt: 50 } },
+   {
+     $set: { "size.uom": "in", status: "P" },
+     $currentDate: { lastModified: true }
+   }
+)
+
+
+db.inventory.deleteOne(
+     { item: "paper" })
+	 
+db.inventory.deleteMany(
+   { "qty": { $lt: 50 } })
+
+
+db.inventory.aggregate([
+  {
+    $group: {
+      _id: "$status",   // Group by status field
+      totalCount: { $sum: 1 }  // Count the number of documents in each group
+    }
+  }
+]);

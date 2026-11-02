@@ -1,0 +1,142 @@
+CREATE TABLE DEPARTMENT( DNAME VARCHAR(15) NOT NULL,
+						 DNUMBER INT ,
+						 PRIMARY KEY(DNUMBER)); 
+						 
+Insert into department values('Research',5);
+Insert into department values('Admin',10);
+Insert into department values('Payroll',15);
+Insert into department values('HR',17);
+
+
+
+
+
+CREATE TABLE EMPLOYEE (	Fname     VARCHAR(30)	       NOT NULL,	
+                        Minit     VARCHAR(30),
+						Lname     VARCHAR(30), 	
+						Ssn       CHAR(9),
+						Bdate     DATE,
+						Address	  VARCHAR (100), 
+						Gender	  CHAR(1),
+						Salary	  DECIMAL(10,2)        NOT NULL,	
+						Dno	      INTEGER,  
+						PRIMARY KEY(Ssn),
+						foreign key(Dno) references Department(Dnumber));
+						
+						
+						
+Insert into Employee values('Rohit','k','goel','111111111','1987-07-01','Noida, UP', 'M', 80000.20,5);
+Insert into Employee values('Mohan','M','goel','222222222','1992-07-01','Noida, UP', 'M', 68000.20,5);	
+Insert into Employee values('Seema','N','Arora','333333333','1977-09-07','Gurgaon,Haryana', 'F', 990000.20,5);
+Insert into Employee values('Rohan','k','Wadhwa','444444444','1982-07-01','Pune,Maharashtra', 'M', 120000.20,10);
+Insert into Employee values('Shivani','M','Monga','555555555','1973-07-04','Chandigarh, Punjab', 'F', 125000.20,10);	
+Insert into Employee values('Surbhi','A','Bajaj','666666666','1991-07-05','Chandigarh, Punjab', 'F', 50000.20,15);
+Insert into Employee values('Palak','K','Arora','000000000','1993-07-09','Jaipur, Rajasthan', 'M', 60000.20,15);
+
+
+Create table project (Pnumber int primary key, 
+					  Pname varchar(30), 
+					  plocation varchar(50),
+					  Dnum int, 
+					  foreign key(Dnum) references department(dnumber));
+					  
+Insert into project values(100, 'ProjectX', 'Noida', 5);
+Insert into project values(200, 'ProjectY', 'Noida', 10);
+Insert into project values(300, 'ProjectZ', 'Gurgaon', 15);
+
+
+create table works_on (Essn char(9),
+					   Pnum int,
+					   working_hours decimal(5,2),
+					   primary key(Essn,pnum),
+					   foreign key(ESSN) references employee(ssn),
+					   foreign key(pnum) references project(pnumber));
+					   
+Insert into works_on values('111111111',100, 8);
+Insert into works_on values('111111111',200, 7);
+Insert into works_on values('222222222',300, 6);
+Insert into works_on values('333333333',100, 7.5);
+
+create table dependent(ESSN char(9), 
+					   Depname varchar(30), 
+					   gender char(1), 
+					   relationship varchar(30),
+					   primary key(ESSN,Depname),
+					   foreign key(ESSN) references Employee(ssn));
+					   
+Insert into dependent values('111111111', 'Asha', 'F', 'Mother');
+Insert into dependent values('222222222', 'Aavya', 'F', 'Daughter');
+Insert into dependent values('444444444', 'Rohan', 'M', 'Son');
+
+				
+
+1. Use of order by
+
+2. Use of Aggergate functions// Max, Min, Avg, Count, sum
+
+3. Use of group by
+
+4. use of having
+
+5. Reterieve the fname and lname of employees who works for research department;
+
+Use of Alises
+
+alter table Department change Dno Dnumber int;
+
+alter table Department change Dnumber Dno int;
+
+6. Retrieve fname,lname,dname of all employees who works for department number 5 or 10 
+
+7. Retrieve fname, lname, increased salary of research department employees.  Note all research employees are given 10% raise.
+
+8. Find Max, Min and Avg salary of research department;
+
+9. For each department, retrieve the department number, the number of employees in the department, and their average salary. 
+
+10. For each project on which more than one employees work, retrieve the project number, project name, 
+    and the number of employees who work on that project.
+
+11. Retrieve fname, lname of employees and the project names they are working on, ordered by Project name and, 
+within each project, ordered alphabetically by last name, then first name. //order by dname,lname,fname
+
+12. Nested Queries
+
+SELECT  Fname, Lname, Address
+FROM    Employee
+WHERE   Dno IN
+                   (
+                            SELECT Dnumber FROM Department WHERE  Dname='Research'
+                   ) ;
+
+
+13. Correlated Nested Queries
+SELECT   E.Fname, E.Lname
+FROM     EMPLOYEE E
+WHERE    E.Ssn IN
+                   (
+                        SELECT Essn FROM DEPENDENT WHERE Essn=E.Ssn AND 
+                        E.Fname=Depname
+                  ) ;
+
+
+CREATE VIEW WORKS_ON1
+AS SELECT Fname, Lname, Pname, working_hours
+FROM EMPLOYEE, PROJECT, WORKS_ON
+WHERE Ssn=Essn AND Pnum=Pnumber;
+
+UPDATE WORKS_ON1
+SET Pname = 'ProductK'
+WHERE Lname='goel' AND Fname='rohit'
+AND Pname='ProductX';
+
+SELECT   E.Fname, E.Lname
+FROM     EMPLOYEE E
+WHERE    E.Ssn IN
+                   (
+                        SELECT Essn FROM DEPENDENT WHERE Essn=E.Ssn AND 
+                        E.Fname=Depname
+                  ) ;
+				  
+				  
+

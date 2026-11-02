@@ -1,0 +1,65 @@
+CREATE TABLE DEPARTMENT( DNAME VARCHAR(15) NOT NULL,
+						 DNUMBER INT Check (DNUMBER>0 and DNUMBER<21),
+						 PRIMARY KEY(DNUMBER)); 
+						 
+Insert into department values('Research',5);
+Insert into department values('Admin',10);
+Insert into department values('Payroll',15);
+
+
+
+
+
+CREATE TABLE EMPLOYEE (	Fname     VARCHAR(30)	       NOT NULL,	
+                        Minit     VARCHAR(30),
+						Lname     VARCHAR(30), 	
+						Ssn       CHAR(9),
+						Bdate     DATE,
+						Address	  VARCHAR (100), 
+						Gender	  CHAR(1),
+						Salary	  DECIMAL(10,2)        NOT NULL,	
+						Dno	      INTEGER,  
+						PRIMARY KEY(Ssn),
+						foreign key(Dno) references Department(Dnumber));
+						
+						
+Insert into Employee values('Rohit','k','goel','111111111','1987-07-01','Noida, UP', 'M', 80000.20,5);
+Insert into Employee values('Mohan','M','goel','222222222','1992-07-01','Noida, UP', 'M', 68000.20,5);	
+Insert into Employee values('Seema','N','Arora','333333333','1977-09-07','Gurgaon,Haryana', 'F', 990000.20,5);
+Insert into Employee values('Rohan','k','Wadhwa','444444444','1982-07-01','Pune,Maharashtra', 'M', 120000.20,10);
+Insert into Employee values('Shivani','M','Monga','555555555','1973-07-04','Chandigarh, Punjab', 'F', 125000.20,10);	
+Insert into Employee values('Surbhi','A','Bajaj','666666666','1991-07-05','Chandigarh, Punjab', 'F', 50000.20,15);
+Insert into Employee values('Saranya','A','Bajaj','000000000','1991-07-05','Chandigarh, Punjab', 'F', 50000.20,15);
+
+
+
+1. Reterieve all the employees of department number 5;
+
+2. Retrieve SSN and First name of all the employees.
+
+3. Retrieve Names of all employees who stay in noida.
+
+4. Retrieve all those employees who are born in in 1970s
+
+5. use of between
+
+6. USe of order by
+
+6. Use of IN
+
+
+select * from employee where salary > 50000 and salary < 100000;
+
+select * from employee where salary BETWEEN 50000.20 and 80000.20;
+
+Select * from Employee where Dno=5;
+
+2. Retrieve SSN and First name of all the employees.
+
+Select SSN, Fname from Employee;
+
+
+select Lname,fname from employee where address like '%noida%';
+Select distinct minit from employee;
+
+select * from employee where bdate like '__7_______';
