@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Session 1: Questions &amp; Answers — Foundations</title>
+<style>
+  :root {
+    --bg: #0f172a;
+    --surface: #1e293b;
+    --surface2: #334155;
+    --border: #475569;
+    --text: #e2e8f0;
+    --text-muted: #94a3b8;
+    --code-bg: #0d1117;
+    --accent: #38bdf8;
+    --accent-dim: rgba(56,189,248,.12);
+    --radius: 10px;
+    --transition: .3s ease;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.7;
+    display: flex;
+    min-height: 100vh;
+  }
+
+  /* ── Sidebar ── */
+  .sidebar {
+    position: fixed; top: 0; left: 0;
+    width: 280px; height: 100vh;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    overflow-y: auto; padding: 24px 16px;
+    z-index: 100;
+    transition: transform var(--transition);
+  }
+  .sidebar h2 { font-size: .85rem; text-transform: uppercase; letter-spacing: .08em; color: var(--text-muted); margin-bottom: 12px; }
+  .sidebar a {
+    display: block; padding: 7px 12px; margin-bottom: 2px;
+    border-radius: 6px; font-size: .85rem;
+    color: var(--text-muted); text-decoration: none;
+    transition: background var(--transition), color var(--transition);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .sidebar a:hover, .sidebar a:focus { background: var(--accent-dim); color: var(--accent); }
+
+  /* ── Main content ── */
+  .main { margin-left: 280px; flex: 1; padding: 48px 48px 80px; max-width: 920px; }
+
+  /* ── Header ── */
+  .header { margin-bottom: 36px; }
+  .header h1 { font-size: 2rem; font-weight: 700; color: var(--text); }
+  .header .subtitle { font-size: 1.05rem; color: var(--text-muted); margin-top: 4px; }
+
+  /* ── Toolbar ── */
+  .toolbar {
+    display: flex; flex-wrap: wrap; gap: 10px;
+    align-items: center; margin-bottom: 28px;
+  }
+  .toolbar button {
+    background: var(--surface); color: var(--accent);
+    border: 1px solid var(--border); border-radius: 6px;
+    padding: 8px 18px; font-size: .85rem; cursor: pointer;
+    transition: background var(--transition), border-color var(--transition);
+  }
+  .toolbar button:hover { background: var(--surface2); border-color: var(--accent); }
+  .score-badge {
+    margin-left: auto;
+    background: var(--accent-dim); border: 1px solid var(--accent);
+    border-radius: 20px; padding: 6px 18px;
+    font-size: .85rem; font-weight: 600; color: var(--accent);
+  }
+
+  /* ── Card ── */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    margin-bottom: 18px;
+    overflow: hidden;
+    transition: border-color var(--transition);
+  }
+  .card:hover { border-color: var(--accent); }
+  .card-header {
+    display: flex; align-items: center; gap: 14px;
+    padding: 16px 20px; cursor: pointer;
+    user-select: none;
+  }
+  .q-badge {
+    flex-shrink: 0;
+    width: 36px; height: 36px;
+    display: flex; align-items: center; justify-content: center;
+    background: var(--accent); color: var(--bg);
+    border-radius: 8px; font-weight: 700; font-size: .85rem;
+  }
+  .q-text { flex: 1; font-weight: 600; font-size: .97rem; }
+  .chevron {
+    flex-shrink: 0; width: 20px; height: 20px;
+    transition: transform var(--transition);
+    color: var(--text-muted);
+  }
+  .card.open .chevron { transform: rotate(180deg); }
+  .card-body {
+    max-height: 0; overflow: hidden;
+    transition: max-height .45s ease;
+  }
+  .card.open .card-body { max-height: 8000px; }
+  .card-inner { padding: 0 20px 20px 70px; }
+
+  /* ── Checkbox ── */
+  .review-check {
+    display: flex; align-items: center; gap: 8px;
+    padding: 10px 20px 14px 70px; border-top: 1px solid var(--border);
+    font-size: .82rem; color: var(--text-muted);
+  }
+  .review-check input[type=checkbox] {
+    accent-color: var(--accent); width: 16px; height: 16px; cursor: pointer;
+  }
+
+  /* ── Content styling ── */
+  .card-inner p { margin-bottom: 10px; }
+  .card-inner strong { color: var(--accent); }
+  .card-inner ul, .card-inner ol { margin: 8px 0 12px 20px; }
+  .card-inner li { margin-bottom: 4px; }
+  .card-inner table {
+    width: 100%; border-collapse: collapse;
+    margin: 12px 0; font-size: .88rem;
+  }
+  .card-inner th, .card-inner td {
+    border: 1px solid var(--border);
+    padding: 8px 12px; text-align: left;
+  }
+  .card-inner th { background: var(--surface2); color: var(--accent); font-weight: 600; }
+  .card-inner td { background: var(--surface); }
+  .card-inner code {
+    background: var(--code-bg); padding: 2px 6px;
+    border-radius: 4px; font-size: .88em; color: var(--accent);
+  }
+  .card-inner pre {
+    background: var(--code-bg); border: 1px solid var(--border);
+    border-radius: 8px; padding: 16px; overflow-x: auto;
+    margin: 12px 0; font-size: .85rem; line-height: 1.6;
+  }
+  .card-inner pre code { background: none; padding: 0; color: var(--text); }
+
+  /* ── Hamburger (mobile) ── */
+  .menu-toggle {
+    display: none; position: fixed; top: 14px; left: 14px;
+    z-index: 200; background: var(--surface); border: 1px solid var(--border);
+    border-radius: 8px; padding: 8px 10px; cursor: pointer; color: var(--text);
+  }
+
+  /* ── Print ── */
+  @media print {
+    .sidebar, .toolbar, .menu-toggle, .review-check, .chevron { display: none !important; }
+    .main { margin-left: 0; padding: 20px; max-width: 100%; }
+    .card-body { max-height: none !important; overflow: visible !important; }
+    .card { break-inside: avoid; border: 1px solid #ccc; }
+    body { background: #fff; color: #000; }
+    .card-inner strong { color: #0369a1; }
+    .card-inner th { background: #e0e7ff; color: #1e3a5f; }
+    .card-inner td { background: #fff; }
+    .card-inner pre, .card-inner code { background: #f1f5f9; color: #1e293b; }
+  }
+
+  /* ── Responsive ── */
+  @media (max-width: 860px) {
+    .sidebar { transform: translateX(-100%); }
+    .sidebar.open { transform: translateX(0); }
+    .menu-toggle { display: block; }
+    .main { margin-left: 0; padding: 24px 16px 60px; }
+  }
+</style>
+</head>
+<body>
+
+<button class="menu-toggle" onclick="document.querySelector('.sidebar').classList.toggle('open')" aria-label="Toggle sidebar">&#9776;</button>
+
+<nav class="sidebar" id="sidebar">
+  <h2>Quick Jump</h2>
+  <a href="#q1">Q1. File system problems</a>
+  <a href="#q2">Q2. Define DBMS &amp; advantages</a>
+  <a href="#q3">Q3. Three-Schema Architecture</a>
+  <a href="#q4">Q4. Schema vs Instance</a>
+  <a href="#q5">Q5. Types of keys</a>
+  <a href="#q6">Q6. Integrity constraints</a>
+  <a href="#q7">Q7. ER model</a>
+  <a href="#q8">Q8. ER-to-Relational mapping</a>
+  <a href="#q9">Q9. Normalisation (1NF–BCNF)</a>
+  <a href="#q10">Q10. Update anomalies</a>
+  <a href="#q11">Q11. B+ Tree indexing</a>
+  <a href="#q12">Q12. Clustered vs Non-clustered</a>
+  <a href="#q13">Q13. Views vs Materialised views</a>
+  <a href="#q14">Q14. Stored procedures &amp; triggers</a>
+  <a href="#q15">Q15. Relational algebra operations</a>
+  <a href="#q16">Q16. Data types (structured etc.)</a>
+  <a href="#q17">Q17. Semantic constraints</a>
+  <a href="#q18">Q18. COMPANY database design</a>
+  <a href="#q19">Q19. DB System Environment</a>
+  <a href="#q20">Q20. Evolution of DB systems</a>
+</nav>
+
+<div class="main">
+  <div class="header">
+    <h1>Session 1: Questions &amp; Answers</h1>
+    <div class="subtitle">Foundations &mdash; 20 Questions</div>
+  </div>
+
+  <div class="toolbar">
+    <button onclick="toggleAll(true)">Show All</button>
+    <button onclick="toggleAll(false)">Hide All</button>
+    <div class="score-badge" id="score">Reviewed: 0 / 20</div>
+  </div>
+
+  <!-- Q1 -->
+  <div class="card" id="q1">
+    <div class="card-header" onclick="toggleCard(this)">
+      <span class="q-badge">1</span>
+      <span class="q-text">What are the main problems of using a traditional file system for data management?</span>
+      <svg class="chevron" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"/></svg>
+    </div>
+    <div class="card-body"><div class="card-inner">
+      <ol>
+        <li><strong>Data redundancy</strong> &mdash; Same data duplicated across multiple files owned by different applications.</li>
+        <li><strong>Inconsistency</strong> &mdash; Updating one copy but not others creates conflicting versions of the same fact.</li>
+        <li><strong>Difficulty in data access</strong> &mdash; Each new query may require writing a new program from scratch; there is no general-purpose query language.</li>
+        <li><strong>Data isolation</strong> &mdash; Data scattered across files in different formats makes consolidation extremely difficult.</li>
+        <li><strong>Integrity problems</strong> &mdash; No central mechanism to enforce business rules (e.g. &ldquo;balance &ge; 0&rdquo;). Each application must enforce them independently, leading to inconsistent enforcement.</li>
+        <li><strong>Atomicity problems</strong> &mdash; A crash midway through a multi-step update can leave data in a partial, inconsistent state with no mechanism to undo the partial work.</li>
+        <li><strong>Concurrent-access anomalies</strong> &mdash; Two users modifying the same file simultaneously can overwrite each other&rsquo;s changes (lost update problem).</li>
+        <li><strong>Security issues</strong> &mdash; File-level OS permissions are too coarse-grained. You cannot restrict access to specific fields within a file.</li>
+      </ol>
+    </div></div>
+    <label class="review-check"><input type="checkbox" onchange="updateScore()"> Reviewed</label>
+  </div>
+
+  <!-- Q2 -->
+  <div class="card" id="q2">
+    <div class="card-header" onclick="toggleCard(this)">
+      <span class="q-badge">2</span>
+      <span class="q-text">Define DBMS. What are its key advantages over a file system?</span>
+      <svg class="chevron" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"/></svg>
+    </div>
+    <div class="card-body"><div class="card-inner">
+      <p>A <strong>Database Management System (DBMS)</strong> is system software that provides facilities to define, create, maintain, and control access to a database. It sits between applications and stored data, managing all interactions.</p>
+      <table>
+        <tr><th>Advantage</th><th>Explanation</th></tr>
+        <tr><td><strong>Program&ndash;data independence</strong></td><td>Schema stored in a catalog; changes to physical storage don&rsquo;t require rewriting application programs.</td></tr>
+        <tr><td><strong>Data abstraction</strong></td><td>Users work with a logical view (tables, rows, columns), not physical storage details (files, blocks, pages).</td></tr>
+        <tr><td><strong>Multiple views</strong></td><td>Different users see different subsets of the same underlying data, tailored to their needs and access rights.</td></tr>
+        <tr><td><strong>Reduced redundancy</strong></td><td>Centralised storage combined with normalisation eliminates or minimises duplicate data.</td></tr>
+        <tr><td><strong>Integrity enforcement</strong></td><td>Constraints (PK, FK, CHECK, NOT NULL) defined once in the schema and enforced automatically by the DBMS for every operation.</td></tr>
+        <tr><td><strong>Concurrency control</strong></td><td>The DBMS uses locking and MVCC to ensure multiple simultaneous users don&rsquo;t corrupt data.</td></tr>
+        <tr><td><strong>Backup &amp; recovery</strong></td><td>Write-ahead logging and checkpoint mechanisms allow the DBMS to restore a consistent state after any failure.</td></tr>
+        <tr><td><strong>Fine-grained security</strong></td><td>Access control at the table, column, or even row level using GRANT/REVOKE.</td></tr>
+      </table>
+    </div></div>
+    <label class="review-check"><input type="checkbox" onchange="updateScore()"> Reviewed</label>
+  </div>
+
+  <!-- Q3 -->
+  <div class="card" id="q3">
+    <div class="card-header" onclick="toggleCard(this)">
+      <span class="q-badge">3</span>
+      <span class="q-text">Explain the Three-Schema Architecture and its importance.</span>
+      <svg class="chevron" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"/></svg>
+    </div>
+    <div class="card-body"><div class="card-inner">
+      <p>The <strong>ANSI/SPARC Three-Schema Architecture</strong> (1975) separates a database system into three levels of abstraction:</p>
+      <ol>
+        <li><strong>External Level (User Views):</strong> Each user or application sees only the data relevant to them. A student registration app sees student names and courses. A grade reporting app sees IDs and grades. These are different views of the same underlying data.</li>
+        <li><strong>Conceptual Level (Logical Schema):</strong> The complete logical structure of the entire database &mdash; all entities, relationships, data types, and constraints. Describes <strong>what</strong> data is stored, independent of how it&rsquo;s physically organised. Designed by the DBA.</li>
+        <li><strong>Internal Level (Physical Schema):</strong> How data is physically stored on disk &mdash; file organisations, indexing methods, compression, buffer management. Optimised for performance by the DBA/storage engine.</li>
+      </ol>
+      <p><strong>Why it&rsquo;s important &mdash; Data Independence:</strong></p>
+      <ul>
+        <li><strong>Logical data independence:</strong> The conceptual schema can change (e.g. add a table, split a table) without affecting external views or applications. The external-to-conceptual mapping absorbs the change.</li>
+        <li><strong>Physical data independence:</strong> The internal schema can change (e.g. add an index, switch from HDD to SSD, reorganise files) without affecting the conceptual schema. The conceptual-to-internal mapping absorbs the change.</li>
+      </ul>
+      <p>This separation is what allows databases to evolve &mdash; new features, new storage optimisations, new user views &mdash; without breaking existing applications.</p>
+    </div></div>
+    <label class="review-check"><input type="checkbox" onchange="updateScore()"> Reviewed</label>
+  </div>
+
+  <!-- Q4 -->
+  <div class="card" id="q4">
+    <div class="card-header" onclick="toggleCard(this)">
+      <span class="q-badge">4</span>
+      <span class="q-text">Differentiate between schema and instance with an example.</span>
+      <svg class="chevron" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"/></svg>
+    </div>
+    <div class="card-body"><div class="card-inner">
+      <table>
+        <tr><th>Aspect</th><th>Schema (Intension)</th><th>Instance (Extension)</th></tr>
+        <tr><td><strong>What it is</strong></td><td>The structure and description of the database &mdash; table definitions, column types, constraints.</td><td>The actual data stored in the database at a particular moment in time.</td></tr>
+        <tr><td><strong>How often it changes</strong></td><td>Rarely &mdash; only when the design evolves (adding a column, changing a type).</td><td>Constantly &mdash; with every INSERT, UPDATE, DELETE operation.</td></tr>
+        <tr><td><strong>Analogy</strong></td><td>A spreadsheet template with column headers and validation rules.</td><td>The rows of data filled in by users.</td></tr>
+        <tr><td><strong>Example</strong></td><td><code>STUDENT(ID INT PRIMARY KEY, Name VARCHAR(50), Age INT CHECK(Age&gt;0))</code></td><td><code>(101, 'Alice', 21), (102, 'Bob', 23), (103, 'Carol', 20)</code></td></tr>
+      </table>
+      <p>The schema defines the &ldquo;shape&rdquo; of the data; the instance is the data itself at any given moment.</p>
+    </div></div>
+    <label class="review-check"><input type="checkbox" onchange="updateScore()"> Reviewed</label>
+  </div>
+
+  <!-- Q5 -->
+  <div class="card" id="q5">
+    <div class="card-header" onclick="toggleCard(this)">
+      <span class="q-badge">5</span>
+      <span class="q-text">Explain the different types of keys with examples.</span>
+      <svg class="chevron" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"/></svg>
+    </div>
+    <div class="card-body"><div class="card-inner">
+      <p>Consider: <code>STUDENT(Student_ID, Email, Name, Dept_ID)</code></p>
+      <table>
+        <tr><th>Key Type</th><th>Definition</th><th>Example</th></tr>
+        <tr><td><strong>Superkey</strong></td><td>Any set of attributes that uniquely identifies a tuple. Can have redundant attributes.</td><td>{Student_ID}, {Student_ID, Name}, {Email}, {Email, Name}</td></tr>
+        <tr><td><strong>Candidate key</strong></td><td>A minimal superkey &mdash; removing any attribute breaks uniqueness. No redundancy.</td><td>{Student_ID}, {Email} (both uniquely identify, both minimal)</td></tr>
+        <tr><td><strong>Primary key (PK)</strong></td><td>The candidate key chosen by the designer as the official identifier.</td><td>Student_ID (chosen because it&rsquo;s numeric and stable)</td></tr>
+        <tr><td><strong>Alternate key</strong></td><td>Any candidate key not chosen as the PK.</td><td>Email (it&rsquo;s unique but wasn&rsquo;t chosen as PK)</td></tr>
+        <tr><td><strong>Foreign key (FK)</strong></td><td>Attribute(s) in one relation referencing the PK of another relation. Enforces referential integrity.</td><td>Dept_ID references DEPARTMENT(Dept_ID)</td></tr>
+      </table>
+    </div></div>
+    <label class="review-check"><input type="checkbox" onchange="updateScore()"> Reviewed</label>
+  </div>
+
+  <!-- Q6 -->
+  <div class="card" id="q6">
+    <div class="card-header" onclick="toggleCard(this)">
+      <span class="q-badge">6</span>
+      <span class="q-text">What are integrity constraints? Explain each type.</span>
+      <svg class="chevron" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"/></svg>
+    </div>
+    <div class="card-body"><div class="card-inner">
+      <p>Integrity constraints are rules that the DBMS enforces to keep the database in a valid, consistent state.</p>
+      <ol>
+        <li><strong>Entity integrity:</strong> No attribute of a primary key can be NULL. Every row must be uniquely identifiable &mdash; a NULL PK would make it impossible to distinguish rows.</li>
+        <li><strong>Referential integrity:</strong> A foreign key value must either be NULL (if the FK column allows NULLs) or must match an existing primary key value in the referenced relation. You cannot have an employee with Dept_ID = 99 if no department with Dept_ID = 99 exists.</li>
+        <li><strong>Domain constraints:</strong> Every attribute value must come from the attribute&rsquo;s defined domain. If Age is defined as a positive integer, you cannot store -5 or &ldquo;hello&rdquo; in it.</li>
+        <li><strong>Key constraints:</strong> No two tuples in a relation can have the same value for the primary key. This guarantees that the PK actually identifies rows uniquely.</li>
+      </ol>
+    </div></div>
+    <label class="review-check"><input type="checkbox" onchange="updateScore()"> Reviewed</label>
+  </div>
+
+  <!-- Q7 -->
+  <div class="card" id="q7">
+    <div class="card-header" onclick="toggleCard(this)">
+      <span class="q-badge">7</span>
+      <span class="q-text">Describe the ER model. Explain entity types, attribute types, and relationship types.</span>
+      <svg class="chevron" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"/></svg>
+    </div>
+    <div class="card-body"><div class="card-inner">
+      <p>The <strong>Entity-Relationship (ER) model</strong> (Chen, 1976) is a conceptual data model that describes real-world data using three core concepts:</p>
+      <p><strong>Entity types:</strong></p>
+      <ul>
+        <li><strong>Strong entity:</strong> Has its own key attribute. Exists independently. Example: EMPLOYEE(Emp_ID, Name, Salary).</li>
+        <li><strong>Weak entity:</strong> No key of its own. Depends on an owner entity via an identifying relationship. Uses a partial key + owner&rsquo;s PK. Example: DEPENDENT(Name, Relationship) depends on EMPLOYEE.</li>
+      </ul>
+      <p><strong>Attribute types:</strong></p>
+      <ul>
+        <li><strong>Simple (Atomic):</strong> Indivisible &mdash; FirstName.</li>
+        <li><strong>Composite:</strong> Divisible into sub-parts &mdash; Address &rarr; {Street, City, State, PIN}.</li>
+        <li><strong>Single-valued:</strong> One value per entity &mdash; DateOfBirth.</li>
+        <li><strong>Multi-valued:</strong> Multiple values &mdash; PhoneNumbers (a person may have 2&ndash;3).</li>
+        <li><strong>Derived:</strong> Computed from other attributes &mdash; Age (from DOB).</li>
+        <li><strong>Key:</strong> Uniquely identifies the entity &mdash; EmployeeID.</li>
+      </ul>
+      <p><strong>Relationship types:</strong></p>
+      <ul>
+        <li><strong>Unary (recursive):</strong> Entity relates to itself &mdash; EMPLOYEE supervises EMPLOYEE.</li>
+        <li><strong>Binary:</strong> Between two entity types &mdash; EMPLOYEE works-in DEPARTMENT.</li>
+        <li><strong>Ternary:</strong> Among three entity types &mdash; SUPPLIER supplies PART to PROJECT.</li>
+      </ul>
+      <p><strong>Cardinality ratios:</strong> 1:1, 1:N, M:N.<br>
+      <strong>Participation:</strong> Total (mandatory &mdash; every entity must participate) or Partial (optional).</p>
+    </div></div>
+    <label class="review-check"><input type="checkbox" onchange="updateScore()"> Reviewed</label>
+  </div>
+
+  <!-- Q8 -->
+  <div class="card" id="q8">
+    <div class="card-header" onclick="toggleCard(this)">
+      <span class="q-badge">8</span>
+      <span class="q-text">Describe the ER-to-Relational mapping rules with examples.</span>
+      <svg class="chevron" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"/></svg>
+    </div>
+    <div class="card-body"><div class="card-inner">
+      <table>
+        <tr><th>ER Construct</th><th>Mapping Rule</th><th>Example</th></tr>
+        <tr><td><strong>Strong entity</strong></td><td>Create table; simple attributes &rarr; columns; key &rarr; PK.</td><td>EMPLOYEE(Emp_ID PK, Name, Salary)</td></tr>
+        <tr><td><strong>Weak entity</strong></td><td>Table with partial key + owner&rsquo;s PK as FK. Composite PK.</td><td>DEPENDENT(Emp_ID FK, Dep_Name, Relationship) PK=(Emp_ID, Dep_Name)</td></tr>
+        <tr><td><strong>1:1 relationship</strong></td><td>Add PK of one side as FK in the other (prefer total-participation side).</td><td>EMPLOYEE(Emp_ID, &hellip;, Manages_Dept_ID FK)</td></tr>
+        <tr><td><strong>1:N relationship</strong></td><td>Add PK of &ldquo;1&rdquo; side as FK in the &ldquo;N&rdquo; side.</td><td>EMPLOYEE(Emp_ID, &hellip;, Dept_ID FK)</td></tr>
+        <tr><td><strong>M:N relationship</strong></td><td>New junction table with both PKs as FKs; composite PK.</td><td>ENROLMENT(Student_ID FK, Course_ID FK, Grade) PK=(Student_ID, Course_ID)</td></tr>
+        <tr><td><strong>Multi-valued attribute</strong></td><td>Separate table: value + FK to owner&rsquo;s PK.</td><td>EMP_PHONE(Emp_ID FK, Phone) PK=(Emp_ID, Phone)</td></tr>
+      </table>
+    </div></div>
+    <label class="review-check"><input type="checkbox" onchange="updateScore()"> Reviewed</label>
+  </div>
+
+  <!-- Q9 -->
+  <div class="card" id="q9">
+    <div class="card-header" onclick="toggleCard(this)">
+      <span class="q-badge">9</span>
+      <span class="q-text">What is normalisation? Explain 1NF through BCNF with examples.</span>
+      <svg class="chevron" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"/></svg>
+    </div>
+    <div class="card-body"><div class="card-inner">
+      <p><strong>Normalisation</strong> is the process of decomposing relations to eliminate redundancy and prevent update anomalies.</p>
+      <p><strong>1NF (First Normal Form):</strong> All values must be atomic. No multi-valued or composite attributes in a cell.</p>
+      <ul>
+        <li>Violation: <code>STUDENT(ID, Name, Phones={9876, 1234})</code> &mdash; Phones is multi-valued.</li>
+        <li>Fix: <code>STUDENT(ID, Name)</code> + <code>STUDENT_PHONE(ID, Phone)</code>.</li>
+      </ul>
+      <p><strong>2NF (Second Normal Form):</strong> 1NF + no partial dependencies on composite PK.</p>
+      <ul>
+        <li>Violation: <code>ENROLMENT(Student_ID, Course_ID, Student_Name, Grade)</code> &mdash; Student_Name depends only on Student_ID (partial dependency).</li>
+        <li>Fix: <code>STUDENT(Student_ID, Student_Name)</code> + <code>ENROLMENT(Student_ID, Course_ID, Grade)</code>.</li>
+      </ul>
+      <p><strong>3NF (Third Normal Form):</strong> 2NF + no transitive dependencies among non-key attributes.</p>
+      <ul>
+        <li>Violation: <code>EMPLOYEE(Emp_ID, Dept_ID, Dept_Name)</code> &mdash; Dept_Name depends on Dept_ID (transitive: Emp_ID &rarr; Dept_ID &rarr; Dept_Name).</li>
+        <li>Fix: <code>EMPLOYEE(Emp_ID, Dept_ID)</code> + <code>DEPARTMENT(Dept_ID, Dept_Name)</code>.</li>
+      </ul>
+      <p><strong>BCNF (Boyce-Codd Normal Form):</strong> For every non-trivial FD X &rarr; Y, X must be a superkey. Stricter than 3NF.</p>
+      <ul>
+        <li>Violation: <code>TEACHING(Student, Course, Instructor)</code> with FDs: {Student, Course} &rarr; Instructor and Instructor &rarr; Course. Instructor determines Course but Instructor is not a superkey.</li>
+        <li>Fix: <code>INSTRUCTOR_COURSE(Instructor, Course)</code> + <code>STUDENT_INSTRUCTOR(Student, Instructor)</code>.</li>
+      </ul>
+    </div></div>
+    <label class="review-check"><input type="checkbox" onchange="updateScore()"> Reviewed</label>
+  </div>
+
+  <!-- Q10 -->
+  <div class="card" id="q10">
+    <div class="card-header" onclick="toggleCard(this)">
+      <span class="q-badge">10</span>
+      <span class="q-text">What are the three types of update anomalies? Give examples.</span>
+      <svg class="chevron" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"/></svg>
+    </div>
+    <div class="card-body"><div class="card-inner">
+      <p>These occur in un-normalised or poorly normalised tables:</p>
+      <table>
+        <tr><th>Anomaly</th><th>Problem</th><th>Example</th></tr>
+        <tr><td><strong>Insertion anomaly</strong></td><td>Cannot insert data without unrelated data.</td><td>In a combined EMPLOYEE-DEPARTMENT table, you can&rsquo;t add a new department unless at least one employee exists in it &mdash; there&rsquo;s no employee row to hold the department info.</td></tr>
+        <tr><td><strong>Deletion anomaly</strong></td><td>Deleting data causes unintended loss.</td><td>Deleting the last employee in department &ldquo;Research&rdquo; also loses all information about the Research department (name, location, budget).</td></tr>
+        <tr><td><strong>Update anomaly</strong></td><td>The same fact must be updated in multiple rows.</td><td>If department &ldquo;Sales&rdquo; changes its name to &ldquo;Revenue&rdquo;, every employee row with Dept_Name = &lsquo;Sales&rsquo; must be updated. Missing one creates inconsistency.</td></tr>
+      </table>
+      <p><strong>Solution:</strong> Normalise the table to separate independent facts into separate tables.</p>
+    </div></div>
+    <label class="review-check"><input type="checkbox" onchange="updateScore()"> Reviewed</label>
+  </div>
+
+  <!-- Q11 -->
+  <div class="card" id="q11">
+    <div class="card-header" onclick="toggleCard(this)">
+      <span class="q-badge">11</span>
+      <span class="q-text">Explain B+ Tree indexing. Why is it preferred in databases?</span>
+      <svg class="chevron" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"/></svg>
+    </div>
+    <div class="card-body"><div class="card-inner">
+      <p>A <strong>B+ Tree</strong> is a self-balancing tree structure where:</p>
+      <ul>
+        <li>All data pointers are in <strong>leaf nodes</strong> only (internal nodes have only keys for navigation).</li>
+        <li>Leaf nodes are <strong>linked</strong> as a doubly-linked list for efficient sequential/range access.</li>
+        <li>The tree is always balanced &mdash; all leaves at the same depth.</li>
+      </ul>
+      <p><strong>Why preferred:</strong></p>
+      <ol>
+        <li><strong>O(log n) search</strong> &mdash; Even with billions of rows, only 3&ndash;4 disk reads are needed (each level = one disk read).</li>
+        <li><strong>Efficient range queries</strong> &mdash; Follow the linked leaf nodes. <code>WHERE Salary BETWEEN 50000 AND 80000</code> starts at one leaf and walks the chain.</li>
+        <li><strong>Balanced</strong> &mdash; Insertions and deletions maintain balance automatically. No worst-case O(n) like unbalanced BSTs.</li>
+        <li><strong>High fan-out</strong> &mdash; Each node can hold hundreds of keys (sized to match disk block size), keeping the tree very shallow.</li>
+        <li><strong>Disk-optimised</strong> &mdash; Nodes are sized to match disk pages (typically 4&ndash;16 KB), minimising I/O operations.</li>
+      </ol>
+      <p><strong>Comparison with Hash Index:</strong> Hash gives O(1) for equality but cannot support range queries, ORDER BY, or prefix matching. B+ Tree handles all of these.</p>
+    </div></div>
+    <label class="review-check"><input type="checkbox" onchange="updateScore()"> Reviewed</label>
+  </div>
+
+  <!-- Q12 -->
+  <div class="card" id="q12">
+    <div class="card-header" onclick="toggleCard(this)">
+      <span class="q-badge">12</span>
+      <span class="q-text">Compare clustered and non-clustered indexes.</span>
+      <svg class="chevron" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"/></svg>
+    </div>
+    <div class="card-body"><div class="card-inner">
+      <table>
+        <tr><th>Aspect</th><th>Clustered Index</th><th>Non-Clustered (Secondary) Index</th></tr>
+        <tr><td><strong>Physical order</strong></td><td>Table rows are physically stored in the order of the index key.</td><td>Index is a separate structure that stores (key, pointer-to-row) pairs.</td></tr>
+        <tr><td><strong>Number per table</strong></td><td>Only <strong>one</strong> &mdash; data can only be physically sorted one way.</td><td><strong>Many</strong> can exist on the same table.</td></tr>
+        <tr><td><strong>Speed for range scans</strong></td><td>Fastest &mdash; rows with adjacent key values are stored adjacent on disk.</td><td>Slower &mdash; must follow pointers to scattered row locations (random I/O).</td></tr>
+        <tr><td><strong>Speed for point lookup</strong></td><td>Fast &mdash; binary search on sorted data.</td><td>Fast if covering (index-only scan); otherwise needs extra row fetch.</td></tr>
+        <tr><td><strong>Example</strong></td><td>Primary key index in MySQL InnoDB (data stored in PK order).</td><td>Index on Email column; index on (Dept_ID, Salary).</td></tr>
+      </table>
+      <p><strong>Covering index:</strong> An index that includes all columns needed by a query. The DBMS answers entirely from the index without touching the main table (index-only scan).</p>
+    </div></div>
+    <label class="review-check"><input type="checkbox" onchange="updateScore()"> Reviewed</label>
+  </div>
+
+  <!-- Q13 -->
+  <div class="card" id="q13">
+    <div class="card-header" onclick="toggleCard(this)">
+      <span class="q-badge">13</span>
+      <span class="q-text">What is a view? Compare views and materialised views.</span>
+      <svg class="chevron" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"/></svg>
+    </div>
+    <div class="card-body"><div class="card-inner">
+      <p>A <strong>view</strong> is a virtual table defined by a SQL query. It stores no data &mdash; every time you query the view, the underlying SELECT executes.</p>
+      <table>
+        <tr><th>Aspect</th><th>View</th><th>Materialised View</th></tr>
+        <tr><td><strong>Storage</strong></td><td>No data stored; query runs each time.</td><td>Result physically stored on disk.</td></tr>
+        <tr><td><strong>Freshness</strong></td><td>Always current &mdash; runs against live data.</td><td>May be stale &mdash; must be refreshed.</td></tr>
+        <tr><td><strong>Performance</strong></td><td>Same as running the underlying query.</td><td>Faster reads (pre-computed).</td></tr>
+        <tr><td><strong>Use case</strong></td><td>Security (restrict visible columns), simplification, logical independence.</td><td>Expensive aggregations in reporting/data warehousing.</td></tr>
+        <tr><td><strong>Maintenance</strong></td><td>None &mdash; just a stored query definition.</td><td>Must be refreshed (manually, on schedule, or on commit).</td></tr>
+      </table>
+    </div></div>
+    <label class="review-check"><input type="checkbox" onchange="updateScore()"> Reviewed</label>
+  </div>
+
+  <!-- Q14 -->
+  <div class="card" id="q14">
+    <div class="card-header" onclick="toggleCard(this)">
+      <span class="q-badge">14</span>
+      <span class="q-text">Explain stored procedures and triggers. When would you use each?</span>
+      <svg class="chevron" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"/></svg>
+    </div>
+    <div class="card-body"><div class="card-inner">
+      <p><strong>Stored Procedure:</strong> A named, reusable block of SQL statements stored in the database and executed on the server.</p>
+      <ul>
+        <li><strong>Use when:</strong> Encapsulating business logic (e.g. &ldquo;give all employees in department X a Y% raise&rdquo;), reducing network traffic (one CALL instead of multiple statements), granting access via EXECUTE without direct table access.</li>
+      </ul>
+      <p><strong>Trigger:</strong> A stored procedure that automatically fires when a specific event (INSERT, UPDATE, DELETE) occurs on a table.</p>
+      <ul>
+        <li><strong>Use when:</strong> Audit logging (record who changed what and when), enforcing complex constraints that CHECK can&rsquo;t express, maintaining derived/summary data, cascading business rules.</li>
+      </ul>
+      <p><strong>Key difference:</strong> You explicitly CALL a procedure. A trigger fires implicitly &mdash; you don&rsquo;t invoke it directly. This makes triggers powerful but harder to debug (hidden side effects, potential for cascading triggers).</p>
+    </div></div>
+    <label class="review-check"><input type="checkbox" onchange="updateScore()"> Reviewed</label>
+  </div>
+
+  <!-- Q15 -->
+  <div class="card" id="q15">
+    <div class="card-header" onclick="toggleCard(this)">
+      <span class="q-badge">15</span>
+      <span class="q-text">List and briefly describe the core relational algebra operations.</span>
+      <svg class="chevron" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"/></svg>
+    </div>
+    <div class="card-body"><div class="card-inner">
+      <table>
+        <tr><th>Operation</th><th>Symbol</th><th>Description</th><th>SQL Equivalent</th></tr>
+        <tr><td><strong>Selection</strong></td><td>&sigma;</td><td>Filter rows by condition. &sigma;<sub>Salary&gt;50000</sub>(EMPLOYEE)</td><td><code>WHERE Salary &gt; 50000</code></td></tr>
+        <tr><td><strong>Projection</strong></td><td>&pi;</td><td>Pick specific columns. &pi;<sub>Name,Salary</sub>(EMPLOYEE)</td><td><code>SELECT Name, Salary</code></td></tr>
+        <tr><td><strong>Union</strong></td><td>&cup;</td><td>Combine rows from two union-compatible relations (remove duplicates).</td><td><code>UNION</code></td></tr>
+        <tr><td><strong>Intersection</strong></td><td>&cap;</td><td>Rows present in both relations.</td><td><code>INTERSECT</code></td></tr>
+        <tr><td><strong>Difference</strong></td><td>&minus;</td><td>Rows in first relation but not in second.</td><td><code>EXCEPT</code></td></tr>
+        <tr><td><strong>Cartesian Product</strong></td><td>&times;</td><td>Every combination of rows from two relations.</td><td><code>FROM A, B</code> (no WHERE)</td></tr>
+        <tr><td><strong>Join</strong></td><td>&bowtie;</td><td>Combine related rows based on a condition. Equivalent to &sigma; over &times;.</td><td><code>JOIN &hellip; ON</code></td></tr>
+        <tr><td><strong>Rename</strong></td><td>&rho;</td><td>Rename a relation or its attributes.</td><td><code>AS</code> alias</td></tr>
+      </table>
+      <p>The five <strong>fundamental</strong> operations are: &sigma;, &pi;, &cup;, &minus;, &times;. All others (&cap;, &bowtie;, &divide;) can be derived from these five.</p>
+    </div></div>
+    <label class="review-check"><input type="checkbox" onchange="updateScore()"> Reviewed</label>
+  </div>
+
+  <!-- Q16 -->
+  <div class="card" id="q16">
+    <div class="card-header" onclick="toggleCard(this)">
+      <span class="q-badge">16</span>
+      <span class="q-text">Differentiate between structured, semi-structured, and unstructured data with examples.</span>
+      <svg class="chevron" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"/></svg>
+    </div>
+    <div class="card-body"><div class="card-inner">
+      <table>
+        <tr><th>Aspect</th><th>Structured</th><th>Semi-Structured</th><th>Unstructured</th></tr>
+        <tr><td><strong>Schema</strong></td><td>Fixed, predefined (tables with fixed columns and types).</td><td>Flexible, self-describing (tags/keys embedded in data).</td><td>None &mdash; no predefined format.</td></tr>
+        <tr><td><strong>Format</strong></td><td>Rows and columns (relational tables).</td><td>JSON, XML, YAML.</td><td>Text, images, audio, video, PDFs.</td></tr>
+        <tr><td><strong>Query method</strong></td><td>SQL.</td><td>JSON queries, XPath, XQuery.</td><td>Full-text search, AI/ML, NLP.</td></tr>
+        <tr><td><strong>Storage</strong></td><td>RDBMS (MySQL, PostgreSQL, Oracle).</td><td>Document databases (MongoDB, CouchDB).</td><td>Object storage (S3), data lakes.</td></tr>
+        <tr><td><strong>Examples</strong></td><td>Employee table, bank transactions, student records.</td><td>API responses, email (headers structured, body not), config files.</td><td>Word documents, photographs, videos, social media posts.</td></tr>
+        <tr><td><strong>% of global data</strong></td><td>~10&ndash;20%</td><td>~5&ndash;10%</td><td>~80&ndash;90%</td></tr>
+      </table>
+      <p><strong>Key insight:</strong> Structured data fits relational databases perfectly. Semi-structured data is the domain of document/NoSQL databases. Unstructured data requires specialised systems. Modern data platforms must handle all three.</p>
+    </div></div>
+    <label class="review-check"><input type="checkbox" onchange="updateScore()"> Reviewed</label>
+  </div>
+
+  <!-- Q17 -->
+  <div class="card" id="q17">
+    <div class="card-header" onclick="toggleCard(this)">
+      <span class="q-badge">17</span>
+      <span class="q-text">What are application-based (semantic) constraints? Give three examples.</span>
+      <svg class="chevron" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"/></svg>
+    </div>
+    <div class="card-body"><div class="card-inner">
+      <p><strong>Application-based constraints</strong> are business rules that cannot be expressed through standard schema constraints (PRIMARY KEY, FOREIGN KEY, CHECK, NOT NULL). They require custom logic in application programs, triggers, or stored procedures.</p>
+      <p><strong>Examples from class:</strong></p>
+      <ol>
+        <li>&ldquo;Salary of an employee should not exceed the salary of the employee&rsquo;s supervisor.&rdquo; &mdash; This requires comparing values across different rows (employee and their supervisor), which a single-row CHECK constraint cannot do.</li>
+        <li>&ldquo;Maximum number of hours an employee can work on a project per week is 56 hours.&rdquo; &mdash; This could be a CHECK constraint on a single column, but in practice the hours may be distributed across multiple projects and need a cross-row sum check.</li>
+        <li>&ldquo;Salary of an employee should only increase (never decrease).&rdquo; &mdash; This requires comparing the new value with the old value during an UPDATE, which needs a trigger (BEFORE UPDATE) to enforce.</li>
+      </ol>
+    </div></div>
+    <label class="review-check"><input type="checkbox" onchange="updateScore()"> Reviewed</label>
+  </div>
+
+  <!-- Q18 -->
+  <div class="card" id="q18">
+    <div class="card-header" onclick="toggleCard(this)">
+      <span class="q-badge">18</span>
+      <span class="q-text">Design the COMPANY database: identify entities, relationships, and map to relational tables.</span>
+      <svg class="chevron" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"/></svg>
+    </div>
+    <div class="card-body"><div class="card-inner">
+      <p><strong>Entities:</strong> Employee (strong, key=SSN), Department (strong, key=Dnumber), Project (strong, key=Pnumber), Dependent (weak, depends on Employee, partial key=Dependent_name).</p>
+      <p><strong>Key relationships:</strong></p>
+      <table>
+        <tr><th>Relationship</th><th>Type</th><th>Cardinality</th></tr>
+        <tr><td>Employee MANAGES Department</td><td>Binary</td><td>1:1 (Employee partial, Department total)</td></tr>
+        <tr><td>Employee WORKS_FOR Department</td><td>Binary</td><td>N:1 (both total)</td></tr>
+        <tr><td>Department CONTROLS Project</td><td>Binary</td><td>1:N (Dept partial, Project total)</td></tr>
+        <tr><td>Employee SUPERVISES Employee</td><td>Recursive</td><td>1:N (both partial)</td></tr>
+        <tr><td>Employee WORKS_ON Project</td><td>Binary</td><td>M:N (both partial), has attribute Hours</td></tr>
+        <tr><td>Employee HAS Dependent</td><td>Identifying</td><td>1:N (Employee partial, Dependent total)</td></tr>
+      </table>
+      <p><strong>Relational mapping:</strong></p>
+      <pre><code>DEPARTMENT(Dname, Dnumber PK, Mgr_SSN FK→Employee, Mgr_start_date)
+DEPT_LOCATIONS(Dnumber FK, Dlocation)  PK=(Dnumber, Dlocation)
+EMPLOYEE(Fname, Minit, Lname, SSN PK, Bdate, Address, Sex, Salary,
+         Super_SSN FK→Employee, Dno FK→Department)
+PROJECT(Pname, Pnumber PK, Plocation, Dnum FK→Department)
+WORKS_ON(ESSN FK→Employee, Pno FK→Project, Hours)  PK=(ESSN, Pno)
+DEPENDENT(ESSN FK→Employee, Dependent_name, Sex, Bdate, Relationship)  PK=(ESSN, Dependent_name)</code></pre>
+    </div></div>
+    <label class="review-check"><input type="checkbox" onchange="updateScore()"> Reviewed</label>
+  </div>
+
+  <!-- Q19 -->
+  <div class="card" id="q19">
+    <div class="card-header" onclick="toggleCard(this)">
+      <span class="q-badge">19</span>
+      <span class="q-text">What is the Database System Environment? What role does the DBMS play between users and data?</span>
+      <svg class="chevron" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"/></svg>
+    </div>
+    <div class="card-body"><div class="card-inner">
+      <p>The <strong>Database System Environment</strong> consists of:</p>
+      <ol>
+        <li><strong>Users/Applications</strong> &mdash; End users, application programs, and database administrators who interact with data.</li>
+        <li><strong>DBMS Software</strong> &mdash; The middleware that sits between users and stored data. It handles:
+          <ul>
+            <li><strong>Defining</strong> the database (DDL processing).</li>
+            <li><strong>Constructing</strong> the database (creating objects, populating data).</li>
+            <li><strong>Manipulating</strong> the database (INSERT, UPDATE, DELETE, SELECT).</li>
+            <li><strong>Supporting</strong> multiple users and applications simultaneously.</li>
+          </ul>
+        </li>
+        <li><strong>Stored Database</strong> &mdash; The physical data files, index files, and log files on disk.</li>
+        <li><strong>Metadata/Catalog</strong> &mdash; The data dictionary describing the schema, constraints, and storage details.</li>
+      </ol>
+      <p>The DBMS interprets and optimises SQL statements before execution. It provides a <strong>logical view</strong> of the data, hiding low-level storage details. Applications communicate with the database using SQL; the DBMS translates this into physical operations on disk.</p>
+    </div></div>
+    <label class="review-check"><input type="checkbox" onchange="updateScore()"> Reviewed</label>
+  </div>
+
+  <!-- Q20 -->
+  <div class="card" id="q20">
+    <div class="card-header" onclick="toggleCard(this)">
+      <span class="q-badge">20</span>
+      <span class="q-text">What is the evolution of database systems from the 1960s to today?</span>
+      <svg class="chevron" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"/></svg>
+    </div>
+    <div class="card-body"><div class="card-inner">
+      <table>
+        <tr><th>Era</th><th>System</th><th>Characteristics</th></tr>
+        <tr><td><strong>1960s</strong></td><td>File Systems</td><td>Application-specific flat files. No sharing, no integrity, no concurrency control.</td></tr>
+        <tr><td><strong>1960s&ndash;70s</strong></td><td>Hierarchical DB (IMS)</td><td>Tree structure. Efficient for known access paths. Rigid, hard to reorganise.</td></tr>
+        <tr><td><strong>1970s</strong></td><td>Network DB (CODASYL)</td><td>Graph structure. More flexible than hierarchical but complex navigation.</td></tr>
+        <tr><td><strong>1970s&ndash;80s</strong></td><td>Relational DB (Codd, 1970)</td><td>Tables with SQL. Data independence. Mathematical foundation. Dominant model today.</td></tr>
+        <tr><td><strong>1990s</strong></td><td>Object-Oriented DB</td><td>Stored complex objects directly. Limited adoption.</td></tr>
+        <tr><td><strong>2000s</strong></td><td>NoSQL</td><td>Key-value, document, column-family, graph. Traded ACID for scalability.</td></tr>
+        <tr><td><strong>2010s</strong></td><td>NewSQL</td><td>Combined SQL + ACID + horizontal scalability (Spanner, CockroachDB).</td></tr>
+        <tr><td><strong>2020s</strong></td><td>Cloud-native / Lakehouse</td><td>Serverless databases, data lakes + warehouses unified (Databricks Lakehouse).</td></tr>
+      </table>
+    </div></div>
+    <label class="review-check"><input type="checkbox" onchange="updateScore()"> Reviewed</label>
+  </div>
+
+</div><!-- .main -->
+
+<script>
+  function toggleCard(header) {
+    header.closest('.card').classList.toggle('open');
+  }
+  function toggleAll(show) {
+    document.querySelectorAll('.card').forEach(c => {
+      show ? c.classList.add('open') : c.classList.remove('open');
+    });
+  }
+  function updateScore() {
+    const total = document.querySelectorAll('.review-check input').length;
+    const checked = document.querySelectorAll('.review-check input:checked').length;
+    document.getElementById('score').textContent = `Reviewed: ${checked} / ${total}`;
+  }
+  // Close sidebar on link click (mobile)
+  document.querySelectorAll('.sidebar a').forEach(a => {
+    a.addEventListener('click', () => {
+      document.querySelector('.sidebar').classList.remove('open');
+    });
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,947 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Session 5: Structured and Unstructured Data, Data Sources, Quality & Governance</title>
+<style>
+:root{--bg:#0f172a;--surface:#1e293b;--surface2:#334155;--border:#475569;--text:#e2e8f0;--text-muted:#94a3b8;--code-bg:#0d1117;--accent:#ef4444;--accent-dim:rgba(239,68,68,.15);--accent-border:rgba(239,68,68,.3);--header-gradient:linear-gradient(135deg,#7f1d1d,#dc2626,#ef4444)}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);line-height:1.7;display:flex;min-height:100vh}
+.progress-bar{position:fixed;top:0;left:0;height:4px;background:var(--accent);z-index:1000;transition:width .2s}
+.sidebar{position:fixed;top:0;left:0;width:280px;height:100vh;background:var(--surface);border-right:1px solid var(--border);overflow-y:auto;padding:1.5rem 0;z-index:100;transition:transform .3s}
+.sidebar-header{padding:0 1.5rem 1.5rem;border-bottom:1px solid var(--border);margin-bottom:1rem}
+.sidebar-header h2{font-size:1rem;color:var(--accent);margin-bottom:.25rem}
+.sidebar-header p{font-size:.75rem;color:var(--text-muted)}
+.sidebar nav a{display:block;padding:.55rem 1.5rem;color:var(--text-muted);text-decoration:none;font-size:.85rem;border-left:3px solid transparent;transition:all .2s}
+.sidebar nav a:hover,.sidebar nav a.active{color:var(--accent);background:var(--accent-dim);border-left-color:var(--accent)}
+.sidebar nav a.sub{padding-left:2.5rem;font-size:.8rem}
+.sidebar-toggle{display:none;position:fixed;top:1rem;left:1rem;z-index:200;background:var(--surface);border:1px solid var(--border);color:var(--text);width:40px;height:40px;border-radius:8px;cursor:pointer;font-size:1.2rem}
+.main{margin-left:280px;flex:1;max-width:900px;padding:2rem 3rem 4rem}
+.page-header{background:var(--header-gradient);border-radius:16px;padding:2.5rem;margin-bottom:2.5rem;position:relative;overflow:hidden}
+.page-header::after{content:'';position:absolute;top:0;right:0;width:200px;height:100%;background:radial-gradient(circle at 80% 50%,rgba(255,255,255,.1),transparent);pointer-events:none}
+.page-header .badge{display:inline-block;background:rgba(0,0,0,.3);color:#fff;padding:.25rem .75rem;border-radius:20px;font-size:.75rem;margin-bottom:.75rem}
+.page-header h1{font-size:2rem;color:#fff;margin-bottom:.5rem}
+.page-header .meta{color:rgba(255,255,255,.8);font-size:.85rem}
+h2{font-size:1.5rem;color:var(--accent);margin:2.5rem 0 1rem;padding-bottom:.5rem;border-bottom:2px solid var(--accent-border)}
+h3{font-size:1.15rem;color:var(--text);margin:1.8rem 0 .8rem}
+h4{font-size:1rem;color:var(--accent);margin:1.2rem 0 .6rem}
+p{margin-bottom:1rem;color:var(--text)}
+strong{color:var(--text)}
+.table-wrap{overflow-x:auto;margin:1.2rem 0;border-radius:10px;border:1px solid var(--border)}
+table{width:100%;border-collapse:collapse;font-size:.88rem}
+thead th{background:var(--accent);color:#000;padding:.75rem 1rem;text-align:left;font-weight:600;white-space:nowrap}
+tbody tr:nth-child(even){background:var(--surface)}
+tbody tr:nth-child(odd){background:var(--surface2)}
+tbody tr:hover{background:var(--accent-dim)}
+td{padding:.7rem 1rem;border-top:1px solid var(--border);color:var(--text)}
+pre{background:var(--code-bg);border:1px solid var(--border);border-radius:10px;padding:1.2rem;overflow-x:auto;margin:1.2rem 0;font-size:.85rem;line-height:1.6}
+code{font-family:'Cascadia Code','Fira Code','Consolas',monospace;color:#e6edf3}
+p code,li code,td code{background:var(--code-bg);padding:.15rem .4rem;border-radius:4px;font-size:.85em;color:var(--accent)}
+.callout{background:var(--accent-dim);border-left:4px solid var(--accent);border-radius:0 10px 10px 0;padding:1rem 1.2rem;margin:1.2rem 0;font-size:.92rem}
+.callout p{margin:0;color:var(--text)}
+.callout em{color:var(--text-muted)}
+ul,ol{margin:0 0 1rem 1.5rem;color:var(--text)}
+li{margin-bottom:.4rem}
+li strong{color:var(--accent)}
+.back-top{position:fixed;bottom:2rem;right:2rem;width:44px;height:44px;background:var(--accent);color:#000;border:none;border-radius:50%;cursor:pointer;font-size:1.3rem;display:none;align-items:center;justify-content:center;box-shadow:0 4px 15px rgba(239,68,68,.3);transition:transform .2s,opacity .2s;z-index:100}
+.back-top:hover{transform:scale(1.1)}
+.back-top.show{display:flex}
+@media(max-width:900px){
+  .sidebar{transform:translateX(-100%)}
+  .sidebar.open{transform:translateX(0)}
+  .sidebar-toggle{display:flex;align-items:center;justify-content:center}
+  .main{margin-left:0;padding:2rem 1.2rem 4rem}
+}
+@media print{
+  .sidebar,.sidebar-toggle,.back-top,.progress-bar{display:none!important}
+  .main{margin-left:0;max-width:100%}
+  body{background:#fff;color:#000}
+  h2{color:#7f1d1d}
+  thead th{background:#ef4444;color:#000;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  tbody tr:nth-child(even){background:#f8f8f8}
+  tbody tr:nth-child(odd){background:#fff}
+  pre{border:1px solid #ccc;background:#f5f5f5}
+  code{color:#333}
+  .callout{background:#fce4ec;border-left-color:#ef4444}
+  .page-header{background:#ef4444!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+}
+</style>
+</head>
+<body>
+<div class="progress-bar" id="progress"></div>
+<button class="sidebar-toggle" id="sidebarToggle">&#9776;</button>
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <h2>SS ZG662</h2>
+    <p>Introduction to AI Systems</p>
+  </div>
+  <nav>
+    <a href="#table-of-contents">Table of Contents</a>
+    <a href="#5-1-structured-and-unstructured-data">5.1 Structured and Unstructured Data</a>
+    <a href="#why-does-data-matter-so-much-in-ai" class="sub">Why Does Data Matter So Much in AI?</a>
+    <a href="#three-types-of-data" class="sub">Three Types of Data</a>
+    <a href="#comparison-table" class="sub">Comparison Table</a>
+    <a href="#the-multimodal-reality" class="sub">The Multimodal Reality</a>
+    <a href="#5-2-data-sources-for-ai-systems">5.2 Data Sources for AI Systems</a>
+    <a href="#internal-data-sources-from-within-your-company" class="sub">Internal Data Sources (From Within Your Company)</a>
+    <a href="#external-data-sources-from-outside-your-company" class="sub">External Data Sources (From Outside Your Company)</a>
+    <a href="#important-considerations-when-collecting-data" class="sub">Important Considerations When Collecting Data</a>
+    <a href="#5-3-data-quality">5.3 Data Quality</a>
+    <a href="#why-data-quality-is-the-1-factor-in-ai-success" class="sub">Why Data Quality is the #1 Factor in AI Success</a>
+    <a href="#the-six-dimensions-of-data-quality" class="sub">The Six Dimensions of Data Quality</a>
+    <a href="#common-data-quality-problems-in-ml" class="sub">Common Data Quality Problems in ML</a>
+    <a href="#live-example-data-quality-issues-in-a-credit-scoring-system" class="sub">Live Example: Data Quality Issues in a Credit Scor...</a>
+    <a href="#5-4-data-governance">5.4 Data Governance</a>
+    <a href="#what-is-data-governance-simple" class="sub">What is Data Governance? (Simple)</a>
+    <a href="#why-data-governance-matters-for-ai-specifically" class="sub">Why Data Governance Matters for AI Specifically</a>
+    <a href="#key-components-of-data-governance" class="sub">Key Components of Data Governance</a>
+    <a href="#ai-specific-governance-challenges" class="sub">AI-Specific Governance Challenges</a>
+    <a href="#the-data-governance-lifecycle" class="sub">The Data Governance Lifecycle</a>
+    <a href="#live-example-facebook-cambridge-analytica-2018-governance-failure" class="sub">Live Example: Facebook/Cambridge Analytica (2018) ...</a>
+    <a href="#live-example-india-s-dpdp-act-2023-what-it-means-for-ai" class="sub">Live Example: India's DPDP Act (2023) — What It Me...</a>
+    <a href="#key-terms-glossary-session-5">Key Terms Glossary (Session 5)</a>
+  </nav>
+</aside>
+<main class="main">
+  <div class="page-header">
+    <span class="badge">Session 5</span>
+    <h1>Session 5: Structured and Unstructured Data, Data Sources, Quality & Governance</h1>
+    <div class="meta">Contact Session 5 | Module 2: Data and Feature Engineering</div>
+  </div>
+<h1 id="session-5-structured-and-unstructured-data-data-sources-quality-governance">Session 5: Structured and Unstructured Data, Data Sources, Quality &amp; Governance</h1>
+<div class="callout">
+<p>BITS Pilani — <strong>SS ZG662: Introduction to AI Systems</strong> — Instructor: Chandrasekhar Anantrama</p>
+<p><strong>References:</strong> T1 Chapter 3 (Data Engineering and Feature Engineering)</p>
+<p><strong>Contact Session:</strong> 5 (Module 2: Data and Feature Engineering)</p>
+</div>
+<hr />
+<h2 id="table-of-contents">Table of Contents</h2>
+<ul>
+<li><a href="#51-structured-and-unstructured-data">5.1 Structured and Unstructured Data</a></li>
+<li><a href="#52-data-sources-for-ai-systems">5.2 Data Sources for AI Systems</a></li>
+<li><a href="#53-data-quality">5.3 Data Quality</a></li>
+<li><a href="#54-data-governance">5.4 Data Governance</a></li>
+</ul>
+<hr />
+<h2 id="5-1-structured-and-unstructured-data">5.1 Structured and Unstructured Data</h2>
+<h3 id="why-does-data-matter-so-much-in-ai">Why Does Data Matter So Much in AI?</h3>
+<p>In normal software, the logic is in the <strong>code</strong> — a programmer writes rules, and the computer follows them. In AI/ML, the logic is in the <strong>data</strong> — the model learns its behaviour from the data it sees.</p>
+<div class="callout">
+<p><strong>Analogy:</strong> In traditional software, you're writing a recipe book (code). In AI, you're showing the system 10,000 cooked dishes and letting it figure out the recipes itself. If you show it bad food, it learns to cook bad food. <strong>Better data almost always beats a better model.</strong></p>
+</div>
+<p><strong>Key fact:</strong> Collecting, cleaning, and managing data takes up <strong>80% of a typical AI project's time</strong>. The actual model training is only 20%.</p>
+<h3 id="three-types-of-data">Three Types of Data</h3>
+<h4 id="1-structured-data-neat-rows-and-columns">1. Structured Data — "Neat rows and columns"</h4>
+<p><strong>What it is:</strong> Data organised in a fixed, predefined format — like a spreadsheet with rows and columns. Every record has the same fields.</p>
+<p><strong>Think of it as:</strong> A neatly filled school attendance register — every row is a student, every column is a date, every cell is "Present" or "Absent."</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Characteristic</th>
+<th>Explanation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Fixed schema</td>
+<td>Every row has the same columns with the same data types</td>
+</tr>
+<tr>
+<td>Easy to query</td>
+<td>You can use SQL to search and filter</td>
+</tr>
+<tr>
+<td>Stored in</td>
+<td>Relational databases (MySQL, PostgreSQL) or columnar stores (BigQuery, Redshift)</td>
+</tr>
+<tr>
+<td>Represents</td>
+<td>Transactional data — orders, payments, sensor readings</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Live Examples of Structured Data in AI:</strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Data</th>
+<th>What It Looks Like</th>
+<th>AI Use Case</th>
+<th>Company</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Customer transactions</td>
+<td>customer_id, amount, merchant, timestamp</td>
+<td><strong>Fraud detection</strong> — spot unusual spending patterns</td>
+<td><strong>HDFC Bank</strong> flags suspicious transactions in milliseconds</td>
+</tr>
+<tr>
+<td>Ride data</td>
+<td>pickup_lat, pickup_lng, dropoff_lat, dropoff_lng, time, fare</td>
+<td><strong>Surge pricing</strong> — predict demand in each area</td>
+<td><strong>Uber/Ola</strong> dynamically prices rides based on predicted demand</td>
+</tr>
+<tr>
+<td>Sensor readings</td>
+<td>sensor_id, temperature, pressure, vibration, timestamp</td>
+<td><strong>Predictive maintenance</strong> — predict machine failures</td>
+<td><strong>Tata Steel</strong> predicts equipment failures from sensor data</td>
+</tr>
+<tr>
+<td>User clickstream</td>
+<td>user_id, page_url, action, timestamp, session_id</td>
+<td><strong>Recommendation</strong> — predict what user wants to buy</td>
+<td><strong>Flipkart</strong> personalises product recommendations</td>
+</tr>
+</tbody>
+</table></div>
+<h4 id="2-unstructured-data-no-fixed-format">2. Unstructured Data — "No fixed format"</h4>
+<p><strong>What it is:</strong> Data without a predefined structure — each item can be completely different in format, length, and content. A photo is unstructured. A customer review is unstructured. An audio recording is unstructured.</p>
+<p><strong>Think of it as:</strong> A box of random notes, photos, voice recordings, and doodles. There's valuable information in there, but it's not organised.</p>
+<p><strong>Key fact:</strong> <strong>80-90% of all data generated globally is unstructured.</strong> Most of the world's information is in text, images, audio, and video — not in spreadsheets.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Data Type</th>
+<th>Examples</th>
+<th>AI Technique Used</th>
+<th>Live Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Text</strong></td>
+<td>Emails, reviews, documents, social media posts, chat messages</td>
+<td>NLP (Natural Language Processing), LLMs</td>
+<td><strong>Swiggy</strong> analyses restaurant reviews using NLP to identify complaints ("food was cold," "late delivery")</td>
+</tr>
+<tr>
+<td><strong>Images</strong></td>
+<td>Photos, medical scans, satellite images, product photos</td>
+<td>CNNs (Convolutional Neural Networks)</td>
+<td><strong>Lenskart</strong> uses AI to let you "try on" glasses virtually from your photo</td>
+</tr>
+<tr>
+<td><strong>Audio</strong></td>
+<td>Call centre recordings, voice messages, podcasts</td>
+<td>Speech Recognition</td>
+<td><strong>Jio</strong> transcribes millions of customer service calls to identify common issues</td>
+</tr>
+<tr>
+<td><strong>Video</strong></td>
+<td>CCTV footage, sports broadcasts, user-uploaded content</td>
+<td>Video Understanding</td>
+<td><strong>Hotstar</strong> uses AI to automatically generate highlights from cricket matches</td>
+</tr>
+<tr>
+<td><strong>Documents</strong></td>
+<td>PDFs, scanned forms, invoices, contracts</td>
+<td>OCR + NLP</td>
+<td><strong>ClearTax</strong> uses OCR to read scanned invoices and auto-fill tax forms</td>
+</tr>
+</tbody>
+</table></div>
+<h4 id="3-semi-structured-data-partially-organised">3. Semi-Structured Data — "Partially organised"</h4>
+<p><strong>What it is:</strong> Data that has some structure (tags, keys, nesting) but doesn't fit neatly into rows and columns. Each record can have different fields.</p>
+<p><strong>Think of it as:</strong> A resume — it has some standard sections (name, education, experience) but the content and format varies from person to person.</p>
+<p><strong>Common formats:</strong> JSON, XML, YAML, HTML, log files</p>
+<p><strong>Example — A Swiggy order event (JSON):</strong></p>
+<pre><code class="language-json">{
+  &quot;order_id&quot;: &quot;ORD-789456&quot;,
+  &quot;user_id&quot;: &quot;USR-12345&quot;,
+  &quot;timestamp&quot;: &quot;2025-09-07T19:30:00Z&quot;,
+  &quot;restaurant&quot;: {
+    &quot;id&quot;: &quot;REST-456&quot;,
+    &quot;name&quot;: &quot;Biryani Blues&quot;,
+    &quot;cuisine&quot;: &quot;Hyderabadi&quot;
+  },
+  &quot;items&quot;: [
+    {&quot;name&quot;: &quot;Chicken Biryani&quot;, &quot;qty&quot;: 2, &quot;price&quot;: 349},
+    {&quot;name&quot;: &quot;Raita&quot;, &quot;qty&quot;: 1, &quot;price&quot;: 49}
+  ],
+  &quot;delivery&quot;: {
+    &quot;address&quot;: &quot;Koramangala, Bangalore&quot;,
+    &quot;distance_km&quot;: 3.5,
+    &quot;driver_id&quot;: &quot;DRV-789&quot;
+  },
+  &quot;payment&quot;: {&quot;method&quot;: &quot;UPI&quot;, &quot;amount&quot;: 747}
+}
+</code></pre>
+<p>This has structured parts (order_id, price, amount) and variable parts (number of items varies, some orders have coupons, some don't). AI systems must <strong>parse and flatten</strong> this into features.</p>
+<h3 id="comparison-table">Comparison Table</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Aspect</th>
+<th>Structured</th>
+<th>Semi-Structured</th>
+<th>Unstructured</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Format</strong></td>
+<td>Fixed rows &amp; columns</td>
+<td>Flexible (JSON, XML)</td>
+<td>No format (raw text, images)</td>
+</tr>
+<tr>
+<td><strong>Schema</strong></td>
+<td>Predefined, rigid</td>
+<td>Self-describing, flexible</td>
+<td>None</td>
+</tr>
+<tr>
+<td><strong>Storage</strong></td>
+<td>SQL databases (MySQL, PostgreSQL)</td>
+<td>Document DBs (MongoDB), Data Lakes</td>
+<td>Object storage (S3), Media servers</td>
+</tr>
+<tr>
+<td><strong>How to query</strong></td>
+<td>SQL queries</td>
+<td>JSON path queries</td>
+<td>AI models (NLP, CV), vector search</td>
+</tr>
+<tr>
+<td><strong>% of enterprise data</strong></td>
+<td>~20%</td>
+<td>~10%</td>
+<td>~70%</td>
+</tr>
+<tr>
+<td><strong>ML approach</strong></td>
+<td>Tabular models (XGBoost, Random Forest)</td>
+<td>Parse first, then tabular</td>
+<td>Deep Learning (CNNs, Transformers)</td>
+</tr>
+<tr>
+<td><strong>Feature engineering</strong></td>
+<td>Easy (SQL aggregations)</td>
+<td>Medium (parsing + flattening)</td>
+<td>Hard (needs AI models to extract)</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="the-multimodal-reality">The Multimodal Reality</h3>
+<p>Modern AI increasingly works with <strong>multiple data types at once</strong> — this is called <strong>multimodal AI</strong>.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Application</th>
+<th>Data Types Combined</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>E-commerce search</td>
+<td>Text query + product images + purchase history (structured) + reviews (text)</td>
+<td>You search "red running shoes" on Amazon → AI uses your text, product images, your past purchases, and review sentiments to rank results</td>
+</tr>
+<tr>
+<td>Healthcare diagnosis</td>
+<td>Patient records (structured) + X-ray images (unstructured) + doctor's notes (text)</td>
+<td>AI combines lab results, X-ray, and doctor's notes to suggest a diagnosis</td>
+</tr>
+<tr>
+<td>Self-driving cars</td>
+<td>Camera images + LiDAR 3D data + GPS coordinates (structured)</td>
+<td>Waymo fuses camera, LiDAR, and GPS to understand the road</td>
+</tr>
+</tbody>
+</table></div>
+<div class="callout">
+<p><strong>Trend:</strong> Models like GPT-4o and Gemini are <strong>multimodal foundation models</strong> — they can process text, images, and audio in one model simultaneously.</p>
+</div>
+<hr />
+<h2 id="5-2-data-sources-for-ai-systems">5.2 Data Sources for AI Systems</h2>
+<p>AI systems consume data from many places. Knowing these sources helps you design good data pipelines.</p>
+<h3 id="internal-data-sources-from-within-your-company">Internal Data Sources (From Within Your Company)</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Source</th>
+<th>What Data It Has</th>
+<th>AI Use Case Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Transactional databases</strong></td>
+<td>Core business data — orders, payments, customer records</td>
+<td>Flipkart's order database → product recommendation model</td>
+</tr>
+<tr>
+<td><strong>Application logs</strong></td>
+<td>User behaviour — what pages visited, what buttons clicked, errors</td>
+<td>Hotstar's app logs → "Continue Watching" recommendations</td>
+</tr>
+<tr>
+<td><strong>CRM systems</strong></td>
+<td>Customer interactions — support tickets, sales pipeline</td>
+<td>Freshworks' CRM data → predict which customers will churn</td>
+</tr>
+<tr>
+<td><strong>Data warehouse / Data lake</strong></td>
+<td>Historical, cleaned, aggregated data</td>
+<td>Swiggy's data warehouse → weekly demand forecasting</td>
+</tr>
+<tr>
+<td><strong>User-generated content</strong></td>
+<td>Reviews, ratings, comments, uploads</td>
+<td>Zomato's restaurant reviews → identify food quality issues</td>
+</tr>
+<tr>
+<td><strong>IoT / Sensor data</strong></td>
+<td>Real-time readings from devices</td>
+<td>Tata Steel's factory sensors → predictive maintenance</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="external-data-sources-from-outside-your-company">External Data Sources (From Outside Your Company)</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Source</th>
+<th>What Data It Has</th>
+<th>AI Use Case Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Public datasets</strong></td>
+<td>Free data for research</td>
+<td>ImageNet (14M labelled images), Wikipedia, Government open data portals (data.gov.in)</td>
+</tr>
+<tr>
+<td><strong>Third-party providers</strong></td>
+<td>Commercial data — demographics, weather, financial</td>
+<td>AccuWeather API for Swiggy's delivery time prediction (rain affects delivery)</td>
+</tr>
+<tr>
+<td><strong>APIs</strong></td>
+<td>Real-time data from external services</td>
+<td>Google Maps API for distance/traffic data in ride-hailing apps</td>
+</tr>
+<tr>
+<td><strong>Web scraping</strong></td>
+<td>Data extracted from public websites (legal/ethical considerations apply)</td>
+<td>Price comparison apps scraping product prices from multiple e-commerce sites</td>
+</tr>
+<tr>
+<td><strong>Pre-trained model outputs</strong></td>
+<td>Embeddings, classifications from existing AI models</td>
+<td>Using GPT-4 to generate synthetic training data for a chatbot</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="important-considerations-when-collecting-data">Important Considerations When Collecting Data</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Consideration</th>
+<th>Why It Matters</th>
+<th>Real Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Sampling Bias</strong></td>
+<td>If training data isn't representative, model performs poorly on underrepresented groups</td>
+<td>A facial recognition system trained mostly on light-skinned faces <strong>fails</strong> on dark-skinned faces — happened with early commercial systems</td>
+</tr>
+<tr>
+<td><strong>Label Quality</strong></td>
+<td>Wrong labels = model learns wrong patterns</td>
+<td>Medical dataset where 5% of "healthy" scans actually contain undetected tumours → model learns to miss tumours</td>
+</tr>
+<tr>
+<td><strong>Privacy / Legal</strong></td>
+<td>Personal data requires consent and compliance with laws (GDPR, India's DPDP Act)</td>
+<td>Can't use customer purchase data for ML without explicit consent. Violation = heavy fines.</td>
+</tr>
+<tr>
+<td><strong>Freshness</strong></td>
+<td>Stale data may not reflect current reality</td>
+<td>Fraud detection model trained on 2020 data misses new 2025 scam techniques</td>
+</tr>
+<tr>
+<td><strong>Quality over Quantity</strong></td>
+<td>10,000 high-quality labelled examples often beat 1 million noisy ones</td>
+<td>Carefully curated medical images with expert annotations &gt;&gt; mass-scraped internet images</td>
+</tr>
+</tbody>
+</table></div>
+<hr />
+<h2 id="5-3-data-quality">5.3 Data Quality</h2>
+<h3 id="why-data-quality-is-the-1-factor-in-ai-success">Why Data Quality is the #1 Factor in AI Success</h3>
+<div class="callout">
+<p><strong>Simple truth:</strong> A simple model on clean data will almost always beat a complex model on dirty data.</p>
+</div>
+<p>Google's own research found that <strong>fixing data quality improved model performance more than switching to a fancier model</strong>. Yet most teams spend their time tuning models instead of cleaning data.</p>
+<h3 id="the-six-dimensions-of-data-quality">The Six Dimensions of Data Quality</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Dimension</th>
+<th>What It Means (Simple)</th>
+<th>Bad Quality Example</th>
+<th>Impact on AI</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Accuracy</strong></td>
+<td>Data values are correct</td>
+<td>Customer age recorded as 150 (typo — should be 15)</td>
+<td>Model learns wrong patterns from incorrect facts</td>
+</tr>
+<tr>
+<td><strong>Completeness</strong></td>
+<td>No missing values where they should exist</td>
+<td>30% of rows missing "income" field</td>
+<td>Model either skips these rows (losing data) or guesses wrong values</td>
+</tr>
+<tr>
+<td><strong>Consistency</strong></td>
+<td>Same thing represented the same way everywhere</td>
+<td>"India" in one table, "IN" in another, "Bharat" in a third</td>
+<td>Joins fail. Model treats them as 3 different countries.</td>
+</tr>
+<tr>
+<td><strong>Timeliness</strong></td>
+<td>Data reflects current reality</td>
+<td>Inventory data is 24 hours old in a real-time app</td>
+<td>Swiggy recommends a restaurant that already closed for the night</td>
+</tr>
+<tr>
+<td><strong>Validity</strong></td>
+<td>Data follows expected format and rules</td>
+<td>Phone number field contains "abc@email.com"</td>
+<td>Feature parsing crashes or produces garbage</td>
+</tr>
+<tr>
+<td><strong>Uniqueness</strong></td>
+<td>No unintended duplicates</td>
+<td>Same customer appears 3 times (Rahul, RAHUL, rahul sharma)</td>
+<td>Model over-weights this customer. Training data is inflated.</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="common-data-quality-problems-in-ml">Common Data Quality Problems in ML</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Problem</th>
+<th>What Happens</th>
+<th>How to Detect</th>
+<th>How to Fix</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Missing values</strong></td>
+<td>Rows with empty/NULL fields</td>
+<td><code>df.isnull().sum()</code> in Python</td>
+<td>Fill with average (imputation), drop rows, or use models that handle NULLs (XGBoost)</td>
+</tr>
+<tr>
+<td><strong>Outliers</strong></td>
+<td>Extreme values far from normal</td>
+<td>Box plots, z-score &gt; 3</td>
+<td>Clip extremes, apply log transform, or investigate (fraud IS an outlier — it's real signal!)</td>
+</tr>
+<tr>
+<td><strong>Duplicate records</strong></td>
+<td>Same entity appears multiple times</td>
+<td>Deduplicate by key fields, fuzzy matching for near-duplicates</td>
+<td>Remove duplicates. But careful — same person buying same item twice is legitimate!</td>
+</tr>
+<tr>
+<td><strong>Label noise</strong></td>
+<td>Wrong labels in training data</td>
+<td>Manual audit of random sample. Multiple annotators per sample.</td>
+<td>Clean labels, use noise-tolerant training methods</td>
+</tr>
+<tr>
+<td><strong>Data leakage</strong></td>
+<td>Future information "leaks" into training data</td>
+<td>Check that no test-time features exist in training</td>
+<td>Strict train/test split. Ensure temporal ordering.</td>
+</tr>
+<tr>
+<td><strong>Class imbalance</strong></td>
+<td>One class has far more examples than others</td>
+<td>Check <code>value_counts()</code> on target column</td>
+<td>Oversampling (SMOTE), undersampling, or adjust class weights</td>
+</tr>
+<tr>
+<td><strong>Schema drift</strong></td>
+<td>Data format changes over time (new columns, changed types)</td>
+<td>Schema validation tools</td>
+<td>Automated schema enforcement + alerts</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="live-example-data-quality-issues-in-a-credit-scoring-system">Live Example: Data Quality Issues in a Credit Scoring System</h3>
+<p>Imagine HDFC Bank is building a credit scoring model to decide loan approvals:</p>
+<pre><code>ISSUE 1: MISSING VALUES
+─────────────────────
+15% of applicants have no &quot;employment_years&quot; field.
+Team imputes with median value (5 years).
+BUT: Missing likely means UNEMPLOYED → should be 0, not 5.
+Result: Model underestimates risk for unemployed applicants.
+→ Bank approves risky loans → higher default rate.
+
+ISSUE 2: DATA LEAKAGE
+─────────────────────
+Training data includes &quot;credit_bureau_score&quot; as a feature.
+BUT: Credit bureau score is updated AFTER the loan decision.
+This is future information leaking into training!
+Model looks amazing in testing (99% accuracy) but fails
+in production (doesn't have this feature at prediction time).
+
+ISSUE 3: SAMPLING BIAS
+─────────────────────
+Training data is from 2018-2023. Bank only served urban
+professionals until 2022, then expanded to rural areas.
+Rural applicants are underrepresented in training data.
+Result: Model performs poorly for rural customers.
+→ Good rural applicants wrongly denied loans.
+
+ISSUE 4: CLASS IMBALANCE
+────────────────────────
+Only 2% of loans default. 98% are paid back.
+Model learns to predict &quot;no default&quot; for EVERYONE.
+Result: 98% accuracy (sounds great!) but catches 0% of
+actual defaults (completely useless!).
+Fix: Use class weights, SMOTE oversampling, or
+     change the decision threshold.
+</code></pre>
+<p>Each of these issues <strong>silently degrades</strong> the model — there's no crash or error message. This is why data quality is so important.</p>
+<hr />
+<h2 id="5-4-data-governance">5.4 Data Governance</h2>
+<h3 id="what-is-data-governance-simple">What is Data Governance? (Simple)</h3>
+<p><strong>Data governance</strong> is the set of <strong>rules, processes, and responsibilities</strong> that ensure data is managed properly — securely, consistently, and in compliance with laws.</p>
+<div class="callout">
+<p><strong>Analogy:</strong> Think of data governance like traffic rules. Without traffic rules, cars would crash everywhere. Similarly, without data governance, teams use data incorrectly, violate privacy laws, and build biased AI models. The rules keep everything safe and organised.</p>
+</div>
+<h3 id="why-data-governance-matters-for-ai-specifically">Why Data Governance Matters for AI Specifically</h3>
+<p>In traditional analytics, poor governance = wrong reports (annoying but survivable).
+In AI, poor governance = <strong>serious consequences:</strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Problem</th>
+<th>What Happens</th>
+<th>Real Impact</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Models trained on unauthorized data</td>
+<td>Legal liability, regulatory fines</td>
+<td>GDPR fine: up to <strong>4% of global revenue</strong>. India's DPDP Act: up to Rs 250 crore.</td>
+</tr>
+<tr>
+<td>Models reproduce biases in data</td>
+<td>Discriminatory predictions</td>
+<td>Amazon had to scrap a hiring AI because it discriminated against women (trained on 10 years of male-dominated hiring data)</td>
+</tr>
+<tr>
+<td>No audit trail</td>
+<td>Can't explain model decisions to regulators</td>
+<td>Banks required by RBI to explain why a loan was denied. If your AI can't explain, you're in trouble.</td>
+</tr>
+<tr>
+<td>Inconsistent data across teams</td>
+<td>Different teams get different "truth"</td>
+<td>Marketing model says 1M active users, Finance model says 800K. Which is right?</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="key-components-of-data-governance">Key Components of Data Governance</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Component</th>
+<th>What It Means (Simple)</th>
+<th>Why AI Needs It</th>
+<th>Live Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Data Ownership</strong></td>
+<td>Who is responsible for each data source?</td>
+<td>Clear accountability. Know who to ask when questions arise.</td>
+<td>"Customer data is owned by the CRM team. They approve access."</td>
+</tr>
+<tr>
+<td><strong>Data Access Control</strong></td>
+<td>Who can access what data, for what purpose?</td>
+<td>Prevent unauthorized use of sensitive data in ML</td>
+<td>PhonePe's payment data: only approved ML team can access, with audit logs</td>
+</tr>
+<tr>
+<td><strong>Data Lineage</strong></td>
+<td>Tracking where data came from and how it was transformed</td>
+<td>If a model prediction is wrong, trace back to find the data that caused it</td>
+<td>"This feature came from table X → joined with Y → aggregated by Z → fed to model"</td>
+</tr>
+<tr>
+<td><strong>Data Cataloging</strong></td>
+<td>Central inventory of all data assets</td>
+<td>Data scientists can discover what data exists without asking 10 people</td>
+<td>Tools: <strong>Alation</strong>, <strong>DataHub</strong>, <strong>Apache Atlas</strong></td>
+</tr>
+<tr>
+<td><strong>Privacy &amp; Compliance</strong></td>
+<td>Following laws — GDPR (EU), DPDP Act (India), HIPAA (US healthcare)</td>
+<td>ML models can memorise and leak personal data</td>
+<td>Anonymise PII before ML training. Implement "right to be forgotten."</td>
+</tr>
+<tr>
+<td><strong>Data Retention</strong></td>
+<td>How long data is kept and when deleted</td>
+<td>Regulatory requirement + stale data hurts model quality</td>
+<td>"Clickstream data: keep 2 years. Personal data: delete 1 year after account closure."</td>
+</tr>
+<tr>
+<td><strong>Quality Standards</strong></td>
+<td>Defined thresholds for data quality</td>
+<td>Prevent bad data from entering training pipelines</td>
+<td>"Completeness must be &gt; 95%. Freshness must be &lt; 1 hour for real-time features."</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="ai-specific-governance-challenges">AI-Specific Governance Challenges</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Challenge</th>
+<th>Why It's Hard</th>
+<th>Solution</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>What data trained the model?</strong></td>
+<td>Need to know exactly which data, which version, when collected</td>
+<td><strong>Data cards</strong> — standardised documentation for each dataset</td>
+</tr>
+<tr>
+<td><strong>Consent for ML use</strong></td>
+<td>Users may consent to data collection for the service but not for ML training</td>
+<td>Separate, explicit consent for ML use</td>
+</tr>
+<tr>
+<td><strong>Right to be forgotten</strong></td>
+<td>Under GDPR/DPDP, users can request data deletion. But model was already trained on it.</td>
+<td><strong>Machine unlearning</strong> — retrain without the deleted data</td>
+</tr>
+<tr>
+<td><strong>Bias auditing</strong></td>
+<td>Historical data encodes biases (gender, race, age). Models perpetuate these.</td>
+<td>Regular bias audits. Fairness metrics. Bias-aware training.</td>
+</tr>
+<tr>
+<td><strong>Reproducibility</strong></td>
+<td>To audit a model, you need the exact data, code, and environment</td>
+<td><strong>DVC</strong> (data versioning), <strong>Git</strong> (code versioning), <strong>Docker</strong> (environment versioning)</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="the-data-governance-lifecycle">The Data Governance Lifecycle</h3>
+<pre><code>1. DISCOVER   → What data exists? Where? Who owns it?
+                (Use a Data Catalog like Alation or DataHub)
+
+2. CLASSIFY   → Is it PII? Sensitive? Regulated?
+                (Tag data: &quot;public&quot;, &quot;internal&quot;, &quot;confidential&quot;, &quot;restricted&quot;)
+
+3. PROTECT    → Encrypt sensitive data. Control who can access it.
+                (Access control lists, encryption at rest and in transit)
+
+4. COMPLY     → Follow GDPR, DPDP Act, HIPAA. Manage consent.
+                (Consent management platform, privacy impact assessments)
+
+5. MONITOR    → Data quality checks. Access audit logs. Lineage tracking.
+                (Great Expectations for quality, audit logs for access)
+
+6. GOVERN     → Policies, standards, ownership, stewardship.
+                (People + Process + Technology)
+</code></pre>
+<h3 id="live-example-facebook-cambridge-analytica-2018-governance-failure">Live Example: Facebook/Cambridge Analytica (2018) — Governance Failure</h3>
+<p>This is the most famous data governance failure in history:</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>What Happened</th>
+<th>Governance Failure</th>
+<th>Consequence</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A quiz app on Facebook collected user data</td>
+<td>No proper access control on third-party data access</td>
+<td>87 million users' data harvested without consent</td>
+</tr>
+<tr>
+<td>Data shared with Cambridge Analytica</td>
+<td>No audit trail for data sharing</td>
+<td>Data used for targeted political ads in US and UK elections</td>
+</tr>
+<tr>
+<td>Users never consented to political targeting</td>
+<td>No consent verification for secondary use</td>
+<td>Public outrage, congressional hearings</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td><strong>$5 billion FTC fine</strong> + massive reputation damage</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>Catalysed GDPR enforcement globally</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Lesson:</strong> Data governance isn't "nice to have" compliance paperwork — it has existential business implications.</p>
+<h3 id="live-example-india-s-dpdp-act-2023-what-it-means-for-ai">Live Example: India's DPDP Act (2023) — What It Means for AI</h3>
+<p>India's <strong>Digital Personal Data Protection Act (DPDP, 2023)</strong> directly impacts AI systems:</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>DPDP Requirement</th>
+<th>Impact on AI</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Must get consent before collecting personal data</td>
+<td>Can't scrape user data for ML training without consent</td>
+</tr>
+<tr>
+<td>Users can request data deletion</td>
+<td>Must be able to retrain models without a specific user's data</td>
+</tr>
+<tr>
+<td>Must appoint a Data Protection Officer</td>
+<td>Someone must be responsible for AI data governance</td>
+</tr>
+<tr>
+<td>Penalties up to Rs 250 crore</td>
+<td>Non-compliance is very expensive</td>
+</tr>
+<tr>
+<td>Data can only be used for the stated purpose</td>
+<td>If you collect data for "service delivery," you can't use it for "ML training" without separate consent</td>
+</tr>
+</tbody>
+</table></div>
+<hr />
+<h2 id="key-terms-glossary-session-5">Key Terms Glossary (Session 5)</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Term</th>
+<th>Simple Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Structured Data</strong></td>
+<td>Data in fixed rows and columns (like a spreadsheet). Easy to query with SQL.</td>
+</tr>
+<tr>
+<td><strong>Unstructured Data</strong></td>
+<td>Data without fixed format — text, images, audio, video. Needs AI to process.</td>
+</tr>
+<tr>
+<td><strong>Semi-Structured Data</strong></td>
+<td>Partially organised data — JSON, XML, logs. Has some structure but flexible.</td>
+</tr>
+<tr>
+<td><strong>Multimodal AI</strong></td>
+<td>AI that processes multiple data types (text + images + audio) simultaneously</td>
+</tr>
+<tr>
+<td><strong>Data Drift</strong></td>
+<td>When real-world data changes compared to what the model was trained on</td>
+</tr>
+<tr>
+<td><strong>Data Leakage</strong></td>
+<td>When future or test information accidentally gets into training data</td>
+</tr>
+<tr>
+<td><strong>Class Imbalance</strong></td>
+<td>When one category has far more examples than others in training data</td>
+</tr>
+<tr>
+<td><strong>Imputation</strong></td>
+<td>Filling in missing values with estimated values (mean, median, etc.)</td>
+</tr>
+<tr>
+<td><strong>PII (Personally Identifiable Information)</strong></td>
+<td>Data that can identify a person — name, email, phone, Aadhaar number</td>
+</tr>
+<tr>
+<td><strong>GDPR</strong></td>
+<td>EU's data protection law. Fines up to 4% of global revenue.</td>
+</tr>
+<tr>
+<td><strong>DPDP Act</strong></td>
+<td>India's data protection law (2023). Fines up to Rs 250 crore.</td>
+</tr>
+<tr>
+<td><strong>Data Lineage</strong></td>
+<td>Tracking where data came from and how it was transformed</td>
+</tr>
+<tr>
+<td><strong>Data Catalog</strong></td>
+<td>A searchable inventory of all data assets in an organisation</td>
+</tr>
+<tr>
+<td><strong>Machine Unlearning</strong></td>
+<td>Removing the effect of specific data from a trained model</td>
+</tr>
+</tbody>
+</table></div>
+<hr />
+<p><em>End of Session 5</em></p>
+</main>
+<button class="back-top" id="backTop" title="Back to top">&#8593;</button>
+<script>
+const bar=document.getElementById('progress');
+const btn=document.getElementById('backTop');
+const toggle=document.getElementById('sidebarToggle');
+const sidebar=document.getElementById('sidebar');
+window.addEventListener('scroll',()=>{
+  const s=document.documentElement.scrollTop;
+  const h=document.documentElement.scrollHeight-document.documentElement.clientHeight;
+  bar.style.width=(s/h*100)+'%';
+  btn.classList.toggle('show',s>400);
+});
+btn.onclick=()=>window.scrollTo({top:0,behavior:'smooth'});
+toggle.onclick=()=>sidebar.classList.toggle('open');
+// Active sidebar link
+const links=document.querySelectorAll('.sidebar nav a');
+const obs=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{if(e.isIntersecting){
+    links.forEach(l=>l.classList.remove('active'));
+    const a=document.querySelector('.sidebar nav a[href="#'+e.target.id+'"]');
+    if(a)a.classList.add('active');
+  }});
+},{rootMargin:'-20% 0px -70% 0px'});
+document.querySelectorAll('h2[id],h3[id]').forEach(h=>obs.observe(h));
+</script>
+</body>
+</html>

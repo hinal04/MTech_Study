@@ -1,0 +1,2004 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Session 7: Questions and Answers</title>
+<style>
+:root{--bg:#0f172a;--surface:#1e293b;--surface2:#334155;--border:#475569;--text:#e2e8f0;--text-muted:#94a3b8;--code-bg:#0d1117;--accent:#f97316;--accent-dim:rgba(249,115,22,.15);--accent-border:rgba(249,115,22,.3);--header-gradient:linear-gradient(135deg,#7c2d12,#ea580c,#f97316)}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);line-height:1.7;display:flex;min-height:100vh}
+.progress-bar{position:fixed;top:0;left:0;height:4px;background:var(--accent);z-index:1000;transition:width .2s}
+.sidebar{position:fixed;top:0;left:0;width:280px;height:100vh;background:var(--surface);border-right:1px solid var(--border);overflow-y:auto;padding:1.5rem 0;z-index:100;transition:transform .3s}
+.sidebar-header{padding:0 1.5rem 1.5rem;border-bottom:1px solid var(--border);margin-bottom:1rem}
+.sidebar-header h2{font-size:1rem;color:var(--accent);margin-bottom:.25rem}
+.sidebar-header p{font-size:.75rem;color:var(--text-muted)}
+.sidebar nav a{display:block;padding:.55rem 1.5rem;color:var(--text-muted);text-decoration:none;font-size:.85rem;border-left:3px solid transparent;transition:all .2s}
+.sidebar nav a:hover,.sidebar nav a.active{color:var(--accent);background:var(--accent-dim);border-left-color:var(--accent)}
+.sidebar nav a.sub{padding-left:2.5rem;font-size:.8rem}
+.sidebar-toggle{display:none;position:fixed;top:1rem;left:1rem;z-index:200;background:var(--surface);border:1px solid var(--border);color:var(--text);width:40px;height:40px;border-radius:8px;cursor:pointer;font-size:1.2rem}
+.main{margin-left:280px;flex:1;max-width:900px;padding:2rem 3rem 4rem}
+.page-header{background:var(--header-gradient);border-radius:16px;padding:2.5rem;margin-bottom:2.5rem;position:relative;overflow:hidden}
+.page-header::after{content:'';position:absolute;top:0;right:0;width:200px;height:100%;background:radial-gradient(circle at 80% 50%,rgba(255,255,255,.1),transparent);pointer-events:none}
+.page-header .badge{display:inline-block;background:rgba(0,0,0,.3);color:#fff;padding:.25rem .75rem;border-radius:20px;font-size:.75rem;margin-bottom:.75rem}
+.page-header h1{font-size:2rem;color:#fff;margin-bottom:.5rem}
+.page-header .meta{color:rgba(255,255,255,.8);font-size:.85rem}
+h2{font-size:1.5rem;color:var(--accent);margin:2.5rem 0 1rem;padding-bottom:.5rem;border-bottom:2px solid var(--accent-border)}
+h3{font-size:1.15rem;color:var(--text);margin:1.8rem 0 .8rem}
+h4{font-size:1rem;color:var(--accent);margin:1.2rem 0 .6rem}
+p{margin-bottom:1rem;color:var(--text)}
+strong{color:var(--text)}
+.table-wrap{overflow-x:auto;margin:1.2rem 0;border-radius:10px;border:1px solid var(--border)}
+table{width:100%;border-collapse:collapse;font-size:.88rem}
+thead th{background:var(--accent);color:#000;padding:.75rem 1rem;text-align:left;font-weight:600;white-space:nowrap}
+tbody tr:nth-child(even){background:var(--surface)}
+tbody tr:nth-child(odd){background:var(--surface2)}
+tbody tr:hover{background:var(--accent-dim)}
+td{padding:.7rem 1rem;border-top:1px solid var(--border);color:var(--text)}
+pre{background:var(--code-bg);border:1px solid var(--border);border-radius:10px;padding:1.2rem;overflow-x:auto;margin:1.2rem 0;font-size:.85rem;line-height:1.6}
+code{font-family:'Cascadia Code','Fira Code','Consolas',monospace;color:#e6edf3}
+p code,li code,td code{background:var(--code-bg);padding:.15rem .4rem;border-radius:4px;font-size:.85em;color:var(--accent)}
+.callout{background:var(--accent-dim);border-left:4px solid var(--accent);border-radius:0 10px 10px 0;padding:1rem 1.2rem;margin:1.2rem 0;font-size:.92rem}
+.callout p{margin:0;color:var(--text)}
+.callout em{color:var(--text-muted)}
+ul,ol{margin:0 0 1rem 1.5rem;color:var(--text)}
+li{margin-bottom:.4rem}
+li strong{color:var(--accent)}
+.back-top{position:fixed;bottom:2rem;right:2rem;width:44px;height:44px;background:var(--accent);color:#000;border:none;border-radius:50%;cursor:pointer;font-size:1.3rem;display:none;align-items:center;justify-content:center;box-shadow:0 4px 15px rgba(249,115,22,.3);transition:transform .2s,opacity .2s;z-index:100}
+.back-top:hover{transform:scale(1.1)}
+.back-top.show{display:flex}
+@media(max-width:900px){
+  .sidebar{transform:translateX(-100%)}
+  .sidebar.open{transform:translateX(0)}
+  .sidebar-toggle{display:flex;align-items:center;justify-content:center}
+  .main{margin-left:0;padding:2rem 1.2rem 4rem}
+}
+@media print{
+  .sidebar,.sidebar-toggle,.back-top,.progress-bar{display:none!important}
+  .main{margin-left:0;max-width:100%}
+  body{background:#fff;color:#000}
+  h2{color:#7c2d12}
+  thead th{background:#f97316;color:#000;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  tbody tr:nth-child(even){background:#f8f8f8}
+  tbody tr:nth-child(odd){background:#fff}
+  pre{border:1px solid #ccc;background:#f5f5f5}
+  code{color:#333}
+  .callout{background:#fff3e0;border-left-color:#f97316}
+  .page-header{background:#f97316!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+}
+</style>
+</head>
+<body>
+<div class="progress-bar" id="progress"></div>
+<button class="sidebar-toggle" id="sidebarToggle">&#9776;</button>
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <h2>SS ZG662</h2>
+    <p>Introduction to AI Systems</p>
+  </div>
+  <nav>
+    <a href="#q1-what-is-feature-engineering-why-is-it-considered-the-most-important-step-in-ml">Q1: What is Feature Engineering? Why is it conside...</a>
+    <a href="#q2-what-is-the-difference-between-raw-data-and-features-give-examples">Q2: What is the difference between Raw Data and Fe...</a>
+    <a href="#q3-explain-feature-extraction-from-different-data-types-structured-text-image-and-audio">Q3: Explain Feature Extraction from different data...</a>
+    <a href="#from-structured-data-easiest" class="sub">From Structured Data (easiest)</a>
+    <a href="#from-text-data" class="sub">From Text Data</a>
+    <a href="#from-image-data" class="sub">From Image Data</a>
+    <a href="#from-audio-data" class="sub">From Audio Data</a>
+    <a href="#q4-what-are-the-main-feature-transformation-techniques-explain-each-with-examples">Q4: What are the main Feature Transformation techn...</a>
+    <a href="#1-feature-scaling-normalisation-standardisation" class="sub">1. Feature Scaling (Normalisation/Standardisation)</a>
+    <a href="#2-encoding-categorical-variables" class="sub">2. Encoding Categorical Variables</a>
+    <a href="#3-handling-missing-values" class="sub">3. Handling Missing Values</a>
+    <a href="#4-binning-discretisation" class="sub">4. Binning (Discretisation)</a>
+    <a href="#5-interaction-features" class="sub">5. Interaction Features</a>
+    <a href="#q5-explain-the-three-approaches-to-feature-selection-filter-wrapper-and-embedded-methods">Q5: Explain the three approaches to Feature Select...</a>
+    <a href="#1-filter-methods-fast-simple" class="sub">1. Filter Methods (Fast, simple)</a>
+    <a href="#2-wrapper-methods-accurate-slow" class="sub">2. Wrapper Methods (Accurate, slow)</a>
+    <a href="#3-embedded-methods-best-balance" class="sub">3. Embedded Methods (Best balance)</a>
+    <a href="#q6-what-are-feature-embeddings-why-are-they-important-for-modern-ai">Q6: What are Feature Embeddings? Why are they impo...</a>
+    <a href="#q7-design-features-for-a-fraud-detection-system-at-hdfc-bank">Q7: Design features for a Fraud Detection system a...</a>
+    <a href="#q8-design-features-for-a-product-recommendation-system-at-flipkart">Q8: Design features for a Product Recommendation s...</a>
+    <a href="#q9-design-features-for-delivery-eta-prediction-at-swiggy">Q9: Design features for Delivery ETA prediction at...</a>
+    <a href="#q10-what-is-the-difference-between-feature-extraction-and-feature-selection-why-do-we-need-both">Q10: What is the difference between Feature Extrac...</a>
+    <a href="#q11-explain-one-hot-encoding-vs-label-encoding-when-should-you-use-each">Q11: Explain One-Hot Encoding vs Label Encoding. W...</a>
+    <a href="#one-hot-encoding" class="sub">One-Hot Encoding</a>
+    <a href="#label-encoding" class="sub">Label Encoding</a>
+    <a href="#q12-what-is-pca-principal-component-analysis-when-should-you-use-it">Q12: What is PCA (Principal Component Analysis)? W...</a>
+    <a href="#q13-scenario-you-re-building-a-model-to-predict-house-prices-in-bangalore-what-features-would-you-engineer">Q13: Scenario — You're building a model to predict...</a>
+    <a href="#q14-how-do-you-handle-a-categorical-feature-with-10-000-unique-values-high-cardinality-give-4-approaches">Q14: How do you handle a categorical feature with ...</a>
+    <a href="#approach-1-target-encoding-mean-encoding" class="sub">Approach 1: Target Encoding (Mean Encoding)</a>
+    <a href="#approach-2-frequency-encoding" class="sub">Approach 2: Frequency Encoding</a>
+    <a href="#approach-3-embedding-neural-network-approach" class="sub">Approach 3: Embedding (Neural Network approach)</a>
+    <a href="#approach-4-grouping-bucketing" class="sub">Approach 4: Grouping/Bucketing</a>
+    <a href="#q15-what-is-the-curse-of-dimensionality-how-does-feature-engineering-help-address-it">Q15: What is the "Curse of Dimensionality"? How do...</a>
+    <a href="#q16-explain-interaction-features-and-polynomial-features-with-examples-when-are-they-useful">Q16: Explain Interaction Features and Polynomial F...</a>
+    <a href="#interaction-features" class="sub">Interaction Features</a>
+    <a href="#polynomial-features" class="sub">Polynomial Features</a>
+    <a href="#q17-scenario-you-re-building-a-customer-churn-prediction-model-for-jio-design-the-features">Q17: Scenario — You're building a customer churn p...</a>
+    <a href="#q18-what-are-the-common-mistakes-in-feature-engineering-how-to-avoid-them">Q18: What are the common mistakes in Feature Engin...</a>
+    <a href="#mistake-1-data-leakage-in-features" class="sub">Mistake 1: Data Leakage in Features</a>
+    <a href="#mistake-2-not-handling-missing-values-properly" class="sub">Mistake 2: Not Handling Missing Values Properly</a>
+    <a href="#mistake-3-encoding-nominal-features-as-ordinal" class="sub">Mistake 3: Encoding Nominal Features as Ordinal</a>
+    <a href="#mistake-4-not-scaling-before-distance-based-models" class="sub">Mistake 4: Not Scaling Before Distance-Based Model...</a>
+    <a href="#mistake-5-creating-too-many-features-without-selection" class="sub">Mistake 5: Creating Too Many Features Without Sele...</a>
+    <a href="#mistake-6-ignoring-feature-interactions" class="sub">Mistake 6: Ignoring Feature Interactions</a>
+    <a href="#mistake-7-fitting-transformations-on-test-data" class="sub">Mistake 7: Fitting Transformations on Test Data</a>
+    <a href="#q19-how-does-feature-engineering-differ-for-traditional-ml-vs-deep-learning">Q19: How does Feature Engineering differ for Tradi...</a>
+    <a href="#q20-scenario-you-have-200-raw-features-for-predicting-flipkart-customer-lifetime-value-walk-through-the-complete-feature-engineering-pipeline">Q20: Scenario — You have 200 raw features for pred...</a>
+  </nav>
+</aside>
+<main class="main">
+  <div class="page-header">
+    <span class="badge">Session 7 — Q&A</span>
+    <h1>Session 7: Questions and Answers</h1>
+    <div class="meta">Contact Session 7 | Module 2: Data and Feature Engineering</div>
+  </div>
+<h1 id="session-7-questions-and-answers">Session 7: Questions and Answers</h1>
+<div class="callout">
+<p>BITS Pilani — SS ZG662: Introduction to AI Systems</p>
+</div>
+<hr />
+<h2 id="q1-what-is-feature-engineering-why-is-it-considered-the-most-important-step-in-ml">Q1: What is Feature Engineering? Why is it considered the most important step in ML?</h2>
+<p><strong>Answer:</strong>
+Feature engineering is the process of transforming raw data into meaningful input variables (features) that help a machine learning model make better predictions.</p>
+<p><strong>Simple analogy:</strong> Raw data is like raw ingredients (flour, eggs, sugar). Features are like the prepared recipe components (dough, batter, frosting). The ML model is like the oven. You can have the best oven (model) in the world, but if your batter is badly prepared (poor features), the cake (predictions) will be terrible.</p>
+<p><strong>Why it's the most important step:</strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Reason</th>
+<th>Explanation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Models learn from features, not raw data</strong></td>
+<td>A model doesn't understand raw text "customer ordered biryani 5 times this week." It needs features like <code>order_count_last_7_days = 5</code>, <code>most_ordered_cuisine = biryani</code>.</td>
+</tr>
+<tr>
+<td><strong>Good features &gt; Complex models</strong></td>
+<td>A simple logistic regression with well-engineered features often outperforms a deep neural network with raw features. Google has published research confirming this.</td>
+</tr>
+<tr>
+<td><strong>80/20 rule</strong></td>
+<td>Data scientists spend 80% of their time on data preparation and feature engineering, only 20% on model building.</td>
+</tr>
+<tr>
+<td><strong>Domain knowledge encoded</strong></td>
+<td>Features encode human understanding. A fraud detection expert knows that "transaction amount / average transaction amount" is a powerful feature — the model can't discover this ratio easily on its own.</td>
+</tr>
+<tr>
+<td><strong>Reduces dimensionality</strong></td>
+<td>Instead of feeding 1000 raw columns, you create 50 meaningful features — the model trains faster and generalises better.</td>
+</tr>
+</tbody>
+</table></div>
+<hr />
+<h2 id="q2-what-is-the-difference-between-raw-data-and-features-give-examples">Q2: What is the difference between Raw Data and Features? Give examples.</h2>
+<p><strong>Answer:</strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Aspect</th>
+<th>Raw Data</th>
+<th>Features</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>What it is</strong></td>
+<td>Original, unprocessed data as collected</td>
+<td>Processed, meaningful variables derived from raw data</td>
+</tr>
+<tr>
+<td><strong>Usable by ML models?</strong></td>
+<td>Usually not directly</td>
+<td>Yes — this is what models train on</td>
+</tr>
+<tr>
+<td><strong>Format</strong></td>
+<td>Can be anything — text, images, logs, tables</td>
+<td>Numeric vectors (numbers that models understand)</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Example 1 — Swiggy Delivery Time Prediction:</strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Raw Data</th>
+<th>Engineered Features</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Order timestamp: "2024-01-15 19:30:00"</td>
+<td><code>hour_of_day = 19</code>, <code>is_peak_hour = 1</code>, <code>is_weekend = 0</code>, <code>day_of_week = Monday</code></td>
+</tr>
+<tr>
+<td>Restaurant address: "BTM Layout, Bangalore"</td>
+<td><code>restaurant_lat = 12.91</code>, <code>restaurant_long = 77.61</code>, <code>area_zone = South Bangalore</code></td>
+</tr>
+<tr>
+<td>Customer address: "Koramangala, Bangalore"</td>
+<td><code>distance_km = 3.2</code>, <code>estimated_traffic_score = 7.5</code></td>
+</tr>
+<tr>
+<td>Weather: "Rainy, 24°C"</td>
+<td><code>is_raining = 1</code>, <code>temperature = 24</code></td>
+</tr>
+<tr>
+<td>Restaurant past data: 500 orders, avg prep time 22 min</td>
+<td><code>avg_prep_time = 22</code>, <code>order_volume_today = 45</code>, <code>restaurant_rating = 4.2</code></td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Example 2 — HDFC Bank Loan Approval:</strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Raw Data</th>
+<th>Engineered Features</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Monthly salary: ₹80,000</td>
+<td><code>annual_income = 960000</code></td>
+</tr>
+<tr>
+<td>Loan amount requested: ₹20,00,000</td>
+<td><code>loan_to_income_ratio = 2.08</code></td>
+</tr>
+<tr>
+<td>Account opened: March 2018</td>
+<td><code>account_age_years = 6</code>, <code>is_long_term_customer = 1</code></td>
+</tr>
+<tr>
+<td>Transaction history: 500 records</td>
+<td><code>avg_monthly_balance = 45000</code>, <code>min_balance_breaches = 2</code>, <code>salary_credited_regularity = 0.95</code></td>
+</tr>
+<tr>
+<td>CIBIL score: 750</td>
+<td><code>cibil_score = 750</code>, <code>cibil_category = "good"</code></td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Key insight:</strong> The raw data "account opened March 2018" is useless to a model. But the engineered feature <code>account_age_years = 6</code> tells the model "this is a long-term customer" — very useful for loan decisions.</p>
+<hr />
+<h2 id="q3-explain-feature-extraction-from-different-data-types-structured-text-image-and-audio">Q3: Explain Feature Extraction from different data types — Structured, Text, Image, and Audio.</h2>
+<p><strong>Answer:</strong>
+Feature extraction is the first step — pulling useful signals out of raw data.</p>
+<h3 id="from-structured-data-easiest">From Structured Data (easiest)</h3>
+<ul>
+<li><strong>Method:</strong> Aggregations, ratios, date decomposition</li>
+<li><strong>Example (Flipkart):</strong> From a customer's order history:</li>
+<li><code>total_orders_last_30_days = 12</code></li>
+<li><code>avg_order_value = ₹1500</code></li>
+<li><code>favourite_category = "Electronics"</code></li>
+<li><code>days_since_last_order = 3</code></li>
+<li><code>return_rate = 0.15</code> (15% of orders returned)</li>
+</ul>
+<h3 id="from-text-data">From Text Data</h3>
+<ul>
+<li><strong>Methods:</strong> Bag of Words (BoW), TF-IDF, Word Embeddings (Word2Vec, BERT)</li>
+<li><strong>Example (Zomato restaurant reviews):</strong></li>
+<li>Raw text: "Amazing biryani, but delivery was too late. The food was cold."</li>
+<li><strong>BoW features:</strong> <code>word_amazing = 1, word_biryani = 1, word_late = 1, word_cold = 1</code></li>
+<li><strong>Sentiment score:</strong> <code>-0.3</code> (mixed — positive food, negative delivery)</li>
+<li><strong>Topic extraction:</strong> <code>food_quality = positive, delivery_experience = negative</code></li>
+<li><strong>BERT embedding:</strong> A 768-dimensional vector that captures the full meaning of the sentence</li>
+</ul>
+<h3 id="from-image-data">From Image Data</h3>
+<ul>
+<li><strong>Methods:</strong> Pixel features, CNN-extracted features, pre-trained model embeddings</li>
+<li><strong>Example (Myntra product images):</strong></li>
+<li>Raw: A 1024x1024 pixel image of a red kurta</li>
+<li><strong>Basic features:</strong> <code>dominant_colour = red, brightness = 0.7, aspect_ratio = 0.75</code></li>
+<li><strong>CNN features:</strong> Pass through ResNet-50 → get a 2048-dimensional feature vector that captures shape, texture, pattern, colour</li>
+<li><strong>Object detection:</strong> <code>garment_type = kurta, has_embroidery = true, neckline = V-neck</code></li>
+</ul>
+<h3 id="from-audio-data">From Audio Data</h3>
+<ul>
+<li><strong>Methods:</strong> MFCCs (Mel-Frequency Cepstral Coefficients), spectrograms, speech-to-text + NLP</li>
+<li><strong>Example (Customer service call at HDFC Bank):</strong></li>
+<li>Raw: 5-minute audio recording</li>
+<li><strong>Audio features:</strong> <code>pitch_variation = high, speaking_rate = fast, silence_ratio = 0.1</code></li>
+<li><strong>Emotion features:</strong> <code>customer_sentiment = angry, agent_sentiment = calm</code></li>
+<li><strong>Speech-to-text → NLP features:</strong> <code>complaint_category = "credit card charge", resolution_status = "unresolved"</code></li>
+<li><strong>MFCC features:</strong> 13-dimensional vector per time frame — captures voice characteristics</li>
+</ul>
+<hr />
+<h2 id="q4-what-are-the-main-feature-transformation-techniques-explain-each-with-examples">Q4: What are the main Feature Transformation techniques? Explain each with examples.</h2>
+<p><strong>Answer:</strong></p>
+<h3 id="1-feature-scaling-normalisation-standardisation">1. Feature Scaling (Normalisation/Standardisation)</h3>
+<p><strong>Why needed:</strong> Features have different scales. "Age" ranges from 0-100, "Income" ranges from 10,000 to 50,00,000. Models like KNN, SVM, and neural networks are sensitive to scale — income would dominate age in distance calculations.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Technique</th>
+<th>Formula</th>
+<th>When to Use</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Min-Max Scaling</strong></td>
+<td>(x - min) / (max - min) → range [0, 1]</td>
+<td>When you need bounded range</td>
+<td>Scale customer age: (28 - 18) / (80 - 18) = 0.16</td>
+</tr>
+<tr>
+<td><strong>Standard Scaling (Z-score)</strong></td>
+<td>(x - mean) / std_dev → mean=0, std=1</td>
+<td>When data is normally distributed</td>
+<td>Scale salary: (80000 - 50000) / 15000 = 2.0</td>
+</tr>
+<tr>
+<td><strong>Robust Scaling</strong></td>
+<td>(x - median) / IQR</td>
+<td>When data has outliers</td>
+<td>Income data with a few billionaires — median-based scaling isn't affected by outliers</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="2-encoding-categorical-variables">2. Encoding Categorical Variables</h3>
+<p><strong>Why needed:</strong> ML models need numbers, not text. "City = Mumbai" must become a number.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Technique</th>
+<th>How It Works</th>
+<th>When to Use</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>One-Hot Encoding</strong></td>
+<td>Create binary column for each category</td>
+<td>Few categories (&lt;10), no ordinal relationship</td>
+<td>City → <code>is_Mumbai=1, is_Delhi=0, is_Bangalore=0</code></td>
+</tr>
+<tr>
+<td><strong>Label Encoding</strong></td>
+<td>Assign a number to each category</td>
+<td>Ordinal categories (has order)</td>
+<td>Education → <code>High School=1, Bachelor=2, Master=3, PhD=4</code></td>
+</tr>
+<tr>
+<td><strong>Target Encoding</strong></td>
+<td>Replace category with mean of target variable</td>
+<td>Many categories, tree-based models</td>
+<td>Replace pin code with average delivery time for that pin code</td>
+</tr>
+<tr>
+<td><strong>Frequency Encoding</strong></td>
+<td>Replace category with its frequency</td>
+<td>Many categories</td>
+<td>Replace brand name with how often it appears in the dataset</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="3-handling-missing-values">3. Handling Missing Values</h3>
+<p><strong>Why needed:</strong> Real data always has gaps. You can't feed "NULL" to a model.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Technique</th>
+<th>When to Use</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Mean/Median imputation</strong></td>
+<td>Numerical, few missing values</td>
+<td>Missing salary → fill with median salary (₹50,000)</td>
+</tr>
+<tr>
+<td><strong>Mode imputation</strong></td>
+<td>Categorical</td>
+<td>Missing city → fill with most common city ("Bangalore")</td>
+</tr>
+<tr>
+<td><strong>Forward/Backward fill</strong></td>
+<td>Time-series data</td>
+<td>Missing stock price → use yesterday's closing price</td>
+</tr>
+<tr>
+<td><strong>Create a missing indicator</strong></td>
+<td>When missingness itself is informative</td>
+<td><code>income_missing = 1</code> — maybe people who don't report income have something to hide (useful for fraud detection!)</td>
+</tr>
+<tr>
+<td><strong>Drop the row/column</strong></td>
+<td>&gt;50% missing or feature isn't important</td>
+<td>A column with 80% missing values — delete it</td>
+</tr>
+<tr>
+<td><strong>Model-based imputation</strong></td>
+<td>Complex patterns</td>
+<td>Use KNN or regression to predict missing values from other features</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="4-binning-discretisation">4. Binning (Discretisation)</h3>
+<p><strong>Why needed:</strong> Sometimes converting continuous numbers to categories improves performance.</p>
+<ul>
+<li><strong>Example:</strong> Age → Age groups: <code>[0-18: "Minor", 18-30: "Young Adult", 30-50: "Middle Age", 50+: "Senior"]</code></li>
+<li><strong>When useful:</strong> When the relationship isn't linear. A person's spending behaviour changes in steps (student → working → retired), not gradually.</li>
+<li><strong>Indian example:</strong> CIBIL score binning → <code>[300-579: "Poor", 580-669: "Fair", 670-739: "Good", 740-799: "Very Good", 800-900: "Excellent"]</code></li>
+</ul>
+<h3 id="5-interaction-features">5. Interaction Features</h3>
+<p><strong>Why needed:</strong> Sometimes the combination of two features is more predictive than either alone.</p>
+<ul>
+<li><strong>Example:</strong> For Swiggy delivery time:</li>
+<li><code>distance_km = 5</code> (not very informative alone)</li>
+<li><code>is_raining = 1</code> (not very informative alone)</li>
+<li><code>distance_when_raining = distance_km × is_raining = 5</code> (VERY informative — distance matters much more when it's raining!)</li>
+<li><strong>Another example:</strong> For loan prediction:</li>
+<li><code>income = ₹80,000</code> and <code>loan_amount = ₹20,00,000</code></li>
+<li><code>debt_to_income_ratio = loan_amount / (income × 12) = 2.08</code> — this RATIO is far more predictive than either number alone</li>
+</ul>
+<hr />
+<h2 id="q5-explain-the-three-approaches-to-feature-selection-filter-wrapper-and-embedded-methods">Q5: Explain the three approaches to Feature Selection — Filter, Wrapper, and Embedded methods.</h2>
+<p><strong>Answer:</strong>
+After creating many features, you need to select only the useful ones. Too many features cause overfitting, slow training, and wasted computation.</p>
+<h3 id="1-filter-methods-fast-simple">1. Filter Methods (Fast, simple)</h3>
+<ul>
+<li><strong>How:</strong> Evaluate each feature independently using statistical tests. No model is trained.</li>
+<li><strong>Analogy:</strong> Screening resumes using basic criteria (degree, years of experience) before interviews.</li>
+<li><strong>Techniques:</strong></li>
+<li><strong>Correlation:</strong> Remove features highly correlated with each other (if temperature_celsius and temperature_fahrenheit are both features, keep only one)</li>
+<li><strong>Chi-squared test:</strong> For categorical features — is there a statistically significant relationship between this feature and the target?</li>
+<li><strong>Mutual Information:</strong> How much information about the target does this feature provide?</li>
+<li><strong>Variance Threshold:</strong> Remove features with very low variance (a feature that's the same value for 99% of records provides no information)</li>
+</ul>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Pros</th>
+<th>Cons</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Very fast — no model training</td>
+<td>Doesn't consider feature interactions</td>
+</tr>
+<tr>
+<td>Model-agnostic</td>
+<td>May miss features that are weak individually but strong together</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="2-wrapper-methods-accurate-slow">2. Wrapper Methods (Accurate, slow)</h3>
+<ul>
+<li><strong>How:</strong> Actually train models with different subsets of features. Select the subset that gives the best performance.</li>
+<li><strong>Analogy:</strong> Actually interviewing candidates in different team combinations to see which team performs best.</li>
+<li><strong>Techniques:</strong></li>
+<li><strong>Forward Selection:</strong> Start with 0 features. Add one at a time (the one that improves performance most). Stop when adding more doesn't help.</li>
+<li><strong>Backward Elimination:</strong> Start with ALL features. Remove one at a time (the one whose removal hurts least). Stop when removing more hurts performance.</li>
+<li><strong>Recursive Feature Elimination (RFE):</strong> Train a model, rank features by importance, remove the least important, repeat.</li>
+</ul>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Pros</th>
+<th>Cons</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Considers feature interactions</td>
+<td>Very slow — trains many models</td>
+</tr>
+<tr>
+<td>Finds the best subset for YOUR model</td>
+<td>Computationally expensive for 100+ features</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="3-embedded-methods-best-balance">3. Embedded Methods (Best balance)</h3>
+<ul>
+<li><strong>How:</strong> Feature selection happens DURING model training as part of the algorithm itself.</li>
+<li><strong>Analogy:</strong> A cricket coach who evaluates players during practice matches, not in separate tryouts.</li>
+<li><strong>Techniques:</strong></li>
+<li><strong>L1 Regularisation (Lasso):</strong> Adds a penalty that automatically shrinks unimportant feature weights to exactly 0 — effectively removing them.</li>
+<li><strong>Tree-based importance:</strong> Random Forest and XGBoost provide feature importance scores as a byproduct of training. Features used for more splits = more important.</li>
+<li><strong>Elastic Net:</strong> Combines L1 (for selection) and L2 (for handling correlated features).</li>
+</ul>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Pros</th>
+<th>Cons</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Efficient — selection happens during training</td>
+<td>Tied to specific model type</td>
+</tr>
+<tr>
+<td>Considers interactions</td>
+<td>L1 may randomly choose between correlated features</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Quick comparison:</strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Aspect</th>
+<th>Filter</th>
+<th>Wrapper</th>
+<th>Embedded</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Speed</strong></td>
+<td>Fastest</td>
+<td>Slowest</td>
+<td>Medium</td>
+</tr>
+<tr>
+<td><strong>Accuracy</strong></td>
+<td>Lower</td>
+<td>Highest</td>
+<td>High</td>
+</tr>
+<tr>
+<td><strong>Considers interactions</strong></td>
+<td>No</td>
+<td>Yes</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><strong>Example</strong></td>
+<td>Correlation matrix, chi-squared</td>
+<td>Forward selection, RFE</td>
+<td>Lasso, XGBoost importance</td>
+</tr>
+<tr>
+<td><strong>When to use</strong></td>
+<td>Quick baseline, 1000+ features</td>
+<td>Small feature set, need best accuracy</td>
+<td>Production use, good balance</td>
+</tr>
+</tbody>
+</table></div>
+<hr />
+<h2 id="q6-what-are-feature-embeddings-why-are-they-important-for-modern-ai">Q6: What are Feature Embeddings? Why are they important for modern AI?</h2>
+<p><strong>Answer:</strong>
+Feature embeddings are dense, lower-dimensional vector representations of data that capture semantic meaning. Instead of representing a word/item as a sparse one-hot vector, embeddings represent it as a compact vector of real numbers.</p>
+<p><strong>The problem embeddings solve:</strong>
+- One-hot encoding of 50,000 words → 50,000-dimensional sparse vector (mostly zeros). Very wasteful.
+- "Mumbai" and "Delhi" are one-hot encoded as completely different vectors — no notion of similarity.</p>
+<p><strong>What embeddings do:</strong>
+- Represent "Mumbai" as [0.23, -0.15, 0.82, ...] (128 dimensions)
+- Represent "Delhi" as [0.21, -0.13, 0.79, ...] (128 dimensions)
+- These are SIMILAR vectors because Mumbai and Delhi are similar (both Indian cities)
+- "Biryani" would be a very different vector — far away in embedding space</p>
+<p><strong>Types of embeddings:</strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Embedding Type</th>
+<th>What It Embeds</th>
+<th>Technique</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Word Embeddings</strong></td>
+<td>Words/tokens</td>
+<td>Word2Vec, GloVe, BERT</td>
+<td>"king" - "man" + "woman" ≈ "queen" (captures relationships!)</td>
+</tr>
+<tr>
+<td><strong>Sentence Embeddings</strong></td>
+<td>Full sentences</td>
+<td>Sentence-BERT</td>
+<td>Find similar customer complaints</td>
+</tr>
+<tr>
+<td><strong>Image Embeddings</strong></td>
+<td>Images</td>
+<td>ResNet, CLIP</td>
+<td>Find visually similar products on Myntra</td>
+</tr>
+<tr>
+<td><strong>User Embeddings</strong></td>
+<td>Users</td>
+<td>Collaborative filtering</td>
+<td>Represent Flipkart users as vectors for recommendations</td>
+</tr>
+<tr>
+<td><strong>Item Embeddings</strong></td>
+<td>Products</td>
+<td>Item2Vec</td>
+<td>Represent products as vectors for "similar items"</td>
+</tr>
+<tr>
+<td><strong>Graph Embeddings</strong></td>
+<td>Nodes in a graph</td>
+<td>Node2Vec, GraphSAGE</td>
+<td>Represent people in a social network for friend recommendations</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Real-world example — Spotify:</strong>
+- Each song is represented as a 128-dimensional embedding vector
+- Songs that people listen to together end up with similar vectors
+- "Shape of You" and "Perfect" (both Ed Sheeran pop songs) → vectors are close
+- "Shape of You" and a death metal song → vectors are far apart
+- Spotify's Discover Weekly uses these embeddings to find songs similar to what you like</p>
+<p><strong>Why embeddings matter for AI:</strong>
+1. <strong>Dimensionality reduction:</strong> 50,000-dimensional one-hot → 128-dimensional embedding
+2. <strong>Capture semantics:</strong> Similar items have similar vectors
+3. <strong>Transfer learning:</strong> Pre-trained embeddings (BERT, ResNet) work across tasks
+4. <strong>Enable similarity search:</strong> Find nearest neighbours in embedding space for recommendations</p>
+<hr />
+<h2 id="q7-design-features-for-a-fraud-detection-system-at-hdfc-bank">Q7: Design features for a Fraud Detection system at HDFC Bank.</h2>
+<p><strong>Answer:</strong>
+This is a practical feature design question. Think about what signals indicate fraud.</p>
+<p><strong>Transaction-Level Features (from the current transaction):</strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Why It's Useful</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>transaction_amount</code></td>
+<td>Unusually large amounts are suspicious</td>
+</tr>
+<tr>
+<td><code>amount_ratio_to_avg = amount / user_avg_transaction</code></td>
+<td>₹50,000 is normal for one person but suspicious for another</td>
+</tr>
+<tr>
+<td><code>is_international = 1/0</code></td>
+<td>International transactions have higher fraud rates</td>
+</tr>
+<tr>
+<td><code>is_online = 1/0</code></td>
+<td>Card-not-present (online) transactions are riskier</td>
+</tr>
+<tr>
+<td><code>merchant_category</code></td>
+<td>Certain categories (gambling, crypto) are higher risk</td>
+</tr>
+<tr>
+<td><code>hour_of_day</code></td>
+<td>Transactions at 3 AM are more suspicious than 3 PM</td>
+</tr>
+<tr>
+<td><code>is_weekend</code></td>
+<td>Spending patterns differ on weekends</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>User Behaviour Features (from historical patterns):</strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Why It's Useful</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>avg_daily_transactions</code></td>
+<td>If someone usually makes 3 transactions/day and suddenly makes 20, flag it</td>
+</tr>
+<tr>
+<td><code>avg_transaction_amount_30d</code></td>
+<td>Baseline for what's "normal" for this user</td>
+</tr>
+<tr>
+<td><code>days_since_last_transaction</code></td>
+<td>A dormant card suddenly used = suspicious</td>
+</tr>
+<tr>
+<td><code>unique_merchants_7d</code></td>
+<td>If card is used at 15 different merchants in one day, likely stolen</td>
+</tr>
+<tr>
+<td><code>max_amount_ever</code></td>
+<td>Transaction exceeding all-time max is unusual</td>
+</tr>
+<tr>
+<td><code>velocity = transactions_last_1hr</code></td>
+<td>5 transactions in 1 hour is unusual for most people</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Location/Device Features:</strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Why It's Useful</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>distance_from_home = km between transaction and home address</code></td>
+<td>Transaction 5000km away from home = suspicious</td>
+</tr>
+<tr>
+<td><code>distance_from_last_transaction</code></td>
+<td>Two transactions 2000km apart within 1 hour = physically impossible (velocity check)</td>
+</tr>
+<tr>
+<td><code>is_new_device = 1/0</code></td>
+<td>First time using this device to transact</td>
+</tr>
+<tr>
+<td><code>is_new_merchant = 1/0</code></td>
+<td>Never transacted with this merchant before</td>
+</tr>
+<tr>
+<td><code>country_of_transaction</code></td>
+<td>Sudden international use from a card never used abroad</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Interaction Features (combinations):</strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Why It's Useful</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>amount_x_is_international</code></td>
+<td>Large international transaction is riskier than small domestic</td>
+</tr>
+<tr>
+<td><code>hour_x_is_online</code></td>
+<td>Online transaction at 3 AM is more suspicious than in-store at 3 AM</td>
+</tr>
+<tr>
+<td><code>velocity_x_amount</code></td>
+<td>Many transactions AND high amounts = very suspicious</td>
+</tr>
+<tr>
+<td><code>new_device_x_new_merchant</code></td>
+<td>New device AND new merchant = double red flag</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Aggregate Features (patterns over time):</strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Why It's Useful</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>declined_transactions_24h</code></td>
+<td>Multiple declined transactions (testing stolen card)</td>
+</tr>
+<tr>
+<td><code>amount_increasing_pattern</code></td>
+<td>Amounts going ₹100 → ₹500 → ₹5000 → ₹50,000 (testing limits)</td>
+</tr>
+<tr>
+<td><code>unique_countries_7d</code></td>
+<td>Card used in 5 countries in 7 days = likely compromised</td>
+</tr>
+</tbody>
+</table></div>
+<hr />
+<h2 id="q8-design-features-for-a-product-recommendation-system-at-flipkart">Q8: Design features for a Product Recommendation system at Flipkart.</h2>
+<p><strong>Answer:</strong></p>
+<p><strong>User Features (who is the user?):</strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Source</th>
+<th>Why</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>user_avg_order_value</code></td>
+<td>Order history</td>
+<td>Distinguish budget vs premium shoppers</td>
+</tr>
+<tr>
+<td><code>favourite_category</code></td>
+<td>Browsing + orders</td>
+<td>Personalise by interest</td>
+</tr>
+<tr>
+<td><code>purchase_frequency</code></td>
+<td>Order history</td>
+<td>Active vs occasional shopper</td>
+</tr>
+<tr>
+<td><code>avg_rating_given</code></td>
+<td>Reviews</td>
+<td>Harsh reviewer vs easy rater</td>
+</tr>
+<tr>
+<td><code>preferred_brands</code></td>
+<td>Order history</td>
+<td>Brand loyalty signals</td>
+</tr>
+<tr>
+<td><code>account_age_days</code></td>
+<td>Registration date</td>
+<td>New vs established user</td>
+</tr>
+<tr>
+<td><code>city_tier = 1/2/3</code></td>
+<td>Address</td>
+<td>Tier-1 city users have different preferences</td>
+</tr>
+<tr>
+<td><code>price_sensitivity_score</code></td>
+<td>% orders with discounts</td>
+<td>High score = bargain hunter → recommend deals</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Product Features (what is the product?):</strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Source</th>
+<th>Why</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>product_category</code></td>
+<td>Catalog</td>
+<td>Obvious — Electronics, Fashion, etc.</td>
+</tr>
+<tr>
+<td><code>avg_rating</code></td>
+<td>Reviews</td>
+<td>Quality signal</td>
+</tr>
+<tr>
+<td><code>num_reviews</code></td>
+<td>Reviews</td>
+<td>Popular vs new product</td>
+</tr>
+<tr>
+<td><code>price_range = Low/Mid/High</code></td>
+<td>Catalog</td>
+<td>Match user's spending habits</td>
+</tr>
+<tr>
+<td><code>discount_percentage</code></td>
+<td>Pricing</td>
+<td>Important for price-sensitive users</td>
+</tr>
+<tr>
+<td><code>return_rate</code></td>
+<td>Returns data</td>
+<td>High return rate = quality issue</td>
+</tr>
+<tr>
+<td><code>days_since_launch</code></td>
+<td>Catalog</td>
+<td>New products need extra promotion</td>
+</tr>
+<tr>
+<td><code>product_embedding</code></td>
+<td>CNN on product image</td>
+<td>Visual similarity for "similar products" section</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Interaction Features (user × product):</strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Source</th>
+<th>Why</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>has_viewed = 1/0</code></td>
+<td>Clickstream</td>
+<td>Viewed but didn't buy → retarget</td>
+</tr>
+<tr>
+<td><code>has_carted = 1/0</code></td>
+<td>Cart data</td>
+<td>Carted = high intent → push notification</td>
+</tr>
+<tr>
+<td><code>view_count</code></td>
+<td>Clickstream</td>
+<td>Viewed 5 times = very interested</td>
+</tr>
+<tr>
+<td><code>time_on_page_seconds</code></td>
+<td>Clickstream</td>
+<td>Longer time = more interest</td>
+</tr>
+<tr>
+<td><code>user_category_affinity</code></td>
+<td>Historical orders</td>
+<td>How much does this user like this product's category?</td>
+</tr>
+<tr>
+<td><code>brand_match = 1/0</code></td>
+<td>Orders + catalog</td>
+<td>Does this product's brand match user's preferred brands?</td>
+</tr>
+<tr>
+<td><code>price_match_score</code></td>
+<td>Price vs user avg</td>
+<td>How close is this product's price to user's typical spending?</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Contextual Features (when and where?):</strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Source</th>
+<th>Why</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>hour_of_day</code></td>
+<td>Timestamp</td>
+<td>Browsing patterns differ by time</td>
+</tr>
+<tr>
+<td><code>is_weekend</code></td>
+<td>Calendar</td>
+<td>Weekend shopping vs weekday</td>
+</tr>
+<tr>
+<td><code>is_sale_period</code></td>
+<td>Business calendar</td>
+<td>Behaviour changes during Big Billion Days</td>
+</tr>
+<tr>
+<td><code>device_type = mobile/desktop</code></td>
+<td>App/Web</td>
+<td>Mobile users browse differently (shorter sessions, smaller screens)</td>
+</tr>
+<tr>
+<td><code>season</code></td>
+<td>Calendar</td>
+<td>Winter → jackets, Summer → ACs</td>
+</tr>
+</tbody>
+</table></div>
+<hr />
+<h2 id="q9-design-features-for-delivery-eta-prediction-at-swiggy">Q9: Design features for Delivery ETA prediction at Swiggy.</h2>
+<p><strong>Answer:</strong>
+Delivery ETA = Restaurant preparation time + Rider pickup time + Travel time. Each component needs features.</p>
+<p><strong>Restaurant Features:</strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Why</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>restaurant_avg_prep_time</code></td>
+<td>Historical baseline — Biryani place takes longer than chai shop</td>
+</tr>
+<tr>
+<td><code>restaurant_current_active_orders</code></td>
+<td>20 active orders = kitchen overloaded = longer prep time</td>
+</tr>
+<tr>
+<td><code>restaurant_rating</code></td>
+<td>Higher-rated restaurants tend to be more consistent</td>
+</tr>
+<tr>
+<td><code>cuisine_type</code></td>
+<td>Biryani takes longer to prepare than sandwich</td>
+</tr>
+<tr>
+<td><code>order_complexity = number_of_items</code></td>
+<td>5 items takes longer than 1 item</td>
+</tr>
+<tr>
+<td><code>is_peak_hour_for_restaurant</code></td>
+<td>Some restaurants are busier at lunch, others at dinner</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Rider Features:</strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Why</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>rider_avg_delivery_time</code></td>
+<td>Some riders are consistently faster</td>
+</tr>
+<tr>
+<td><code>rider_current_distance_to_restaurant</code></td>
+<td>How far is the nearest available rider</td>
+</tr>
+<tr>
+<td><code>rider_active_orders</code></td>
+<td>If rider has 3 orders, your order waits</td>
+</tr>
+<tr>
+<td><code>rider_vehicle_type = bike/cycle</code></td>
+<td>Bike is faster than bicycle</td>
+</tr>
+<tr>
+<td><code>rider_experience_months</code></td>
+<td>Experienced riders know shortcuts</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Route Features:</strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Why</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>distance_restaurant_to_customer_km</code></td>
+<td>Longer distance = longer time (obviously)</td>
+</tr>
+<tr>
+<td><code>current_traffic_score (1-10)</code></td>
+<td>From Google Maps API or historical patterns</td>
+</tr>
+<tr>
+<td><code>num_traffic_signals_on_route</code></td>
+<td>More signals = more stops</td>
+</tr>
+<tr>
+<td><code>is_same_area = 1/0</code></td>
+<td>Same locality = much faster</td>
+</tr>
+<tr>
+<td><code>elevation_difference</code></td>
+<td>Hilly areas (e.g., parts of Hyderabad/Pune) slow down riders</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Temporal/Weather Features:</strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Why</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>hour_of_day</code></td>
+<td>Rush hour (6-9 PM) = slower</td>
+</tr>
+<tr>
+<td><code>day_of_week</code></td>
+<td>Weekend traffic patterns differ from weekday</td>
+</tr>
+<tr>
+<td><code>is_raining = 1/0</code></td>
+<td>Rain significantly increases delivery time</td>
+</tr>
+<tr>
+<td><code>temperature</code></td>
+<td>Extreme heat = rider fatigue = slower</td>
+</tr>
+<tr>
+<td><code>is_holiday = 1/0</code></td>
+<td>Holidays have different patterns</td>
+</tr>
+<tr>
+<td><code>is_ipl_match = 1/0</code></td>
+<td>IPL match days = massive order surge + unusual traffic</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Interaction Features:</strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Why</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>distance × is_raining</code></td>
+<td>Distance matters much more when it's raining</td>
+</tr>
+<tr>
+<td><code>active_orders × is_peak_hour</code></td>
+<td>System overload during peak = longer wait</td>
+</tr>
+<tr>
+<td><code>prep_time × order_complexity</code></td>
+<td>Complex orders from slow restaurants = very long prep</td>
+</tr>
+</tbody>
+</table></div>
+<hr />
+<h2 id="q10-what-is-the-difference-between-feature-extraction-and-feature-selection-why-do-we-need-both">Q10: What is the difference between Feature Extraction and Feature Selection? Why do we need both?</h2>
+<p><strong>Answer:</strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Aspect</th>
+<th>Feature Extraction</th>
+<th>Feature Selection</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>What it does</strong></td>
+<td>Creates NEW features from raw data</td>
+<td>Chooses the BEST features from existing ones</td>
+</tr>
+<tr>
+<td><strong>Input</strong></td>
+<td>Raw data (text, images, numbers)</td>
+<td>A set of already-created features</td>
+</tr>
+<tr>
+<td><strong>Output</strong></td>
+<td>New features that didn't exist before</td>
+<td>A subset of existing features</td>
+</tr>
+<tr>
+<td><strong>When in pipeline</strong></td>
+<td>Early stage — transforming raw data to features</td>
+<td>Later stage — reducing features before model training</td>
+</tr>
+<tr>
+<td><strong>Example</strong></td>
+<td>From order timestamp, extract <code>hour_of_day</code>, <code>is_weekend</code>, <code>day_of_week</code></td>
+<td>From 200 extracted features, select the 50 most important ones</td>
+</tr>
+<tr>
+<td><strong>Changes data?</strong></td>
+<td>Yes — creates new columns</td>
+<td>No — just drops columns</td>
+</tr>
+<tr>
+<td><strong>Methods</strong></td>
+<td>Domain knowledge, PCA, embeddings, aggregations</td>
+<td>Correlation, Lasso, RFE, tree importance</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Why we need both (Flipkart example):</strong></p>
+<ol>
+<li>
+<p><strong>Feature Extraction:</strong> From 5 raw data sources (orders, clicks, reviews, returns, demographics), create 500 features through aggregations, ratios, encodings, embeddings.</p>
+</li>
+<li>
+<p><strong>Feature Selection:</strong> From 500 features, select the 80 most predictive ones using XGBoost feature importance.</p>
+</li>
+</ol>
+<p><strong>Why not skip extraction?</strong> → Model can't use raw data.
+<strong>Why not skip selection?</strong> → 500 features cause overfitting, slow training, and many are redundant.</p>
+<hr />
+<h2 id="q11-explain-one-hot-encoding-vs-label-encoding-when-should-you-use-each">Q11: Explain One-Hot Encoding vs Label Encoding. When should you use each?</h2>
+<p><strong>Answer:</strong></p>
+<h3 id="one-hot-encoding">One-Hot Encoding</h3>
+<ul>
+<li><strong>How:</strong> Create a separate binary (0/1) column for each category.</li>
+<li><strong>Example:</strong> City = {Mumbai, Delhi, Bangalore}</li>
+</ul>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Original</th>
+<th>is_Mumbai</th>
+<th>is_Delhi</th>
+<th>is_Bangalore</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Mumbai</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Delhi</td>
+<td>0</td>
+<td>1</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Bangalore</td>
+<td>0</td>
+<td>0</td>
+<td>1</td>
+</tr>
+</tbody>
+</table></div>
+<ul>
+<li><strong>When to use:</strong> When categories have no natural order (nominal data — cities, colours, product categories)</li>
+<li><strong>Problem:</strong> If you have 1000 cities, you get 1000 new columns (high dimensionality). Use target encoding for high-cardinality features instead.</li>
+</ul>
+<h3 id="label-encoding">Label Encoding</h3>
+<ul>
+<li><strong>How:</strong> Assign an integer to each category.</li>
+<li><strong>Example:</strong> Education = {High School: 1, Bachelor: 2, Master: 3, PhD: 4}</li>
+<li><strong>When to use:</strong> When categories have a natural order (ordinal data — education level, satisfaction rating, T-shirt size S/M/L/XL)</li>
+<li><strong>Problem:</strong> If used for nominal data, the model thinks "Delhi (2) &gt; Mumbai (1)" which is meaningless. This introduces a false ordinal relationship.</li>
+</ul>
+<p><strong>Decision guide:</strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Data Type</th>
+<th>Use</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Nominal (no order) + few categories</td>
+<td>One-Hot Encoding</td>
+<td>Gender, City (if &lt;20 cities), Colour</td>
+</tr>
+<tr>
+<td>Nominal + many categories (&gt;20)</td>
+<td>Target Encoding or Frequency Encoding</td>
+<td>Pin code, Product ID, Brand name</td>
+</tr>
+<tr>
+<td>Ordinal (has order)</td>
+<td>Label Encoding</td>
+<td>Education level, Rating (1-5), Income bracket (Low/Medium/High)</td>
+</tr>
+<tr>
+<td>Binary (2 categories)</td>
+<td>Simple 0/1</td>
+<td>Gender (M/F), Is_Active (Yes/No)</td>
+</tr>
+</tbody>
+</table></div>
+<hr />
+<h2 id="q12-what-is-pca-principal-component-analysis-when-should-you-use-it">Q12: What is PCA (Principal Component Analysis)? When should you use it?</h2>
+<p><strong>Answer:</strong>
+PCA is a dimensionality reduction technique that transforms a large set of correlated features into a smaller set of uncorrelated features called "principal components."</p>
+<p><strong>Simple analogy:</strong> Imagine you have 100 photos of a person from different angles. PCA is like finding the 10 most informative photos that capture 95% of what the person looks like. You don't need all 100 — those 10 are enough.</p>
+<p><strong>How it works (simplified):</strong>
+1. PCA finds the directions (axes) in the data with the MOST variance
+2. The first principal component captures the most variance, the second captures the next most, and so on
+3. You keep only the top K components that capture 95% of total variance
+4. Discard the rest</p>
+<p><strong>When to use PCA:</strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Situation</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Too many features</td>
+<td>500 features → reduce to 50 with 95% information retained</td>
+</tr>
+<tr>
+<td>Multicollinearity</td>
+<td>Many features are correlated (e.g., height_cm and height_inches). PCA combines them.</td>
+</tr>
+<tr>
+<td>Visualisation</td>
+<td>Reduce to 2-3 dimensions to plot data and see clusters</td>
+</tr>
+<tr>
+<td>Preprocessing for models</td>
+<td>Some models struggle with high-dimensional data — PCA helps</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>When NOT to use PCA:</strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Situation</th>
+<th>Why</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Interpretability needed</td>
+<td>PCA components are combinations of features — "Component 1" has no business meaning</td>
+</tr>
+<tr>
+<td>Tree-based models</td>
+<td>Random Forest, XGBoost handle high dimensions well — PCA doesn't help much</td>
+</tr>
+<tr>
+<td>Sparse data</td>
+<td>PCA works best on dense, continuous data</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Indian example:</strong> CIBIL uses 50+ features to calculate a credit score. PCA could reduce these to 10-15 principal components for faster scoring, though they'd lose interpretability ("why was my score low?").</p>
+<hr />
+<h2 id="q13-scenario-you-re-building-a-model-to-predict-house-prices-in-bangalore-what-features-would-you-engineer">Q13: Scenario — You're building a model to predict house prices in Bangalore. What features would you engineer?</h2>
+<p><strong>Answer:</strong></p>
+<p><strong>Property Features:</strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Source</th>
+<th>Why</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>area_sqft</code></td>
+<td>Listing data</td>
+<td>Primary price driver</td>
+</tr>
+<tr>
+<td><code>num_bedrooms</code></td>
+<td>Listing</td>
+<td>3BHK vs 1BHK</td>
+</tr>
+<tr>
+<td><code>num_bathrooms</code></td>
+<td>Listing</td>
+<td>Luxury indicator</td>
+</tr>
+<tr>
+<td><code>floor_number</code></td>
+<td>Listing</td>
+<td>Higher floors premium in apartments</td>
+</tr>
+<tr>
+<td><code>total_floors_in_building</code></td>
+<td>Listing</td>
+<td>2nd floor in a 3-storey vs 20-storey building</td>
+</tr>
+<tr>
+<td><code>age_of_property_years</code></td>
+<td>Listing</td>
+<td>New construction premium</td>
+</tr>
+<tr>
+<td><code>property_type = Apartment/Villa/Plot</code></td>
+<td>Listing</td>
+<td>Different pricing models</td>
+</tr>
+<tr>
+<td><code>furnishing_status = Furnished/Semi/Unfurnished</code></td>
+<td>Listing</td>
+<td>Fully furnished commands premium</td>
+</tr>
+<tr>
+<td><code>has_parking = 1/0</code></td>
+<td>Listing</td>
+<td>Important in Bangalore</td>
+</tr>
+<tr>
+<td><code>price_per_sqft_area_avg</code></td>
+<td>Derived</td>
+<td>Average price in this locality</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Location Features (extremely important — "location, location, location!"):</strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Source</th>
+<th>Why</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>locality</code> (Koramangala, Whitefield, etc.)</td>
+<td>Address</td>
+<td>Single most important feature</td>
+</tr>
+<tr>
+<td><code>distance_to_nearest_metro_km</code></td>
+<td>Google Maps</td>
+<td>Metro proximity = premium</td>
+</tr>
+<tr>
+<td><code>distance_to_cbd_km</code> (MG Road/Indiranagar)</td>
+<td>Maps</td>
+<td>Closer to centre = expensive</td>
+</tr>
+<tr>
+<td><code>distance_to_nearest_school_km</code></td>
+<td>Maps</td>
+<td>Families pay premium for school proximity</td>
+</tr>
+<tr>
+<td><code>distance_to_nearest_hospital_km</code></td>
+<td>Maps</td>
+<td>Safety/convenience factor</td>
+</tr>
+<tr>
+<td><code>distance_to_tech_park_km</code></td>
+<td>Maps</td>
+<td>Proximity to Manyata/ORR/Whitefield tech parks</td>
+</tr>
+<tr>
+<td><code>num_restaurants_within_2km</code></td>
+<td>Maps API</td>
+<td>Proxy for developed/vibrant area</td>
+</tr>
+<tr>
+<td><code>flood_zone = 1/0</code></td>
+<td>Government data</td>
+<td>Areas like Bellandur have flooding — depresses prices</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Market Features:</strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Source</th>
+<th>Why</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>avg_price_trend_locality_6months</code></td>
+<td>Historical data</td>
+<td>Rising area vs declining area</td>
+</tr>
+<tr>
+<td><code>num_listings_in_locality</code></td>
+<td>Current listings</td>
+<td>More supply = lower prices</td>
+</tr>
+<tr>
+<td><code>nearby_sold_price_avg</code></td>
+<td>Transaction data</td>
+<td>Comparable sales price</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Interaction Features:</strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Why</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>area_sqft × floor_number</code></td>
+<td>Large apartment on high floor = ultra premium</td>
+</tr>
+<tr>
+<td><code>bedrooms / area_sqft</code></td>
+<td>Compact vs spacious BHK design</td>
+</tr>
+<tr>
+<td><code>distance_to_metro × property_age</code></td>
+<td>New property near metro = highest premium</td>
+</tr>
+</tbody>
+</table></div>
+<hr />
+<h2 id="q14-how-do-you-handle-a-categorical-feature-with-10-000-unique-values-high-cardinality-give-4-approaches">Q14: How do you handle a categorical feature with 10,000 unique values (high cardinality)? Give 4 approaches.</h2>
+<p><strong>Answer:</strong>
+High-cardinality categorical features are tricky. One-hot encoding would create 10,000 columns — unacceptable.</p>
+<p><strong>Example:</strong> Flipkart has 10,000 brands. <code>brand_name</code> is a feature.</p>
+<h3 id="approach-1-target-encoding-mean-encoding">Approach 1: Target Encoding (Mean Encoding)</h3>
+<ul>
+<li>Replace each category with the average target value for that category.</li>
+<li>Example: Replace "Samsung" with the average purchase probability for Samsung products (say 0.35).</li>
+<li><strong>Risk:</strong> Can cause overfitting. Mitigate with regularisation or cross-validation-based encoding.</li>
+</ul>
+<h3 id="approach-2-frequency-encoding">Approach 2: Frequency Encoding</h3>
+<ul>
+<li>Replace each category with how often it appears in the dataset.</li>
+<li>Example: "Samsung" appears 5000 times → replace with 5000 (or normalised frequency 0.05).</li>
+<li><strong>When useful:</strong> When popularity/frequency correlates with the target. Popular brands might have different buying patterns.</li>
+</ul>
+<h3 id="approach-3-embedding-neural-network-approach">Approach 3: Embedding (Neural Network approach)</h3>
+<ul>
+<li>Learn a dense vector representation for each category as part of model training.</li>
+<li>Example: Each of 10,000 brands gets a 16-dimensional embedding vector. The model learns these embeddings during training.</li>
+<li><strong>Best for:</strong> Deep learning models. This is how Flipkart's recommendation system handles millions of product IDs.</li>
+</ul>
+<h3 id="approach-4-grouping-bucketing">Approach 4: Grouping/Bucketing</h3>
+<ul>
+<li>Group rare categories together.</li>
+<li>Example: Keep top 100 brands as individual categories. Group remaining 9,900 brands into "Other."</li>
+<li><strong>When useful:</strong> When rare categories don't have enough data to learn patterns. "BrandXYZ" with only 3 orders — can't learn anything meaningful.</li>
+</ul>
+<p><strong>Which to choose?</strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Approach</th>
+<th>Best For</th>
+<th>Risk</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Target Encoding</td>
+<td>Tree models (XGBoost, LightGBM)</td>
+<td>Overfitting if not regularised</td>
+</tr>
+<tr>
+<td>Frequency Encoding</td>
+<td>Quick baseline, any model</td>
+<td>Loses information beyond frequency</td>
+</tr>
+<tr>
+<td>Embeddings</td>
+<td>Neural networks, deep learning</td>
+<td>Needs large data to learn good embeddings</td>
+</tr>
+<tr>
+<td>Grouping</td>
+<td>Simple models, small datasets</td>
+<td>Loses information about grouped categories</td>
+</tr>
+</tbody>
+</table></div>
+<hr />
+<h2 id="q15-what-is-the-curse-of-dimensionality-how-does-feature-engineering-help-address-it">Q15: What is the "Curse of Dimensionality"? How does feature engineering help address it?</h2>
+<p><strong>Answer:</strong>
+The Curse of Dimensionality means that as the number of features increases, the amount of data needed to train a good model increases exponentially.</p>
+<p><strong>Simple analogy:</strong>
+- In 1 dimension (a line), 10 data points cover the space reasonably well.
+- In 2 dimensions (a square), you need 10 × 10 = 100 points to cover the space equally well.
+- In 3 dimensions (a cube), you need 10 × 10 × 10 = 1000 points.
+- In 100 dimensions, you need 10^100 points — more than atoms in the universe!</p>
+<p><strong>Practical problems with too many features:</strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Problem</th>
+<th>What Happens</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Data becomes sparse</strong></td>
+<td>In high dimensions, all data points become equally far apart</td>
+<td>Distance-based algorithms (KNN) stop working — "nearest neighbour" is meaningless when everyone is equidistant</td>
+</tr>
+<tr>
+<td><strong>Overfitting</strong></td>
+<td>Model memorises noise instead of patterns</td>
+<td>With 1000 features and 500 rows, the model can find spurious correlations</td>
+</tr>
+<tr>
+<td><strong>Slow training</strong></td>
+<td>More features = more computation</td>
+<td>Training time increases linearly or quadratically with number of features</td>
+</tr>
+<tr>
+<td><strong>Diminishing returns</strong></td>
+<td>Adding more features beyond a point hurts performance</td>
+<td>After 100 useful features, the next 100 are noise that confuses the model</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>How feature engineering helps:</strong></p>
+<ol>
+<li><strong>Feature Selection:</strong> Remove redundant/useless features (500 → 50)</li>
+<li><strong>PCA:</strong> Reduce dimensions while preserving information (500 → 30 principal components)</li>
+<li><strong>Feature Extraction:</strong> Create fewer, more meaningful features instead of using all raw columns</li>
+<li><strong>Embeddings:</strong> Represent high-dimensional sparse vectors (50,000-dim one-hot) as dense low-dimensional vectors (128-dim embedding)</li>
+<li><strong>Domain Knowledge:</strong> An expert knows which 20 features matter most — no need for 500</li>
+</ol>
+<hr />
+<h2 id="q16-explain-interaction-features-and-polynomial-features-with-examples-when-are-they-useful">Q16: Explain Interaction Features and Polynomial Features with examples. When are they useful?</h2>
+<p><strong>Answer:</strong></p>
+<h3 id="interaction-features">Interaction Features</h3>
+<p>Multiply two features together to capture their combined effect.</p>
+<p><strong>Example — Swiggy delivery prediction:</strong>
+- Feature A: <code>distance_km = 8</code>
+- Feature B: <code>is_raining = 1</code>
+- Interaction: <code>distance_in_rain = distance_km × is_raining = 8</code></p>
+<p><strong>Why useful?</strong> The effect of distance on delivery time changes when it's raining. An 8km delivery takes 25 minutes normally but 45 minutes in rain. The interaction feature captures this — the model learns that distance has a bigger coefficient when multiplied by rain.</p>
+<h3 id="polynomial-features">Polynomial Features</h3>
+<p>Create squared, cubed, or higher-power versions of features.</p>
+<p><strong>Example — House prices in Bangalore:</strong>
+- Feature: <code>area_sqft = 1500</code>
+- Polynomial: <code>area_sqft_squared = 2,250,000</code></p>
+<p><strong>Why useful?</strong> Price doesn't increase linearly with area. A 3000 sqft apartment isn't just 2× the price of 1500 sqft — it's often 3-4× because very large apartments are luxury. The squared term captures this non-linear relationship.</p>
+<p><strong>When to use:</strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Situation</th>
+<th>Use</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Two features interact (effect of one depends on the other)</td>
+<td>Interaction features</td>
+</tr>
+<tr>
+<td>Relationship between feature and target is non-linear (curved)</td>
+<td>Polynomial features</td>
+</tr>
+<tr>
+<td>Using linear models (linear regression, logistic regression)</td>
+<td>Both — these models can't learn non-linearity without these features</td>
+</tr>
+<tr>
+<td>Using tree-based models (XGBoost, Random Forest)</td>
+<td>Less necessary — trees naturally capture interactions and non-linearity through splits</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Warning:</strong> Polynomial features can explode the feature count. 100 features with degree-2 polynomials = ~5000 features. Use selectively and combine with feature selection.</p>
+<hr />
+<h2 id="q17-scenario-you-re-building-a-customer-churn-prediction-model-for-jio-design-the-features">Q17: Scenario — You're building a customer churn prediction model for Jio. Design the features.</h2>
+<p><strong>Answer:</strong></p>
+<p><strong>Usage Features (how much do they use the service?):</strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Why</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>monthly_data_usage_gb</code></td>
+<td>Declining usage = losing interest</td>
+</tr>
+<tr>
+<td><code>data_usage_trend_3months = increasing/stable/decreasing</code></td>
+<td>Trend matters more than current value</td>
+</tr>
+<tr>
+<td><code>daily_calls_count</code></td>
+<td>Low call usage might mean switching to WhatsApp/competitor</td>
+</tr>
+<tr>
+<td><code>monthly_recharge_amount</code></td>
+<td>Downgrading plan = cost-conscious = churn risk</td>
+</tr>
+<tr>
+<td><code>days_since_last_recharge</code></td>
+<td>Long gap = might have switched to another SIM</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Engagement Features:</strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Why</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>jio_cinema_usage_hours</code></td>
+<td>Engaged in ecosystem = less likely to churn</td>
+</tr>
+<tr>
+<td><code>jio_mart_orders</code></td>
+<td>Multiple Jio services used = sticky customer</td>
+</tr>
+<tr>
+<td><code>app_opens_per_week</code></td>
+<td>Declining app usage = disengagement</td>
+</tr>
+<tr>
+<td><code>customer_support_calls_30d</code></td>
+<td>Many support calls = frustrated customer</td>
+</tr>
+<tr>
+<td><code>complaint_count_90d</code></td>
+<td>Unresolved complaints drive churn</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Account Features:</strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Why</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>account_age_months</code></td>
+<td>New customers churn more than long-term ones</td>
+</tr>
+<tr>
+<td><code>plan_type = prepaid/postpaid</code></td>
+<td>Prepaid customers churn more easily</td>
+</tr>
+<tr>
+<td><code>num_family_connections</code></td>
+<td>Family plan users are stickier</td>
+</tr>
+<tr>
+<td><code>has_number_portability_inquiry = 1/0</code></td>
+<td>If they checked MNP, they're thinking of leaving!</td>
+</tr>
+<tr>
+<td><code>payment_failure_count</code></td>
+<td>Payment issues = involuntary churn risk</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Network Quality Features:</strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Why</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>avg_call_drop_rate</code></td>
+<td>Poor network = frustrated customer</td>
+</tr>
+<tr>
+<td><code>avg_download_speed_mbps</code></td>
+<td>Slow internet = reason to switch</td>
+</tr>
+<tr>
+<td><code>coverage_score_for_area</code></td>
+<td>Poor coverage in their area = churn</td>
+</tr>
+<tr>
+<td><code>network_complaints_in_area</code></td>
+<td>Area-level network issues</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Interaction/Derived Features:</strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Why</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>support_calls × complaint_unresolved</code></td>
+<td>Many calls + unresolved = very high churn risk</td>
+</tr>
+<tr>
+<td><code>usage_decrease_pct = (current - previous) / previous</code></td>
+<td>Quantifies decline</td>
+</tr>
+<tr>
+<td><code>competitor_offer_in_area = 1/0</code></td>
+<td>Airtel or Vi offering better plans in their area</td>
+</tr>
+<tr>
+<td><code>days_to_plan_expiry</code></td>
+<td>Churn happens at renewal points</td>
+</tr>
+</tbody>
+</table></div>
+<hr />
+<h2 id="q18-what-are-the-common-mistakes-in-feature-engineering-how-to-avoid-them">Q18: What are the common mistakes in Feature Engineering? How to avoid them?</h2>
+<p><strong>Answer:</strong></p>
+<h3 id="mistake-1-data-leakage-in-features">Mistake 1: Data Leakage in Features</h3>
+<ul>
+<li><strong>What:</strong> Using features that contain future information or target-derived information.</li>
+<li><strong>Example:</strong> Using <code>total_purchases_next_month</code> to predict churn. This value is only known in the future.</li>
+<li><strong>Fix:</strong> For every feature, ask: "Would I have this information at the time I need to make the prediction?"</li>
+</ul>
+<h3 id="mistake-2-not-handling-missing-values-properly">Mistake 2: Not Handling Missing Values Properly</h3>
+<ul>
+<li><strong>What:</strong> Dropping rows with missing values (losing data) or filling with the wrong method.</li>
+<li><strong>Example:</strong> Filling missing income with mean income. But income is skewed (few very rich people pull mean up). Use median instead.</li>
+<li><strong>Fix:</strong> Understand the distribution before choosing imputation. Sometimes missingness itself is a feature.</li>
+</ul>
+<h3 id="mistake-3-encoding-nominal-features-as-ordinal">Mistake 3: Encoding Nominal Features as Ordinal</h3>
+<ul>
+<li><strong>What:</strong> Using Label Encoding (1, 2, 3) for non-ordered categories.</li>
+<li><strong>Example:</strong> Encoding City: Mumbai=1, Delhi=2, Bangalore=3. The model now thinks Bangalore &gt; Mumbai, which is meaningless.</li>
+<li><strong>Fix:</strong> Use One-Hot Encoding for nominal features, Label Encoding only for ordinal features.</li>
+</ul>
+<h3 id="mistake-4-not-scaling-before-distance-based-models">Mistake 4: Not Scaling Before Distance-Based Models</h3>
+<ul>
+<li><strong>What:</strong> Using features with different scales in KNN, SVM, or neural networks.</li>
+<li><strong>Example:</strong> Age (0-100) and Income (10,000-50,00,000). KNN will completely ignore age because income differences are 1000x larger.</li>
+<li><strong>Fix:</strong> Always scale features before KNN, SVM, or neural networks. Tree-based models don't need scaling.</li>
+</ul>
+<h3 id="mistake-5-creating-too-many-features-without-selection">Mistake 5: Creating Too Many Features Without Selection</h3>
+<ul>
+<li><strong>What:</strong> Engineering 1000 features and feeding all of them to the model.</li>
+<li><strong>Problem:</strong> Overfitting, slow training, curse of dimensionality.</li>
+<li><strong>Fix:</strong> Always follow feature creation with feature selection. Use Lasso, tree importance, or correlation analysis to keep only useful features.</li>
+</ul>
+<h3 id="mistake-6-ignoring-feature-interactions">Mistake 6: Ignoring Feature Interactions</h3>
+<ul>
+<li><strong>What:</strong> Only using individual features, missing important combinations.</li>
+<li><strong>Example:</strong> For loan prediction, using <code>income</code> and <code>loan_amount</code> separately instead of creating <code>debt_to_income_ratio</code>.</li>
+<li><strong>Fix:</strong> Think about business logic — which features should be combined? Ratios, products, and differences often create powerful features.</li>
+</ul>
+<h3 id="mistake-7-fitting-transformations-on-test-data">Mistake 7: Fitting Transformations on Test Data</h3>
+<ul>
+<li><strong>What:</strong> Fitting a scaler or encoder on the entire dataset (including test data) before splitting.</li>
+<li><strong>Problem:</strong> Test data information leaks into training through the scaler parameters.</li>
+<li><strong>Fix:</strong> Fit transformations on training data only, then apply the fitted transformer to test data.</li>
+</ul>
+<hr />
+<h2 id="q19-how-does-feature-engineering-differ-for-traditional-ml-vs-deep-learning">Q19: How does Feature Engineering differ for Traditional ML vs Deep Learning?</h2>
+<p><strong>Answer:</strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Aspect</th>
+<th>Traditional ML (XGBoost, Random Forest, SVM)</th>
+<th>Deep Learning (Neural Networks, CNNs, Transformers)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Feature engineering effort</strong></td>
+<td>Very high — this is where you win or lose</td>
+<td>Lower — model learns features automatically</td>
+</tr>
+<tr>
+<td><strong>What you provide</strong></td>
+<td>Manually engineered features (ratios, aggregations, encodings)</td>
+<td>Raw or lightly processed data (pixels, tokens)</td>
+</tr>
+<tr>
+<td><strong>Domain knowledge</strong></td>
+<td>Essential — you encode business logic into features</td>
+<td>Less critical (but still helps)</td>
+</tr>
+<tr>
+<td><strong>Feature selection</strong></td>
+<td>Required — too many features cause overfitting</td>
+<td>Less critical — deep models handle high dimensions</td>
+</tr>
+<tr>
+<td><strong>Scaling</strong></td>
+<td>Required for some models (SVM, KNN), not for trees</td>
+<td>Always required (neural networks need scaled inputs)</td>
+</tr>
+<tr>
+<td><strong>Embedding learning</strong></td>
+<td>You provide pre-computed embeddings as features</td>
+<td>Model learns embeddings as part of training</td>
+</tr>
+<tr>
+<td><strong>Data requirement</strong></td>
+<td>Works with smaller datasets + good features</td>
+<td>Needs large datasets to learn features automatically</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Example — Sentiment Analysis of Zomato reviews:</strong></p>
+<p><strong>Traditional ML approach:</strong>
+1. Manual feature extraction: TF-IDF vectors, word count, sentiment lexicon score, exclamation count, capital letter ratio
+2. Feature selection: Select top 500 features using chi-squared test
+3. Train SVM on these 500 features
+4. Result: 85% accuracy</p>
+<p><strong>Deep Learning approach:</strong>
+1. Tokenize text (minimal feature engineering)
+2. Feed tokens into BERT (pre-trained transformer)
+3. Fine-tune BERT on Zomato review labels
+4. Result: 92% accuracy (model learned its own features)</p>
+<p><strong>Key takeaway:</strong> Deep learning reduces manual feature engineering but doesn't eliminate it. Even with deep learning, features like "time since last order" or "user's average rating" still need to be engineered manually because they come from structured data that the model can't "see" automatically.</p>
+<hr />
+<h2 id="q20-scenario-you-have-200-raw-features-for-predicting-flipkart-customer-lifetime-value-walk-through-the-complete-feature-engineering-pipeline">Q20: Scenario — You have 200 raw features for predicting Flipkart customer lifetime value. Walk through the complete feature engineering pipeline.</h2>
+<p><strong>Answer:</strong></p>
+<p><strong>Step 1: Feature Extraction (create new features from raw data)</strong>
+- From timestamps: <code>account_age_days</code>, <code>days_since_last_order</code>, <code>orders_per_month</code>
+- From transactions: <code>avg_order_value</code>, <code>total_spending</code>, <code>max_single_order</code>
+- From browsing: <code>avg_session_duration</code>, <code>products_viewed_per_session</code>, <code>search_to_buy_ratio</code>
+- From categories: <code>num_unique_categories_ordered</code>, <code>favourite_category</code>, <code>category_diversity_score</code>
+- <strong>Result:</strong> 200 raw → 350 features</p>
+<p><strong>Step 2: Handle Missing Values</strong>
+- For income: median imputation (income is skewed)
+- For browsing data of new users: create <code>is_new_user = 1</code> indicator feature
+- For rarely-missing features (&lt; 5%): mean/mode imputation
+- For heavily-missing features (&gt; 50%): drop the feature
+- <strong>Result:</strong> 350 → 320 features (dropped 30 with &gt;50% missing)</p>
+<p><strong>Step 3: Encode Categorical Variables</strong>
+- City (20 values): Target Encoding (replace with avg CLV per city)
+- Product category (500 values): Embedding or Frequency Encoding
+- Gender (2 values): Binary encoding (0/1)
+- Payment method (5 values): One-Hot Encoding
+- <strong>Result:</strong> 320 features (dimensions may change slightly)</p>
+<p><strong>Step 4: Feature Scaling</strong>
+- Standard Scaling for numerical features
+- Fit scaler on TRAINING data only
+- Apply to test data using the same fitted scaler</p>
+<p><strong>Step 5: Create Interaction Features</strong>
+- <code>order_value × frequency = spending_velocity</code>
+- <code>recency × frequency = engagement_score</code>
+- <code>discount_percentage × total_orders = discount_sensitivity</code>
+- <strong>Result:</strong> 320 → 340 features</p>
+<p><strong>Step 6: Feature Selection</strong>
+- Method 1: Remove features with correlation &gt; 0.95 (redundant) → Remove 40 features
+- Method 2: Train XGBoost and extract feature importance → Keep top 100
+- Method 3: Verify with Lasso (L1) — check if same features are selected
+- <strong>Final result:</strong> 100 selected features</p>
+<p><strong>Step 7: Validate</strong>
+- Train model on selected features
+- Compare performance with all 340 features vs selected 100
+- If similar performance with 100 features → success (simpler model, same accuracy)
+- If performance drops &gt; 2% → revisit selection criteria</p>
+<p><strong>Pipeline summary:</strong></p>
+<pre><code>200 raw → 350 extracted → 320 (missing handled) → 340 (interactions) → 100 (selected)
+</code></pre>
+</main>
+<button class="back-top" id="backTop" title="Back to top">&#8593;</button>
+<script>
+const bar=document.getElementById('progress');
+const btn=document.getElementById('backTop');
+const toggle=document.getElementById('sidebarToggle');
+const sidebar=document.getElementById('sidebar');
+window.addEventListener('scroll',()=>{
+  const s=document.documentElement.scrollTop;
+  const h=document.documentElement.scrollHeight-document.documentElement.clientHeight;
+  bar.style.width=(s/h*100)+'%';
+  btn.classList.toggle('show',s>400);
+});
+btn.onclick=()=>window.scrollTo({top:0,behavior:'smooth'});
+toggle.onclick=()=>sidebar.classList.toggle('open');
+// Active sidebar link
+const links=document.querySelectorAll('.sidebar nav a');
+const obs=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{if(e.isIntersecting){
+    links.forEach(l=>l.classList.remove('active'));
+    const a=document.querySelector('.sidebar nav a[href="#'+e.target.id+'"]');
+    if(a)a.classList.add('active');
+  }});
+},{rootMargin:'-20% 0px -70% 0px'});
+document.querySelectorAll('h2[id],h3[id]').forEach(h=>obs.observe(h));
+</script>
+</body>
+</html>

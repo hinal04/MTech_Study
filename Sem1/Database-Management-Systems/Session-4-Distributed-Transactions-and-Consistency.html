@@ -1,0 +1,1405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Session 4: Distributed Transactions and Consistency Models</title>
+    <style>
+        :root {
+            --bg: #0f172a;
+            --surface: #1e293b;
+            --surface2: #334155;
+            --border: #475569;
+            --text: #e2e8f0;
+            --text-muted: #94a3b8;
+            --code-bg: #0d1117;
+            --accent: #fb923c;
+            --accent-dim: rgba(251, 146, 60, 0.15);
+            --accent-border: rgba(251, 146, 60, 0.3);
+            --header-gradient: linear-gradient(135deg, #7c2d12, #ea580c, #fb923c);
+            --tip-bg: rgba(52, 211, 153, 0.1);
+            --tip-border: #34d399;
+            --warn-bg: rgba(251, 146, 60, 0.1);
+            --warn-border: #fb923c;
+            --info-bg: rgba(168, 85, 247, 0.1);
+            --info-border: #a855f7;
+        }
+
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        html { scroll-behavior: smooth; scroll-padding-top: 80px; }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.7;
+            min-height: 100vh;
+        }
+
+        /* Progress Bar */
+        .progress-bar {
+            position: fixed; top: 0; left: 0;
+            width: 0%; height: 3px;
+            background: var(--header-gradient);
+            z-index: 1000;
+            transition: width 0.1s linear;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            position: fixed; top: 0; left: 0;
+            width: 300px; height: 100vh;
+            background: var(--surface);
+            border-right: 1px solid var(--border);
+            overflow-y: auto;
+            z-index: 100;
+            padding: 24px 0;
+            transition: transform 0.3s ease;
+        }
+
+        .sidebar-header {
+            padding: 0 20px 20px;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 16px;
+        }
+
+        .sidebar-header h2 {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: var(--accent);
+            margin-bottom: 4px;
+        }
+
+        .sidebar-header p {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .sidebar nav ul { list-style: none; }
+
+        .sidebar nav > ul > li > a {
+            display: block;
+            padding: 10px 20px;
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.88rem;
+            border-left: 3px solid transparent;
+            transition: all 0.2s;
+        }
+
+        .sidebar nav > ul > li > a:hover,
+        .sidebar nav > ul > li > a.active {
+            color: var(--accent);
+            background: var(--accent-dim);
+            border-left-color: var(--accent);
+        }
+
+        .sidebar nav > ul > li > ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .sidebar nav > ul > li > ul > li > a {
+            display: block;
+            padding: 5px 20px 5px 36px;
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.8rem;
+            border-left: 3px solid transparent;
+            transition: all 0.2s;
+        }
+
+        .sidebar nav > ul > li > ul > li > a:hover {
+            color: var(--text);
+            background: rgba(255,255,255,0.03);
+        }
+
+        /* Main content */
+        .main-content {
+            margin-left: 300px;
+            max-width: 900px;
+            padding: 40px 48px 120px;
+        }
+
+        /* Header banner */
+        .session-header {
+            background: var(--header-gradient);
+            border-radius: 16px;
+            padding: 48px 40px;
+            margin-bottom: 48px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .session-header::before {
+            content: '';
+            position: absolute; top: 0; right: 0;
+            width: 200px; height: 200px;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            border-radius: 50%;
+            transform: translate(40%, -40%);
+        }
+
+        .session-header .session-label {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: rgba(255,255,255,0.8);
+            margin-bottom: 8px;
+        }
+
+        .session-header h1 {
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 12px;
+            line-height: 1.2;
+        }
+
+        .session-header .meta {
+            font-size: 0.9rem;
+            color: rgba(255,255,255,0.85);
+            line-height: 1.6;
+        }
+
+        .session-header .meta strong { color: #fff; }
+
+        /* Section headings */
+        h2 {
+            font-size: 1.6rem;
+            color: var(--accent);
+            margin: 56px 0 24px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid var(--accent-border);
+        }
+
+        h3 {
+            font-size: 1.25rem;
+            color: var(--text);
+            margin: 36px 0 16px;
+        }
+
+        h4 {
+            font-size: 1.05rem;
+            color: var(--accent);
+            margin: 24px 0 12px;
+        }
+
+        p { margin-bottom: 16px; }
+
+        strong { color: var(--accent); font-weight: 600; }
+
+        /* Tables */
+        .table-wrapper {
+            overflow-x: auto;
+            margin: 20px 0 28px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+        }
+
+        thead th {
+            background: var(--accent);
+            color: #0f172a;
+            font-weight: 600;
+            padding: 12px 16px;
+            text-align: left;
+            white-space: nowrap;
+        }
+
+        tbody tr:nth-child(odd) { background: var(--surface); }
+        tbody tr:nth-child(even) { background: var(--surface2); }
+        tbody tr:hover { background: var(--accent-dim); }
+
+        td {
+            padding: 10px 16px;
+            border-top: 1px solid var(--border);
+            vertical-align: top;
+        }
+
+        /* Code blocks */
+        pre {
+            background: var(--code-bg);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 20px 24px;
+            overflow-x: auto;
+            margin: 20px 0 28px;
+            font-size: 0.88rem;
+            line-height: 1.6;
+        }
+
+        code {
+            font-family: 'Cascadia Code', 'Fira Code', 'JetBrains Mono', 'Consolas', monospace;
+            color: var(--accent);
+        }
+
+        pre code { color: var(--text); }
+
+        /* Inline code */
+        p code, li code, td code {
+            background: var(--code-bg);
+            padding: 2px 7px;
+            border-radius: 4px;
+            font-size: 0.88em;
+            border: 1px solid var(--border);
+        }
+
+        /* Callout boxes */
+        .callout {
+            border-radius: 10px;
+            padding: 18px 22px;
+            margin: 20px 0 28px;
+            border-left: 4px solid;
+            font-size: 0.92rem;
+        }
+
+        .callout-tip {
+            background: var(--tip-bg);
+            border-color: var(--tip-border);
+        }
+        .callout-tip .callout-title { color: var(--tip-border); }
+
+        .callout-warn {
+            background: var(--warn-bg);
+            border-color: var(--warn-border);
+        }
+        .callout-warn .callout-title { color: var(--warn-border); }
+
+        .callout-info {
+            background: var(--info-bg);
+            border-color: var(--info-border);
+        }
+        .callout-info .callout-title { color: var(--info-border); }
+
+        .callout-title {
+            font-weight: 700;
+            margin-bottom: 6px;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Lists */
+        ul, ol {
+            padding-left: 24px;
+            margin-bottom: 16px;
+        }
+
+        li {
+            margin-bottom: 8px;
+            padding-left: 4px;
+        }
+
+        li::marker { color: var(--accent); }
+
+        /* Back to top button */
+        .back-to-top {
+            position: fixed;
+            bottom: 32px;
+            right: 32px;
+            width: 48px;
+            height: 48px;
+            background: var(--accent);
+            color: #0f172a;
+            border: none;
+            border-radius: 50%;
+            font-size: 1.3rem;
+            cursor: pointer;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.3s;
+            z-index: 200;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 15px rgba(251, 146, 60, 0.3);
+        }
+
+        .back-to-top.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .back-to-top:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(251, 146, 60, 0.4);
+        }
+
+        /* Hamburger menu for mobile */
+        .menu-toggle {
+            display: none;
+            position: fixed;
+            top: 12px;
+            left: 12px;
+            z-index: 300;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            color: var(--accent);
+            width: 42px;
+            height: 42px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.3rem;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Blockquote */
+        blockquote {
+            border-left: 4px solid var(--accent-border);
+            background: var(--accent-dim);
+            padding: 16px 20px;
+            border-radius: 0 10px 10px 0;
+            margin: 20px 0 28px;
+            font-size: 0.92rem;
+            color: var(--text-muted);
+        }
+
+        blockquote strong { color: var(--text); }
+
+        /* Horizontal rule */
+        hr {
+            border: none;
+            border-top: 1px solid var(--border);
+            margin: 40px 0;
+        }
+
+        /* Decision framework box */
+        .decision-box {
+            background: var(--surface);
+            border: 1px solid var(--accent-border);
+            border-radius: 12px;
+            padding: 24px 28px;
+            margin: 24px 0 28px;
+        }
+
+        .decision-box h3 {
+            color: var(--accent);
+            margin-top: 0;
+        }
+
+        /* Check/cross marks */
+        .check { color: #34d399; }
+        .cross { color: #f87171; }
+
+        /* Responsive */
+        @media (max-width: 900px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            .sidebar.open {
+                transform: translateX(0);
+            }
+            .main-content {
+                margin-left: 0;
+                padding: 24px 20px 100px;
+            }
+            .menu-toggle {
+                display: flex;
+            }
+            .session-header {
+                padding: 32px 24px;
+            }
+            .session-header h1 {
+                font-size: 1.6rem;
+            }
+        }
+
+        /* Print styles */
+        @media print {
+            .sidebar, .back-to-top, .progress-bar, .menu-toggle { display: none !important; }
+            .main-content { margin-left: 0; padding: 0; max-width: 100%; }
+            body { background: #fff; color: #000; }
+            h2 { color: #7c2d12; border-bottom-color: #ea580c; }
+            h3, h4 { color: #7c2d12; }
+            strong { color: #7c2d12; }
+            .session-header { background: #7c2d12 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            thead th { background: #ea580c !important; color: #fff !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            tbody tr:nth-child(odd) { background: #f8f9fa; }
+            tbody tr:nth-child(even) { background: #e9ecef; }
+            pre { background: #f6f8fa; border-color: #d1d5db; }
+            code { color: #7c2d12; }
+            pre code { color: #1f2937; }
+            .callout { break-inside: avoid; }
+            table { break-inside: avoid; }
+            blockquote { border-left-color: #ea580c; background: #fff7ed; color: #374151; }
+            .decision-box { background: #f8f9fa; border-color: #ea580c; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Progress Bar -->
+    <div class="progress-bar" id="progressBar"></div>
+
+    <!-- Mobile Menu Toggle -->
+    <button class="menu-toggle" id="menuToggle" aria-label="Toggle navigation">&#9776;</button>
+
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h2>Session 4</h2>
+            <p>Distributed Transactions &amp; Consistency</p>
+        </div>
+        <nav>
+            <ul>
+                <li>
+                    <a href="#s41">4.1 Distributed Transactions</a>
+                    <ul>
+                        <li><a href="#s41-2pc">4.1.1 Two-Phase Commit (2PC)</a></li>
+                        <li><a href="#s41-3pc">4.1.2 Three-Phase Commit (3PC)</a></li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="#s42">4.2 Distributed Query Processing</a>
+                    <ul>
+                        <li><a href="#s42-steps">Query Processing Steps</a></li>
+                        <li><a href="#s42-joins">Distributed Joins</a></li>
+                        <li><a href="#s42-cost">Cost Factors</a></li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="#s43">4.3 The CAP Theorem</a>
+                    <ul>
+                        <li><a href="#s43-statement">Statement &amp; Intuition</a></li>
+                        <li><a href="#s43-cpap">The Real Choice: CP or AP</a></li>
+                        <li><a href="#s43-pacelc">PACELC</a></li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="#s44">4.4 ACID vs. BASE</a>
+                    <ul>
+                        <li><a href="#s44-acid">ACID</a></li>
+                        <li><a href="#s44-base">BASE</a></li>
+                        <li><a href="#s44-compare">Comparison</a></li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="#s45">4.5 Consistency Models &amp; Tunable Consistency</a>
+                    <ul>
+                        <li><a href="#s45-spectrum">Eventual Consistency Spectrum</a></li>
+                        <li><a href="#s45-tunable">Tunable Consistency</a></li>
+                        <li><a href="#s45-quorum">Quorum Formula</a></li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="#s46">4.6 Consensus Protocols</a>
+                    <ul>
+                        <li><a href="#s46-paxos">Paxos</a></li>
+                        <li><a href="#s46-raft">Raft</a></li>
+                        <li><a href="#s46-compare">Comparison</a></li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="#s47">4.7 Distributed Recovery</a>
+                </li>
+                <li>
+                    <a href="#s48">4.8 NewSQL</a>
+                </li>
+                <li>
+                    <a href="#s49">4.9 Data Warehousing Concepts</a>
+                    <ul>
+                        <li><a href="#s49-oltp">OLTP vs. OLAP</a></li>
+                        <li><a href="#s49-star">Star &amp; Snowflake Schema</a></li>
+                        <li><a href="#s49-etl">ETL vs. ELT</a></li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="#s4-decision">Decision Framework</a>
+                </li>
+            </ul>
+        </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Header -->
+        <div class="session-header">
+            <div class="session-label">Session 4</div>
+            <h1>Distributed Transactions and Consistency Models</h1>
+            <div class="meta">
+                BITS Pilani &mdash; Structured Data Management &amp; Distributed Databases<br>
+                <strong>References:</strong> T1 Ch.23 (Sec 23.4, 23.5) | Ch.24 (Sec 24.1)<br>
+                <strong>Textbook:</strong> Elmasri &amp; Navathe, <em>Fundamentals of Database Systems</em>, 7th Ed., Pearson, 2017.
+            </div>
+        </div>
+
+        <!-- ==================== SECTION 4.1 ==================== -->
+        <h2 id="s41">4.1 Distributed Transactions</h2>
+
+        <h3>The Fundamental Challenge</h3>
+
+        <p>A <strong>distributed transaction</strong> spans multiple nodes &mdash; parts of the transaction execute at different sites. The fundamental challenge is ensuring <strong>atomicity</strong> when multiple independent nodes must agree on whether to commit or abort. If Node A commits but Node B aborts, the database is in an inconsistent state.</p>
+
+        <p>In a single-server system, atomicity is straightforward: one transaction manager makes the commit/abort decision and applies it locally. In a distributed system, multiple independent transaction managers must reach the <strong>same</strong> decision despite the possibility of network failures, node crashes, and message delays. This is the distributed commit problem.</p>
+
+        <h3 id="s41-2pc">4.1.1 Two-Phase Commit (2PC)</h3>
+
+        <p>The <strong>Two-Phase Commit</strong> protocol is the most widely used solution for atomic distributed commits. It ensures that all participating nodes either commit together or abort together.</p>
+
+        <h4>Roles</h4>
+
+        <ul>
+            <li><strong>Coordinator:</strong> The node that initiates and manages the protocol. Typically the node where the transaction was started.</li>
+            <li><strong>Participants:</strong> All other nodes that hold data modified by the transaction.</li>
+        </ul>
+
+        <h4>Phase 1 &mdash; Voting (Prepare)</h4>
+
+        <p>The coordinator asks every participant: "Can you commit your part of the transaction?"</p>
+
+        <ol>
+            <li>Coordinator sends <code>PREPARE</code> message to all participants.</li>
+            <li>Each participant checks whether it can commit its local portion (enough resources, no constraint violations, log records written to stable storage).</li>
+            <li>If YES &rarr; participant writes all changes to its local durable log (so it can recover after a crash), then sends <code>VOTE YES</code> to the coordinator. At this point, the participant has <strong>promised</strong> to commit if told to &mdash; it cannot unilaterally abort.</li>
+            <li>If NO &rarr; participant sends <code>VOTE NO</code> and aborts its local portion immediately.</li>
+        </ol>
+
+        <h4>Phase 2 &mdash; Decision (Commit/Abort)</h4>
+
+        <p>The coordinator makes the global decision based on the votes:</p>
+
+        <ul>
+            <li>If <strong>ALL</strong> participants voted YES &rarr; coordinator writes <code>GLOBAL COMMIT</code> to its log and sends <code>GLOBAL COMMIT</code> to all participants. Each participant makes changes permanent and sends ACK.</li>
+            <li>If <strong>ANY</strong> participant voted NO &rarr; coordinator writes <code>GLOBAL ABORT</code> to its log and sends <code>GLOBAL ABORT</code> to all participants. Each participant rolls back and sends ACK.</li>
+        </ul>
+
+        <pre><code>Coordinator                     Participants
+    │                               │
+    │──── PREPARE ─────────────────→│  "Can you commit?"
+    │                               │
+    │←─── VOTE YES / VOTE NO ──────│  Each participant votes
+    │                               │
+    │  (Decision based on votes)    │
+    │──── GLOBAL COMMIT/ABORT ────→│  "Commit" or "Abort"
+    │                               │
+    │←─── ACK ─────────────────────│  Confirmation</code></pre>
+
+        <h4>The Blocking Problem &mdash; 2PC's Critical Weakness</h4>
+
+        <p>If the coordinator crashes <strong>after Phase 1</strong> (after collecting YES votes but before sending the decision), participants are <strong>stuck</strong>. They voted YES and promised to commit &mdash; they cannot unilaterally abort (the coordinator might have decided to commit). They also cannot commit (the coordinator might have decided to abort because another participant voted NO). They must <strong>wait</strong> while holding locks, potentially blocking other transactions indefinitely.</p>
+
+        <p>This blocking is 2PC's most serious problem. In practice, it means 2PC is only suitable for environments with reliable, low-latency networks (typically within a single data centre).</p>
+
+        <h3 id="s41-3pc">4.1.2 Three-Phase Commit (3PC)</h3>
+
+        <p>3PC adds an extra phase to reduce blocking:</p>
+
+        <ol>
+            <li><strong>CanCommit?</strong> &mdash; Coordinator asks participants if they can commit (same as 2PC Phase 1).</li>
+            <li><strong>PreCommit</strong> &mdash; If all agree, coordinator sends a <code>PRE-COMMIT</code> message. Participants prepare but don't commit yet. This phase ensures that all participants know the coordinator <strong>intends</strong> to commit.</li>
+            <li><strong>DoCommit</strong> &mdash; Coordinator sends final <code>COMMIT</code>. Participants make changes permanent.</li>
+        </ol>
+
+        <h4>How this reduces blocking</h4>
+
+        <p>If the coordinator crashes after Phase 2 (PreCommit sent), participants can determine the outcome:</p>
+
+        <ul>
+            <li>If a participant received PreCommit &rarr; the decision was likely to commit.</li>
+            <li>If a participant did NOT receive PreCommit &rarr; safe to abort.</li>
+        </ul>
+
+        <div class="callout callout-warn">
+            <div class="callout-title">Limitation</div>
+            <p>3PC adds latency (extra network round-trip) and still does <strong>not</strong> fully handle network partitions (a partition can split participants into two groups that make different decisions). For this reason, 3PC is rarely used in practice. Modern systems use consensus protocols (Paxos, Raft) instead.</p>
+        </div>
+
+        <!-- ==================== SECTION 4.2 ==================== -->
+        <h2 id="s42">4.2 Distributed Query Processing</h2>
+
+        <h3>4.2.1 The Challenge</h3>
+
+        <p>In a distributed system, a single SQL query may need data from multiple sites. The query optimizer must decide:</p>
+
+        <ul>
+            <li><strong>Which fragments</strong> contain the relevant data?</li>
+            <li><strong>Where</strong> should each part of the query execute?</li>
+            <li><strong>How</strong> should intermediate results be transferred between sites?</li>
+        </ul>
+
+        <p>The key cost factor is <strong>network transfer</strong> &mdash; moving data between nodes is orders of magnitude slower than local disk I/O or CPU processing. A good distributed query optimizer minimises total data transfer.</p>
+
+        <h3 id="s42-steps">4.2.2 Query Processing Steps</h3>
+
+        <pre><code>SQL Query
+    ↓
+Query Parsing (syntax check, validate tables/columns)
+    ↓
+Global Query Optimization (consider data locations, network cost, fragment locations)
+    ↓
+Fragment Localization (map global relations to local fragments)
+    ↓
+Local Query Optimization (each site optimizes its local sub-query)
+    ↓
+Distributed Execution (execute sub-queries at relevant sites, transfer intermediates)
+    ↓
+Result Assembly (combine partial results at the query site)</code></pre>
+
+        <h3 id="s42-joins">4.2.3 Strategies for Distributed Joins</h3>
+
+        <p>When a join involves data at two different sites, several strategies exist:</p>
+
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr><th>Strategy</th><th>How it works</th><th>When to use</th><th>Data transfer cost</th></tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Ship-whole</strong></td>
+                        <td>Send the entire smaller table/fragment to the other site. Perform the join locally.</td>
+                        <td>One table is much smaller than the other.</td>
+                        <td>Size of the smaller table.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Semi-join</strong></td>
+                        <td>Site A sends only the <strong>join column values</strong> to Site B. Site B filters its rows using these values, then sends matching rows back to A. A performs the final join.</td>
+                        <td>Tables are large but join selectivity is high (few matches).</td>
+                        <td>Join column values + matching rows only.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Bloom-filter join</strong></td>
+                        <td>Site A sends a compact <strong>Bloom filter</strong> (probabilistic data structure) of its join keys. Site B uses it to pre-filter, then sends matching rows.</td>
+                        <td>Very large tables where even sending join columns is expensive.</td>
+                        <td>Bloom filter (small) + matching rows.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Parallel execution</strong></td>
+                        <td>Break the query into independent sub-queries that execute simultaneously at different sites. Merge results.</td>
+                        <td>Multiple partitions can be scanned in parallel.</td>
+                        <td>Depends on partition scheme.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <h3 id="s42-cost">4.2.4 Cost Factors</h3>
+
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr><th>Factor</th><th>Relative importance</th></tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Network transfer cost</strong></td>
+                        <td><strong>Dominant</strong> &mdash; moving data between nodes is by far the most expensive. A distributed optimizer primarily minimises data transfer.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Local I/O cost</strong></td>
+                        <td>Important &mdash; disk reads/writes at each site. Addressed by local indexes and buffer management.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Local CPU cost</strong></td>
+                        <td>Usually least significant &mdash; filtering, sorting, and joining are CPU-bound but modern CPUs are fast.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- ==================== SECTION 4.3 ==================== -->
+        <h2 id="s43">4.3 The CAP Theorem</h2>
+
+        <h3 id="s43-statement">4.3.1 Statement and Intuition</h3>
+
+        <p>The CAP Theorem, proposed by <strong>Eric Brewer</strong> in 2000 and formally proved by <strong>Seth Gilbert and Nancy Lynch</strong> in 2002, is one of the most important theoretical results in distributed systems.</p>
+
+        <p><strong>Statement:</strong> In a distributed data store, it is impossible to simultaneously guarantee all three of the following properties. At most two can be achieved.</p>
+
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr><th>Property</th><th>Definition</th><th>Practical meaning</th></tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Consistency (C)</strong></td>
+                        <td>Every read receives the most recent write or an error. All nodes see the same data at the same time. This is <strong>linearisability</strong> &mdash; the strictest form of consistency.</td>
+                        <td>If you write "balance = 500" and immediately read from any node, you always see 500. No stale data window.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Availability (A)</strong></td>
+                        <td>Every request receives a non-error response, without guarantee it contains the most recent write.</td>
+                        <td>The system never refuses to answer. Every functioning node returns a result, even if it might be outdated. No "service unavailable" errors.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Partition tolerance (P)</strong></td>
+                        <td>The system continues operating despite arbitrary message loss or network failures between nodes.</td>
+                        <td>If the network cable between London and Mumbai is cut, both sites continue serving requests rather than shutting down.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <h3 id="s43-cpap">4.3.2 The Real Choice: CP or AP</h3>
+
+        <p>The way CAP is often taught &mdash; "pick any 2" &mdash; is misleading because it implies CA, CP, and AP are equally valid choices. In reality, <strong>network partitions are not optional</strong>. In any distributed system on real hardware, partitions will happen &mdash; switches fail, cables are cut, cloud availability zones disconnect, packets are dropped.</p>
+
+        <p>Since P is a fact of life (not a choice), the real question becomes:</p>
+
+        <p><strong>When a partition occurs, do you sacrifice Consistency or Availability?</strong></p>
+
+        <p>Imagine: the network between Node A and Node B is down. A write arrives at Node A. A read for the same data arrives at Node B. Two options:</p>
+
+        <ol>
+            <li><strong>Sacrifice Availability (CP):</strong> Node B refuses to answer (returns error or blocks) because it can't confirm it has the latest data. Users get errors, but no one ever sees stale data.</li>
+            <li><strong>Sacrifice Consistency (AP):</strong> Node B returns whatever data it has, which might be stale (the write at Node A hasn't propagated yet). Users always get a response, but it might be outdated.</li>
+        </ol>
+
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr><th>Choice</th><th>Behaviour during partition</th><th>Best for</th><th>Examples</th></tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>CP</strong></td>
+                        <td>Return errors rather than stale data.</td>
+                        <td>Financial systems, inventory, medical records &mdash; where incorrect data can cause real harm.</td>
+                        <td>HBase, MongoDB (default), Zookeeper, etcd</td>
+                    </tr>
+                    <tr>
+                        <td><strong>AP</strong></td>
+                        <td>Return best available (possibly stale) data.</td>
+                        <td>Social media, e-commerce product catalog, analytics &mdash; where brief staleness is acceptable.</td>
+                        <td>Cassandra, DynamoDB, CouchDB, DNS</td>
+                    </tr>
+                    <tr>
+                        <td><strong>CA</strong></td>
+                        <td>Only possible without partitions &mdash; a single-server system. Not a real distributed option.</td>
+                        <td>Traditional single-server databases.</td>
+                        <td>PostgreSQL on one server, SQLite</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <h3 id="s43-pacelc">4.3.3 CAP in Practice &mdash; PACELC</h3>
+
+        <p>Most real systems are not purely CP or AP &mdash; they offer <strong>tunable consistency</strong>. Daniel Abadi extended CAP with the <strong>PACELC</strong> model:</p>
+
+        <ul>
+            <li><strong>If Partition (P):</strong> choose <strong>Availability (A)</strong> or <strong>Consistency (C)</strong>.</li>
+            <li><strong>Else (E)</strong> (no partition, normal operation): choose <strong>Latency (L)</strong> or <strong>Consistency (C)</strong>.</li>
+        </ul>
+
+        <p>This captures the fact that even during normal (non-partitioned) operation, there is a trade-off: strong consistency requires coordination between nodes, which adds latency.</p>
+
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr><th>System</th><th>During partition</th><th>Normal operation</th></tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Cassandra</strong></td>
+                        <td>PA (availability)</td>
+                        <td>EL (low latency)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>HBase</strong></td>
+                        <td>PC (consistency)</td>
+                        <td>EC (consistency)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>DynamoDB</strong></td>
+                        <td>PA (availability)</td>
+                        <td>EL (low latency)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>CockroachDB</strong></td>
+                        <td>PC (consistency)</td>
+                        <td>EC (consistency)</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- ==================== SECTION 4.4 ==================== -->
+        <h2 id="s44">4.4 ACID vs. BASE</h2>
+
+        <h3 id="s44-acid">4.4.1 ACID</h3>
+
+        <p>ACID is the cornerstone of traditional relational database reliability. These four properties guarantee that transactions are processed correctly and completely, even in the face of failures and concurrent access.</p>
+
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr><th>Property</th><th>Meaning</th><th>Why it matters</th></tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Atomicity</strong></td>
+                        <td>All or nothing &mdash; every operation completes, or none do.</td>
+                        <td>A bank transfer that debits but doesn't credit would lose money. Atomicity prevents this.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Consistency</strong></td>
+                        <td>Database moves from one valid state to another. All constraints satisfied.</td>
+                        <td>If a rule says "balance &ge; 0", no transaction can violate it, even temporarily from another transaction's view.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Isolation</strong></td>
+                        <td>Concurrent transactions behave as if serial. Intermediate states invisible.</td>
+                        <td>Two simultaneous transfers don't interfere &mdash; each sees a clean snapshot.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Durability</strong></td>
+                        <td>Once committed, changes survive any failure.</td>
+                        <td>After the bank confirms "transfer successful," the money stays transferred even if the server crashes immediately after.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <p>ACID provides <strong>strong guarantees</strong> but can limit scalability in distributed settings. The coordination overhead (distributed locks, two-phase commit) adds latency and reduces availability.</p>
+
+        <h3 id="s44-base">4.4.2 BASE</h3>
+
+        <p>BASE is the philosophical alternative adopted by many NoSQL and distributed systems that prioritise <strong>availability and scalability</strong> over immediate consistency. The acronym was coined by <strong>Dan Pritchett</strong> of eBay as a deliberate contrast to ACID.</p>
+
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr><th>Property</th><th>Meaning</th><th>Practical example</th></tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Basically Available</strong></td>
+                        <td>System always returns a response, even if some data is temporarily inconsistent.</td>
+                        <td>Amazon's shopping cart always works. If one data centre is unreachable, the system still accepts orders.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Soft state</strong></td>
+                        <td>System state may change over time even without new input, as replicas synchronise.</td>
+                        <td>After updating your profile picture, different servers may show the old picture for a few seconds.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Eventually consistent</strong></td>
+                        <td>If no new updates are made, all replicas converge to the same value. No guarantee about when.</td>
+                        <td>A tweet you post may not be visible to a friend in another country for a few seconds.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <h3 id="s44-compare">4.4.3 Comparison</h3>
+
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr><th>Aspect</th><th>ACID</th><th>BASE</th></tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Consistency model</strong></td>
+                        <td>Strong (immediate).</td>
+                        <td>Eventual (may take time to converge).</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Availability</strong></td>
+                        <td>May sacrifice for consistency.</td>
+                        <td>Prioritises availability.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Scalability</strong></td>
+                        <td>Harder to scale horizontally (coordination overhead).</td>
+                        <td>Designed for horizontal scale.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Use cases</strong></td>
+                        <td>Financial transactions, inventory counts, bookings.</td>
+                        <td>Social media feeds, analytics dashboards, caching, IoT telemetry.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Application complexity</strong></td>
+                        <td>Simpler &mdash; DB handles correctness.</td>
+                        <td>Higher &mdash; app must handle temporary inconsistency (stale reads, conflict resolution).</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Write latency</strong></td>
+                        <td>Higher (coordination with replicas).</td>
+                        <td>Lower (write locally, propagate later).</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="callout callout-tip">
+            <div class="callout-title">Real-world systems mix both</div>
+            <p>A banking platform uses ACID for account balances but eventual consistency for transaction history analytics. An e-commerce platform uses strong consistency for inventory counts (to avoid overselling) but eventual consistency for product reviews and recommendations.</p>
+        </div>
+
+        <!-- ==================== SECTION 4.5 ==================== -->
+        <h2 id="s45">4.5 Consistency Models and Tunable Consistency</h2>
+
+        <h3 id="s45-spectrum">4.5.1 Eventual Consistency is a Spectrum</h3>
+
+        <p>Eventual consistency is not a single model &mdash; it's a <strong>spectrum</strong> of increasingly strong guarantees:</p>
+
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr><th>Variant</th><th>Guarantee</th><th>Example</th></tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Basic eventual</strong></td>
+                        <td>All replicas converge eventually. No ordering guarantees.</td>
+                        <td>DNS updates propagate within hours.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Causal consistency</strong></td>
+                        <td>If operation A causally precedes B (A happened-before B), everyone sees A before B.</td>
+                        <td>If Alice posts "I got a job!" and Bob replies "Congrats!", everyone sees Alice's post before Bob's reply &mdash; never the reply without the post.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Read-your-writes</strong></td>
+                        <td>After a write, the same client always sees its own update on subsequent reads.</td>
+                        <td>You update your profile bio. When you refresh the page, you see your new bio &mdash; not the old one from a stale replica.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Monotonic reads</strong></td>
+                        <td>Once a client reads a value, it never sees an older value on subsequent reads.</td>
+                        <td>If you see 15 likes on a post, you'll never see 12 likes on the next refresh (even if you're load-balanced to a different replica).</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Monotonic writes</strong></td>
+                        <td>Writes by the same client are applied in order.</td>
+                        <td>If you set your name to "Alice" then to "Alicia", all replicas apply the changes in that order &mdash; never the reverse.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Session consistency</strong></td>
+                        <td>Within a session: read-your-writes + monotonic reads.</td>
+                        <td>Common in web applications. Your session is "sticky" to a replica or tracks a consistency token.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <h3 id="s45-tunable">4.5.2 Tunable Consistency</h3>
+
+        <p>Many distributed systems let you choose the consistency level <strong>per query</strong>, trading off between latency and freshness.</p>
+
+        <h4>Cassandra's consistency levels</h4>
+
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr><th>Level</th><th>Meaning</th><th>Latency</th><th>Consistency</th></tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>ONE</code></td>
+                        <td>Read/write acknowledged by 1 replica.</td>
+                        <td>Fastest</td>
+                        <td>Weakest &mdash; may read stale data.</td>
+                    </tr>
+                    <tr>
+                        <td><code>QUORUM</code></td>
+                        <td>Acknowledged by a majority (&lfloor;N/2&rfloor;+1) of replicas.</td>
+                        <td>Moderate</td>
+                        <td>Balanced.</td>
+                    </tr>
+                    <tr>
+                        <td><code>ALL</code></td>
+                        <td>Acknowledged by all replicas.</td>
+                        <td>Slowest</td>
+                        <td>Strongest &mdash; but if any replica is down, the operation fails.</td>
+                    </tr>
+                    <tr>
+                        <td><code>LOCAL_QUORUM</code></td>
+                        <td>Quorum within the local data centre only.</td>
+                        <td>Low (no cross-DC latency)</td>
+                        <td>Strong within DC; eventual across DCs.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <h3 id="s45-quorum">4.5.3 The Quorum Formula</h3>
+
+        <p>For a system with N replicas, if you write to W replicas and read from R replicas:</p>
+
+        <pre><code>Strong consistency guaranteed when:  R + W > N</code></pre>
+
+        <p>This ensures that every read set (R replicas) overlaps with the latest write set (W replicas) &mdash; at least one replica in the read group has the most recent write.</p>
+
+        <h4>Examples (N=3)</h4>
+
+        <ul>
+            <li>W=2, R=2: 2+2=4 &gt; 3 &rarr; <strong>Strong consistency.</strong> <span class="check">&#10003;</span></li>
+            <li>W=1, R=3: 1+3=4 &gt; 3 &rarr; Strong, but reads are slow (must contact all 3). <span class="check">&#10003;</span></li>
+            <li>W=3, R=1: 3+1=4 &gt; 3 &rarr; Strong, but writes are slow (must contact all 3). <span class="check">&#10003;</span></li>
+            <li>W=1, R=1: 1+1=2 &le; 3 &rarr; <strong>NOT strong.</strong> Reads may miss the latest write. <span class="cross">&#10007;</span></li>
+        </ul>
+
+        <!-- ==================== SECTION 4.6 ==================== -->
+        <h2 id="s46">4.6 Consensus Protocols</h2>
+
+        <h3>4.6.1 The Consensus Problem</h3>
+
+        <p>2PC's blocking problem and 3PC's partition vulnerability led to the development of <strong>consensus protocols</strong> &mdash; algorithms that allow a group of nodes to agree on a value even when some nodes crash. The key difference: consensus protocols tolerate node failures without blocking.</p>
+
+        <h3 id="s46-paxos">4.6.2 Paxos (Lamport, 1990)</h3>
+
+        <p>Proposed by <strong>Leslie Lamport</strong>, Paxos is the foundational consensus algorithm. It guarantees <strong>safety</strong> (only one value is chosen, and a node only learns a value that was actually proposed) as long as a majority of nodes are operational.</p>
+
+        <p><strong>Roles:</strong> Proposers (propose values), Acceptors (vote on proposals), Learners (learn the agreed value).</p>
+
+        <h4>Key properties</h4>
+
+        <ul>
+            <li>Tolerates failure of up to &lfloor;(N-1)/2&rfloor; nodes out of N.</li>
+            <li>No blocking &mdash; if a proposer crashes, another can take over.</li>
+            <li>Partition tolerant (majority quorum).</li>
+            <li><strong>Notoriously difficult</strong> to understand and implement correctly. Lamport himself noted it took years for the community to accept the algorithm.</li>
+        </ul>
+
+        <h3 id="s46-raft">4.6.3 Raft (Ongaro &amp; Ousterhout, 2014)</h3>
+
+        <p><strong>Raft</strong> was designed as an understandable alternative to Paxos. It provides the same guarantees but decomposes consensus into three clean sub-problems:</p>
+
+        <ol>
+            <li><strong>Leader election:</strong> One node is elected leader. It manages all client requests and log replication. If the leader crashes, followers detect the absence (via heartbeat timeout) and elect a new leader.</li>
+            <li><strong>Log replication:</strong> The leader receives client requests, appends them to its log, and replicates log entries to followers. Once a majority acknowledge an entry, it is <strong>committed</strong> and applied to the state machine.</li>
+            <li><strong>Safety:</strong> Only nodes with up-to-date logs can become leaders. This prevents stale nodes from overwriting committed data.</li>
+        </ol>
+
+        <p><strong>Node states:</strong> Follower &rarr; Candidate (on election timeout) &rarr; Leader (on majority vote).</p>
+
+        <p><strong>Used in:</strong> etcd (Kubernetes), CockroachDB, TiKV, Consul, InfluxDB.</p>
+
+        <h3 id="s46-compare">4.6.4 Comparison</h3>
+
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr><th>Aspect</th><th>2PC</th><th>Paxos</th><th>Raft</th></tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Purpose</strong></td>
+                        <td>Atomic commit (all-or-nothing for distributed transactions).</td>
+                        <td>Consensus (agree on a value/log entry).</td>
+                        <td>Consensus (leader-based, understandable).</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Blocking?</strong></td>
+                        <td>Yes &mdash; coordinator failure blocks participants.</td>
+                        <td>No &mdash; leader election handles failures.</td>
+                        <td>No &mdash; automatic leader election.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Partition tolerant?</strong></td>
+                        <td>No &mdash; requires all participants reachable.</td>
+                        <td>Yes &mdash; works with majority quorum.</td>
+                        <td>Yes &mdash; works with majority quorum.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Fault tolerance</strong></td>
+                        <td>Coordinator is SPOF.</td>
+                        <td>Tolerates &lt; N/2 failures.</td>
+                        <td>Tolerates &lt; N/2 failures.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Complexity</strong></td>
+                        <td>Simple to implement.</td>
+                        <td>Very complex &mdash; hard to get right.</td>
+                        <td>Moderate &mdash; designed for understandability.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Use in practice</strong></td>
+                        <td>Traditional distributed DBs within one data centre.</td>
+                        <td>Google Spanner (Multi-Paxos).</td>
+                        <td>etcd, CockroachDB, TiKV.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- ==================== SECTION 4.7 ==================== -->
+        <h2 id="s47">4.7 Distributed Recovery</h2>
+
+        <h3>4.7.1 The Challenge</h3>
+
+        <p>Recovery in a distributed system must handle three types of failures:</p>
+
+        <ol>
+            <li><strong>Node crashes:</strong> A node restarts and must recover its local state using its local WAL (same as single-server recovery).</li>
+            <li><strong>Network partitions:</strong> Communication between nodes is lost temporarily. Nodes may make independent decisions that later need to be reconciled.</li>
+            <li><strong>Coordinator failures in 2PC:</strong> The coordinator holds the commit/abort decision. If it crashes, participants are stuck.</li>
+        </ol>
+
+        <h3>4.7.2 Handling 2PC Coordinator Failure</h3>
+
+        <ol>
+            <li><strong>Log-based recovery:</strong> When the coordinator restarts, it reads its log. If the log contains a <code>GLOBAL COMMIT</code> or <code>GLOBAL ABORT</code> record, it re-sends the decision. If neither exists, it sends <code>GLOBAL ABORT</code> (the safe default &mdash; no promise was made).</li>
+            <li><strong>Participant inquiry:</strong> A blocked participant can ask other participants what they voted. If any voted NO, everyone can safely abort. If all voted YES but no decision was received, they must wait (this is the blocking case).</li>
+            <li><strong>Cooperative termination protocol:</strong> Participants communicate with each other (not just the coordinator) to determine the outcome. If any participant knows the decision, it shares it.</li>
+        </ol>
+
+        <h3>4.7.3 Why Consensus Beats 2PC for Recovery</h3>
+
+        <p>Modern distributed databases (CockroachDB, Spanner, TiDB) use Raft or Paxos for replication and leader election. When a leader crashes, a new leader is elected within seconds &mdash; no blocking. Transaction decisions are stored in the replicated log, so they survive node failures. This eliminates the 2PC coordinator SPOF.</p>
+
+        <!-- ==================== SECTION 4.8 ==================== -->
+        <h2 id="s48">4.8 NewSQL</h2>
+
+        <p><strong>NewSQL</strong> databases aim to provide the best of both worlds: the <strong>scalability of NoSQL</strong> with the <strong>ACID guarantees of traditional relational databases</strong>.</p>
+
+        <h3>Characteristics</h3>
+
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr><th>Feature</th><th>Detail</th></tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>SQL interface</strong></td>
+                        <td>Full SQL support &mdash; not a limited subset. Standard query language.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>ACID transactions</strong></td>
+                        <td>Including distributed transactions across multiple nodes.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Horizontal scalability</strong></td>
+                        <td>Shared-nothing architecture with automatic sharding. Adding nodes increases capacity.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>High availability</strong></td>
+                        <td>Automatic replication with consensus-based failover.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <h3>How They Achieve This</h3>
+
+        <ul>
+            <li><strong>Distributed consensus (Raft/Paxos)</strong> replaces 2PC for many operations. Leader election handles node failures without blocking.</li>
+            <li><strong>MVCC + distributed timestamps</strong> provide isolation without distributed locking. Google Spanner uses TrueTime (GPS + atomic clocks); CockroachDB uses Hybrid Logical Clocks.</li>
+            <li><strong>Automatic sharding and rebalancing</strong> &mdash; data is partitioned across nodes and automatically rebalanced as nodes are added/removed.</li>
+        </ul>
+
+        <h3>Notable Systems</h3>
+
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr><th>System</th><th>Key Feature</th></tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Google Spanner</strong></td>
+                        <td>Globally distributed. Uses GPS and atomic clocks (TrueTime) for externally consistent timestamps across continents.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>CockroachDB</strong></td>
+                        <td>Open-source. Raft-based. PostgreSQL-compatible wire protocol. Designed for multi-region deployment.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>YugabyteDB</strong></td>
+                        <td>Open-source. Raft-based. Supports both PostgreSQL (SQL) and Cassandra (CQL) APIs.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>TiDB</strong></td>
+                        <td>Open-source. MySQL-compatible. Uses TiKV (Raft-based distributed key-value store) for storage.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>VoltDB</strong></td>
+                        <td>In-memory. Deterministic execution model for extreme throughput.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- ==================== SECTION 4.9 ==================== -->
+        <h2 id="s49">4.9 Data Warehousing Concepts</h2>
+
+        <h3 id="s49-oltp">4.9.1 OLTP vs. OLAP</h3>
+
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr><th>Aspect</th><th>OLTP (Online Transaction Processing)</th><th>OLAP (Online Analytical Processing)</th></tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Purpose</strong></td>
+                        <td>Day-to-day operations (place an order, transfer money).</td>
+                        <td>Business analysis and reporting (quarterly sales by region).</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Queries</strong></td>
+                        <td>Short, simple, frequent (INSERT, UPDATE, point SELECTs).</td>
+                        <td>Complex, long-running (aggregations, multi-table joins, window functions).</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Data</strong></td>
+                        <td>Current, detailed, normalised.</td>
+                        <td>Historical, summarised, denormalised.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Schema</strong></td>
+                        <td>Normalised (3NF) to minimise redundancy.</td>
+                        <td>Denormalised (star/snowflake) for query performance.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Users</strong></td>
+                        <td>Application users, clerks, customers.</td>
+                        <td>Business analysts, data scientists, managers.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Concurrency</strong></td>
+                        <td>High (thousands of simultaneous transactions).</td>
+                        <td>Low (few analysts running heavy queries).</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Example system</strong></td>
+                        <td>PostgreSQL, MySQL, Oracle (operational).</td>
+                        <td>Amazon Redshift, Google BigQuery, Snowflake, ClickHouse.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <h3 id="s49-star">4.9.2 Star Schema and Snowflake Schema</h3>
+
+        <h4>Star Schema</h4>
+
+        <ul>
+            <li><strong>Fact table</strong> (centre): Contains quantitative measures (sales_amount, quantity, profit) and foreign keys to dimension tables. One row per transaction/event.</li>
+            <li><strong>Dimension tables</strong> (points of the star): Describe the who/what/when/where &mdash; Product, Time, Customer, Store. Denormalised for fast joins.</li>
+        </ul>
+
+        <h4>Snowflake Schema</h4>
+
+        <ul>
+            <li>Same as star, but dimension tables are <strong>normalised</strong> (e.g. DIM_PRODUCT references DIM_CATEGORY, which references DIM_DEPARTMENT).</li>
+            <li>Saves storage but requires more joins.</li>
+        </ul>
+
+        <h3 id="s49-etl">4.9.3 ETL vs. ELT</h3>
+
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr><th>Approach</th><th>Where transformation happens</th><th>When to use</th></tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>ETL</strong> (Extract, Transform, Load)</td>
+                        <td>In a staging area <strong>before</strong> loading into the warehouse.</td>
+                        <td>Traditional on-premises warehouses where compute is limited.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>ELT</strong> (Extract, Load, Transform)</td>
+                        <td>Inside the warehouse <strong>after</strong> loading raw data.</td>
+                        <td>Cloud warehouses (BigQuery, Snowflake, Redshift) where compute is elastic and cheap.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- ==================== DECISION FRAMEWORK ==================== -->
+        <h2 id="s4-decision">Decision Framework &mdash; Choosing a Consistency Model</h2>
+
+        <div class="decision-box">
+            <pre><code>Is your data safety-critical (money, health, inventory)?
+    YES → Strong consistency (CP / ACID / NewSQL)
+    NO  ↓
+Can your app tolerate temporary stale reads?
+    YES → Eventual consistency (AP / BASE) — scale out freely
+    NO  → Causal or session consistency (middle ground)</code></pre>
+        </div>
+
+        <div class="callout callout-info">
+            <div class="callout-title">Best Practice</div>
+            <p><strong>Mix models within the same system:</strong></p>
+            <ul style="margin-bottom: 0;">
+                <li>ACID for the payment/order service.</li>
+                <li>Eventual consistency for the recommendation engine.</li>
+                <li>Session consistency for user profile reads.</li>
+            </ul>
+        </div>
+
+        <hr>
+        <p style="text-align: center; color: var(--text-muted); font-style: italic; margin-top: 40px;">End of Session 4</p>
+
+    </main>
+
+    <!-- Back to Top Button -->
+    <button class="back-to-top" id="backToTop" aria-label="Back to top">&uarr;</button>
+
+    <script>
+        // Progress bar
+        window.addEventListener('scroll', () => {
+            const scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
+            const scrollHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+            const progress = (scrollTop / scrollHeight) * 100;
+            document.getElementById('progressBar').style.width = progress + '%';
+        });
+
+        // Back to top button
+        const backToTop = document.getElementById('backToTop');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 400) {
+                backToTop.classList.add('visible');
+            } else {
+                backToTop.classList.remove('visible');
+            }
+        });
+        backToTop.addEventListener('click', () => {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+
+        // Mobile menu toggle
+        const menuToggle = document.getElementById('menuToggle');
+        const sidebar = document.getElementById('sidebar');
+        menuToggle.addEventListener('click', () => {
+            sidebar.classList.toggle('open');
+        });
+
+        // Close sidebar on link click (mobile)
+        sidebar.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', () => {
+                if (window.innerWidth <= 900) {
+                    sidebar.classList.remove('open');
+                }
+            });
+        });
+
+        // Active link highlight
+        const sections = document.querySelectorAll('h2[id], h3[id]');
+        const navLinks = document.querySelectorAll('.sidebar nav a');
+
+        window.addEventListener('scroll', () => {
+            let current = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop - 100;
+                if (window.scrollY >= sectionTop) {
+                    current = section.getAttribute('id');
+                }
+            });
+
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href') === '#' + current) {
+                    link.classList.add('active');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CS5: IaaS Services</title>
+<style>
+:root{--bg:#0f172a;--surface:#1e293b;--surface2:#334155;--border:#475569;--text:#e2e8f0;--text-muted:#94a3b8;--code-bg:#0d1117;--accent:#ef4444;--accent-dim:rgba(239,68,68,.12);--accent-border:rgba(239,68,68,.3)}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}html{scroll-behavior:smooth;scroll-padding-top:80px}body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);line-height:1.7;min-height:100vh}
+.progress-bar{position:fixed;top:0;left:0;height:3px;background:var(--accent);z-index:1001;transition:width .25s}
+.sidebar{position:fixed;top:0;left:0;width:280px;height:100vh;background:var(--surface);border-right:1px solid var(--border);overflow-y:auto;z-index:100;transition:transform .3s}.sidebar-header{padding:20px;border-bottom:1px solid var(--border);text-align:center}.sidebar-header h2{font-size:1rem;color:var(--accent);margin-bottom:4px}.sidebar-header small{color:var(--text-muted);font-size:.75rem}.sidebar nav{padding:12px 0}.sidebar nav a{display:block;padding:8px 20px;color:var(--text-muted);text-decoration:none;font-size:.85rem;border-left:3px solid transparent;transition:all .2s}.sidebar nav a:hover,.sidebar nav a.active{color:var(--accent);background:var(--accent-dim);border-left-color:var(--accent)}.sidebar nav .nav-group{padding:10px 20px 4px;font-size:.7rem;text-transform:uppercase;letter-spacing:1px;color:var(--border);font-weight:700}
+.sidebar-toggle{display:none;position:fixed;top:12px;left:12px;z-index:200;background:var(--surface);border:1px solid var(--border);color:var(--text);padding:8px 12px;border-radius:6px;cursor:pointer;font-size:1.1rem}
+.main{margin-left:280px;max-width:900px;padding:40px 40px 100px}.main h1{font-size:2rem;color:var(--accent);margin-bottom:8px;line-height:1.3}.main .subtitle{color:var(--text-muted);font-size:.9rem;margin-bottom:32px;line-height:1.6}.main .subtitle strong{color:var(--text)}.main h2{font-size:1.45rem;color:var(--accent);margin:48px 0 16px;padding-bottom:8px;border-bottom:2px solid var(--accent-border)}.main h3{font-size:1.15rem;color:var(--text);margin:32px 0 12px}.main h4{font-size:1rem;color:var(--accent);margin:24px 0 8px}.main p{margin-bottom:14px}.main ul,.main ol{margin:0 0 16px 24px}.main li{margin-bottom:6px}.main li strong{color:var(--accent)}.main em{color:var(--text-muted);font-style:italic}.main blockquote{border-left:4px solid var(--accent);background:var(--accent-dim);padding:14px 20px;margin:16px 0;border-radius:0 8px 8px 0;color:var(--text-muted);font-style:italic}.main hr{border:none;border-top:1px solid var(--border);margin:40px 0}
+table{width:100%;border-collapse:collapse;margin:16px 0 24px;font-size:.88rem}thead th{background:var(--accent);color:#fff;padding:10px 14px;text-align:left;font-weight:600}tbody td{padding:10px 14px;border-bottom:1px solid var(--border)}tbody tr:nth-child(even){background:var(--surface)}tbody tr:nth-child(odd){background:var(--surface2)}tbody tr:hover{background:var(--accent-dim)}td strong{color:var(--accent)}
+pre{background:var(--code-bg);border:1px solid var(--border);border-radius:8px;padding:18px;overflow-x:auto;margin:16px 0;font-size:.85rem;line-height:1.6}code{font-family:'Cascadia Code','Fira Code','Consolas',monospace;font-size:.88em}p code,li code,td code{background:var(--code-bg);padding:2px 7px;border-radius:4px;color:var(--accent);border:1px solid var(--border)}
+.back-to-top{position:fixed;bottom:30px;right:30px;width:44px;height:44px;background:var(--accent);color:#fff;border:none;border-radius:50%;font-size:1.3rem;cursor:pointer;display:none;align-items:center;justify-content:center;box-shadow:0 4px 15px rgba(0,0,0,.3);z-index:100;transition:transform .2s}.back-to-top:hover{transform:scale(1.1)}.back-to-top.visible{display:flex}
+@media(max-width:900px){.sidebar{transform:translateX(-100%)}.sidebar.open{transform:translateX(0)}.sidebar-toggle{display:block}.main{margin-left:0;padding:70px 20px 100px}}
+@media print{.sidebar,.sidebar-toggle,.back-to-top,.progress-bar{display:none!important}.main{margin-left:0;max-width:100%}body{background:#fff;color:#000}table{font-size:.75rem}thead th{background:#333;color:#fff;-webkit-print-color-adjust:exact;print-color-adjust:exact}tbody tr:nth-child(even){background:#f0f0f0}tbody tr:nth-child(odd){background:#fff}pre{background:#f5f5f5;border:1px solid #ccc}code{color:#333}h1,h2,h3,h4{color:#111}a{color:#111;text-decoration:underline}}
+</style>
+</head>
+<body>
+<div class="progress-bar" id="progressBar"></div>
+<button class="sidebar-toggle" id="sidebarToggle">☰</button>
+<aside class="sidebar" id="sidebar">
+<div class="sidebar-header"><h2>CS5: IaaS Services</h2><small>Cloud Computing — BITS Pilani</small></div>
+<nav>
+<div class="nav-group">Study Materials</div>
+<a href="CS1-Introduction-to-Cloud-Computing.html">CS1 — Intro to Cloud</a>
+<a href="CS2-CS3-Virtualization.html">CS2-CS3 — Virtualization</a>
+<a href="CS4-Hypervisor-and-IaaS.html">CS4 — Hypervisor &amp; IaaS</a>
+<a href="CS5-IaaS-Services.html" class="active">CS5 — IaaS Services</a>
+<a href="CS6-Containers-and-Cloud-Native.html">CS6 — Containers</a>
+<div class="nav-group">Questions &amp; Answers</div>
+<a href="CS1-Questions-and-Answers.html">CS1 Q&amp;A (15 Qs)</a>
+<a href="CS2-CS3-Questions-and-Answers.html">CS2-CS3 Q&amp;A (6 Qs)</a>
+<a href="CS4-Questions-and-Answers.html">CS4 Q&amp;A (8 Qs)</a>
+<a href="CS5-Questions-and-Answers.html">CS5 Q&amp;A (10 Qs)</a>
+<a href="CS6-Questions-and-Answers.html">CS6 Q&amp;A (12 Qs)</a>
+<div class="nav-group">Sections</div>
+<a href="#s35">3.5 IAM</a>
+<a href="#s36">3.6 Compute Services</a>
+<a href="#s37">3.7 Storage Services</a>
+<a href="#s38">3.8 Data Services</a>
+<a href="#s39">3.9 Big Data &amp; Analytics</a>
+<a href="#sAdd">Additional AWS Services</a>
+</nav>
+</aside>
+
+<main class="main">
+<h1>CS5: IaaS Services — Compute, Storage, Network, and Data Services</h1>
+<div class="subtitle">
+BITS Pilani — <strong>CSI ZG527 / SE ZG527 / SS ZG527: Cloud Computing</strong><br>
+<strong>References:</strong> T1: Ch2 | T2: Ch3 | R8 (AWS Documentation)<br>
+<strong>Contact Hours:</strong> 15-16 (Handout Topics 3.5-3.9)<br>
+<strong>Class Slide:</strong> CS5 - IAAS | <strong>Lecture Notes:</strong> Lecture 5 &amp; 6 - IaaS (AWS white papers)
+</div>
+<hr>
+
+<h2 id="s35">3.5 Identity and Access Management (IAM)</h2>
+<h3>What is IAM?</h3>
+<p><strong>Identity and Access Management (IAM)</strong> is the security framework that controls <strong>who</strong> (identity) can do <strong>what</strong> (access) on <strong>which resources</strong> in a cloud environment. It's the gatekeeper of your entire cloud infrastructure.</p>
+
+<h3>Core IAM Concepts</h3>
+<table>
+<thead><tr><th>Concept</th><th>What it is</th><th>Example</th></tr></thead>
+<tbody>
+<tr><td><strong>User</strong></td><td>A person or application that interacts with cloud resources. Has credentials (username/password or access keys).</td><td>"developer-alice" — a developer who needs access to EC2 and S3.</td></tr>
+<tr><td><strong>Group</strong></td><td>A collection of users with the same permissions. Simplifies permission management.</td><td>"developers" group — all members get the same access policy.</td></tr>
+<tr><td><strong>Role</strong></td><td>A set of permissions that can be <strong>assumed</strong> by users, services, or applications. Not tied to a specific person.</td><td>"EC2-S3-ReadOnly" role — an EC2 instance assumes this role to read from S3 without hardcoded credentials.</td></tr>
+<tr><td><strong>Policy</strong></td><td>A JSON document that defines what actions are allowed or denied on which resources. Attached to users, groups, or roles.</td><td><code>{"Effect": "Allow", "Action": "s3:GetObject", "Resource": "arn:aws:s3:::my-bucket/*"}</code></td></tr>
+<tr><td><strong>Permissions</strong></td><td>The actual allowed/denied actions. Determined by evaluating all attached policies.</td><td>User alice can read S3 but cannot delete EC2 instances.</td></tr>
+</tbody>
+</table>
+
+<h3>The Principle of Least Privilege</h3>
+<p>The fundamental IAM security principle: <strong>grant only the minimum permissions necessary</strong> for a user or service to perform its intended function. Nothing more.</p>
+<p><strong>Example:</strong> A web application that reads product images from S3 should have a role with ONLY <code>s3:GetObject</code> permission on the specific bucket — NOT <code>s3:*</code> on all buckets, and definitely NOT <code>*:*</code> (full admin access).</p>
+<p><strong>Why it matters:</strong> If credentials are compromised, the damage is limited to what those credentials can access. Full admin credentials leaked = entire cloud account compromised.</p>
+
+<h3>AWS IAM Example</h3>
+<pre><code>{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": [
+        "s3:GetObject",
+        "s3:ListBucket"
+      ],
+      "Resource": [
+        "arn:aws:s3:::product-images",
+        "arn:aws:s3:::product-images/*"
+      ]
+    },
+    {
+      "Effect": "Deny",
+      "Action": "s3:DeleteObject",
+      "Resource": "*"
+    }
+  ]
+}</code></pre>
+<p>This policy: allows reading objects and listing the "product-images" bucket, but explicitly denies deleting ANY object in ANY bucket.</p>
+
+<h3>Multi-Factor Authentication (MFA)</h3>
+<p>IAM supports MFA — requiring a second authentication factor (phone app code, hardware token) in addition to the password. <strong>Always enable MFA for root and admin accounts.</strong></p>
+
+<hr>
+
+<h2 id="s36">3.6 Compute Services</h2>
+
+<h3>3.6.1 Amazon EC2 (Elastic Compute Cloud)</h3>
+<p>EC2 is the core IaaS compute service — it provides resizable virtual machines (instances) in the cloud.</p>
+<p><strong>Key characteristics:</strong></p>
+<ul>
+<li>Provision new server instances in <strong>minutes</strong> (not weeks).</li>
+<li>Choose from hundreds of <strong>instance types</strong> (varying CPU, memory, storage, GPU configurations).</li>
+<li><strong>Full OS control</strong> — install any software, configure any service.</li>
+<li>Pay only for capacity you <strong>actually use</strong> (per-second or per-hour billing).</li>
+<li>Build <strong>failure-resilient</strong> applications by spreading instances across Availability Zones.</li>
+</ul>
+<p><strong>Instance families:</strong></p>
+<table>
+<thead><tr><th>Family</th><th>Optimised for</th><th>Use case</th><th>Example type</th></tr></thead>
+<tbody>
+<tr><td><strong>General Purpose (t3, m6i)</strong></td><td>Balanced CPU, memory, network</td><td>Web servers, small databases, dev environments</td><td>t3.medium (2 vCPU, 4 GB RAM)</td></tr>
+<tr><td><strong>Compute Optimised (c6i)</strong></td><td>High-performance CPU</td><td>Batch processing, gaming servers, scientific modelling</td><td>c6i.xlarge (4 vCPU, 8 GB RAM)</td></tr>
+<tr><td><strong>Memory Optimised (r6i)</strong></td><td>Large memory</td><td>In-memory databases (Redis), real-time analytics</td><td>r6i.2xlarge (8 vCPU, 64 GB RAM)</td></tr>
+<tr><td><strong>Storage Optimised (i3)</strong></td><td>High sequential I/O</td><td>Data warehousing, distributed file systems</td><td>i3.xlarge (4 vCPU, 30.5 GB RAM, NVMe SSD)</td></tr>
+<tr><td><strong>Accelerated (p4d, g5)</strong></td><td>GPU-powered</td><td>Machine learning training, video encoding, 3D rendering</td><td>p4d.24xlarge (8 NVIDIA A100 GPUs)</td></tr>
+</tbody>
+</table>
+
+<h3>3.6.2 Auto Scaling</h3>
+<p>Auto Scaling automatically adjusts the number of EC2 instances based on demand conditions you define.</p>
+<p><strong>How it works:</strong></p>
+<ol>
+<li>Define a <strong>launch template</strong> (which instance type, AMI, security groups).</li>
+<li>Set <strong>scaling policies</strong> (e.g. "add 2 instances when CPU > 80% for 5 minutes").</li>
+<li>Set <strong>min/max/desired</strong> instance counts (e.g. min=2, max=20, desired=4).</li>
+<li>Auto Scaling monitors CloudWatch metrics and adds/removes instances automatically.</li>
+</ol>
+<p><strong>Types of scaling:</strong></p>
+<table>
+<thead><tr><th>Type</th><th>How it works</th><th>Example</th></tr></thead>
+<tbody>
+<tr><td><strong>Target tracking</strong></td><td>Maintain a target metric value (e.g. keep average CPU at 50%).</td><td>"Scale so that average CPU stays at 50%."</td></tr>
+<tr><td><strong>Step scaling</strong></td><td>Add/remove instances in steps based on alarm thresholds.</td><td>"If CPU > 70%, add 2. If CPU > 90%, add 5."</td></tr>
+<tr><td><strong>Scheduled scaling</strong></td><td>Scale at specific times based on known patterns.</td><td>"Scale to 10 instances at 9 AM, back to 2 at 10 PM."</td></tr>
+<tr><td><strong>Predictive scaling</strong></td><td>ML-based prediction of future demand based on historical patterns.</td><td>AWS predicts Monday morning traffic spike and pre-scales.</td></tr>
+</tbody>
+</table>
+
+<h3>3.6.3 Elastic Load Balancing (ELB)</h3>
+<p>ELB automatically distributes incoming application traffic across multiple EC2 instances for fault tolerance and scalability.</p>
+<p><strong>Types of load balancers:</strong></p>
+<table>
+<thead><tr><th>Type</th><th>Layer</th><th>Best for</th></tr></thead>
+<tbody>
+<tr><td><strong>Application Load Balancer (ALB)</strong></td><td>Layer 7 (HTTP/HTTPS)</td><td>Web applications, microservices, path-based routing</td></tr>
+<tr><td><strong>Network Load Balancer (NLB)</strong></td><td>Layer 4 (TCP/UDP)</td><td>Ultra-low latency, millions of requests/sec</td></tr>
+<tr><td><strong>Gateway Load Balancer (GWLB)</strong></td><td>Layer 3</td><td>Third-party virtual appliances (firewalls, IDS)</td></tr>
+</tbody>
+</table>
+<p><strong>Key features:</strong></p>
+<ul>
+<li><strong>Health checks:</strong> Automatically detects unhealthy instances and routes traffic only to healthy ones.</li>
+<li><strong>Cross-AZ:</strong> Distribute traffic across instances in multiple Availability Zones.</li>
+<li><strong>SSL termination:</strong> Handle HTTPS encryption/decryption at the load balancer, not at each instance.</li>
+</ul>
+
+<h3>3.6.4 Amazon VPC (Virtual Private Cloud)</h3>
+<p>VPC lets you provision a <strong>logically isolated</strong> section of the AWS Cloud where you launch resources in a virtual network you define.</p>
+<p><strong>Key components:</strong></p>
+<table>
+<thead><tr><th>Component</th><th>What it does</th></tr></thead>
+<tbody>
+<tr><td><strong>VPC</strong></td><td>Your isolated virtual network. You define the IP address range (CIDR block).</td></tr>
+<tr><td><strong>Subnets</strong></td><td>Subdivisions of a VPC. <strong>Public subnets</strong> have internet access. <strong>Private subnets</strong> do not.</td></tr>
+<tr><td><strong>Internet Gateway</strong></td><td>Connects VPC to the internet (for public subnets).</td></tr>
+<tr><td><strong>NAT Gateway</strong></td><td>Allows private subnet instances to access the internet (for updates) without being accessible from the internet.</td></tr>
+<tr><td><strong>Route Tables</strong></td><td>Rules that determine where network traffic is directed.</td></tr>
+<tr><td><strong>Security Groups</strong></td><td>Instance-level firewall (stateful). Specify allowed inbound/outbound traffic by port and source.</td></tr>
+<tr><td><strong>Network ACLs</strong></td><td>Subnet-level firewall (stateless). Additional layer of security.</td></tr>
+</tbody>
+</table>
+<p><strong>Architecture example:</strong></p>
+<pre><code>VPC (10.0.0.0/16)
+├── Public Subnet (10.0.1.0/24) — web servers, load balancer
+│   └── Internet Gateway → Internet
+├── Private Subnet (10.0.2.0/24) — application servers
+│   └── NAT Gateway → Internet (outbound only)
+└── Private Subnet (10.0.3.0/24) — database servers
+    └── No internet access</code></pre>
+
+<hr>
+
+<h2 id="s37">3.7 Storage Services</h2>
+<h3>Three Types of Cloud Storage</h3>
+<table>
+<thead><tr><th>Type</th><th>How data is accessed</th><th>Characteristics</th><th>AWS Service</th></tr></thead>
+<tbody>
+<tr><td><strong>Object Storage</strong></td><td>Via HTTP/REST APIs. Each object has a unique key.</td><td>Massively scalable, eventually consistent (for overwrite), stores files as objects with metadata.</td><td><strong>Amazon S3</strong></td></tr>
+<tr><td><strong>Block Storage</strong></td><td>Attached to a VM as a virtual disk drive. Accessed like a local hard drive.</td><td>Low latency, high IOPS, persistent across instance stops.</td><td><strong>Amazon EBS</strong></td></tr>
+<tr><td><strong>File Storage</strong></td><td>Shared file system mounted by multiple VMs simultaneously via NFS/SMB.</td><td>Shared access, POSIX-compliant, concurrent reads/writes.</td><td><strong>Amazon EFS</strong></td></tr>
+</tbody>
+</table>
+
+<h3>3.7.1 Amazon S3 (Simple Storage Service)</h3>
+<p>S3 is object storage designed for storing and retrieving <strong>any amount of data</strong>, at <strong>any time</strong>, from <strong>anywhere</strong> on the web.</p>
+<p><strong>Key concepts:</strong></p>
+<ul>
+<li><strong>Bucket:</strong> A container for objects (like a top-level folder). Globally unique name.</li>
+<li><strong>Object:</strong> A file + metadata + unique key. Up to 5 TB per object.</li>
+<li><strong>Storage classes:</strong> Different tiers for different access patterns.</li>
+</ul>
+<table>
+<thead><tr><th>Storage Class</th><th>Access frequency</th><th>Cost</th><th>Use case</th></tr></thead>
+<tbody>
+<tr><td><strong>S3 Standard</strong></td><td>Frequent</td><td>Highest</td><td>Active data, websites, content distribution</td></tr>
+<tr><td><strong>S3 Intelligent-Tiering</strong></td><td>Varying</td><td>Auto-optimised</td><td>Data with unknown or changing access patterns</td></tr>
+<tr><td><strong>S3 Standard-IA</strong></td><td>Infrequent (min 30 days)</td><td>Lower storage, higher retrieval</td><td>Backups, disaster recovery</td></tr>
+<tr><td><strong>S3 Glacier</strong></td><td>Archive (minutes-hours retrieval)</td><td>Very low</td><td>Long-term archival, compliance</td></tr>
+<tr><td><strong>S3 Glacier Deep Archive</strong></td><td>Archive (12+ hours retrieval)</td><td>Lowest</td><td>Regulatory archives, magnetic tape replacement</td></tr>
+</tbody>
+</table>
+
+<h3>3.7.2 Amazon EBS (Elastic Block Store)</h3>
+<p>EBS provides <strong>block-level storage volumes</strong> for EC2 instances. Think of it as a virtual hard drive attached to your VM.</p>
+<p><strong>Key characteristics:</strong></p>
+<ul>
+<li><strong>Network-attached</strong> — persists independently from the EC2 instance lifecycle.</li>
+<li><strong>Snapshot capable</strong> — create point-in-time backups stored in S3.</li>
+<li><strong>Encryption</strong> — supports encryption at rest and in transit.</li>
+<li><strong>Volume types:</strong> General Purpose SSD (gp3), Provisioned IOPS SSD (io2), Throughput Optimised HDD (st1), Cold HDD (sc1).</li>
+</ul>
+
+<h3>3.7.3 Amazon CloudFront (CDN)</h3>
+<p>CloudFront is a <strong>Content Delivery Network</strong> — it caches content at 600+ edge locations worldwide for low-latency delivery to end users.</p>
+<p><strong>How it works:</strong> User requests content → CloudFront routes to nearest edge location → if cached, return immediately (cache hit) → if not cached, fetch from origin (S3/EC2), cache it, then return.</p>
+
+<hr>
+
+<h2 id="s38">3.8 Data Services</h2>
+
+<h3>3.8.1 Amazon RDS (Relational Database Service)</h3>
+<p>RDS is a managed relational database service. The provider handles backups, patching, replication, and failover — you focus on your data.</p>
+<p><strong>Supported engines:</strong> MySQL, PostgreSQL, Oracle, SQL Server, MariaDB, Amazon Aurora.</p>
+<p><strong>Key features:</strong></p>
+<ul>
+<li>Automatic backups with point-in-time recovery.</li>
+<li>Multi-AZ deployment for high availability (synchronous replication to standby).</li>
+<li>Read replicas for scaling read-heavy workloads.</li>
+<li>Auto-scaling storage.</li>
+</ul>
+
+<h3>3.8.2 Amazon DynamoDB</h3>
+<p>DynamoDB is a fully managed <strong>NoSQL</strong> (key-value + document) database.</p>
+<p><strong>Key characteristics:</strong></p>
+<ul>
+<li>Single-digit millisecond latency at any scale.</li>
+<li>Stored on SSDs, replicated across 3 AZs automatically.</li>
+<li>Serverless — no servers to manage, auto-scales throughput.</li>
+<li>Pay per request or provisioned capacity.</li>
+</ul>
+<p><strong>Use cases:</strong> Gaming leaderboards, IoT device data, session management, shopping carts.</p>
+
+<h3>3.8.3 Amazon ElastiCache</h3>
+<p>ElastiCache is a managed <strong>in-memory caching</strong> service supporting Redis and Memcached.</p>
+<p><strong>Purpose:</strong> Speed up application performance by caching frequently accessed data in memory instead of hitting the database every time.</p>
+<p><strong>Example:</strong> An e-commerce site caches product catalog in ElastiCache. Instead of querying the database for every page view (50ms), it reads from cache (1ms). Database load drops by 90%.</p>
+
+<hr>
+
+<h2 id="s39">3.9 Big Data and Analytics Services</h2>
+
+<h3>3.9.1 Amazon CloudSearch</h3>
+<p>Fully managed search service for adding search functionality to websites and applications. Supports text search, faceting, filtering, and sorting across large collections of documents.</p>
+
+<h3>3.9.2 Amazon CloudWatch</h3>
+<p>CloudWatch is the monitoring and observability service for AWS resources and applications.</p>
+<p><strong>What it monitors:</strong></p>
+<ul>
+<li>EC2 instance metrics (CPU, memory, disk, network).</li>
+<li>RDS database metrics (connections, IOPS, latency).</li>
+<li>Custom application metrics.</li>
+<li>Log aggregation and analysis.</li>
+</ul>
+<p><strong>Key features:</strong></p>
+<ul>
+<li><strong>Alarms</strong> — trigger actions (Auto Scaling, SNS notifications) when metrics exceed thresholds.</li>
+<li><strong>Dashboards</strong> — visualise metrics in real-time.</li>
+<li><strong>Logs Insights</strong> — query and analyse log data.</li>
+</ul>
+
+<h3>3.9.3 Messaging and Integration Services</h3>
+<table>
+<thead><tr><th>Service</th><th>What it does</th><th>Use case</th></tr></thead>
+<tbody>
+<tr><td><strong>Amazon SQS</strong> (Simple Queue Service)</td><td>Fully managed message queue. Decouple application components.</td><td>Order processing — web tier sends orders to queue, worker tier processes them independently.</td></tr>
+<tr><td><strong>Amazon SNS</strong> (Simple Notification Service)</td><td>Push messaging — send notifications to multiple subscribers simultaneously.</td><td>Alert mobile devices, send emails, trigger Lambda functions when events occur.</td></tr>
+<tr><td><strong>Amazon SES</strong> (Simple Email Service)</td><td>Scalable email sending service.</td><td>Transactional emails (order confirmations, password resets), marketing campaigns.</td></tr>
+</tbody>
+</table>
+
+<h3>3.9.4 AWS Elastic Beanstalk</h3>
+<p>Beanstalk is a PaaS-like service built on IaaS — you upload your application code, and Beanstalk automatically handles deployment, capacity provisioning, load balancing, auto-scaling, and health monitoring.</p>
+<p><strong>Supported languages:</strong> Java, .NET, PHP, Node.js, Python, Ruby, Go, Docker.</p>
+<p><strong>Key distinction:</strong> Unlike pure PaaS, Beanstalk gives you <strong>full access to underlying AWS resources</strong> (EC2 instances, load balancers, security groups). You can take control of any component at any time.</p>
+
+<hr>
+
+<h2 id="sAdd">Additional AWS Services (from Lecture Notes)</h2>
+
+<h3>Networking Services</h3>
+<table>
+<thead><tr><th>Service</th><th>Purpose</th></tr></thead>
+<tbody>
+<tr><td><strong>Route 53</strong></td><td>Highly available DNS service. Translates domain names to IP addresses. Supports latency-based and geolocation routing.</td></tr>
+<tr><td><strong>AWS Import/Export</strong></td><td>Physical data transfer using portable storage devices for very large datasets where internet transfer is too slow.</td></tr>
+</tbody>
+</table>
+
+<h3>Complete AWS Service Map (for exam reference)</h3>
+<pre><code>COMPUTE          STORAGE           NETWORKING         DATABASE
+─────────        ─────────         ──────────         ────────
+EC2              S3                VPC                RDS
+Auto Scaling     EBS               ELB                DynamoDB
+Lambda           EFS               Route 53           ElastiCache
+Elastic          Glacier           CloudFront         Redshift
+Beanstalk        Import/Export     Direct Connect
+
+MONITORING       MESSAGING         SECURITY           DEPLOYMENT
+──────────       ─────────         ────────           ──────────
+CloudWatch       SQS               IAM                CloudFormation
+CloudTrail       SNS               KMS                Elastic Beanstalk
+                 SES               Shield             CodeDeploy
+                                   WAF                CodePipeline</code></pre>
+
+<hr>
+<p><em>End of CS5</em></p>
+</main>
+
+<button class="back-to-top" id="backToTop" onclick="window.scrollTo({top:0})">&#8593;</button>
+<script>
+window.addEventListener('scroll',()=>{const s=document.documentElement,p=(s.scrollTop/(s.scrollHeight-s.clientHeight))*100;document.getElementById('progressBar').style.width=p+'%'});
+window.addEventListener('scroll',()=>{document.getElementById('backToTop').classList.toggle('visible',window.scrollY>400)});
+document.getElementById('sidebarToggle').addEventListener('click',()=>{document.getElementById('sidebar').classList.toggle('open')});
+document.querySelectorAll('.sidebar nav a').forEach(a=>a.addEventListener('click',()=>{if(window.innerWidth<=900)document.getElementById('sidebar').classList.remove('open')}));
+const observer=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting){document.querySelectorAll('.sidebar nav a').forEach(a=>a.classList.remove('active'));const link=document.querySelector(`.sidebar nav a[href="#${e.target.id}"]`);if(link)link.classList.add('active')}})},{threshold:0.2,rootMargin:'-80px 0px -60% 0px'});
+document.querySelectorAll('h2[id]').forEach(h=>observer.observe(h));
+</script>
+</body>
+</html>

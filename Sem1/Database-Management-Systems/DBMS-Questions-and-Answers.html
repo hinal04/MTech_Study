@@ -1,0 +1,1414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DBMS Questions &amp; Answers — Structured Data Management &amp; Distributed Databases</title>
+<style>
+  :root {
+    --bg: #0f172a;
+    --surface: #1e293b;
+    --surface2: #334155;
+    --border: #475569;
+    --text: #e2e8f0;
+    --text-muted: #94a3b8;
+    --accent: #38bdf8;
+    --accent2: #818cf8;
+    --accent3: #34d399;
+    --accent4: #fb923c;
+    --code-bg: #0d1117;
+    --s1: #38bdf8; --s2: #818cf8; --s3: #34d399; --s4: #fb923c; --bonus: #f472b6;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);line-height:1.7;font-size:16px}
+
+  /* Sidebar */
+  .sidebar{position:fixed;top:0;left:0;width:270px;height:100vh;background:var(--surface);border-right:1px solid var(--border);overflow-y:auto;z-index:100;padding:20px 0;transition:transform .3s}
+  .sidebar.closed{transform:translateX(-270px)}
+  .sidebar-title{padding:0 18px 14px;font-size:14px;font-weight:700;color:var(--accent);border-bottom:1px solid var(--border);margin-bottom:10px;letter-spacing:.5px}
+  .nav-sec{padding:8px 18px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--text-muted);cursor:pointer;display:flex;justify-content:space-between;align-items:center}
+  .nav-sec::after{content:'▾';font-size:10px}
+  .nav-sec.collapsed::after{content:'▸'}
+  .nav-grp{padding:0}
+  .nav-grp.hidden{display:none}
+  .nav-grp a{display:block;padding:4px 18px 4px 26px;color:var(--text-muted);text-decoration:none;font-size:12.5px;border-left:3px solid transparent;transition:all .2s;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .nav-grp a:hover,.nav-grp a.active{color:var(--text);background:rgba(56,189,248,.06);border-left-color:var(--accent)}
+
+  .sidebar-toggle{position:fixed;top:14px;left:280px;z-index:101;background:var(--surface2);border:1px solid var(--border);color:var(--text);width:34px;height:34px;border-radius:8px;cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;transition:left .3s}
+  .sidebar-toggle.shifted{left:10px}
+
+  /* Main */
+  .main{margin-left:270px;max-width:880px;padding:36px 44px 80px;transition:margin-left .3s}
+  .main.expanded{margin-left:0;max-width:940px;margin:0 auto}
+
+  /* Header */
+  .page-header{text-align:center;padding-bottom:36px;border-bottom:2px solid var(--border);margin-bottom:40px}
+  .page-header h1{font-size:1.9rem;font-weight:800;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:10px}
+  .page-header p{color:var(--text-muted);font-size:14px}
+
+  /* Controls */
+  .controls{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:32px}
+  .ctrl-btn{padding:8px 16px;border:1px solid var(--border);border-radius:8px;background:var(--surface);color:var(--text-muted);cursor:pointer;font-size:13px;transition:all .2s}
+  .ctrl-btn:hover{background:var(--surface2);color:var(--text)}
+  .ctrl-btn.active{background:var(--accent);color:var(--bg);border-color:var(--accent);font-weight:600}
+  .score-display{margin-left:auto;display:flex;align-items:center;gap:8px;font-size:14px;color:var(--accent3);font-weight:600}
+
+  /* Session banner */
+  .session-banner{margin-top:48px;margin-bottom:28px;padding:20px 24px;border-radius:12px}
+  .session-banner h2{font-size:1.35rem;font-weight:800;margin-bottom:4px}
+  .sb-s1{border:1px solid var(--s1);background:rgba(56,189,248,.06)}.sb-s1 h2{color:var(--s1)}
+  .sb-s2{border:1px solid var(--s2);background:rgba(129,140,248,.06)}.sb-s2 h2{color:var(--s2)}
+  .sb-s3{border:1px solid var(--s3);background:rgba(52,211,153,.06)}.sb-s3 h2{color:var(--s3)}
+  .sb-s4{border:1px solid var(--s4);background:rgba(251,146,60,.06)}.sb-s4 h2{color:var(--s4)}
+  .sb-bonus{border:1px solid var(--bonus);background:rgba(244,114,182,.06)}.sb-bonus h2{color:var(--bonus)}
+
+  /* Question card */
+  .q-card{margin-bottom:16px;border:1px solid var(--surface2);border-radius:10px;overflow:hidden;transition:border-color .2s}
+  .q-card:hover{border-color:var(--border)}
+  .q-header{display:flex;align-items:flex-start;gap:12px;padding:16px 20px;cursor:pointer;background:var(--surface);transition:background .2s;user-select:none}
+  .q-header:hover{background:var(--surface2)}
+  .q-num{flex-shrink:0;width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;color:#fff}
+  .q-num.c1{background:var(--s1)}.q-num.c2{background:var(--s2)}.q-num.c3{background:var(--s3)}.q-num.c4{background:var(--s4)}.q-num.c5{background:var(--bonus)}
+  .q-title{flex:1;font-weight:600;font-size:15px;line-height:1.5;padding-top:6px}
+  .q-toggle{flex-shrink:0;width:28px;height:28px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:16px;color:var(--text-muted);transition:transform .3s;margin-top:4px}
+  .q-card.open .q-toggle{transform:rotate(180deg);color:var(--accent)}
+  .q-check{flex-shrink:0;margin-top:4px}
+  .q-check input{width:18px;height:18px;accent-color:var(--accent3);cursor:pointer}
+
+  /* Answer */
+  .q-answer{max-height:0;overflow:hidden;transition:max-height .4s ease,padding .3s;padding:0 20px;background:var(--bg)}
+  .q-card.open .q-answer{max-height:4000px;padding:20px}
+
+  /* Answer content */
+  .q-answer p{margin-bottom:12px;font-size:14.5px}
+  .q-answer strong{color:var(--accent)}
+  .q-answer ul,.q-answer ol{margin:6px 0 14px 22px;font-size:14.5px}
+  .q-answer li{margin-bottom:5px}
+  .q-answer table{width:100%;border-collapse:collapse;margin:12px 0 18px;font-size:13.5px}
+  .q-answer thead th{background:var(--surface2);color:var(--accent);font-weight:700;text-align:left;padding:8px 12px;border:1px solid var(--border);font-size:12px;text-transform:uppercase;letter-spacing:.3px}
+  .q-answer tbody td{padding:8px 12px;border:1px solid var(--surface2);vertical-align:top}
+  .q-answer tbody tr:nth-child(even){background:rgba(30,41,59,.5)}
+  .q-answer pre{background:var(--code-bg);border:1px solid var(--surface2);border-radius:8px;padding:14px 18px;overflow-x:auto;margin:12px 0 18px;font-size:13px;line-height:1.55}
+  .q-answer code{font-family:'JetBrains Mono','Fira Code','Cascadia Code',monospace;font-size:.88em}
+  .q-answer p code,.q-answer li code,.q-answer td code{background:var(--surface2);padding:2px 5px;border-radius:4px;color:var(--accent3)}
+  .q-answer pre code{background:none;padding:0;color:var(--text)}
+  .q-answer .diagram{background:var(--code-bg);border:1px solid var(--surface2);border-radius:8px;padding:14px 18px;overflow-x:auto;margin:12px 0 18px;font-family:'JetBrains Mono',monospace;font-size:12.5px;line-height:1.5;white-space:pre;color:var(--text-muted)}
+  .q-answer .note{background:rgba(56,189,248,.06);border-left:4px solid var(--accent);border-radius:0 8px 8px 0;padding:12px 16px;margin:12px 0 18px;font-size:13.5px}
+  .q-answer .note strong{color:var(--accent)}
+
+  .sk{color:var(--accent2);font-weight:600}
+  .sf{color:var(--accent3)}
+  .ss{color:#fbbf24}
+  .sc{color:#6b7280;font-style:italic}
+
+  /* Back to top */
+  .back-top{position:fixed;bottom:24px;right:24px;background:var(--accent);color:var(--bg);width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:700;cursor:pointer;box-shadow:0 4px 16px rgba(0,0,0,.4);opacity:0;transition:opacity .3s;text-decoration:none;z-index:100}
+  .back-top.visible{opacity:1}
+
+  /* Progress */
+  .progress-bar{position:fixed;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--s1),var(--s2),var(--s3),var(--s4));z-index:200;transform-origin:left;transform:scaleX(0)}
+
+  @media(max-width:900px){
+    .sidebar{transform:translateX(-270px)}.sidebar.open{transform:translateX(0)}
+    .sidebar-toggle{left:10px}
+    .main{margin-left:0;padding:20px 16px 60px}
+  }
+  @media print{
+    .sidebar,.sidebar-toggle,.back-top,.progress-bar,.controls{display:none}
+    .main{margin-left:0;max-width:100%}
+    body{background:#fff;color:#1a1a1a}
+    .q-card{border-color:#ddd;break-inside:avoid}
+    .q-header{background:#f5f5f5}
+    .q-answer{max-height:none!important;padding:16px 20px!important;background:#fff}
+    .session-banner{border-color:#ccc;background:#f9f9f9}
+    .session-banner h2{color:#333}
+  }
+</style>
+</head>
+<body>
+
+<div class="progress-bar" id="progressBar"></div>
+
+<!-- Sidebar -->
+<nav class="sidebar" id="sidebar" role="navigation" aria-label="Question navigation">
+  <div class="sidebar-title">DBMS Q&amp;A &mdash; 50 Questions</div>
+
+  <div class="nav-sec" onclick="toggleNav(this)">Session 1 &mdash; Foundations (Q1&ndash;Q12)</div>
+  <div class="nav-grp" id="nav-s1">
+    <a href="#q1">Q1. File system problems</a>
+    <a href="#q2">Q2. DBMS definition &amp; advantages</a>
+    <a href="#q3">Q3. Three-Schema Architecture</a>
+    <a href="#q4">Q4. Schema vs Instance</a>
+    <a href="#q5">Q5. Relational model terminology</a>
+    <a href="#q6">Q6. Types of keys</a>
+    <a href="#q7">Q7. Integrity constraints</a>
+    <a href="#q8">Q8. Strong vs Weak entities</a>
+    <a href="#q9">Q9. ER attribute types</a>
+    <a href="#q10">Q10. Cardinality &amp; participation</a>
+    <a href="#q11">Q11. ER-to-Relational mapping</a>
+    <a href="#q12">Q12. Relational algebra</a>
+  </div>
+
+  <div class="nav-sec" onclick="toggleNav(this)">Session 2 &mdash; SQL &amp; Transactions (Q13&ndash;Q24)</div>
+  <div class="nav-grp" id="nav-s2">
+    <a href="#q13">Q13. SQL overview</a>
+    <a href="#q14">Q14. CREATE TABLE with constraints</a>
+    <a href="#q15">Q15. Referential actions</a>
+    <a href="#q16">Q16. SQL query scenarios</a>
+    <a href="#q17">Q17. Types of JOINs</a>
+    <a href="#q18">Q18. Subquery types</a>
+    <a href="#q19">Q19. SELECT execution order</a>
+    <a href="#q20">Q20. ACID properties</a>
+    <a href="#q21">Q21. Transaction states</a>
+    <a href="#q22">Q22. Schema evolution</a>
+    <a href="#q23">Q23. Denormalisation</a>
+    <a href="#q24">Q24. Limits of RDBMS / NoSQL</a>
+  </div>
+
+  <div class="nav-sec" onclick="toggleNav(this)">Session 3 &mdash; Distributed (Q25&ndash;Q33)</div>
+  <div class="nav-grp" id="nav-s3">
+    <a href="#q25">Q25. Need for distributed DBs</a>
+    <a href="#q26">Q26. Centralised vs Distributed</a>
+    <a href="#q27">Q27. Transparency goals</a>
+    <a href="#q28">Q28. Architecture types</a>
+    <a href="#q29">Q29. Data fragmentation</a>
+    <a href="#q30">Q30. Partitioning strategies</a>
+    <a href="#q31">Q31. Replication: sync vs async</a>
+    <a href="#q32">Q32. Replication topologies</a>
+    <a href="#q33">Q33. Homogeneous vs Heterogeneous</a>
+  </div>
+
+  <div class="nav-sec" onclick="toggleNav(this)">Session 4 &mdash; Consistency (Q34&ndash;Q45)</div>
+  <div class="nav-grp" id="nav-s4">
+    <a href="#q34">Q34. Two-Phase Commit (2PC)</a>
+    <a href="#q35">Q35. Three-Phase Commit (3PC)</a>
+    <a href="#q36">Q36. Distributed query processing</a>
+    <a href="#q37">Q37. CAP theorem</a>
+    <a href="#q38">Q38. PACELC model</a>
+    <a href="#q39">Q39. ACID vs BASE</a>
+    <a href="#q40">Q40. Eventual consistency variants</a>
+    <a href="#q41">Q41. Tunable consistency</a>
+    <a href="#q42">Q42. Choosing consistency model</a>
+    <a href="#q43">Q43. CAP-C vs ACID-C</a>
+    <a href="#q44">Q44. Quorum calculation</a>
+    <a href="#q45">Q45. 2PC vs Paxos vs Raft</a>
+  </div>
+
+  <div class="nav-sec" onclick="toggleNav(this)">Bonus &mdash; Cross-Session (Q46&ndash;Q50)</div>
+  <div class="nav-grp" id="nav-s5">
+    <a href="#q46">Q46. Evolution timeline</a>
+    <a href="#q47">Q47. Architecture evolution</a>
+    <a href="#q48">Q48. University ER design</a>
+    <a href="#q49">Q49. Concept comparisons</a>
+    <a href="#q50">Q50. Rapid-fire short answers</a>
+  </div>
+</nav>
+
+<button class="sidebar-toggle" id="sidebarToggle" onclick="toggleSidebar()" aria-label="Toggle sidebar">&#9776;</button>
+
+<!-- Main -->
+<div class="main" id="mainContent">
+
+<header class="page-header">
+  <h1>Questions &amp; Answers</h1>
+  <p>Structured Data Management &amp; Distributed Databases &mdash; 50 Questions across 4 Sessions</p>
+</header>
+
+<!-- Controls -->
+<div class="controls">
+  <button class="ctrl-btn" onclick="toggleAll(true)">Show All Answers</button>
+  <button class="ctrl-btn" onclick="toggleAll(false)">Hide All Answers</button>
+  <button class="ctrl-btn" onclick="toggleAll(true,'s1')">Session 1</button>
+  <button class="ctrl-btn" onclick="toggleAll(true,'s2')">Session 2</button>
+  <button class="ctrl-btn" onclick="toggleAll(true,'s3')">Session 3</button>
+  <button class="ctrl-btn" onclick="toggleAll(true,'s4')">Session 4</button>
+  <div class="score-display">Reviewed: <span id="scoreCount">0</span> / 50</div>
+</div>
+
+
+<!-- ==================== SESSION 1 ==================== -->
+<div class="session-banner sb-s1" id="sec-s1"><h2>SESSION 1 &mdash; Foundations of Structured Data Management</h2></div>
+
+<!-- Q1 -->
+<div class="q-card" id="q1" data-session="s1">
+  <div class="q-header" onclick="toggleQ(this)">
+    <div class="q-num c1">Q1</div>
+    <div class="q-title">What are the main problems of using a traditional file system for data management?</div>
+    <div class="q-check"><input type="checkbox" onchange="updateScore()" title="Mark as reviewed"></div>
+    <div class="q-toggle">&#9660;</div>
+  </div>
+  <div class="q-answer">
+    <ol>
+      <li><strong>Data redundancy</strong> &mdash; Same data duplicated across multiple files.</li>
+      <li><strong>Inconsistency</strong> &mdash; Updating one copy but not others creates conflicting versions.</li>
+      <li><strong>Difficulty in data access</strong> &mdash; Each new query may require writing a new program.</li>
+      <li><strong>Data isolation</strong> &mdash; Data spread across files in different formats is hard to consolidate.</li>
+      <li><strong>Integrity problems</strong> &mdash; No central mechanism to enforce constraints.</li>
+      <li><strong>Atomicity problems</strong> &mdash; A crash midway through an update leaves data in a partial state.</li>
+      <li><strong>Concurrent-access anomalies</strong> &mdash; Multiple users modifying the same file can corrupt data.</li>
+      <li><strong>Security issues</strong> &mdash; File-level permissions are too coarse for field-level access control.</li>
+    </ol>
+  </div>
+</div>
+
+<!-- Q2 -->
+<div class="q-card" id="q2" data-session="s1">
+  <div class="q-header" onclick="toggleQ(this)">
+    <div class="q-num c1">Q2</div>
+    <div class="q-title">Define DBMS. What are its key advantages over a file system?</div>
+    <div class="q-check"><input type="checkbox" onchange="updateScore()" title="Mark as reviewed"></div>
+    <div class="q-toggle">&#9660;</div>
+  </div>
+  <div class="q-answer">
+    <p>A <strong>Database Management System (DBMS)</strong> is system software that provides facilities to define, create, maintain, and control access to a database.</p>
+    <table>
+      <thead><tr><th>Advantage</th><th>Explanation</th></tr></thead>
+      <tbody>
+        <tr><td>Program&ndash;data independence</td><td>Schema stored in catalog; storage changes don't require rewriting apps.</td></tr>
+        <tr><td>Data abstraction</td><td>Users work with logical views, not physical details.</td></tr>
+        <tr><td>Multiple views</td><td>Different users see different subsets.</td></tr>
+        <tr><td>Reduced redundancy</td><td>Centralised storage + normalisation.</td></tr>
+        <tr><td>Integrity enforcement</td><td>Constraints defined centrally, enforced by DBMS.</td></tr>
+        <tr><td>Concurrency control</td><td>Multiple users safely access data simultaneously.</td></tr>
+        <tr><td>Backup &amp; recovery</td><td>Restore to consistent state after failures.</td></tr>
+        <tr><td>Security</td><td>Fine-grained access control (table, column, row level).</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Q3 -->
+<div class="q-card" id="q3" data-session="s1">
+  <div class="q-header" onclick="toggleQ(this)">
+    <div class="q-num c1">Q3</div>
+    <div class="q-title">Explain the Three-Schema Architecture. Why is it important?</div>
+    <div class="q-check"><input type="checkbox" onchange="updateScore()" title="Mark as reviewed"></div>
+    <div class="q-toggle">&#9660;</div>
+  </div>
+  <div class="q-answer">
+    <p>The <strong>ANSI/SPARC Three-Schema Architecture</strong> separates a database into three levels:</p>
+    <ol>
+      <li><strong>External Level (User Views)</strong> &mdash; Individual user perspectives.</li>
+      <li><strong>Conceptual Level (Logical Schema)</strong> &mdash; Complete logical structure: entities, relationships, constraints.</li>
+      <li><strong>Internal Level (Physical Schema)</strong> &mdash; Physical storage: files, indexes, blocks.</li>
+    </ol>
+    <p><strong>Importance &mdash; Data Independence:</strong></p>
+    <ul>
+      <li><strong>Logical data independence:</strong> Conceptual schema can change without affecting external views.</li>
+      <li><strong>Physical data independence:</strong> Internal schema can change without affecting the conceptual schema.</li>
+    </ul>
+  </div>
+</div>
+
+<!-- Q4 -->
+<div class="q-card" id="q4" data-session="s1">
+  <div class="q-header" onclick="toggleQ(this)">
+    <div class="q-num c1">Q4</div>
+    <div class="q-title">Differentiate between schema and instance.</div>
+    <div class="q-check"><input type="checkbox" onchange="updateScore()" title="Mark as reviewed"></div>
+    <div class="q-toggle">&#9660;</div>
+  </div>
+  <div class="q-answer">
+    <table>
+      <thead><tr><th>Aspect</th><th>Schema (Intension)</th><th>Instance (Extension)</th></tr></thead>
+      <tbody>
+        <tr><td>What it is</td><td>Structure/description of the database.</td><td>Actual data at a particular moment.</td></tr>
+        <tr><td>Changes</td><td>Rarely.</td><td>Frequently (every INSERT/UPDATE/DELETE).</td></tr>
+        <tr><td>Analogy</td><td>Column headers + data types.</td><td>The rows currently in the table.</td></tr>
+        <tr><td>Example</td><td><code>STUDENT(ID INT, Name VARCHAR, Age INT)</code></td><td><code>(101, 'Alice', 21), (102, 'Bob', 23)</code></td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Q5 -->
+<div class="q-card" id="q5" data-session="s1">
+  <div class="q-header" onclick="toggleQ(this)">
+    <div class="q-num c1">Q5</div>
+    <div class="q-title">What is the relational model? List its key terminology.</div>
+    <div class="q-check"><input type="checkbox" onchange="updateScore()" title="Mark as reviewed"></div>
+    <div class="q-toggle">&#9660;</div>
+  </div>
+  <div class="q-answer">
+    <p>Proposed by <strong>E.F. Codd (1970)</strong>, data represented as <strong>relations</strong> (tables).</p>
+    <table>
+      <thead><tr><th>Term</th><th>Meaning</th></tr></thead>
+      <tbody>
+        <tr><td>Relation</td><td>A table.</td></tr>
+        <tr><td>Tuple</td><td>A row.</td></tr>
+        <tr><td>Attribute</td><td>A named column.</td></tr>
+        <tr><td>Domain</td><td>Set of allowable values.</td></tr>
+        <tr><td>Degree</td><td>Number of attributes (columns).</td></tr>
+        <tr><td>Cardinality</td><td>Number of tuples (rows).</td></tr>
+        <tr><td>Relation schema</td><td>Name + attribute list, e.g. <code>STUDENT(ID, Name, Age)</code>.</td></tr>
+      </tbody>
+    </table>
+    <p><strong>Properties:</strong> No duplicate tuples, tuple order insignificant, attribute order insignificant, all values atomic (1NF).</p>
+  </div>
+</div>
+
+<!-- Q6 -->
+<div class="q-card" id="q6" data-session="s1">
+  <div class="q-header" onclick="toggleQ(this)">
+    <div class="q-num c1">Q6</div>
+    <div class="q-title">Explain the different types of keys with examples.</div>
+    <div class="q-check"><input type="checkbox" onchange="updateScore()" title="Mark as reviewed"></div>
+    <div class="q-toggle">&#9660;</div>
+  </div>
+  <div class="q-answer">
+    <p>Consider: <code>STUDENT(Student_ID, Email, Name, Dept_ID)</code></p>
+    <table>
+      <thead><tr><th>Key Type</th><th>Definition</th><th>Example</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Superkey</strong></td><td>Any set that uniquely identifies a tuple.</td><td>{Student_ID}, {Student_ID, Name}, {Email}</td></tr>
+        <tr><td><strong>Candidate key</strong></td><td>Minimal superkey.</td><td>{Student_ID}, {Email}</td></tr>
+        <tr><td><strong>Primary key</strong></td><td>Chosen candidate key.</td><td>Student_ID</td></tr>
+        <tr><td><strong>Alternate key</strong></td><td>Candidate key not chosen as PK.</td><td>Email</td></tr>
+        <tr><td><strong>Foreign key</strong></td><td>References PK of another relation.</td><td>Dept_ID &rarr; DEPARTMENT(Dept_ID)</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Q7 -->
+<div class="q-card" id="q7" data-session="s1">
+  <div class="q-header" onclick="toggleQ(this)">
+    <div class="q-num c1">Q7</div>
+    <div class="q-title">What are integrity constraints in the relational model?</div>
+    <div class="q-check"><input type="checkbox" onchange="updateScore()" title="Mark as reviewed"></div>
+    <div class="q-toggle">&#9660;</div>
+  </div>
+  <div class="q-answer">
+    <ol>
+      <li><strong>Entity integrity:</strong> No PK attribute can be NULL.</li>
+      <li><strong>Referential integrity:</strong> FK must be NULL or match an existing PK in the referenced relation.</li>
+      <li><strong>Domain constraints:</strong> Every value must belong to its attribute's defined domain.</li>
+      <li><strong>Key constraints:</strong> No two tuples can share the same PK value.</li>
+    </ol>
+  </div>
+</div>
+
+<!-- Q8 -->
+<div class="q-card" id="q8" data-session="s1">
+  <div class="q-header" onclick="toggleQ(this)">
+    <div class="q-num c1">Q8</div>
+    <div class="q-title">Distinguish between strong and weak entity types.</div>
+    <div class="q-check"><input type="checkbox" onchange="updateScore()" title="Mark as reviewed"></div>
+    <div class="q-toggle">&#9660;</div>
+  </div>
+  <div class="q-answer">
+    <table>
+      <thead><tr><th>Aspect</th><th>Strong Entity</th><th>Weak Entity</th></tr></thead>
+      <tbody>
+        <tr><td>Key</td><td>Has own key attribute.</td><td>No key; depends on owner entity.</td></tr>
+        <tr><td>Existence</td><td>Independent.</td><td>Cannot exist without owner.</td></tr>
+        <tr><td>Identification</td><td>Own PK.</td><td>Owner's PK + partial key.</td></tr>
+        <tr><td>ER notation</td><td>Single-line rectangle.</td><td>Double-line rectangle.</td></tr>
+        <tr><td>Example</td><td>EMPLOYEE (Emp_ID)</td><td>DEPENDENT (Dependent_Name) depends on EMPLOYEE</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Q9 -->
+<div class="q-card" id="q9" data-session="s1">
+  <div class="q-header" onclick="toggleQ(this)">
+    <div class="q-num c1">Q9</div>
+    <div class="q-title">Describe the different attribute types in the ER model.</div>
+    <div class="q-check"><input type="checkbox" onchange="updateScore()" title="Mark as reviewed"></div>
+    <div class="q-toggle">&#9660;</div>
+  </div>
+  <div class="q-answer">
+    <table>
+      <thead><tr><th>Type</th><th>Description</th><th>Example</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Simple</strong></td><td>Atomic, indivisible.</td><td>FirstName</td></tr>
+        <tr><td><strong>Composite</strong></td><td>Divisible into sub-parts.</td><td>FullName &rarr; {First, Middle, Last}</td></tr>
+        <tr><td><strong>Single-valued</strong></td><td>One value per entity.</td><td>DateOfBirth</td></tr>
+        <tr><td><strong>Multi-valued</strong></td><td>Multiple values.</td><td>PhoneNumbers</td></tr>
+        <tr><td><strong>Derived</strong></td><td>Computed from other attributes.</td><td>Age (from DOB)</td></tr>
+        <tr><td><strong>Key</strong></td><td>Uniquely identifies entity.</td><td>EmployeeID</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Q10 -->
+<div class="q-card" id="q10" data-session="s1">
+  <div class="q-header" onclick="toggleQ(this)">
+    <div class="q-num c1">Q10</div>
+    <div class="q-title">Explain cardinality ratios and participation constraints with examples.</div>
+    <div class="q-check"><input type="checkbox" onchange="updateScore()" title="Mark as reviewed"></div>
+    <div class="q-toggle">&#9660;</div>
+  </div>
+  <div class="q-answer">
+    <p><strong>Cardinality ratios:</strong></p>
+    <table>
+      <thead><tr><th>Ratio</th><th>Meaning</th><th>Example</th></tr></thead>
+      <tbody>
+        <tr><td><strong>1:1</strong></td><td>At most one on each side.</td><td>EMPLOYEE manages DEPARTMENT</td></tr>
+        <tr><td><strong>1:N</strong></td><td>One to many.</td><td>DEPARTMENT has many EMPLOYEEs</td></tr>
+        <tr><td><strong>M:N</strong></td><td>Many-to-many.</td><td>STUDENT enrols in COURSEs</td></tr>
+      </tbody>
+    </table>
+    <p><strong>Participation:</strong></p>
+    <ul>
+      <li><strong>Total (mandatory):</strong> Every entity must participate. (Double line.) Example: Every EMPLOYEE <em>must</em> belong to a DEPARTMENT.</li>
+      <li><strong>Partial (optional):</strong> Some may not. (Single line.) Example: Not every EMPLOYEE manages a DEPARTMENT.</li>
+    </ul>
+  </div>
+</div>
+
+<!-- Q11 -->
+<div class="q-card" id="q11" data-session="s1">
+  <div class="q-header" onclick="toggleQ(this)">
+    <div class="q-num c1">Q11</div>
+    <div class="q-title">Describe the ER-to-Relational mapping rules.</div>
+    <div class="q-check"><input type="checkbox" onchange="updateScore()" title="Mark as reviewed"></div>
+    <div class="q-toggle">&#9660;</div>
+  </div>
+  <div class="q-answer">
+    <table>
+      <thead><tr><th>ER Construct</th><th>Mapping Rule</th></tr></thead>
+      <tbody>
+        <tr><td>Strong entity</td><td>Table; simple attrs &rarr; columns; key &rarr; PK.</td></tr>
+        <tr><td>Weak entity</td><td>Table; partial key + owner's PK as FK. Composite PK.</td></tr>
+        <tr><td>1:1 relationship</td><td>Add PK of one side as FK in the other (prefer total-participation side).</td></tr>
+        <tr><td>1:N relationship</td><td>Add PK of "1" side as FK in "N" side.</td></tr>
+        <tr><td>M:N relationship</td><td>New junction table; both PKs as FKs; composite PK.</td></tr>
+        <tr><td>Multi-valued attr</td><td>Separate table: value + FK to owner's PK.</td></tr>
+        <tr><td>Composite attr</td><td>Include only simple components (not the composite).</td></tr>
+        <tr><td>Derived attr</td><td>Usually not stored; computed at query time.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Q12 -->
+<div class="q-card" id="q12" data-session="s1">
+  <div class="q-header" onclick="toggleQ(this)">
+    <div class="q-num c1">Q12</div>
+    <div class="q-title">List and briefly describe the core relational algebra operations.</div>
+    <div class="q-check"><input type="checkbox" onchange="updateScore()" title="Mark as reviewed"></div>
+    <div class="q-toggle">&#9660;</div>
+  </div>
+  <div class="q-answer">
+    <table>
+      <thead><tr><th>Operation</th><th>Symbol</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Selection</strong></td><td>&sigma;</td><td>Picks tuples satisfying a condition.</td></tr>
+        <tr><td><strong>Projection</strong></td><td>&pi;</td><td>Picks specific columns.</td></tr>
+        <tr><td><strong>Union</strong></td><td>&cup;</td><td>Combines tuples (removes duplicates).</td></tr>
+        <tr><td><strong>Intersection</strong></td><td>&cap;</td><td>Tuples in both relations.</td></tr>
+        <tr><td><strong>Difference</strong></td><td>&minus;</td><td>Tuples in one but not the other.</td></tr>
+        <tr><td><strong>Cartesian product</strong></td><td>&times;</td><td>Every combination of tuples.</td></tr>
+        <tr><td><strong>Join</strong></td><td>&#x22C8;</td><td>Combines related tuples on a condition.</td></tr>
+        <tr><td><strong>Rename</strong></td><td>&rho;</td><td>Renames a relation or attributes.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+
+<!-- ==================== SESSION 2 ==================== -->
+<div class="session-banner sb-s2" id="sec-s2"><h2>SESSION 2 &mdash; SQL Fundamentals and Transaction Concepts</h2></div>
+
+<!-- Q13 -->
+<div class="q-card" id="q13" data-session="s2">
+  <div class="q-header" onclick="toggleQ(this)">
+    <div class="q-num c2">Q13</div>
+    <div class="q-title">What is SQL? What makes it different from procedural languages?</div>
+    <div class="q-check"><input type="checkbox" onchange="updateScore()" title="Mark as reviewed"></div>
+    <div class="q-toggle">&#9660;</div>
+  </div>
+  <div class="q-answer">
+    <p><strong>SQL (Structured Query Language)</strong> is the standard language for relational databases, combining DDL, DML, DCL, and TCL.</p>
+    <p><strong>Key difference:</strong> SQL is <strong>declarative</strong> &mdash; you specify <em>what</em> data you want, not <em>how</em> to get it. The DBMS optimizer chooses the execution plan. Procedural languages require step-by-step instructions.</p>
+  </div>
+</div>
+
+<!-- Q14 -->
+<div class="q-card" id="q14" data-session="s2">
+  <div class="q-header" onclick="toggleQ(this)">
+    <div class="q-num c2">Q14</div>
+    <div class="q-title">Write SQL to create an EMPLOYEE table with appropriate constraints.</div>
+    <div class="q-check"><input type="checkbox" onchange="updateScore()" title="Mark as reviewed"></div>
+    <div class="q-toggle">&#9660;</div>
+  </div>
+  <div class="q-answer">
+    <pre><code><span class="sk">CREATE TABLE</span> EMPLOYEE (
+    Emp_ID      <span class="sk">INT</span>            <span class="sk">PRIMARY KEY</span>,
+    First_Name  <span class="sk">VARCHAR</span>(50)    <span class="sk">NOT NULL</span>,
+    Last_Name   <span class="sk">VARCHAR</span>(50)    <span class="sk">NOT NULL</span>,
+    Email       <span class="sk">VARCHAR</span>(100)   <span class="sk">UNIQUE</span>,
+    Hire_Date   <span class="sk">DATE</span>           <span class="sk">DEFAULT CURRENT_DATE</span>,
+    Salary      <span class="sk">DECIMAL</span>(10,2)  <span class="sk">CHECK</span> (Salary &gt; 0),
+    Dept_ID     <span class="sk">INT</span>,
+    <span class="sk">FOREIGN KEY</span> (Dept_ID) <span class="sk">REFERENCES</span> DEPARTMENT(Dept_ID)
+        <span class="sk">ON DELETE SET NULL</span>
+        <span class="sk">ON UPDATE CASCADE</span>
+);</code></pre>
+    <p><strong>Constraints:</strong> PRIMARY KEY, NOT NULL, UNIQUE, DEFAULT, CHECK, FOREIGN KEY with referential actions.</p>
+  </div>
+</div>
+
+<!-- Q15 -->
+<div class="q-card" id="q15" data-session="s2">
+  <div class="q-header" onclick="toggleQ(this)">
+    <div class="q-num c2">Q15</div>
+    <div class="q-title">Explain the referential triggered actions (ON DELETE / ON UPDATE).</div>
+    <div class="q-check"><input type="checkbox" onchange="updateScore()" title="Mark as reviewed"></div>
+    <div class="q-toggle">&#9660;</div>
+  </div>
+  <div class="q-answer">
+    <table>
+      <thead><tr><th>Action</th><th>Behaviour</th></tr></thead>
+      <tbody>
+        <tr><td><code>CASCADE</code></td><td>Propagate delete/update to referencing rows.</td></tr>
+        <tr><td><code>SET NULL</code></td><td>Set FK to NULL.</td></tr>
+        <tr><td><code>SET DEFAULT</code></td><td>Set FK to default value.</td></tr>
+        <tr><td><code>RESTRICT</code> / <code>NO ACTION</code></td><td>Reject if referencing rows exist.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Q16 -->
+<div class="q-card" id="q16" data-session="s2">
+  <div class="q-header" onclick="toggleQ(this)">
+    <div class="q-num c2">Q16</div>
+    <div class="q-title">Write SQL queries for five scenarios (filtering, aggregation, subqueries, EXISTS, LEFT JOIN).</div>
+    <div class="q-check"><input type="checkbox" onchange="updateScore()" title="Mark as reviewed"></div>
+    <div class="q-toggle">&#9660;</div>
+  </div>
+  <div class="q-answer">
+    <p><strong>a) Employees earning &gt; 70,000:</strong></p>
+    <pre><code><span class="sk">SELECT</span> * <span class="sk">FROM</span> EMPLOYEE <span class="sk">WHERE</span> Salary &gt; 70000;</code></pre>
+    <p><strong>b) Avg salary per dept, &gt; 5 employees, sorted:</strong></p>
+    <pre><code><span class="sk">SELECT</span> Dept_ID, <span class="sf">COUNT</span>(*) <span class="sk">AS</span> Emp_Count, <span class="sf">AVG</span>(Salary) <span class="sk">AS</span> Avg_Salary
+<span class="sk">FROM</span> EMPLOYEE <span class="sk">GROUP BY</span> Dept_ID
+<span class="sk">HAVING</span> <span class="sf">COUNT</span>(*) &gt; 5 <span class="sk">ORDER BY</span> Avg_Salary <span class="sk">DESC</span>;</code></pre>
+    <p><strong>c) Above average salary:</strong></p>
+    <pre><code><span class="sk">SELECT</span> First_Name, Salary <span class="sk">FROM</span> EMPLOYEE
+<span class="sk">WHERE</span> Salary &gt; (<span class="sk">SELECT</span> <span class="sf">AVG</span>(Salary) <span class="sk">FROM</span> EMPLOYEE);</code></pre>
+    <p><strong>d) Depts with employees (EXISTS):</strong></p>
+    <pre><code><span class="sk">SELECT</span> D.Dept_Name <span class="sk">FROM</span> DEPARTMENT D
+<span class="sk">WHERE EXISTS</span> (<span class="sk">SELECT</span> 1 <span class="sk">FROM</span> EMPLOYEE E <span class="sk">WHERE</span> E.Dept_ID = D.Dept_ID);</code></pre>
+    <p><strong>e) All employees with dept names (LEFT JOIN):</strong></p>
+    <pre><code><span class="sk">SELECT</span> E.First_Name, E.Last_Name, D.Dept_Name
+<span class="sk">FROM</span> EMPLOYEE E <span class="sk">LEFT JOIN</span> DEPARTMENT D <span class="sk">ON</span> E.Dept_ID = D.Dept_ID;</code></pre>
+  </div>
+</div>
+
+<!-- Q17 -->
+<div class="q-card" id="q17" data-session="s2">
+  <div class="q-header" onclick="toggleQ(this)">
+    <div class="q-num c2">Q17</div>
+    <div class="q-title">Explain the different types of JOINs with examples.</div>
+    <div class="q-check"><input type="checkbox" onchange="updateScore()" title="Mark as reviewed"></div>
+    <div class="q-toggle">&#9660;</div>
+  </div>
+  <div class="q-answer">
+    <table>
+      <thead><tr><th>Join Type</th><th>Returns</th></tr></thead>
+      <tbody>
+        <tr><td><strong>INNER JOIN</strong></td><td>Only matching rows.</td></tr>
+        <tr><td><strong>LEFT JOIN</strong></td><td>All left + matching right (NULLs where no match).</td></tr>
+        <tr><td><strong>RIGHT JOIN</strong></td><td>All right + matching left.</td></tr>
+        <tr><td><strong>FULL OUTER JOIN</strong></td><td>All from both; NULLs where no match.</td></tr>
+        <tr><td><strong>CROSS JOIN</strong></td><td>Cartesian product.</td></tr>
+        <tr><td><strong>SELF JOIN</strong></td><td>Table joined to itself.</td></tr>
+        <tr><td><strong>NATURAL JOIN</strong></td><td>Auto-join on same-named columns.</td></tr>
+      </tbody>
+    </table>
+    <pre><code><span class="sc">-- Self Join: employees and managers</span>
+<span class="sk">SELECT</span> E.First_Name <span class="sk">AS</span> Employee, M.First_Name <span class="sk">AS</span> Manager
+<span class="sk">FROM</span> EMPLOYEE E <span class="sk">LEFT JOIN</span> EMPLOYEE M <span class="sk">ON</span> E.Manager_ID = M.Emp_ID;</code></pre>
+  </div>
+</div>
+
+<!-- Q18 -->
+<div class="q-card" id="q18" data-session="s2">
+  <div class="q-header" onclick="toggleQ(this)">
+    <div class="q-num c2">Q18</div>
+    <div class="q-title">What is a subquery? List the different types.</div>
+    <div class="q-check"><input type="checkbox" onchange="updateScore()" title="Mark as reviewed"></div>
+    <div class="q-toggle">&#9660;</div>
+  </div>
+  <div class="q-answer">
+    <p>A <strong>subquery</strong> is a SELECT inside another SQL statement.</p>
+    <table>
+      <thead><tr><th>Type</th><th>Returns</th><th>Example</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Scalar</strong></td><td>Single value</td><td><code>WHERE Salary &gt; (SELECT AVG(...))</code></td></tr>
+        <tr><td><strong>Row</strong></td><td>Single row</td><td>Row-level comparison</td></tr>
+        <tr><td><strong>Table</strong></td><td>Multiple rows/cols</td><td><code>FROM (SELECT ...) AS derived</code></td></tr>
+        <tr><td><strong>Correlated</strong></td><td>Re-evaluated per outer row</td><td><code>WHERE EXISTS (SELECT 1 FROM ...)</code></td></tr>
+      </tbody>
+    </table>
+    <p><strong>Key:</strong> Regular subquery evaluated once; correlated subquery re-evaluated for every outer row.</p>
+  </div>
+</div>
+
+<!-- Q19 -->
+<div class="q-card" id="q19" data-session="s2">
+  <div class="q-header" onclick="toggleQ(this)">
+    <div class="q-num c2">Q19</div>
+    <div class="q-title">Explain the logical order of execution of a SELECT query.</div>
+    <div class="q-check"><input type="checkbox" onchange="updateScore()" title="Mark as reviewed"></div>
+    <div class="q-toggle">&#9660;</div>
+  </div>
+  <div class="q-answer">
+    <pre><code>1. <span class="sk">FROM</span>       &mdash; Identify source tables, perform joins.
+2. <span class="sk">WHERE</span>      &mdash; Filter individual rows.
+3. <span class="sk">GROUP BY</span>   &mdash; Group rows.
+4. <span class="sk">HAVING</span>     &mdash; Filter groups.
+5. <span class="sk">SELECT</span>     &mdash; Choose columns/expressions.
+6. <span class="sk">ORDER BY</span>   &mdash; Sort results.
+7. <span class="sk">LIMIT</span>      &mdash; Restrict row count.</code></pre>
+    <p>This is why a column alias from SELECT <strong>cannot</strong> be used in WHERE &mdash; WHERE runs before SELECT.</p>
+  </div>
+</div>
+
+<!-- Q20 -->
+<div class="q-card" id="q20" data-session="s2">
+  <div class="q-header" onclick="toggleQ(this)">
+    <div class="q-num c2">Q20</div>
+    <div class="q-title">What is a transaction? Explain the ACID properties in detail.</div>
+    <div class="q-check"><input type="checkbox" onchange="updateScore()" title="Mark as reviewed"></div>
+    <div class="q-toggle">&#9660;</div>
+  </div>
+  <div class="q-answer">
+    <p>A <strong>transaction</strong> is a logical unit of work &mdash; one or more operations executed as an indivisible whole.</p>
+    <table>
+      <thead><tr><th>Property</th><th>Meaning</th><th>Enforcement</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Atomicity</strong></td><td>All or nothing.</td><td>Txn manager + undo log.</td></tr>
+        <tr><td><strong>Consistency</strong></td><td>Valid state &rarr; valid state.</td><td>Constraint checking at commit.</td></tr>
+        <tr><td><strong>Isolation</strong></td><td>Concurrent txns don't interfere.</td><td>Locks, MVCC, timestamps.</td></tr>
+        <tr><td><strong>Durability</strong></td><td>Committed = permanent.</td><td>WAL flushed to stable storage.</td></tr>
+      </tbody>
+    </table>
+    <p><strong>Bank transfer example:</strong> Debit A and credit B must both succeed (atomicity), total money unchanged (consistency), no one sees partial state (isolation), permanent after commit (durability).</p>
+  </div>
+</div>
+
+<!-- Q21 -->
+<div class="q-card" id="q21" data-session="s2">
+  <div class="q-header" onclick="toggleQ(this)">
+    <div class="q-num c2">Q21</div>
+    <div class="q-title">Draw and explain the transaction state diagram.</div>
+    <div class="q-check"><input type="checkbox" onchange="updateScore()" title="Mark as reviewed"></div>
+    <div class="q-toggle">&#9660;</div>
+  </div>
+  <div class="q-answer">
+    <div class="diagram">Active &rarr; Partially Committed &rarr; Committed
+  |                    |
+(op fails)        (flush fails)
+  &darr;                    &darr;
+Failed &rarr; Aborted &rarr; [restart or kill]</div>
+    <table>
+      <thead><tr><th>State</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Active</strong></td><td>Executing operations.</td></tr>
+        <tr><td><strong>Partially committed</strong></td><td>Final op done; awaiting durability confirmation.</td></tr>
+        <tr><td><strong>Committed</strong></td><td>All changes permanent.</td></tr>
+        <tr><td><strong>Failed</strong></td><td>Error occurred; cannot proceed.</td></tr>
+        <tr><td><strong>Aborted</strong></td><td>Rollback complete; DB restored to pre-txn state.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Q22 -->
+<div class="q-card" id="q22" data-session="s2">
+  <div class="q-header" onclick="toggleQ(this)">
+    <div class="q-num c2">Q22</div>
+    <div class="q-title">What is schema evolution? What challenges does it present?</div>
+    <div class="q-check"><input type="checkbox" onchange="updateScore()" title="Mark as reviewed"></div>
+    <div class="q-toggle">&#9660;</div>
+  </div>
+  <div class="q-answer">
+    <p>Modifying a production database schema (adding columns, changing types, adding constraints).</p>
+    <p><strong>Challenges:</strong> Data migration needed, apps may break, views/procedures invalidated, large tables may lock.</p>
+    <p><strong>Strategies:</strong> Expand-and-contract, schema versioning, backward/forward compatibility.</p>
+  </div>
+</div>
+
+<!-- Q23 -->
+<div class="q-card" id="q23" data-session="s2">
+  <div class="q-header" onclick="toggleQ(this)">
+    <div class="q-num c2">Q23</div>
+    <div class="q-title">What is denormalisation? When and why would you use it?</div>
+    <div class="q-check"><input type="checkbox" onchange="updateScore()" title="Mark as reviewed"></div>
+    <div class="q-toggle">&#9660;</div>
+  </div>
+  <div class="q-answer">
+    <p>Intentionally reintroducing redundancy to improve read performance.</p>
+    <table>
+      <thead><tr><th>Scenario</th><th>Technique</th><th>Trade-off</th></tr></thead>
+      <tbody>
+        <tr><td>Expensive joins</td><td>Redundant columns.</td><td>Faster reads; slower writes; inconsistency.</td></tr>
+        <tr><td>Repeated aggregations</td><td>Materialised views.</td><td>Stale data risk.</td></tr>
+        <tr><td>Read-heavy workloads</td><td>Duplicate data per read pattern.</td><td>Storage + update anomalies.</td></tr>
+      </tbody>
+    </table>
+    <p><strong>Rule:</strong> Normalise first for correctness, denormalise selectively for <em>measured</em> problems.</p>
+  </div>
+</div>
+
+<!-- Q24 -->
+<div class="q-card" id="q24" data-session="s2">
+  <div class="q-header" onclick="toggleQ(this)">
+    <div class="q-num c2">Q24</div>
+    <div class="q-title">What are the limitations of relational databases that motivated NoSQL?</div>
+    <div class="q-check"><input type="checkbox" onchange="updateScore()" title="Mark as reviewed"></div>
+    <div class="q-toggle">&#9660;</div>
+  </div>
+  <div class="q-answer">
+    <table>
+      <thead><tr><th>Limitation</th><th>Explanation</th></tr></thead>
+      <tbody>
+        <tr><td>Rigid schema</td><td>ALTER TABLE locks large tables.</td></tr>
+        <tr><td>Impedance mismatch</td><td>OO objects don't map to flat tables.</td></tr>
+        <tr><td>Horizontal scaling hard</td><td>Sharding &rarr; distributed joins, cross-shard txns.</td></tr>
+        <tr><td>Unstructured data</td><td>JSON, graphs, time-series don't fit rows/columns.</td></tr>
+        <tr><td>High write throughput</td><td>WAL + ACID bottleneck.</td></tr>
+        <tr><td>Global distribution</td><td>Strong consistency across continents is expensive.</td></tr>
+      </tbody>
+    </table>
+    <p><strong>NoSQL:</strong> Key-Value (Redis), Document (MongoDB), Column-Family (Cassandra), Graph (Neo4j).</p>
+  </div>
+</div>
+
+
+<!-- ==================== SESSION 3 ==================== -->
+<div class="session-banner sb-s3" id="sec-s3"><h2>SESSION 3 &mdash; Distributed Database Foundations</h2></div>
+
+<!-- Q25 -->
+<div class="q-card" id="q25" data-session="s3">
+  <div class="q-header" onclick="toggleQ(this)">
+    <div class="q-num c3">Q25</div>
+    <div class="q-title">Why do we need distributed databases? List the key drivers.</div>
+    <div class="q-check"><input type="checkbox" onchange="updateScore()" title="Mark as reviewed"></div>
+    <div class="q-toggle">&#9660;</div>
+  </div>
+  <div class="q-answer">
+    <table>
+      <thead><tr><th>Driver</th><th>Explanation</th></tr></thead>
+      <tbody>
+        <tr><td>Organisational distribution</td><td>Multiple locations generating local data.</td></tr>
+        <tr><td>Improved performance</td><td>Data close to users &rarr; reduced latency.</td></tr>
+        <tr><td>Scalability</td><td>Add nodes beyond single-server limits.</td></tr>
+        <tr><td>Availability</td><td>Replicated data survives failures.</td></tr>
+        <tr><td>Local autonomy</td><td>Each site manages own data.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Q26 -->
+<div class="q-card" id="q26" data-session="s3">
+  <div class="q-header" onclick="toggleQ(this)">
+    <div class="q-num c3">Q26</div>
+    <div class="q-title">Compare centralised and distributed database systems.</div>
+    <div class="q-check"><input type="checkbox" onchange="updateScore()" title="Mark as reviewed"></div>
+    <div class="q-toggle">&#9660;</div>
+  </div>
+  <div class="q-answer">
+    <table>
+      <thead><tr><th>Aspect</th><th>Centralised</th><th>Distributed</th></tr></thead>
+      <tbody>
+        <tr><td>Data location</td><td>Single site</td><td>Multiple networked sites</td></tr>
+        <tr><td>SPOF</td><td>Yes</td><td>No</td></tr>
+        <tr><td>Scalability</td><td>Vertical</td><td>Horizontal</td></tr>
+        <tr><td>Remote latency</td><td>High</td><td>Low</td></tr>
+        <tr><td>Complexity</td><td>Simpler</td><td>Higher</td></tr>
+        <tr><td>Cost model</td><td>Expensive high-end HW</td><td>Commodity HW + ops overhead</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Q27 -->
+<div class="q-card" id="q27" data-session="s3">
+  <div class="q-header" onclick="toggleQ(this)">
+    <div class="q-num c3">Q27</div>
+    <div class="q-title">What are the transparency goals of a Distributed DBMS?</div>
+    <div class="q-check"><input type="checkbox" onchange="updateScore()" title="Mark as reviewed"></div>
+    <div class="q-toggle">&#9660;</div>
+  </div>
+  <div class="q-answer">
+    <table>
+      <thead><tr><th>Transparency</th><th>User doesn't need to know&hellip;</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Location</strong></td><td>&hellip;where data is stored.</td></tr>
+        <tr><td><strong>Fragmentation</strong></td><td>&hellip;that tables are split across sites.</td></tr>
+        <tr><td><strong>Replication</strong></td><td>&hellip;that multiple copies exist.</td></tr>
+        <tr><td><strong>Concurrency</strong></td><td>&hellip;that other txns run simultaneously.</td></tr>
+        <tr><td><strong>Failure</strong></td><td>&hellip;that a node has failed.</td></tr>
+      </tbody>
+    </table>
+    <p>Goal: distributed system <strong>appears</strong> as a single, centralised database.</p>
+  </div>
+</div>
+
+<!-- Q28 -->
+<div class="q-card" id="q28" data-session="s3">
+  <div class="q-header" onclick="toggleQ(this)">
+    <div class="q-num c3">Q28</div>
+    <div class="q-title">Explain the different distributed database architecture types.</div>
+    <div class="q-check"><input type="checkbox" onchange="updateScore()" title="Mark as reviewed"></div>
+    <div class="q-toggle">&#9660;</div>
+  </div>
+  <div class="q-answer">
+    <ul>
+      <li><strong>Shared-Nothing:</strong> Each node has own CPU, memory, disk. Network communication only. Most scalable. (Cassandra, CockroachDB)</li>
+      <li><strong>Shared-Disk:</strong> All nodes access common storage (SAN). Easier sharing; storage bottleneck. (Oracle RAC)</li>
+      <li><strong>Shared-Memory:</strong> All processors share memory &amp; disk. Limited scalability. (SMP machines)</li>
+    </ul>
+  </div>
+</div>
+
+<!-- Q29 -->
+<div class="q-card" id="q29" data-session="s3">
+  <div class="q-header" onclick="toggleQ(this)">
+    <div class="q-num c3">Q29</div>
+    <div class="q-title">What is data fragmentation? Explain horizontal and vertical fragmentation.</div>
+    <div class="q-check"><input type="checkbox" onchange="updateScore()" title="Mark as reviewed"></div>
+    <div class="q-toggle">&#9660;</div>
+  </div>
+  <div class="q-answer">
+    <p><strong>Horizontal:</strong> Split by <strong>rows</strong> (selection condition). Reconstruction = UNION.</p>
+    <p><strong>Vertical:</strong> Split by <strong>columns</strong> (PK always included). Reconstruction = Natural JOIN on PK.</p>
+    <p><strong>Hybrid:</strong> Both horizontal and vertical applied.</p>
+    <p><strong>Correctness:</strong> Completeness (every tuple in &ge;1 fragment), Reconstruction (original can be rebuilt), Disjointness (no overlap preferred).</p>
+  </div>
+</div>
+
+<!-- Q30 -->
+<div class="q-card" id="q30" data-session="s3">
+  <div class="q-header" onclick="toggleQ(this)">
+    <div class="q-num c3">Q30</div>
+    <div class="q-title">Compare range, hash, and list partitioning strategies.</div>
+    <div class="q-check"><input type="checkbox" onchange="updateScore()" title="Mark as reviewed"></div>
+    <div class="q-toggle">&#9660;</div>
+  </div>
+  <div class="q-answer">
+    <table>
+      <thead><tr><th>Strategy</th><th>Assignment</th><th>Pros</th><th>Cons</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Range</strong></td><td>Key ranges</td><td>Efficient range queries</td><td>Hot spots</td></tr>
+        <tr><td><strong>Hash</strong></td><td>Hash function</td><td>Even distribution</td><td>Range queries scan all</td></tr>
+        <tr><td><strong>List</strong></td><td>Explicit values</td><td>Good for categories</td><td>Imbalanced lists</td></tr>
+        <tr><td><strong>Consistent hashing</strong></td><td>Hash ring</td><td>Elastic scaling</td><td>More complex</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Q31 -->
+<div class="q-card" id="q31" data-session="s3">
+  <div class="q-header" onclick="toggleQ(this)">
+    <div class="q-num c3">Q31</div>
+    <div class="q-title">Why do we replicate data? Compare synchronous and asynchronous replication.</div>
+    <div class="q-check"><input type="checkbox" onchange="updateScore()" title="Mark as reviewed"></div>
+    <div class="q-toggle">&#9660;</div>
+  </div>
+  <div class="q-answer">
+    <p><strong>Why:</strong> Availability, performance (nearest replica), fault tolerance.</p>
+    <table>
+      <thead><tr><th>Aspect</th><th>Synchronous</th><th>Asynchronous</th></tr></thead>
+      <tbody>
+        <tr><td>Confirmation</td><td>All replicas before commit</td><td>Primary commits; replicas later</td></tr>
+        <tr><td>Consistency</td><td>Strong</td><td>Eventual</td></tr>
+        <tr><td>Write latency</td><td>Higher</td><td>Lower</td></tr>
+        <tr><td>Failure risk</td><td>Writes blocked if replica down</td><td>Data loss if primary fails before propagation</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Q32 -->
+<div class="q-card" id="q32" data-session="s3">
+  <div class="q-header" onclick="toggleQ(this)">
+    <div class="q-num c3">Q32</div>
+    <div class="q-title">Explain the different replication topologies.</div>
+    <div class="q-check"><input type="checkbox" onchange="updateScore()" title="Mark as reviewed"></div>
+    <div class="q-toggle">&#9660;</div>
+  </div>
+  <div class="q-answer">
+    <table>
+      <thead><tr><th>Topology</th><th>How</th><th>Pros</th><th>Cons</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Single-leader</strong></td><td>One writes; replicas read.</td><td>Simple; no write conflicts.</td><td>Leader = bottleneck/SPOF.</td></tr>
+        <tr><td><strong>Multi-leader</strong></td><td>Multiple write nodes.</td><td>Multi-region; low latency.</td><td>Conflicts need resolution.</td></tr>
+        <tr><td><strong>Leaderless</strong></td><td>Any node reads/writes; quorum.</td><td>No SPOF; highly available.</td><td>Complex conflict handling.</td></tr>
+      </tbody>
+    </table>
+    <p><strong>Conflict resolution:</strong> LWW (simple, may lose data), CRDTs (auto-merge), Application-level (custom logic).</p>
+  </div>
+</div>
+
+<!-- Q33 -->
+<div class="q-card" id="q33" data-session="s3">
+  <div class="q-header" onclick="toggleQ(this)">
+    <div class="q-num c3">Q33</div>
+    <div class="q-title">Differentiate between homogeneous and heterogeneous distributed databases.</div>
+    <div class="q-check"><input type="checkbox" onchange="updateScore()" title="Mark as reviewed"></div>
+    <div class="q-toggle">&#9660;</div>
+  </div>
+  <div class="q-answer">
+    <table>
+      <thead><tr><th>Aspect</th><th>Homogeneous</th><th>Heterogeneous</th></tr></thead>
+      <tbody>
+        <tr><td>DBMS software</td><td>Same everywhere</td><td>Different (Oracle + PostgreSQL)</td></tr>
+        <tr><td>Data model</td><td>Identical</td><td>May differ</td></tr>
+        <tr><td>Query language</td><td>Same</td><td>May need translation</td></tr>
+        <tr><td>Management</td><td>Easier</td><td>Requires middleware</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+
+<!-- ==================== SESSION 4 ==================== -->
+<div class="session-banner sb-s4" id="sec-s4"><h2>SESSION 4 &mdash; Distributed Transactions and Consistency Models</h2></div>
+
+<!-- Q34 -->
+<div class="q-card" id="q34" data-session="s4">
+  <div class="q-header" onclick="toggleQ(this)">
+    <div class="q-num c4">Q34</div>
+    <div class="q-title">Explain the Two-Phase Commit (2PC) protocol in detail.</div>
+    <div class="q-check"><input type="checkbox" onchange="updateScore()" title="Mark as reviewed"></div>
+    <div class="q-toggle">&#9660;</div>
+  </div>
+  <div class="q-answer">
+    <p><strong>Phase 1 &mdash; Voting:</strong> Coordinator sends PREPARE. Participants vote YES (log changes, prepare) or NO (abort locally).</p>
+    <p><strong>Phase 2 &mdash; Decision:</strong> All YES &rarr; GLOBAL COMMIT. Any NO &rarr; GLOBAL ABORT. Participants ACK.</p>
+    <p><strong>Blocking problem:</strong> If coordinator crashes after Phase 1, participants holding YES votes are stuck &mdash; cannot commit or abort until coordinator recovers. They hold locks and wait.</p>
+  </div>
+</div>
+
+<!-- Q35 -->
+<div class="q-card" id="q35" data-session="s4">
+  <div class="q-header" onclick="toggleQ(this)">
+    <div class="q-num c4">Q35</div>
+    <div class="q-title">How does Three-Phase Commit (3PC) improve on 2PC?</div>
+    <div class="q-check"><input type="checkbox" onchange="updateScore()" title="Mark as reviewed"></div>
+    <div class="q-toggle">&#9660;</div>
+  </div>
+  <div class="q-answer">
+    <p>3PC adds <strong>PreCommit</strong> between voting and commit:</p>
+    <ol>
+      <li><strong>CanCommit?</strong> &mdash; Ask participants.</li>
+      <li><strong>PreCommit</strong> &mdash; All agree &rarr; send pre-commit (prepare, don't commit).</li>
+      <li><strong>DoCommit</strong> &mdash; Final commit.</li>
+    </ol>
+    <p><strong>Improvement:</strong> Participants can determine outcome based on whether they received pre-commit.</p>
+    <p><strong>Limitation:</strong> Extra latency; doesn't fully handle network partitions. Modern systems use Paxos/Raft instead.</p>
+  </div>
+</div>
+
+<!-- Q36 -->
+<div class="q-card" id="q36" data-session="s4">
+  <div class="q-header" onclick="toggleQ(this)">
+    <div class="q-num c4">Q36</div>
+    <div class="q-title">Describe the key steps and cost factors in distributed query processing.</div>
+    <div class="q-check"><input type="checkbox" onchange="updateScore()" title="Mark as reviewed"></div>
+    <div class="q-toggle">&#9660;</div>
+  </div>
+  <div class="q-answer">
+    <p><strong>Steps:</strong> Parsing &rarr; Optimisation (global + local) &rarr; Distributed Execution &rarr; Result Assembly.</p>
+    <p><strong>Cost factors:</strong> Network transfer (dominant) &gt; Local I/O &gt; Local CPU.</p>
+    <p><strong>Join strategies:</strong> Ship-whole (small table), Semi-join (send join keys first), Bloom-filter join, Parallel execution.</p>
+  </div>
+</div>
+
+<!-- Q37 -->
+<div class="q-card" id="q37" data-session="s4">
+  <div class="q-header" onclick="toggleQ(this)">
+    <div class="q-num c4">Q37</div>
+    <div class="q-title">State and explain the CAP theorem.</div>
+    <div class="q-check"><input type="checkbox" onchange="updateScore()" title="Mark as reviewed"></div>
+    <div class="q-toggle">&#9660;</div>
+  </div>
+  <div class="q-answer">
+    <p><strong>CAP</strong> (Brewer 2000, proved Gilbert &amp; Lynch 2002): at most <strong>2 of 3</strong>:</p>
+    <table>
+      <thead><tr><th>Property</th><th>Definition</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Consistency</strong></td><td>Every read returns the most recent write (linearisability).</td></tr>
+        <tr><td><strong>Availability</strong></td><td>Every request gets a non-error response.</td></tr>
+        <tr><td><strong>Partition Tolerance</strong></td><td>System works despite network partitions.</td></tr>
+      </tbody>
+    </table>
+    <p><strong>Key insight:</strong> P is not optional. Real choice: <strong>CP</strong> (errors over stale data &mdash; HBase, Zookeeper) or <strong>AP</strong> (serve stale data &mdash; Cassandra, DynamoDB).</p>
+    <p>Most real systems offer <strong>tunable consistency</strong>.</p>
+  </div>
+</div>
+
+<!-- Q38 -->
+<div class="q-card" id="q38" data-session="s4">
+  <div class="q-header" onclick="toggleQ(this)">
+    <div class="q-num c4">Q38</div>
+    <div class="q-title">What is the PACELC model? How does it extend CAP?</div>
+    <div class="q-check"><input type="checkbox" onchange="updateScore()" title="Mark as reviewed"></div>
+    <div class="q-toggle">&#9660;</div>
+  </div>
+  <div class="q-answer">
+    <p><strong>If Partition:</strong> choose Availability or Consistency. <strong>Else:</strong> choose Latency or Consistency.</p>
+    <table>
+      <thead><tr><th>System</th><th>During Partition</th><th>Normal</th></tr></thead>
+      <tbody>
+        <tr><td>Cassandra</td><td>PA (availability)</td><td>EL (low latency)</td></tr>
+        <tr><td>HBase</td><td>PC (consistency)</td><td>EC (consistency)</td></tr>
+        <tr><td>DynamoDB</td><td>PA</td><td>EL</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Q39 -->
+<div class="q-card" id="q39" data-session="s4">
+  <div class="q-header" onclick="toggleQ(this)">
+    <div class="q-num c4">Q39</div>
+    <div class="q-title">Compare ACID and BASE in detail.</div>
+    <div class="q-check"><input type="checkbox" onchange="updateScore()" title="Mark as reviewed"></div>
+    <div class="q-toggle">&#9660;</div>
+  </div>
+  <div class="q-answer">
+    <table>
+      <thead><tr><th>Aspect</th><th>ACID</th><th>BASE</th></tr></thead>
+      <tbody>
+        <tr><td>Consistency</td><td>Strong (immediate)</td><td>Eventual</td></tr>
+        <tr><td>Availability</td><td>May sacrifice</td><td>Prioritises</td></tr>
+        <tr><td>Scalability</td><td>Hard horizontally</td><td>Built for horizontal</td></tr>
+        <tr><td>Use cases</td><td>Finance, inventory</td><td>Social, analytics, IoT</td></tr>
+        <tr><td>App complexity</td><td>Simpler (DB handles it)</td><td>Higher (app handles inconsistency)</td></tr>
+        <tr><td>Write latency</td><td>Higher</td><td>Lower</td></tr>
+      </tbody>
+    </table>
+    <p><strong>Real systems combine both:</strong> ACID for balances, BASE for dashboards.</p>
+  </div>
+</div>
+
+<!-- Q40 -->
+<div class="q-card" id="q40" data-session="s4">
+  <div class="q-header" onclick="toggleQ(this)">
+    <div class="q-num c4">Q40</div>
+    <div class="q-title">Explain eventual consistency and its variants.</div>
+    <div class="q-check"><input type="checkbox" onchange="updateScore()" title="Mark as reviewed"></div>
+    <div class="q-toggle">&#9660;</div>
+  </div>
+  <div class="q-answer">
+    <p>If no new updates, all replicas <em>eventually</em> converge. No guarantee about <em>when</em>.</p>
+    <table>
+      <thead><tr><th>Variant</th><th>Guarantee</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Causal</strong></td><td>If A causes B, everyone sees A before B.</td></tr>
+        <tr><td><strong>Read-your-writes</strong></td><td>Client always sees its own updates.</td></tr>
+        <tr><td><strong>Monotonic reads</strong></td><td>Never see older value after seeing newer.</td></tr>
+        <tr><td><strong>Monotonic writes</strong></td><td>Same client's writes applied in order.</td></tr>
+        <tr><td><strong>Session</strong></td><td>Read-your-writes + monotonic reads within session.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Q41 -->
+<div class="q-card" id="q41" data-session="s4">
+  <div class="q-header" onclick="toggleQ(this)">
+    <div class="q-num c4">Q41</div>
+    <div class="q-title">What is tunable consistency? Give an example with Cassandra.</div>
+    <div class="q-check"><input type="checkbox" onchange="updateScore()" title="Mark as reviewed"></div>
+    <div class="q-toggle">&#9660;</div>
+  </div>
+  <div class="q-answer">
+    <p>Choose consistency level per-query, trading latency vs. freshness.</p>
+    <table>
+      <thead><tr><th>Level</th><th>Meaning</th></tr></thead>
+      <tbody>
+        <tr><td><code>ONE</code></td><td>1 replica ACK (fastest, weakest).</td></tr>
+        <tr><td><code>QUORUM</code></td><td>Majority ACK (balanced).</td></tr>
+        <tr><td><code>ALL</code></td><td>All replicas ACK (strongest, slowest).</td></tr>
+        <tr><td><code>LOCAL_QUORUM</code></td><td>Quorum in local DC only.</td></tr>
+      </tbody>
+    </table>
+    <p><strong>Strong consistency formula:</strong> <code>R + W &gt; N</code>. Example: N=3, W=2, R=2 &rarr; 4&gt;3 &#10003;</p>
+  </div>
+</div>
+
+<!-- Q42 -->
+<div class="q-card" id="q42" data-session="s4">
+  <div class="q-header" onclick="toggleQ(this)">
+    <div class="q-num c4">Q42</div>
+    <div class="q-title">How do you choose between strong and eventual consistency?</div>
+    <div class="q-check"><input type="checkbox" onchange="updateScore()" title="Mark as reviewed"></div>
+    <div class="q-toggle">&#9660;</div>
+  </div>
+  <div class="q-answer">
+    <ol>
+      <li><strong>Safety-critical data?</strong> (money, health) &rarr; Strong (ACID/CP).</li>
+      <li><strong>Tolerate stale reads?</strong> &rarr; Eventual (BASE/AP) for scale + low latency.</li>
+      <li><strong>Middle ground?</strong> &rarr; Causal or session consistency.</li>
+    </ol>
+    <p><strong>Best practice:</strong> Mix models &mdash; ACID for payments, eventual for recommendations, session for profiles.</p>
+  </div>
+</div>
+
+<!-- Q43 -->
+<div class="q-card" id="q43" data-session="s4">
+  <div class="q-header" onclick="toggleQ(this)">
+    <div class="q-num c4">Q43</div>
+    <div class="q-title">Explain the difference between Consistency in CAP and Consistency in ACID.</div>
+    <div class="q-check"><input type="checkbox" onchange="updateScore()" title="Mark as reviewed"></div>
+    <div class="q-toggle">&#9660;</div>
+  </div>
+  <div class="q-answer">
+    <table>
+      <thead><tr><th>ACID Consistency</th><th>CAP Consistency</th></tr></thead>
+      <tbody>
+        <tr><td>DB moves from one <strong>valid state</strong> to another (constraints satisfied).</td><td>Every read returns the <strong>most recent write</strong> (linearisability).</td></tr>
+        <tr><td>About <strong>correctness</strong> (constraint satisfaction).</td><td>About <strong>freshness/agreement</strong> across replicas.</td></tr>
+        <tr><td>Enforced by constraint checking.</td><td>Enforced by replication/consensus protocols.</td></tr>
+        <tr><td>Relevant even single-node.</td><td>Only relevant in distributed systems.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Q44 -->
+<div class="q-card" id="q44" data-session="s4">
+  <div class="q-header" onclick="toggleQ(this)">
+    <div class="q-num c4">Q44</div>
+    <div class="q-title">Quorum calculation: N=5, W=3, R=3 vs R=2. Is strong consistency guaranteed?</div>
+    <div class="q-check"><input type="checkbox" onchange="updateScore()" title="Mark as reviewed"></div>
+    <div class="q-toggle">&#9660;</div>
+  </div>
+  <div class="q-answer">
+    <p><strong>Case 1: W=3, R=3:</strong> R+W = 6 &gt; 5 &rarr; <strong>Yes, guaranteed.</strong></p>
+    <p><strong>Case 2: W=3, R=2:</strong> R+W = 5 = 5 &rarr; <strong>No, NOT guaranteed.</strong> Must be strictly greater. Fix: increase R to 3 or W to 4.</p>
+  </div>
+</div>
+
+<!-- Q45 -->
+<div class="q-card" id="q45" data-session="s4">
+  <div class="q-header" onclick="toggleQ(this)">
+    <div class="q-num c4">Q45</div>
+    <div class="q-title">Compare 2PC, 3PC, Paxos/Raft &mdash; when would you use each?</div>
+    <div class="q-check"><input type="checkbox" onchange="updateScore()" title="Mark as reviewed"></div>
+    <div class="q-toggle">&#9660;</div>
+  </div>
+  <div class="q-answer">
+    <table>
+      <thead><tr><th>Protocol</th><th>Purpose</th><th>Blocking?</th><th>Partition tolerant?</th><th>Use case</th></tr></thead>
+      <tbody>
+        <tr><td><strong>2PC</strong></td><td>Atomic commit</td><td>Yes</td><td>No</td><td>Traditional distributed txns in one data centre.</td></tr>
+        <tr><td><strong>3PC</strong></td><td>Reduce blocking</td><td>Partially</td><td>Not fully</td><td>Theoretical; rarely used.</td></tr>
+        <tr><td><strong>Paxos/Raft</strong></td><td>Consensus</td><td>No</td><td>Yes</td><td>Leader election, replicated state machines. CockroachDB, etcd, Zookeeper.</td></tr>
+      </tbody>
+    </table>
+    <p>Modern systems use <strong>Raft/Paxos</strong> for consensus, building transaction protocols on top.</p>
+  </div>
+</div>
+
+
+<!-- ==================== BONUS ==================== -->
+<div class="session-banner sb-bonus" id="sec-s5"><h2>BONUS &mdash; Mixed / Cross-Session Questions</h2></div>
+
+<!-- Q46 -->
+<div class="q-card" id="q46" data-session="s5">
+  <div class="q-header" onclick="toggleQ(this)">
+    <div class="q-num c5">Q46</div>
+    <div class="q-title">Trace the evolution: file systems &rarr; RDBMS &rarr; distributed DBs &rarr; NoSQL.</div>
+    <div class="q-check"><input type="checkbox" onchange="updateScore()" title="Mark as reviewed"></div>
+    <div class="q-toggle">&#9660;</div>
+  </div>
+  <div class="q-answer">
+    <table>
+      <thead><tr><th>Stage</th><th>Problem it solved</th></tr></thead>
+      <tbody>
+        <tr><td><strong>File systems</strong></td><td>Basic storage, but redundancy + inconsistency + no concurrency.</td></tr>
+        <tr><td><strong>RDBMS</strong></td><td>Schemas, constraints, ACID, SQL &mdash; solved redundancy, integrity, concurrency.</td></tr>
+        <tr><td><strong>Distributed RDBMS</strong></td><td>Single-server limits: scalability, availability, latency.</td></tr>
+        <tr><td><strong>NoSQL</strong></td><td>Rigid schemas, horizontal scaling, high write throughput. Traded ACID for flexibility (BASE).</td></tr>
+      </tbody>
+    </table>
+    <p>Each stage didn't replace the previous &mdash; all co-exist. Choose based on workload.</p>
+  </div>
+</div>
+
+<!-- Q47 -->
+<div class="q-card" id="q47" data-session="s5">
+  <div class="q-header" onclick="toggleQ(this)">
+    <div class="q-num c5">Q47</div>
+    <div class="q-title">Billions of order rows &mdash; how would you evolve the architecture?</div>
+    <div class="q-check"><input type="checkbox" onchange="updateScore()" title="Mark as reviewed"></div>
+    <div class="q-toggle">&#9660;</div>
+  </div>
+  <div class="q-answer">
+    <ol>
+      <li><strong>Optimise RDBMS:</strong> Indexes, materialised views, archive cold data.</li>
+      <li><strong>Vertical scaling:</strong> Bigger server (RAM, SSDs).</li>
+      <li><strong>Read replicas:</strong> Primary for writes, replicas for reads.</li>
+      <li><strong>Horizontal partitioning (sharding):</strong> Hash by customer_id or range by date.</li>
+      <li><strong>Distributed SQL:</strong> CockroachDB, YugabyteDB &mdash; transparent sharding + ACID.</li>
+      <li><strong>Polyglot persistence:</strong> RDBMS for txns, data warehouse for analytics, Redis for caching.</li>
+    </ol>
+  </div>
+</div>
+
+<!-- Q48 -->
+<div class="q-card" id="q48" data-session="s5">
+  <div class="q-header" onclick="toggleQ(this)">
+    <div class="q-num c5">Q48</div>
+    <div class="q-title">Design an ER diagram for a university database, then map to relational tables.</div>
+    <div class="q-check"><input type="checkbox" onchange="updateScore()" title="Mark as reviewed"></div>
+    <div class="q-toggle">&#9660;</div>
+  </div>
+  <div class="q-answer">
+    <p><strong>Entities:</strong> STUDENT, COURSE, INSTRUCTOR, DEPARTMENT.</p>
+    <p><strong>Relationships:</strong> enrols (M:N), teaches (1:N), offers (1:N), belongs_to (N:1).</p>
+    <pre><code><span class="sk">CREATE TABLE</span> DEPARTMENT (Dept_ID <span class="sk">INT PRIMARY KEY</span>, Dept_Name <span class="sk">VARCHAR</span>(100));
+<span class="sk">CREATE TABLE</span> INSTRUCTOR (Instructor_ID <span class="sk">INT PRIMARY KEY</span>, Name <span class="sk">VARCHAR</span>(100),
+    Dept_ID <span class="sk">INT REFERENCES</span> DEPARTMENT(Dept_ID));
+<span class="sk">CREATE TABLE</span> COURSE (Course_ID <span class="sk">INT PRIMARY KEY</span>, Course_Name <span class="sk">VARCHAR</span>(100),
+    Credits <span class="sk">INT CHECK</span>(Credits&gt;0), Dept_ID <span class="sk">INT REFERENCES</span> DEPARTMENT(Dept_ID),
+    Instructor_ID <span class="sk">INT REFERENCES</span> INSTRUCTOR(Instructor_ID));
+<span class="sk">CREATE TABLE</span> STUDENT (Student_ID <span class="sk">INT PRIMARY KEY</span>, Name <span class="sk">VARCHAR</span>(100),
+    Email <span class="sk">VARCHAR</span>(100) <span class="sk">UNIQUE</span>, DOB <span class="sk">DATE</span>);
+<span class="sk">CREATE TABLE</span> ENROLMENT (Student_ID <span class="sk">INT</span>, Course_ID <span class="sk">INT</span>, Grade <span class="sk">CHAR</span>(2),
+    Semester <span class="sk">VARCHAR</span>(20),
+    <span class="sk">PRIMARY KEY</span>(Student_ID, Course_ID, Semester),
+    <span class="sk">FOREIGN KEY</span>(Student_ID) <span class="sk">REFERENCES</span> STUDENT(Student_ID),
+    <span class="sk">FOREIGN KEY</span>(Course_ID) <span class="sk">REFERENCES</span> COURSE(Course_ID));</code></pre>
+    <p><strong>Rules:</strong> Strong entities &rarr; tables. 1:N &rarr; FK on "N" side. M:N &rarr; junction table.</p>
+  </div>
+</div>
+
+<!-- Q49 -->
+<div class="q-card" id="q49" data-session="s5">
+  <div class="q-header" onclick="toggleQ(this)">
+    <div class="q-num c5">Q49</div>
+    <div class="q-title">Compare: Horizontal vs Vertical fragmentation, Sync vs Async replication, 2PC vs Paxos.</div>
+    <div class="q-check"><input type="checkbox" onchange="updateScore()" title="Mark as reviewed"></div>
+    <div class="q-toggle">&#9660;</div>
+  </div>
+  <div class="q-answer">
+    <p><strong>a) Fragmentation:</strong></p>
+    <table>
+      <thead><tr><th></th><th>Horizontal</th><th>Vertical</th></tr></thead>
+      <tbody>
+        <tr><td>Splits by</td><td>Rows</td><td>Columns</td></tr>
+        <tr><td>Reconstruction</td><td>UNION</td><td>Natural JOIN on PK</td></tr>
+      </tbody>
+    </table>
+    <p><strong>b) Replication:</strong></p>
+    <table>
+      <thead><tr><th></th><th>Synchronous</th><th>Asynchronous</th></tr></thead>
+      <tbody>
+        <tr><td>Consistency</td><td>Strong</td><td>Eventual</td></tr>
+        <tr><td>Write latency</td><td>Higher</td><td>Lower</td></tr>
+      </tbody>
+    </table>
+    <p><strong>c) 2PC vs Paxos:</strong></p>
+    <table>
+      <thead><tr><th></th><th>2PC</th><th>Paxos/Raft</th></tr></thead>
+      <tbody>
+        <tr><td>Purpose</td><td>Atomic commit</td><td>Consensus</td></tr>
+        <tr><td>Blocking</td><td>Yes</td><td>No</td></tr>
+        <tr><td>Partition tolerant</td><td>No</td><td>Yes</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Q50 -->
+<div class="q-card" id="q50" data-session="s5">
+  <div class="q-header" onclick="toggleQ(this)">
+    <div class="q-num c5">Q50</div>
+    <div class="q-title">Short-answer rapid-fire (10 questions).</div>
+    <div class="q-check"><input type="checkbox" onchange="updateScore()" title="Mark as reviewed"></div>
+    <div class="q-toggle">&#9660;</div>
+  </div>
+  <div class="q-answer">
+    <ol>
+      <li><strong>Three levels of ANSI/SPARC?</strong> External, Conceptual, Internal.</li>
+      <li><strong>1NF requires?</strong> Atomic values &mdash; no multi-valued or composite in a cell.</li>
+      <li><strong>Candidate key vs Primary key?</strong> Candidate = any minimal superkey. Primary = the one chosen.</li>
+      <li><strong>Referential integrity?</strong> FK must be NULL or match an existing PK.</li>
+      <li><strong>SQL clause that filters groups?</strong> <code>HAVING</code>.</li>
+      <li><strong>DELETE vs DROP?</strong> DELETE removes rows (structure stays). DROP removes entire table.</li>
+      <li><strong>MVCC stands for?</strong> Multi-Version Concurrency Control.</li>
+      <li><strong>CAP: which property is always required?</strong> Partition Tolerance (P).</li>
+      <li><strong>Strong consistency formula?</strong> <code>R + W &gt; N</code>.</li>
+      <li><strong>Three NoSQL categories?</strong> Key-Value, Document, Column-Family (or Graph).</li>
+    </ol>
+  </div>
+</div>
+
+</div><!-- end main -->
+
+<a href="#" class="back-top" id="backTop" aria-label="Back to top">&uarr;</a>
+
+<script>
+  // Toggle sidebar
+  function toggleSidebar() {
+    document.getElementById('sidebar').classList.toggle('closed');
+    document.getElementById('sidebarToggle').classList.toggle('shifted');
+    document.getElementById('mainContent').classList.toggle('expanded');
+  }
+
+  // Nav section collapse
+  function toggleNav(el) {
+    el.classList.toggle('collapsed');
+    const g = el.nextElementSibling;
+    if (g && g.classList.contains('nav-grp')) g.classList.toggle('hidden');
+  }
+
+  // Toggle single question
+  function toggleQ(header) {
+    const card = header.closest('.q-card');
+    // Don't toggle if clicking checkbox
+    if (event.target.type === 'checkbox') return;
+    card.classList.toggle('open');
+  }
+
+  // Toggle all answers
+  function toggleAll(show, session) {
+    const cards = document.querySelectorAll('.q-card' + (session ? `[data-session="${session}"]` : ''));
+    cards.forEach(c => show ? c.classList.add('open') : c.classList.remove('open'));
+  }
+
+  // Score tracking
+  function updateScore() {
+    const checked = document.querySelectorAll('.q-check input:checked').length;
+    document.getElementById('scoreCount').textContent = checked;
+  }
+
+  // Progress bar + back to top
+  window.addEventListener('scroll', () => {
+    const h = document.documentElement.scrollHeight - window.innerHeight;
+    document.getElementById('progressBar').style.transform = `scaleX(${window.scrollY / h})`;
+    document.getElementById('backTop').classList.toggle('visible', window.scrollY > 400);
+  });
+
+  // Active nav link on scroll
+  const qCards = document.querySelectorAll('.q-card[id]');
+  const navAs = document.querySelectorAll('.nav-grp a');
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        navAs.forEach(a => a.classList.remove('active'));
+        const l = document.querySelector(`.nav-grp a[href="#${e.target.id}"]`);
+        if (l) l.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-20% 0px -60% 0px' });
+  qCards.forEach(q => obs.observe(q));
+</script>
+
+</body>
+</html>

@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CS5: IaaS Services — Questions &amp; Answers</title>
+<style>
+:root{--bg:#0f172a;--surface:#1e293b;--surface2:#334155;--border:#475569;--text:#e2e8f0;--text-muted:#94a3b8;--code-bg:#0d1117;--accent:#ef4444;--accent-dim:rgba(239,68,68,.12);--accent-border:rgba(239,68,68,.3);--green:#22c55e;--green-dim:rgba(34,197,94,.15)}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}html{scroll-behavior:smooth;scroll-padding-top:80px}body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);line-height:1.7;min-height:100vh}
+.progress-bar{position:fixed;top:0;left:0;height:3px;background:var(--accent);z-index:1001;transition:width .25s}
+.sidebar{position:fixed;top:0;left:0;width:280px;height:100vh;background:var(--surface);border-right:1px solid var(--border);overflow-y:auto;z-index:100;transition:transform .3s}.sidebar-header{padding:20px;border-bottom:1px solid var(--border);text-align:center}.sidebar-header h2{font-size:1rem;color:var(--accent);margin-bottom:4px}.sidebar-header small{color:var(--text-muted);font-size:.75rem}.sidebar nav{padding:12px 0}.sidebar nav a{display:block;padding:8px 20px;color:var(--text-muted);text-decoration:none;font-size:.85rem;border-left:3px solid transparent;transition:all .2s}.sidebar nav a:hover,.sidebar nav a.active{color:var(--accent);background:var(--accent-dim);border-left-color:var(--accent)}.sidebar nav .nav-group{padding:10px 20px 4px;font-size:.7rem;text-transform:uppercase;letter-spacing:1px;color:var(--border);font-weight:700}
+.sidebar-toggle{display:none;position:fixed;top:12px;left:12px;z-index:200;background:var(--surface);border:1px solid var(--border);color:var(--text);padding:8px 12px;border-radius:6px;cursor:pointer;font-size:1.1rem}
+.main{margin-left:280px;max-width:900px;padding:40px 40px 100px}.main h1{font-size:2rem;color:var(--accent);margin-bottom:8px;line-height:1.3}.main .subtitle{color:var(--text-muted);font-size:.9rem;margin-bottom:24px}
+.score-bar{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px 24px;margin-bottom:32px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;position:sticky;top:0;z-index:50}.score-bar .score-text{font-size:1.1rem;font-weight:700;color:var(--accent)}.score-bar .score-text span{color:var(--green)}.score-bar .btn-group{display:flex;gap:8px}.score-bar button{padding:6px 16px;border-radius:6px;border:1px solid var(--border);background:var(--surface2);color:var(--text);cursor:pointer;font-size:.82rem;transition:all .2s}.score-bar button:hover{background:var(--accent);color:#fff;border-color:var(--accent)}
+.qa-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;margin-bottom:16px;overflow:hidden;transition:border-color .2s}.qa-card:hover{border-color:var(--accent-border)}.qa-card.checked-off{border-color:var(--green);background:var(--green-dim)}
+.qa-question{padding:16px 20px;cursor:pointer;display:flex;align-items:flex-start;gap:14px;user-select:none}.qa-question input[type=checkbox]{width:20px;height:20px;margin-top:3px;accent-color:var(--green);cursor:pointer;flex-shrink:0}.qa-question .q-text{flex:1;font-weight:600;color:var(--text);font-size:.95rem}.qa-question .expand-icon{color:var(--accent);font-size:1.2rem;transition:transform .3s;flex-shrink:0;margin-top:2px}.qa-card.open .expand-icon{transform:rotate(180deg)}
+.qa-answer{max-height:0;overflow:hidden;transition:max-height .4s ease}.qa-card.open .qa-answer{max-height:5000px}.qa-answer-inner{padding:0 20px 20px 54px;color:var(--text)}.qa-answer-inner p{margin-bottom:12px}.qa-answer-inner ul,.qa-answer-inner ol{margin:0 0 12px 20px}.qa-answer-inner li{margin-bottom:4px}.qa-answer-inner strong{color:var(--accent)}.qa-answer-inner em{color:var(--text-muted)}
+table{width:100%;border-collapse:collapse;margin:12px 0 16px;font-size:.85rem}thead th{background:var(--accent);color:#fff;padding:8px 12px;text-align:left;font-weight:600}tbody td{padding:8px 12px;border-bottom:1px solid var(--border)}tbody tr:nth-child(even){background:var(--surface)}tbody tr:nth-child(odd){background:var(--surface2)}tbody tr:hover{background:var(--accent-dim)}td strong{color:var(--accent)}
+pre{background:var(--code-bg);border:1px solid var(--border);border-radius:8px;padding:14px;overflow-x:auto;margin:12px 0;font-size:.83rem;line-height:1.5}code{font-family:'Cascadia Code','Fira Code','Consolas',monospace;font-size:.86em}p code,li code,td code{background:var(--code-bg);padding:2px 6px;border-radius:4px;color:var(--accent);border:1px solid var(--border)}
+.back-to-top{position:fixed;bottom:30px;right:30px;width:44px;height:44px;background:var(--accent);color:#fff;border:none;border-radius:50%;font-size:1.3rem;cursor:pointer;display:none;align-items:center;justify-content:center;box-shadow:0 4px 15px rgba(0,0,0,.3);z-index:100;transition:transform .2s}.back-to-top:hover{transform:scale(1.1)}.back-to-top.visible{display:flex}
+@media(max-width:900px){.sidebar{transform:translateX(-100%)}.sidebar.open{transform:translateX(0)}.sidebar-toggle{display:block}.main{margin-left:0;padding:70px 20px 100px}.score-bar{flex-direction:column;align-items:stretch;text-align:center}}
+@media print{.sidebar,.sidebar-toggle,.back-to-top,.progress-bar,.score-bar{display:none!important}.main{margin-left:0;max-width:100%}body{background:#fff;color:#000}.qa-card{border:1px solid #ccc;break-inside:avoid}.qa-answer{max-height:none!important}.qa-question .expand-icon{display:none}table{font-size:.75rem}thead th{background:#333;color:#fff;-webkit-print-color-adjust:exact;print-color-adjust:exact}tbody tr:nth-child(even){background:#f0f0f0}tbody tr:nth-child(odd){background:#fff}pre{background:#f5f5f5;border:1px solid #ccc}code{color:#333}h1{color:#111}}
+</style>
+</head>
+<body>
+<div class="progress-bar" id="progressBar"></div>
+<button class="sidebar-toggle" id="sidebarToggle">☰</button>
+<aside class="sidebar" id="sidebar">
+<div class="sidebar-header"><h2>CS5 Q&amp;A</h2><small>10 Questions</small></div>
+<nav>
+<div class="nav-group">Study Materials</div>
+<a href="CS1-Introduction-to-Cloud-Computing.html">CS1 — Intro to Cloud</a><a href="CS2-CS3-Virtualization.html">CS2-CS3 — Virtualization</a><a href="CS4-Hypervisor-and-IaaS.html">CS4 — Hypervisor &amp; IaaS</a><a href="CS5-IaaS-Services.html">CS5 — IaaS Services</a><a href="CS6-Containers-and-Cloud-Native.html">CS6 — Containers</a>
+<div class="nav-group">Questions &amp; Answers</div>
+<a href="CS1-Questions-and-Answers.html">CS1 Q&amp;A (15 Qs)</a><a href="CS2-CS3-Questions-and-Answers.html">CS2-CS3 Q&amp;A (6 Qs)</a><a href="CS4-Questions-and-Answers.html">CS4 Q&amp;A (8 Qs)</a><a href="CS5-Questions-and-Answers.html" class="active">CS5 Q&amp;A (10 Qs)</a><a href="CS6-Questions-and-Answers.html">CS6 Q&amp;A (12 Qs)</a>
+</nav>
+</aside>
+<main class="main">
+<h1>CS5: IaaS Services — Questions &amp; Answers</h1>
+<p class="subtitle">10 questions covering: IAM, EC2 instance families, Auto Scaling, ELB, VPC, S3 storage classes, EBS, RDS, DynamoDB, CloudWatch, messaging services.</p>
+<div class="score-bar"><div class="score-text">Score: <span id="scoreCount">0</span> / 10</div><div class="btn-group"><button onclick="toggleAll(true)">Show All</button><button onclick="toggleAll(false)">Hide All</button><button onclick="resetAll()">Reset</button></div></div>
+<div id="qaContainer">
+
+<div class="qa-card"><div class="qa-question" onclick="toggleAnswer(this)"><input type="checkbox" onclick="event.stopPropagation();updateScore()"><div class="q-text">Q1. What is IAM? Explain users, groups, roles, and policies.</div><div class="expand-icon">&#9660;</div></div><div class="qa-answer"><div class="qa-answer-inner">
+<p><strong>IAM (Identity and Access Management)</strong> controls who can do what on which cloud resources.</p>
+<table><thead><tr><th>Concept</th><th>What it is</th><th>Example</th></tr></thead><tbody>
+<tr><td><strong>User</strong></td><td>Person or app with credentials</td><td>"developer-alice"</td></tr>
+<tr><td><strong>Group</strong></td><td>Collection of users with same permissions</td><td>"developers" group</td></tr>
+<tr><td><strong>Role</strong></td><td>Set of permissions assumable by users/services — not tied to a person</td><td>"EC2-S3-ReadOnly" role assumed by an EC2 instance</td></tr>
+<tr><td><strong>Policy</strong></td><td>JSON document defining allowed/denied actions on resources</td><td>Allow s3:GetObject on my-bucket</td></tr>
+</tbody></table>
+<p><strong>Principle of Least Privilege:</strong> Grant only minimum permissions needed. If web app only reads from S3, give it only <code>s3:GetObject</code> — not admin access.</p>
+</div></div></div>
+
+<div class="qa-card"><div class="qa-question" onclick="toggleAnswer(this)"><input type="checkbox" onclick="event.stopPropagation();updateScore()"><div class="q-text">Q2. What are EC2 instance families? When would you use each?</div><div class="expand-icon">&#9660;</div></div><div class="qa-answer"><div class="qa-answer-inner">
+<table><thead><tr><th>Family</th><th>Optimised for</th><th>Use case</th><th>Example</th></tr></thead><tbody>
+<tr><td><strong>General Purpose (t3, m6i)</strong></td><td>Balanced CPU/memory</td><td>Web servers, small DBs, dev environments</td><td>t3.medium</td></tr>
+<tr><td><strong>Compute Optimised (c6i)</strong></td><td>High CPU</td><td>Batch processing, gaming, scientific modelling</td><td>c6i.xlarge</td></tr>
+<tr><td><strong>Memory Optimised (r6i)</strong></td><td>Large memory</td><td>In-memory DBs (Redis), real-time analytics</td><td>r6i.2xlarge</td></tr>
+<tr><td><strong>Storage Optimised (i3)</strong></td><td>High I/O</td><td>Data warehousing, distributed filesystems</td><td>i3.xlarge</td></tr>
+<tr><td><strong>Accelerated (p4d, g5)</strong></td><td>GPU</td><td>ML training, video encoding, 3D rendering</td><td>p4d.24xlarge</td></tr>
+</tbody></table>
+<p>Choose based on workload profile: CPU-bound → compute optimised, memory-bound → memory optimised, I/O-bound → storage optimised, ML → accelerated.</p>
+</div></div></div>
+
+<div class="qa-card"><div class="qa-question" onclick="toggleAnswer(this)"><input type="checkbox" onclick="event.stopPropagation();updateScore()"><div class="q-text">Q3. Explain Auto Scaling. What are the four types of scaling?</div><div class="expand-icon">&#9660;</div></div><div class="qa-answer"><div class="qa-answer-inner">
+<p><strong>Auto Scaling</strong> automatically adjusts EC2 instance count based on demand.</p>
+<table><thead><tr><th>Type</th><th>How it works</th><th>Example</th></tr></thead><tbody>
+<tr><td><strong>Target tracking</strong></td><td>Maintain a target metric</td><td>"Keep average CPU at 50%"</td></tr>
+<tr><td><strong>Step scaling</strong></td><td>Add/remove in steps by threshold</td><td>"CPU>70% → +2, CPU>90% → +5"</td></tr>
+<tr><td><strong>Scheduled</strong></td><td>Scale at specific times</td><td>"10 instances at 9 AM, 2 at 10 PM"</td></tr>
+<tr><td><strong>Predictive</strong></td><td>ML predicts demand from history</td><td>AWS pre-scales for Monday morning spike</td></tr>
+</tbody></table>
+<p><strong>Setup:</strong> Define launch template + scaling policies + min/max/desired counts. Auto Scaling monitors CloudWatch metrics and acts automatically.</p>
+</div></div></div>
+
+<div class="qa-card"><div class="qa-question" onclick="toggleAnswer(this)"><input type="checkbox" onclick="event.stopPropagation();updateScore()"><div class="q-text">Q4. What is a VPC? Draw the architecture with public and private subnets.</div><div class="expand-icon">&#9660;</div></div><div class="qa-answer"><div class="qa-answer-inner">
+<p><strong>VPC (Virtual Private Cloud)</strong> is an isolated virtual network you define in the cloud.</p>
+<pre><code>VPC (10.0.0.0/16)
+├── Public Subnet (10.0.1.0/24)
+│   ├── Web servers, Load Balancer
+│   └── Internet Gateway → Internet
+├── Private Subnet (10.0.2.0/24)
+│   ├── Application servers
+│   └── NAT Gateway → Internet (outbound only)
+└── Private Subnet (10.0.3.0/24)
+    ├── Database servers
+    └── No internet access</code></pre>
+<table><thead><tr><th>Component</th><th>Purpose</th></tr></thead><tbody>
+<tr><td><strong>Subnets</strong></td><td>Public (internet-facing) vs Private (internal only)</td></tr>
+<tr><td><strong>Security Groups</strong></td><td>Instance-level firewall (stateful)</td></tr>
+<tr><td><strong>Network ACLs</strong></td><td>Subnet-level firewall (stateless)</td></tr>
+<tr><td><strong>Internet Gateway</strong></td><td>Connects public subnet to internet</td></tr>
+<tr><td><strong>NAT Gateway</strong></td><td>Allows private instances to reach internet (outbound only)</td></tr>
+</tbody></table>
+</div></div></div>
+
+<div class="qa-card"><div class="qa-question" onclick="toggleAnswer(this)"><input type="checkbox" onclick="event.stopPropagation();updateScore()"><div class="q-text">Q5. Compare S3 storage classes. When would you use each?</div><div class="expand-icon">&#9660;</div></div><div class="qa-answer"><div class="qa-answer-inner">
+<table><thead><tr><th>Class</th><th>Access pattern</th><th>Retrieval time</th><th>Cost</th><th>Use case</th></tr></thead><tbody>
+<tr><td><strong>S3 Standard</strong></td><td>Frequent</td><td>Instant</td><td>Highest</td><td>Active data, websites</td></tr>
+<tr><td><strong>S3 Intelligent-Tiering</strong></td><td>Varying</td><td>Instant</td><td>Auto-optimised</td><td>Unknown access patterns</td></tr>
+<tr><td><strong>S3 Standard-IA</strong></td><td>Infrequent (>30 days)</td><td>Instant</td><td>Lower storage, higher retrieval</td><td>Backups, DR</td></tr>
+<tr><td><strong>S3 Glacier</strong></td><td>Archive</td><td>Minutes to hours</td><td>Very low</td><td>Long-term archival</td></tr>
+<tr><td><strong>S3 Glacier Deep Archive</strong></td><td>Rarely accessed</td><td>12+ hours</td><td>Lowest</td><td>Regulatory archives</td></tr>
+</tbody></table>
+<p><strong>Rule:</strong> Frequently accessed → Standard. Infrequently → IA. Archival → Glacier. Unknown → Intelligent-Tiering.</p>
+</div></div></div>
+
+<div class="qa-card"><div class="qa-question" onclick="toggleAnswer(this)"><input type="checkbox" onclick="event.stopPropagation();updateScore()"><div class="q-text">Q6. Compare object storage (S3), block storage (EBS), and file storage (EFS).</div><div class="expand-icon">&#9660;</div></div><div class="qa-answer"><div class="qa-answer-inner">
+<table><thead><tr><th>Aspect</th><th>S3 (Object)</th><th>EBS (Block)</th><th>EFS (File)</th></tr></thead><tbody>
+<tr><td><strong>Access method</strong></td><td>HTTP/REST API</td><td>Attached to VM as disk</td><td>NFS mount by multiple VMs</td></tr>
+<tr><td><strong>Unit</strong></td><td>Objects (file + metadata + key)</td><td>Blocks (raw disk sectors)</td><td>Files and directories</td></tr>
+<tr><td><strong>Scalability</strong></td><td>Virtually unlimited</td><td>Limited per volume (up to 64 TB)</td><td>Auto-scales</td></tr>
+<tr><td><strong>Performance</strong></td><td>High throughput, higher latency</td><td>Low latency, high IOPS</td><td>Moderate</td></tr>
+<tr><td><strong>Multi-attach</strong></td><td>Any number of readers</td><td>One instance (usually)</td><td>Multiple instances</td></tr>
+<tr><td><strong>Use case</strong></td><td>Media, backups, data lakes, websites</td><td>Databases, OS boot volumes</td><td>Shared app data, content mgmt</td></tr>
+</tbody></table>
+</div></div></div>
+
+<div class="qa-card"><div class="qa-question" onclick="toggleAnswer(this)"><input type="checkbox" onclick="event.stopPropagation();updateScore()"><div class="q-text">Q7. What is Amazon RDS? What are its key features?</div><div class="expand-icon">&#9660;</div></div><div class="qa-answer"><div class="qa-answer-inner">
+<p><strong>RDS (Relational Database Service)</strong> is a managed relational database — the provider handles backups, patching, replication, failover.</p>
+<p><strong>Supported engines:</strong> MySQL, PostgreSQL, Oracle, SQL Server, MariaDB, Amazon Aurora.</p>
+<p><strong>Key features:</strong></p>
+<ol><li><strong>Automatic backups</strong> with point-in-time recovery.</li><li><strong>Multi-AZ deployment</strong> for HA (synchronous replication to standby in another AZ).</li><li><strong>Read replicas</strong> for scaling read-heavy workloads.</li><li><strong>Auto-scaling storage</strong> — grows as data grows.</li><li><strong>Automatic patching</strong> — database engine updates applied without manual intervention.</li></ol>
+<p><strong>vs self-managed DB on EC2:</strong> RDS handles all the operational burden (backups, patching, replication). On EC2, you do everything yourself — but have more control.</p>
+</div></div></div>
+
+<div class="qa-card"><div class="qa-question" onclick="toggleAnswer(this)"><input type="checkbox" onclick="event.stopPropagation();updateScore()"><div class="q-text">Q8. Compare RDS and DynamoDB. When would you choose each?</div><div class="expand-icon">&#9660;</div></div><div class="qa-answer"><div class="qa-answer-inner">
+<table><thead><tr><th>Aspect</th><th>RDS</th><th>DynamoDB</th></tr></thead><tbody>
+<tr><td><strong>Type</strong></td><td>Relational (SQL)</td><td>NoSQL (key-value + document)</td></tr>
+<tr><td><strong>Schema</strong></td><td>Fixed (tables, rows, columns)</td><td>Flexible (each item can have different attributes)</td></tr>
+<tr><td><strong>Query language</strong></td><td>SQL</td><td>API-based (GetItem, Query, Scan)</td></tr>
+<tr><td><strong>Scaling</strong></td><td>Vertical (bigger instance) + read replicas</td><td>Horizontal (auto-partitions across nodes)</td></tr>
+<tr><td><strong>Latency</strong></td><td>Milliseconds</td><td>Single-digit milliseconds at any scale</td></tr>
+<tr><td><strong>Best for</strong></td><td>Complex queries, joins, transactions</td><td>Simple lookups, high throughput, key-value access</td></tr>
+</tbody></table>
+<p><strong>Choose RDS:</strong> Complex relational data, SQL queries, ACID transactions (banking, ERP).</p>
+<p><strong>Choose DynamoDB:</strong> High-throughput simple access patterns, serverless, gaming leaderboards, IoT, session stores.</p>
+</div></div></div>
+
+<div class="qa-card"><div class="qa-question" onclick="toggleAnswer(this)"><input type="checkbox" onclick="event.stopPropagation();updateScore()"><div class="q-text">Q9. What is CloudWatch? What can it monitor and what actions can it trigger?</div><div class="expand-icon">&#9660;</div></div><div class="qa-answer"><div class="qa-answer-inner">
+<p><strong>CloudWatch</strong> is AWS's monitoring and observability service.</p>
+<p><strong>What it monitors:</strong></p>
+<ul><li>EC2 metrics (CPU, memory, disk, network)</li><li>RDS metrics (connections, IOPS, latency)</li><li>Custom application metrics</li><li>Log files (aggregate, search, analyse)</li></ul>
+<p><strong>What it can trigger:</strong></p>
+<ul><li><strong>Auto Scaling</strong> actions (add/remove instances when CPU exceeds threshold)</li><li><strong>SNS notifications</strong> (email/SMS alerts when errors spike)</li><li><strong>Lambda functions</strong> (automated remediation when issues detected)</li><li><strong>Dashboard updates</strong> (real-time visualisation)</li></ul>
+<p><strong>Example:</strong> CloudWatch alarm: "If average EC2 CPU > 80% for 5 minutes → trigger Auto Scaling to add 2 instances AND send SNS email to ops team."</p>
+</div></div></div>
+
+<div class="qa-card"><div class="qa-question" onclick="toggleAnswer(this)"><input type="checkbox" onclick="event.stopPropagation();updateScore()"><div class="q-text">Q10. Explain the difference between SQS, SNS, and SES.</div><div class="expand-icon">&#9660;</div></div><div class="qa-answer"><div class="qa-answer-inner">
+<table><thead><tr><th>Service</th><th>Type</th><th>Pattern</th><th>Use case</th></tr></thead><tbody>
+<tr><td><strong>SQS</strong> (Simple Queue Service)</td><td>Message <strong>queue</strong></td><td>Point-to-point: sender → queue → one receiver</td><td>Decouple components. Order processing — web tier queues orders, worker processes them.</td></tr>
+<tr><td><strong>SNS</strong> (Simple Notification Service)</td><td><strong>Pub/sub</strong> messaging</td><td>One-to-many: publisher → topic → multiple subscribers</td><td>Fan-out notifications. Alert mobiles, send emails, trigger Lambda when an event occurs.</td></tr>
+<tr><td><strong>SES</strong> (Simple Email Service)</td><td><strong>Email</strong> sending</td><td>Sender → SES → recipient inboxes</td><td>Transactional emails (order confirmations), marketing campaigns.</td></tr>
+</tbody></table>
+<p><strong>SQS vs SNS:</strong> SQS is pull-based (receiver polls queue). SNS is push-based (message pushed to all subscribers). They're often used together: SNS publishes to multiple SQS queues for parallel processing.</p>
+</div></div></div>
+
+</div>
+</main>
+<button class="back-to-top" id="backToTop" onclick="window.scrollTo({top:0})">&#8593;</button>
+<script>
+function toggleAnswer(el){el.closest('.qa-card').classList.toggle('open')}
+function updateScore(){const checks=document.querySelectorAll('.qa-card input[type=checkbox]');let c=0;checks.forEach(ch=>{const card=ch.closest('.qa-card');if(ch.checked){c++;card.classList.add('checked-off')}else{card.classList.remove('checked-off')}});document.getElementById('scoreCount').textContent=c}
+function toggleAll(show){document.querySelectorAll('.qa-card').forEach(c=>{show?c.classList.add('open'):c.classList.remove('open')})}
+function resetAll(){document.querySelectorAll('.qa-card input[type=checkbox]').forEach(ch=>{ch.checked=false});document.querySelectorAll('.qa-card').forEach(c=>{c.classList.remove('checked-off','open')});document.getElementById('scoreCount').textContent='0'}
+window.addEventListener('scroll',()=>{const s=document.documentElement,p=(s.scrollTop/(s.scrollHeight-s.clientHeight))*100;document.getElementById('progressBar').style.width=p+'%'});
+window.addEventListener('scroll',()=>{document.getElementById('backToTop').classList.toggle('visible',window.scrollY>400)});
+document.getElementById('sidebarToggle').addEventListener('click',()=>{document.getElementById('sidebar').classList.toggle('open')});
+document.querySelectorAll('.sidebar nav a').forEach(a=>a.addEventListener('click',()=>{if(window.innerWidth<=900)document.getElementById('sidebar').classList.remove('open')}));
+</script>
+</body>
+</html>

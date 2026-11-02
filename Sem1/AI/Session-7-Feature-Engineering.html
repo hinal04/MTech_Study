@@ -1,0 +1,956 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Session 7: Feature Engineering</title>
+<style>
+:root{--bg:#0f172a;--surface:#1e293b;--surface2:#334155;--border:#475569;--text:#e2e8f0;--text-muted:#94a3b8;--code-bg:#0d1117;--accent:#f97316;--accent-dim:rgba(249,115,22,.15);--accent-border:rgba(249,115,22,.3);--header-gradient:linear-gradient(135deg,#7c2d12,#ea580c,#f97316)}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);line-height:1.7;display:flex;min-height:100vh}
+.progress-bar{position:fixed;top:0;left:0;height:4px;background:var(--accent);z-index:1000;transition:width .2s}
+.sidebar{position:fixed;top:0;left:0;width:280px;height:100vh;background:var(--surface);border-right:1px solid var(--border);overflow-y:auto;padding:1.5rem 0;z-index:100;transition:transform .3s}
+.sidebar-header{padding:0 1.5rem 1.5rem;border-bottom:1px solid var(--border);margin-bottom:1rem}
+.sidebar-header h2{font-size:1rem;color:var(--accent);margin-bottom:.25rem}
+.sidebar-header p{font-size:.75rem;color:var(--text-muted)}
+.sidebar nav a{display:block;padding:.55rem 1.5rem;color:var(--text-muted);text-decoration:none;font-size:.85rem;border-left:3px solid transparent;transition:all .2s}
+.sidebar nav a:hover,.sidebar nav a.active{color:var(--accent);background:var(--accent-dim);border-left-color:var(--accent)}
+.sidebar nav a.sub{padding-left:2.5rem;font-size:.8rem}
+.sidebar-toggle{display:none;position:fixed;top:1rem;left:1rem;z-index:200;background:var(--surface);border:1px solid var(--border);color:var(--text);width:40px;height:40px;border-radius:8px;cursor:pointer;font-size:1.2rem}
+.main{margin-left:280px;flex:1;max-width:900px;padding:2rem 3rem 4rem}
+.page-header{background:var(--header-gradient);border-radius:16px;padding:2.5rem;margin-bottom:2.5rem;position:relative;overflow:hidden}
+.page-header::after{content:'';position:absolute;top:0;right:0;width:200px;height:100%;background:radial-gradient(circle at 80% 50%,rgba(255,255,255,.1),transparent);pointer-events:none}
+.page-header .badge{display:inline-block;background:rgba(0,0,0,.3);color:#fff;padding:.25rem .75rem;border-radius:20px;font-size:.75rem;margin-bottom:.75rem}
+.page-header h1{font-size:2rem;color:#fff;margin-bottom:.5rem}
+.page-header .meta{color:rgba(255,255,255,.8);font-size:.85rem}
+h2{font-size:1.5rem;color:var(--accent);margin:2.5rem 0 1rem;padding-bottom:.5rem;border-bottom:2px solid var(--accent-border)}
+h3{font-size:1.15rem;color:var(--text);margin:1.8rem 0 .8rem}
+h4{font-size:1rem;color:var(--accent);margin:1.2rem 0 .6rem}
+p{margin-bottom:1rem;color:var(--text)}
+strong{color:var(--text)}
+.table-wrap{overflow-x:auto;margin:1.2rem 0;border-radius:10px;border:1px solid var(--border)}
+table{width:100%;border-collapse:collapse;font-size:.88rem}
+thead th{background:var(--accent);color:#000;padding:.75rem 1rem;text-align:left;font-weight:600;white-space:nowrap}
+tbody tr:nth-child(even){background:var(--surface)}
+tbody tr:nth-child(odd){background:var(--surface2)}
+tbody tr:hover{background:var(--accent-dim)}
+td{padding:.7rem 1rem;border-top:1px solid var(--border);color:var(--text)}
+pre{background:var(--code-bg);border:1px solid var(--border);border-radius:10px;padding:1.2rem;overflow-x:auto;margin:1.2rem 0;font-size:.85rem;line-height:1.6}
+code{font-family:'Cascadia Code','Fira Code','Consolas',monospace;color:#e6edf3}
+p code,li code,td code{background:var(--code-bg);padding:.15rem .4rem;border-radius:4px;font-size:.85em;color:var(--accent)}
+.callout{background:var(--accent-dim);border-left:4px solid var(--accent);border-radius:0 10px 10px 0;padding:1rem 1.2rem;margin:1.2rem 0;font-size:.92rem}
+.callout p{margin:0;color:var(--text)}
+.callout em{color:var(--text-muted)}
+ul,ol{margin:0 0 1rem 1.5rem;color:var(--text)}
+li{margin-bottom:.4rem}
+li strong{color:var(--accent)}
+.back-top{position:fixed;bottom:2rem;right:2rem;width:44px;height:44px;background:var(--accent);color:#000;border:none;border-radius:50%;cursor:pointer;font-size:1.3rem;display:none;align-items:center;justify-content:center;box-shadow:0 4px 15px rgba(249,115,22,.3);transition:transform .2s,opacity .2s;z-index:100}
+.back-top:hover{transform:scale(1.1)}
+.back-top.show{display:flex}
+@media(max-width:900px){
+  .sidebar{transform:translateX(-100%)}
+  .sidebar.open{transform:translateX(0)}
+  .sidebar-toggle{display:flex;align-items:center;justify-content:center}
+  .main{margin-left:0;padding:2rem 1.2rem 4rem}
+}
+@media print{
+  .sidebar,.sidebar-toggle,.back-top,.progress-bar{display:none!important}
+  .main{margin-left:0;max-width:100%}
+  body{background:#fff;color:#000}
+  h2{color:#7c2d12}
+  thead th{background:#f97316;color:#000;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  tbody tr:nth-child(even){background:#f8f8f8}
+  tbody tr:nth-child(odd){background:#fff}
+  pre{border:1px solid #ccc;background:#f5f5f5}
+  code{color:#333}
+  .callout{background:#fff3e0;border-left-color:#f97316}
+  .page-header{background:#f97316!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+}
+</style>
+</head>
+<body>
+<div class="progress-bar" id="progress"></div>
+<button class="sidebar-toggle" id="sidebarToggle">&#9776;</button>
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <h2>SS ZG662</h2>
+    <p>Introduction to AI Systems</p>
+  </div>
+  <nav>
+    <a href="#table-of-contents">Table of Contents</a>
+    <a href="#7-1-what-is-feature-engineering">7.1 What is Feature Engineering?</a>
+    <a href="#simple-definition" class="sub">Simple Definition</a>
+    <a href="#why-feature-engineering-matters" class="sub">Why Feature Engineering Matters</a>
+    <a href="#raw-data-vs-features-example" class="sub">Raw Data vs Features — Example</a>
+    <a href="#7-2-feature-extraction">7.2 Feature Extraction</a>
+    <a href="#what-is-feature-extraction" class="sub">What is Feature Extraction?</a>
+    <a href="#feature-extraction-from-different-data-types" class="sub">Feature Extraction from Different Data Types</a>
+    <a href="#7-3-feature-transformation">7.3 Feature Transformation</a>
+    <a href="#what-is-feature-transformation" class="sub">What is Feature Transformation?</a>
+    <a href="#common-transformations" class="sub">Common Transformations</a>
+    <a href="#7-4-feature-selection">7.4 Feature Selection</a>
+    <a href="#what-is-feature-selection" class="sub">What is Feature Selection?</a>
+    <a href="#why-not-just-use-all-features" class="sub">Why Not Just Use All Features?</a>
+    <a href="#three-approaches-to-feature-selection" class="sub">Three Approaches to Feature Selection</a>
+    <a href="#7-5-feature-representation">7.5 Feature Representation</a>
+    <a href="#what-is-feature-representation" class="sub">What is Feature Representation?</a>
+    <a href="#embeddings-the-most-important-representation" class="sub">Embeddings — The Most Important Representation</a>
+    <a href="#live-example-spotify-s-song-embeddings" class="sub">Live Example: Spotify's Song Embeddings</a>
+    <a href="#types-of-embeddings-used-in-ai" class="sub">Types of Embeddings Used in AI</a>
+    <a href="#7-6-feature-design-examples">7.6 Feature Design Examples</a>
+    <a href="#complete-feature-design-for-three-real-scenarios" class="sub">Complete Feature Design for Three Real Scenarios</a>
+    <a href="#feature-design-best-practices" class="sub">Feature Design Best Practices</a>
+    <a href="#key-terms-glossary-session-7">Key Terms Glossary (Session 7)</a>
+  </nav>
+</aside>
+<main class="main">
+  <div class="page-header">
+    <span class="badge">Session 7</span>
+    <h1>Session 7: Feature Engineering</h1>
+    <div class="meta">Contact Session 7 | Module 2: Data and Feature Engineering</div>
+  </div>
+<h1 id="session-7-feature-engineering">Session 7: Feature Engineering</h1>
+<div class="callout">
+<p>BITS Pilani — <strong>SS ZG662: Introduction to AI Systems</strong> — Instructor: Chandrasekhar Anantrama</p>
+<p><strong>References:</strong> T1 Chapter 4 (Feature Engineering)</p>
+<p><strong>Contact Session:</strong> 7 (Module 2: Data and Feature Engineering)</p>
+</div>
+<hr />
+<h2 id="table-of-contents">Table of Contents</h2>
+<ul>
+<li><a href="#71-what-is-feature-engineering">7.1 What is Feature Engineering?</a></li>
+<li><a href="#72-feature-extraction">7.2 Feature Extraction</a></li>
+<li><a href="#73-feature-transformation">7.3 Feature Transformation</a></li>
+<li><a href="#74-feature-selection">7.4 Feature Selection</a></li>
+<li><a href="#75-feature-representation">7.5 Feature Representation</a></li>
+<li><a href="#76-feature-design-examples">7.6 Feature Design Examples</a></li>
+</ul>
+<hr />
+<h2 id="7-1-what-is-feature-engineering">7.1 What is Feature Engineering?</h2>
+<h3 id="simple-definition">Simple Definition</h3>
+<p><strong>Feature engineering</strong> is the process of taking raw data and turning it into <strong>features</strong> — the specific inputs that an ML model uses to make predictions.</p>
+<div class="callout">
+<p><strong>Analogy:</strong> Imagine you're a cricket selector choosing the national team. The raw data is every ball played by every cricketer in domestic cricket. But you don't feed raw ball-by-ball data to your brain. Instead, you look at <strong>features</strong> like batting average, strike rate, centuries scored, economy rate, match-winning innings — these are engineered features that summarise the raw data into useful signals.</p>
+</div>
+<h3 id="why-feature-engineering-matters">Why Feature Engineering Matters</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Fact</th>
+<th>Explanation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Features have the <strong>biggest impact</strong> on model accuracy</td>
+<td>A good feature can improve model accuracy by 20-30%. Switching to a fancier model might improve by 2-3%.</td>
+</tr>
+<tr>
+<td>Data scientists spend <strong>60-70% of their time</strong> on feature engineering</td>
+<td>More than model building, tuning, or deployment</td>
+</tr>
+<tr>
+<td><strong>"Applied ML is basically feature engineering"</strong> (Andrew Ng)</td>
+<td>The choice and quality of features often matters more than the choice of algorithm</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="raw-data-vs-features-example">Raw Data vs Features — Example</h3>
+<p><strong>Task:</strong> Predict if a customer will buy a product on Flipkart.</p>
+<p><strong>Raw data (what's in the database):</strong></p>
+<pre><code>user_id: USR-123
+events: [
+  {&quot;action&quot;: &quot;view&quot;, &quot;product&quot;: &quot;laptop-456&quot;, &quot;time&quot;: &quot;2025-09-01 10:00&quot;},
+  {&quot;action&quot;: &quot;view&quot;, &quot;product&quot;: &quot;laptop-789&quot;, &quot;time&quot;: &quot;2025-09-01 10:15&quot;},
+  {&quot;action&quot;: &quot;add_to_cart&quot;, &quot;product&quot;: &quot;laptop-456&quot;, &quot;time&quot;: &quot;2025-09-01 10:30&quot;},
+  {&quot;action&quot;: &quot;view&quot;, &quot;product&quot;: &quot;mouse-101&quot;, &quot;time&quot;: &quot;2025-09-02 14:00&quot;},
+  {&quot;action&quot;: &quot;purchase&quot;, &quot;product&quot;: &quot;laptop-456&quot;, &quot;time&quot;: &quot;2025-09-03 09:00&quot;},
+  ...hundreds more events
+]
+</code></pre>
+<p><strong>Engineered features (what the model actually uses):</strong></p>
+<pre><code>user_id:                    USR-123
+total_views_last_7_days:    45
+total_purchases_last_30_days: 3
+avg_session_duration_min:   12.5
+cart_abandonment_rate:      0.4  (40% of carts not purchased)
+days_since_last_purchase:   5
+favourite_category:         &quot;electronics&quot;
+price_sensitivity:          0.7  (buys mostly during sales)
+device_type:                &quot;mobile&quot;
+time_of_day_preference:     &quot;morning&quot;
+</code></pre>
+<p>The model can't understand raw event logs. But it can understand numbers and categories like "total_views = 45" and "favourite_category = electronics."</p>
+<hr />
+<h2 id="7-2-feature-extraction">7.2 Feature Extraction</h2>
+<h3 id="what-is-feature-extraction">What is Feature Extraction?</h3>
+<p><strong>Feature extraction</strong> is pulling useful information out of raw data — especially from unstructured data (text, images, audio) where features aren't obvious.</p>
+<div class="callout">
+<p><strong>Analogy:</strong> When a doctor reads an X-ray, they extract features: "I see a shadow in the left lung, bone density looks normal, no fractures." They don't process every pixel — they extract meaningful features. Feature extraction teaches machines to do the same.</p>
+</div>
+<h3 id="feature-extraction-from-different-data-types">Feature Extraction from Different Data Types</h3>
+<h4 id="from-structured-data-easy">From Structured Data (Easy)</h4>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Technique</th>
+<th>What It Does</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Direct use</strong></td>
+<td>Use columns directly as features</td>
+<td>Age, income, account_balance → use as-is</td>
+</tr>
+<tr>
+<td><strong>Aggregation</strong></td>
+<td>Summarise over time or groups</td>
+<td>Total purchases in last 30 days, average order value</td>
+</tr>
+<tr>
+<td><strong>Ratio/Difference</strong></td>
+<td>Combine columns mathematically</td>
+<td>Revenue per employee, price-to-earnings ratio</td>
+</tr>
+<tr>
+<td><strong>Date/Time extraction</strong></td>
+<td>Extract components from timestamps</td>
+<td>Day of week, hour of day, is_weekend, days_since_event</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Live Example — Uber's Features from Structured Ride Data:</strong></p>
+<pre><code>Raw: ride_id, pickup_time, dropoff_time, pickup_lat, pickup_lng, fare, rating
+
+Extracted features:
+├── ride_duration_minutes = dropoff_time - pickup_time
+├── ride_distance_km = haversine(pickup_lat/lng, dropoff_lat/lng)
+├── is_peak_hour = 1 if pickup_time between 8-10am or 5-8pm
+├── is_weekend = 1 if Saturday/Sunday
+├── fare_per_km = fare / ride_distance_km
+└── driver_avg_rating_last_50_rides = rolling average
+</code></pre>
+<h4 id="from-text-data-medium">From Text Data (Medium)</h4>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Technique</th>
+<th>What It Does</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Bag of Words (BoW)</strong></td>
+<td>Count how many times each word appears</td>
+<td I:1_="I:1," it:1="it:1" love:2_="love:2," product:1_="product:1," this:1_="this:1,">"I love this product love it" →</td>
+</tr>
+<tr>
+<td><strong>TF-IDF</strong></td>
+<td>Weight words by importance (common words get low weight, rare words get high weight)</td>
+<td>"the" gets low weight (appears everywhere), "turbocharged" gets high weight (rare, meaningful)</td>
+</tr>
+<tr>
+<td><strong>Word Embeddings</strong></td>
+<td>Convert each word to a vector of numbers that captures meaning</td>
+<td>"king" → [0.2, 0.8, 0.1, ...], "queen" → [0.2, 0.7, 0.9, ...] (similar vectors = similar meaning)</td>
+</tr>
+<tr>
+<td><strong>Sentence Embeddings</strong></td>
+<td>Convert entire sentence/paragraph to one vector</td>
+<td>"This phone has great battery life" → [0.1, 0.5, 0.3, ...768 numbers]</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Live Example — Zomato Review Analysis:</strong></p>
+<pre><code>Raw review: &quot;Food was amazing but delivery was very late and cold&quot;
+
+Extracted features using NLP:
+├── sentiment_score: -0.2 (slightly negative overall)
+├── food_sentiment: +0.9 (positive about food)
+├── delivery_sentiment: -0.8 (negative about delivery)
+├── mentioned_topics: [&quot;food_quality&quot;, &quot;delivery_speed&quot;, &quot;food_temperature&quot;]
+├── word_count: 11
+├── has_negative_keywords: True (&quot;late&quot;, &quot;cold&quot;)
+└── sentence_embedding: [0.12, -0.34, 0.56, ...768 numbers]
+</code></pre>
+<h4 id="from-image-data-hard">From Image Data (Hard)</h4>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Technique</th>
+<th>What It Does</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Pre-trained CNN features</strong></td>
+<td>Pass image through a pre-trained CNN, use intermediate layer outputs as features</td>
+<td>ImageNet-trained ResNet50 produces a 2048-number vector for any image</td>
+</tr>
+<tr>
+<td><strong>Object detection features</strong></td>
+<td>Detect objects in the image and use their counts/positions</td>
+<td>"Image contains: 2 people, 1 car, 3 trees"</td>
+</tr>
+<tr>
+<td><strong>Colour/texture histograms</strong></td>
+<td>Summarise colour distribution and texture patterns</td>
+<td>"Image is 40% blue (sky), 30% green (grass), 30% brown (dirt)"</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Live Example — Myntra's Product Image Features:</strong></p>
+<pre><code>Product image: red_dress.jpg
+
+Extracted features:
+├── dominant_colours: [&quot;red&quot;, &quot;black&quot;]
+├── clothing_type: &quot;dress&quot; (detected by CNN)
+├── pattern: &quot;solid&quot; (no prints)
+├── style: &quot;casual&quot; (predicted by style classifier)
+├── image_embedding: [0.23, -0.11, 0.78, ...2048 numbers]
+└── similar_products: [&quot;product-456&quot;, &quot;product-789&quot;] (by embedding similarity)
+</code></pre>
+<h4 id="from-audio-data">From Audio Data</h4>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Technique</th>
+<th>What It Does</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>MFCCs (Mel-Frequency Cepstral Coefficients)</strong></td>
+<td>Capture audio frequency patterns that represent speech characteristics</td>
+<td>13-40 numbers per audio frame</td>
+</tr>
+<tr>
+<td><strong>Speech-to-text</strong></td>
+<td>Convert audio to text, then extract text features</td>
+<td>Call centre recording → transcript → sentiment analysis</td>
+</tr>
+<tr>
+<td><strong>Speaker embeddings</strong></td>
+<td>Convert voice to a numerical fingerprint</td>
+<td>Voice authentication: "Is this Rahul's voice?"</td>
+</tr>
+</tbody>
+</table></div>
+<hr />
+<h2 id="7-3-feature-transformation">7.3 Feature Transformation</h2>
+<h3 id="what-is-feature-transformation">What is Feature Transformation?</h3>
+<p><strong>Feature transformation</strong> modifies existing features to make them more useful for the model. Raw feature values may not be in the right form — transformations fix this.</p>
+<div class="callout">
+<p><strong>Analogy:</strong> Raw ingredients need preparation before cooking. You don't throw a whole onion into the pan — you peel it, chop it, maybe fry it. Similarly, raw features need transformations before feeding to a model.</p>
+</div>
+<h3 id="common-transformations">Common Transformations</h3>
+<h4 id="1-scaling-normalisation">1. Scaling / Normalisation</h4>
+<p><strong>Problem:</strong> Features have different scales. Age ranges 0-100, income ranges 10,000-10,00,000. Models like k-NN and neural networks are sensitive to scale — the feature with larger numbers dominates.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Technique</th>
+<th>Formula</th>
+<th>When to Use</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Min-Max Scaling</strong></td>
+<td>(x - min) / (max - min) → range [0, 1]</td>
+<td>When you need bounded values</td>
+<td>Age: 25 → (25-0)/(100-0) = 0.25</td>
+</tr>
+<tr>
+<td><strong>Standard Scaling (Z-score)</strong></td>
+<td>(x - mean) / std_dev → mean=0, std=1</td>
+<td>When data is roughly normally distributed</td>
+<td>Income: Rs 50,000 → (50000 - 40000) / 15000 = 0.67</td>
+</tr>
+<tr>
+<td><strong>Log Transformation</strong></td>
+<td>log(x)</td>
+<td>When data is highly skewed (few very large values)</td>
+<td>Revenue: [100, 200, 150, 50000] → log → [2.0, 2.3, 2.2, 4.7] (tames the outlier)</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Live Example — Scaling in Ola's Surge Pricing Model:</strong></p>
+<pre><code>Before scaling:
+├── demand_count: ranges 0 to 50,000 (huge numbers)
+├── supply_count: ranges 0 to 5,000
+├── temperature: ranges 10 to 45
+└── rain_intensity: ranges 0 to 100
+
+Without scaling, demand_count (50,000) dominates.
+The model ignores rain_intensity (only goes up to 100).
+
+After Standard Scaling:
+├── demand_count: ranges -2.0 to +3.0
+├── supply_count: ranges -2.0 to +3.0
+├── temperature: ranges -2.0 to +3.0
+└── rain_intensity: ranges -2.0 to +3.0
+
+Now all features are on equal footing. Rain intensity gets fair weight.
+</code></pre>
+<h4 id="2-encoding-categorical-variables">2. Encoding Categorical Variables</h4>
+<p><strong>Problem:</strong> ML models work with numbers, not text. How do you convert "Mumbai", "Delhi", "Bangalore" into numbers?</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Technique</th>
+<th>How It Works</th>
+<th>When to Use</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Label Encoding</strong></td>
+<td>Assign a number to each category</td>
+<td>Ordinal data (has natural order)</td>
+<td>Education: High School=1, Bachelor=2, Master=3, PhD=4</td>
+</tr>
+<tr>
+<td><strong>One-Hot Encoding</strong></td>
+<td>Create a separate binary column for each category</td>
+<td>Nominal data (no natural order)</td>
+<td>City: Mumbai → [1,0,0], Delhi → [0,1,0], Bangalore → [0,0,1]</td>
+</tr>
+<tr>
+<td><strong>Target Encoding</strong></td>
+<td>Replace category with the average target value for that category</td>
+<td>High-cardinality (many unique values)</td>
+<td>Pin code 400001 → avg_purchase = Rs 5,000</td>
+</tr>
+<tr>
+<td><strong>Embedding</strong></td>
+<td>Learn a dense vector representation</td>
+<td>Very high cardinality + deep learning</td>
+<td>Product_ID → [0.2, 0.8, 0.1, 0.5] (learned during training)</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Why you should NOT use Label Encoding for nominal data:</strong>
+If you encode City as Mumbai=1, Delhi=2, Bangalore=3 — the model thinks Delhi is "between" Mumbai and Bangalore, and Bangalore is "more than" Delhi. This is meaningless! Use One-Hot Encoding instead.</p>
+<h4 id="3-handling-missing-values">3. Handling Missing Values</h4>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Technique</th>
+<th>How It Works</th>
+<th>When to Use</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Drop rows</strong></td>
+<td>Remove rows with missing values</td>
+<td>Missing values are rare (&lt;5%) and random</td>
+</tr>
+<tr>
+<td><strong>Mean/Median imputation</strong></td>
+<td>Fill missing with average or middle value</td>
+<td>Numerical features, missing at random</td>
+</tr>
+<tr>
+<td><strong>Mode imputation</strong></td>
+<td>Fill with most frequent value</td>
+<td>Categorical features</td>
+</tr>
+<tr>
+<td><strong>Indicator column</strong></td>
+<td>Add a new column: "is_income_missing" (0 or 1)</td>
+<td>The fact that data is missing is itself informative</td>
+</tr>
+<tr>
+<td><strong>Model-based imputation</strong></td>
+<td>Use another ML model to predict the missing value</td>
+<td>Complex cases, many missing values</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Live Example — Why "Missing" Can Be a Feature:</strong>
+In a loan default prediction model:
+- 15% of applicants have missing "employer_name"
+- Missing employer often means self-employed or unemployed
+- Adding a feature "is_employer_missing = 1" improved model accuracy by 4%
+- The missingness itself was a strong signal!</p>
+<h4 id="4-binning-discretisation">4. Binning / Discretisation</h4>
+<p>Convert continuous values into bins/categories:</p>
+<pre><code>Age (continuous) → Age Group (bins)
+0-18   → &quot;minor&quot;
+19-25  → &quot;young_adult&quot;
+26-35  → &quot;adult&quot;
+36-50  → &quot;middle_aged&quot;
+51+    → &quot;senior&quot;
+</code></pre>
+<p><strong>When useful:</strong> When the relationship between feature and target is non-linear, or when you want to reduce noise from exact values.</p>
+<h4 id="5-interaction-features">5. Interaction Features</h4>
+<p>Create new features by combining existing ones:</p>
+<pre><code>price_per_sqft = price / area
+bmi = weight / (height * height)
+revenue_per_employee = revenue / num_employees
+click_through_rate = clicks / impressions
+</code></pre>
+<p>These capture relationships that single features miss.</p>
+<hr />
+<h2 id="7-4-feature-selection">7.4 Feature Selection</h2>
+<h3 id="what-is-feature-selection">What is Feature Selection?</h3>
+<p><strong>Feature selection</strong> means choosing which features to keep and which to drop. More features isn't always better.</p>
+<div class="callout">
+<p><strong>Analogy:</strong> When packing for a trip, you don't take everything you own. You select the most useful items. Taking too much makes your bag heavy and hard to manage. Similarly, too many features make the model slow, overfitting-prone, and hard to maintain.</p>
+</div>
+<h3 id="why-not-just-use-all-features">Why Not Just Use All Features?</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Problem</th>
+<th>Explanation</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Overfitting</strong></td>
+<td>Model memorises noise in irrelevant features instead of learning real patterns</td>
+<td>Adding "user's favourite colour" to a fraud detection model — it's noise, not signal</td>
+</tr>
+<tr>
+<td><strong>Curse of dimensionality</strong></td>
+<td>As features increase, the data becomes sparse and the model needs exponentially more data</td>
+<td>With 100 features, you might need 10x more training data than with 10 features</td>
+</tr>
+<tr>
+<td><strong>Slower training and inference</strong></td>
+<td>More features = more computation</td>
+<td>Model serving takes 200ms with 500 features, but only 50ms with 50 features</td>
+</tr>
+<tr>
+<td><strong>Harder to understand</strong></td>
+<td>Models with fewer features are easier to explain and debug</td>
+<td>"The model uses 5 features" is easier to audit than "the model uses 500 features"</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="three-approaches-to-feature-selection">Three Approaches to Feature Selection</h3>
+<h4 id="1-filter-methods-quick-independent-of-model">1. Filter Methods (Quick, Independent of Model)</h4>
+<p>Evaluate each feature independently using statistical tests. Fast but may miss feature interactions.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Test</th>
+<th>When to Use</th>
+<th>What It Measures</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Correlation</strong></td>
+<td>Numerical feature vs numerical target</td>
+<td>Linear relationship strength</td>
+</tr>
+<tr>
+<td><strong>Chi-squared test</strong></td>
+<td>Categorical feature vs categorical target</td>
+<td>Association between categories</td>
+</tr>
+<tr>
+<td><strong>Mutual Information</strong></td>
+<td>Any feature vs any target</td>
+<td>How much knowing the feature reduces uncertainty about the target</td>
+</tr>
+<tr>
+<td><strong>Variance threshold</strong></td>
+<td>Any feature</td>
+<td>Remove features with near-zero variance (constant values)</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Example:</strong></p>
+<pre><code class="language-python"># Remove features with less than 0.01 correlation with the target
+correlations = df.corr()['target'].abs()
+selected_features = correlations[correlations &gt; 0.01].index
+</code></pre>
+<h4 id="2-wrapper-methods-best-accuracy-but-slow">2. Wrapper Methods (Best Accuracy, But Slow)</h4>
+<p>Train the model with different feature subsets and pick the best one.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Method</th>
+<th>How It Works</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Forward Selection</strong></td>
+<td>Start with no features. Add one at a time (whichever improves accuracy most). Stop when adding more doesn't help.</td>
+</tr>
+<tr>
+<td><strong>Backward Elimination</strong></td>
+<td>Start with all features. Remove one at a time (whichever hurts accuracy least). Stop when removing more hurts accuracy.</td>
+</tr>
+<tr>
+<td><strong>Recursive Feature Elimination (RFE)</strong></td>
+<td>Train model, rank features by importance, remove the least important, repeat.</td>
+</tr>
+</tbody>
+</table></div>
+<p>These are accurate but slow — impractical with 1000+ features.</p>
+<h4 id="3-embedded-methods-best-balance">3. Embedded Methods (Best Balance)</h4>
+<p>The model itself learns which features are important during training.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Method</th>
+<th>How It Works</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>L1 Regularisation (Lasso)</strong></td>
+<td>During training, the model automatically pushes unimportant feature weights to exactly zero. Effectively removes them.</td>
+</tr>
+<tr>
+<td><strong>Tree-based importance</strong></td>
+<td>Decision trees / Random Forests / XGBoost naturally rank features by how useful they were for splitting.</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Live Example — Feature Selection at CRED:</strong>
+CRED predicts credit card payment defaults. Initial features: 200+ (income, spending patterns, app usage, location, device, etc.)</p>
+<p>After feature selection:</p>
+<pre><code>Feature Importance (XGBoost):
+1. payment_history_score         → 0.35  ← Most important
+2. credit_utilisation_ratio      → 0.20
+3. avg_monthly_spend             → 0.12
+4. days_since_last_payment       → 0.10
+5. num_missed_payments_6_months  → 0.08
+...
+195. phone_brand                 → 0.0001  ← Useless
+196. app_theme_preference        → 0.0000  ← Zero importance
+</code></pre>
+<p>Keeping only top 20 features: same accuracy, 10x faster inference, much easier to explain to regulators.</p>
+<hr />
+<h2 id="7-5-feature-representation">7.5 Feature Representation</h2>
+<h3 id="what-is-feature-representation">What is Feature Representation?</h3>
+<p><strong>Feature representation</strong> is how you encode/represent data so that the model can understand it effectively. The same information can be represented in different ways, and some representations work much better for ML.</p>
+<h3 id="embeddings-the-most-important-representation">Embeddings — The Most Important Representation</h3>
+<p>An <strong>embedding</strong> converts a high-dimensional, sparse representation (like a word or product) into a low-dimensional, dense vector of numbers.</p>
+<div class="callout">
+<p><strong>Analogy:</strong> A map represents the real world in a compact form. Cities that are close together on the map are close in real life. Similarly, an embedding represents items as points in a space — items that are similar are close together in embedding space.</p>
+</div>
+<p><strong>Word Embedding Example:</strong></p>
+<pre><code>&quot;king&quot;  → [0.2, 0.8, 0.1, 0.5]     &quot;man&quot;   → [0.3, 0.7, 0.0, 0.4]
+&quot;queen&quot; → [0.2, 0.7, 0.9, 0.5]     &quot;woman&quot; → [0.3, 0.6, 0.8, 0.4]
+
+Notice: 
+king - man + woman ≈ queen  (vector arithmetic captures meaning!)
+</code></pre>
+<p><strong>Why embeddings are powerful:</strong>
+- Capture similarity: similar items have similar vectors
+- Compact: reduce thousands of categories to a few hundred numbers
+- Learnable: the model discovers the best representation during training
+- Composable: can combine embeddings of different types (user embedding + product embedding)</p>
+<h3 id="live-example-spotify-s-song-embeddings">Live Example: Spotify's Song Embeddings</h3>
+<p>Spotify represents every song as a 128-number vector:</p>
+<pre><code>&quot;Tum Hi Ho&quot; (Arijit Singh)  → [0.8, 0.2, 0.9, 0.1, ...128 numbers]
+&quot;Channa Mereya&quot;             → [0.7, 0.3, 0.8, 0.2, ...128 numbers]  ← Similar!
+&quot;Thunderstruck&quot; (AC/DC)     → [0.1, 0.9, 0.1, 0.8, ...128 numbers]  ← Very different
+
+The two Hindi romantic songs are close in embedding space.
+AC/DC is far away. 
+Spotify uses this to recommend: &quot;If you like Tum Hi Ho, try Channa Mereya.&quot;
+</code></pre>
+<h3 id="types-of-embeddings-used-in-ai">Types of Embeddings Used in AI</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Type</th>
+<th>What It Embeds</th>
+<th>Dimensions</th>
+<th>Live Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Word embeddings</strong> (Word2Vec, GloVe)</td>
+<td>Individual words</td>
+<td>100-300</td>
+<td>"apple" the fruit vs "Apple" the company — different embeddings based on context</td>
+</tr>
+<tr>
+<td><strong>Sentence embeddings</strong> (BERT, Sentence-BERT)</td>
+<td>Sentences/paragraphs</td>
+<td>384-1024</td>
+<td>Semantic search: find documents similar to a query</td>
+</tr>
+<tr>
+<td><strong>Image embeddings</strong> (ResNet, CLIP)</td>
+<td>Images</td>
+<td>512-2048</td>
+<td>Google Lens: "find visually similar products"</td>
+</tr>
+<tr>
+<td><strong>User embeddings</strong></td>
+<td>Users</td>
+<td>64-256</td>
+<td>Netflix: represent each user's taste as a vector</td>
+</tr>
+<tr>
+<td><strong>Product/Item embeddings</strong></td>
+<td>Products/items</td>
+<td>64-256</td>
+<td>Amazon: represent each product, recommend similar ones</td>
+</tr>
+</tbody>
+</table></div>
+<hr />
+<h2 id="7-6-feature-design-examples">7.6 Feature Design Examples</h2>
+<h3 id="complete-feature-design-for-three-real-scenarios">Complete Feature Design for Three Real Scenarios</h3>
+<h4 id="example-1-fraud-detection-hdfc-bank">Example 1: Fraud Detection (HDFC Bank)</h4>
+<p><strong>Task:</strong> Predict if a credit card transaction is fraudulent.</p>
+<pre><code>RAW DATA (per transaction):
+card_id, merchant_name, merchant_category, amount, currency,
+timestamp, location_lat, location_lng, is_online, card_present
+
+ENGINEERED FEATURES:
+
+Transaction-level features:
+├── amount_zscore: how unusual is this amount vs user's history?
+├── is_high_amount: 1 if amount &gt; 2x user's average transaction
+├── is_foreign_currency: 1 if currency ≠ INR
+├── is_online: 1 if online transaction
+├── hour_of_day: extracted from timestamp
+├── is_night: 1 if between 12am-6am (fraud more common at night)
+└── merchant_risk_score: historical fraud rate for this merchant category
+
+Velocity features (speed of transactions):
+├── txn_count_last_1_hour: how many transactions in last hour?
+├── txn_count_last_24_hours: how many in last day?
+├── unique_merchants_last_1_hour: buying at many different stores rapidly?
+├── time_since_last_txn_seconds: 2 transactions 10 seconds apart = suspicious
+└── amount_last_1_hour: total spend in last hour
+
+Location features:
+├── distance_from_last_txn_km: if last txn was in Mumbai and this in London 
+│   1 hour later → physically impossible → fraud
+├── distance_from_home_km: how far from user's usual location?
+├── is_new_location: 1 if user never transacted here before
+└── location_velocity_kmph: speed between consecutive txns
+
+User profile features:
+├── avg_daily_spend_30_days: typical daily spending
+├── avg_txn_amount_30_days: typical transaction amount
+├── preferred_merchant_categories: what they usually buy
+├── num_cards: how many cards does this user have
+└── account_age_days: new accounts are higher risk
+</code></pre>
+<h4 id="example-2-product-recommendation-amazon">Example 2: Product Recommendation (Amazon)</h4>
+<p><strong>Task:</strong> Recommend products to users on the homepage.</p>
+<pre><code>USER FEATURES:
+├── user_embedding: [learned 128-dim vector from purchase history]
+├── purchase_count_30_days: 5
+├── avg_order_value: Rs 2,500
+├── favourite_categories: [&quot;electronics&quot;, &quot;books&quot;]
+├── browse_to_buy_ratio: 0.05 (buys 5% of what they view)
+├── price_sensitivity: 0.8 (high — waits for discounts)
+├── session_time_preference: &quot;evening&quot;
+├── device: &quot;mobile&quot;
+└── days_since_last_purchase: 3
+
+PRODUCT FEATURES:
+├── product_embedding: [learned 128-dim vector from user interactions]
+├── category: &quot;electronics&quot;
+├── price: Rs 1,499
+├── avg_rating: 4.3
+├── num_reviews: 2,456
+├── return_rate: 0.05 (5% returned)
+├── days_since_launch: 45
+├── is_prime: True
+└── discount_percentage: 15%
+
+INTERACTION FEATURES (user × product):
+├── user_viewed_similar_products: 3 (viewed 3 similar products recently)
+├── user_category_affinity: 0.9 (user loves electronics)
+├── price_match: 0.7 (product price matches user's typical range)
+├── embedding_similarity: cosine(user_embedding, product_embedding) = 0.85
+└── social_proof: 5 friends purchased this product
+</code></pre>
+<h4 id="example-3-delivery-time-prediction-swiggy">Example 3: Delivery Time Prediction (Swiggy)</h4>
+<p><strong>Task:</strong> Predict delivery time when user places an order.</p>
+<pre><code>RESTAURANT FEATURES:
+├── avg_prep_time_last_100_orders: 18 min
+├── current_active_orders: 7 (restaurant is busy)
+├── cuisine_type: &quot;North Indian&quot;
+├── rating: 4.2
+├── is_peak_hour: 1 (lunch time)
+└── prep_time_consistency: 0.85 (how consistent is their prep time)
+
+DELIVERY FEATURES:
+├── distance_km: 4.2
+├── current_traffic_level: &quot;HIGH&quot; (from Google Maps)
+├── rain_intensity: 0 (no rain)
+├── is_festival_day: 0
+├── active_drivers_within_3km: 12
+└── avg_driver_speed_current: 18 kmph
+
+ORDER FEATURES:
+├── num_items: 3
+├── has_complex_items: 1 (biryani takes longer than naan)
+├── order_value: Rs 750
+└── is_first_order: 0 (repeat customer)
+
+TIME FEATURES:
+├── hour_of_day: 13 (1 PM — lunch rush)
+├── day_of_week: &quot;Tuesday&quot;
+├── is_weekend: 0
+└── minutes_since_restaurant_opened: 240
+
+HISTORICAL FEATURES:
+├── avg_delivery_time_this_route_last_7_days: 35 min
+├── avg_delivery_time_this_restaurant_last_7_days: 32 min
+└── weather_impact_factor: 1.0 (no weather delay expected)
+</code></pre>
+<h3 id="feature-design-best-practices">Feature Design Best Practices</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Practice</th>
+<th>Why</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Start simple</strong></td>
+<td>Simple features often work surprisingly well</td>
+<td>"time_since_last_purchase" alone predicts churn well</td>
+</tr>
+<tr>
+<td><strong>Domain knowledge matters</strong></td>
+<td>Understanding the business helps create powerful features</td>
+<td>Banker knows "multiple small ATM withdrawals" is suspicious → create "num_small_atm_txns_1hr"</td>
+</tr>
+<tr>
+<td><strong>Temporal features are powerful</strong></td>
+<td>"How recently" and "how often" are almost always useful</td>
+<td>Recency: days_since_last_login. Frequency: logins_last_30_days.</td>
+</tr>
+<tr>
+<td><strong>Interaction features capture relationships</strong></td>
+<td>Combining features reveals patterns individual features miss</td>
+<td>price_per_sqft = price/area reveals value better than price or area alone</td>
+</tr>
+<tr>
+<td><strong>Test feature importance</strong></td>
+<td>Not all features help — measure and remove useless ones</td>
+<td>After building 200 features, keep only top 30 by XGBoost importance</td>
+</tr>
+</tbody>
+</table></div>
+<hr />
+<h2 id="key-terms-glossary-session-7">Key Terms Glossary (Session 7)</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Term</th>
+<th>Simple Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Feature</strong></td>
+<td>A measurable property used as input to an ML model (like a column in a spreadsheet)</td>
+</tr>
+<tr>
+<td><strong>Feature Engineering</strong></td>
+<td>The process of creating useful features from raw data</td>
+</tr>
+<tr>
+<td><strong>Feature Extraction</strong></td>
+<td>Pulling useful information out of raw data (especially unstructured data)</td>
+</tr>
+<tr>
+<td><strong>Feature Transformation</strong></td>
+<td>Modifying features to make them more useful (scaling, encoding, binning)</td>
+</tr>
+<tr>
+<td><strong>Feature Selection</strong></td>
+<td>Choosing which features to keep and which to drop</td>
+</tr>
+<tr>
+<td><strong>Embedding</strong></td>
+<td>A compact numerical representation that captures meaning (similar items = similar numbers)</td>
+</tr>
+<tr>
+<td><strong>One-Hot Encoding</strong></td>
+<td>Converting categories to binary columns (Mumbai → [1,0,0], Delhi → [0,1,0])</td>
+</tr>
+<tr>
+<td><strong>Scaling</strong></td>
+<td>Adjusting features to similar ranges so no single feature dominates</td>
+</tr>
+<tr>
+<td><strong>TF-IDF</strong></td>
+<td>A text feature technique that weights words by importance (rare words get high weight)</td>
+</tr>
+<tr>
+<td><strong>Bag of Words</strong></td>
+<td>Representing text as word frequency counts</td>
+</tr>
+<tr>
+<td><strong>Word2Vec</strong></td>
+<td>An algorithm that converts words to meaningful numerical vectors</td>
+</tr>
+<tr>
+<td><strong>Curse of Dimensionality</strong></td>
+<td>More features require exponentially more data — too many features hurts performance</td>
+</tr>
+<tr>
+<td><strong>L1 Regularisation (Lasso)</strong></td>
+<td>A technique that automatically removes unimportant features during training</td>
+</tr>
+<tr>
+<td><strong>Interaction Features</strong></td>
+<td>New features created by combining existing ones (price/area = price_per_sqft)</td>
+</tr>
+</tbody>
+</table></div>
+<hr />
+<p><em>End of Session 7</em></p>
+</main>
+<button class="back-top" id="backTop" title="Back to top">&#8593;</button>
+<script>
+const bar=document.getElementById('progress');
+const btn=document.getElementById('backTop');
+const toggle=document.getElementById('sidebarToggle');
+const sidebar=document.getElementById('sidebar');
+window.addEventListener('scroll',()=>{
+  const s=document.documentElement.scrollTop;
+  const h=document.documentElement.scrollHeight-document.documentElement.clientHeight;
+  bar.style.width=(s/h*100)+'%';
+  btn.classList.toggle('show',s>400);
+});
+btn.onclick=()=>window.scrollTo({top:0,behavior:'smooth'});
+toggle.onclick=()=>sidebar.classList.toggle('open');
+// Active sidebar link
+const links=document.querySelectorAll('.sidebar nav a');
+const obs=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{if(e.isIntersecting){
+    links.forEach(l=>l.classList.remove('active'));
+    const a=document.querySelector('.sidebar nav a[href="#'+e.target.id+'"]');
+    if(a)a.classList.add('active');
+  }});
+},{rootMargin:'-20% 0px -70% 0px'});
+document.querySelectorAll('h2[id],h3[id]').forEach(h=>obs.observe(h));
+</script>
+</body>
+</html>

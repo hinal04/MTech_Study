@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CS1: Questions &amp; Answers</title>
+<style>
+:root{--bg:#0f172a;--surface:#1e293b;--surface2:#334155;--border:#475569;--text:#e2e8f0;--text-muted:#94a3b8;--code-bg:#0d1117;--accent:#06b6d4;--accent-dim:rgba(6,182,212,.12);--accent-border:rgba(6,182,212,.3);--green:#22c55e;--green-dim:rgba(34,197,94,.15)}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}html{scroll-behavior:smooth;scroll-padding-top:80px}body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);line-height:1.7;min-height:100vh}
+.progress-bar{position:fixed;top:0;left:0;height:3px;background:var(--accent);z-index:1001;transition:width .25s}
+.sidebar{position:fixed;top:0;left:0;width:280px;height:100vh;background:var(--surface);border-right:1px solid var(--border);overflow-y:auto;z-index:100;transition:transform .3s}.sidebar-header{padding:20px;border-bottom:1px solid var(--border);text-align:center}.sidebar-header h2{font-size:1rem;color:var(--accent);margin-bottom:4px}.sidebar-header small{color:var(--text-muted);font-size:.75rem}.sidebar nav{padding:12px 0}.sidebar nav a{display:block;padding:8px 20px;color:var(--text-muted);text-decoration:none;font-size:.85rem;border-left:3px solid transparent;transition:all .2s}.sidebar nav a:hover,.sidebar nav a.active{color:var(--accent);background:var(--accent-dim);border-left-color:var(--accent)}.sidebar nav .nav-group{padding:10px 20px 4px;font-size:.7rem;text-transform:uppercase;letter-spacing:1px;color:var(--border);font-weight:700}
+.sidebar-toggle{display:none;position:fixed;top:12px;left:12px;z-index:200;background:var(--surface);border:1px solid var(--border);color:var(--text);padding:8px 12px;border-radius:6px;cursor:pointer;font-size:1.1rem}
+.main{margin-left:280px;max-width:900px;padding:40px 40px 100px}.main h1{font-size:2rem;color:var(--accent);margin-bottom:8px;line-height:1.3}.main .subtitle{color:var(--text-muted);font-size:.9rem;margin-bottom:24px;line-height:1.6}
+/* Score bar */
+.score-bar{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px 24px;margin-bottom:32px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;position:sticky;top:0;z-index:50}
+.score-bar .score-text{font-size:1.1rem;font-weight:700;color:var(--accent)}
+.score-bar .score-text span{color:var(--green)}
+.score-bar .btn-group{display:flex;gap:8px}
+.score-bar button{padding:6px 16px;border-radius:6px;border:1px solid var(--border);background:var(--surface2);color:var(--text);cursor:pointer;font-size:.82rem;transition:all .2s}
+.score-bar button:hover{background:var(--accent);color:#fff;border-color:var(--accent)}
+/* Q&A Cards */
+.qa-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;margin-bottom:16px;overflow:hidden;transition:border-color .2s}
+.qa-card:hover{border-color:var(--accent-border)}
+.qa-card.checked-off{border-color:var(--green);background:var(--green-dim)}
+.qa-question{padding:16px 20px;cursor:pointer;display:flex;align-items:flex-start;gap:14px;user-select:none}
+.qa-question input[type=checkbox]{width:20px;height:20px;margin-top:3px;accent-color:var(--green);cursor:pointer;flex-shrink:0}
+.qa-question .q-text{flex:1;font-weight:600;color:var(--text);font-size:.95rem}
+.qa-question .expand-icon{color:var(--accent);font-size:1.2rem;transition:transform .3s;flex-shrink:0;margin-top:2px}
+.qa-card.open .expand-icon{transform:rotate(180deg)}
+.qa-answer{max-height:0;overflow:hidden;transition:max-height .4s ease}
+.qa-card.open .qa-answer{max-height:5000px}
+.qa-answer-inner{padding:0 20px 20px 54px;color:var(--text)}
+.qa-answer-inner p{margin-bottom:12px}.qa-answer-inner ul,.qa-answer-inner ol{margin:0 0 12px 20px}.qa-answer-inner li{margin-bottom:4px}
+.qa-answer-inner strong{color:var(--accent)}.qa-answer-inner em{color:var(--text-muted)}
+.qa-answer-inner blockquote{border-left:4px solid var(--accent);background:var(--accent-dim);padding:12px 16px;margin:12px 0;border-radius:0 8px 8px 0;font-style:italic;color:var(--text-muted)}
+table{width:100%;border-collapse:collapse;margin:12px 0 16px;font-size:.85rem}thead th{background:var(--accent);color:#fff;padding:8px 12px;text-align:left;font-weight:600}tbody td{padding:8px 12px;border-bottom:1px solid var(--border)}tbody tr:nth-child(even){background:var(--surface)}tbody tr:nth-child(odd){background:var(--surface2)}tbody tr:hover{background:var(--accent-dim)}td strong{color:var(--accent)}
+pre{background:var(--code-bg);border:1px solid var(--border);border-radius:8px;padding:14px;overflow-x:auto;margin:12px 0;font-size:.83rem;line-height:1.5}code{font-family:'Cascadia Code','Fira Code','Consolas',monospace;font-size:.86em}p code,li code,td code{background:var(--code-bg);padding:2px 6px;border-radius:4px;color:var(--accent);border:1px solid var(--border)}
+.back-to-top{position:fixed;bottom:30px;right:30px;width:44px;height:44px;background:var(--accent);color:#fff;border:none;border-radius:50%;font-size:1.3rem;cursor:pointer;display:none;align-items:center;justify-content:center;box-shadow:0 4px 15px rgba(0,0,0,.3);z-index:100;transition:transform .2s}.back-to-top:hover{transform:scale(1.1)}.back-to-top.visible{display:flex}
+@media(max-width:900px){.sidebar{transform:translateX(-100%)}.sidebar.open{transform:translateX(0)}.sidebar-toggle{display:block}.main{margin-left:0;padding:70px 20px 100px}.score-bar{flex-direction:column;align-items:stretch;text-align:center}}
+@media print{.sidebar,.sidebar-toggle,.back-to-top,.progress-bar,.score-bar{display:none!important}.main{margin-left:0;max-width:100%}body{background:#fff;color:#000}.qa-card{border:1px solid #ccc;break-inside:avoid}.qa-answer{max-height:none!important}.qa-question .expand-icon{display:none}table{font-size:.75rem}thead th{background:#333;color:#fff;-webkit-print-color-adjust:exact;print-color-adjust:exact}tbody tr:nth-child(even){background:#f0f0f0}tbody tr:nth-child(odd){background:#fff}pre{background:#f5f5f5;border:1px solid #ccc}code{color:#333}h1,h2{color:#111}}
+</style>
+</head>
+<body>
+<div class="progress-bar" id="progressBar"></div>
+<button class="sidebar-toggle" id="sidebarToggle">☰</button>
+<aside class="sidebar" id="sidebar">
+<div class="sidebar-header"><h2>CS1 Q&amp;A</h2><small>15 Questions</small></div>
+<nav>
+<div class="nav-group">Study Materials</div>
+<a href="CS1-Introduction-to-Cloud-Computing.html">CS1 — Intro to Cloud</a>
+<a href="CS2-CS3-Virtualization.html">CS2-CS3 — Virtualization</a>
+<a href="CS4-Hypervisor-and-IaaS.html">CS4 — Hypervisor &amp; IaaS</a>
+<a href="CS5-IaaS-Services.html">CS5 — IaaS Services</a>
+<a href="CS6-Containers-and-Cloud-Native.html">CS6 — Containers</a>
+<div class="nav-group">Questions &amp; Answers</div>
+<a href="CS1-Questions-and-Answers.html" class="active">CS1 Q&amp;A (15 Qs)</a>
+<a href="CS2-CS3-Questions-and-Answers.html">CS2-CS3 Q&amp;A (6 Qs)</a>
+<a href="CS4-Questions-and-Answers.html">CS4 Q&amp;A (8 Qs)</a>
+<a href="CS5-Questions-and-Answers.html">CS5 Q&amp;A (10 Qs)</a>
+<a href="CS6-Questions-and-Answers.html">CS6 Q&amp;A (12 Qs)</a>
+</nav>
+</aside>
+
+<main class="main">
+<h1>Topic 1: Introduction to Cloud Computing — Questions &amp; Answers</h1>
+<p class="subtitle">15 questions covering: NIST definition, 5 essential characteristics, evolution, service models (IaaS/PaaS/SaaS), deployment models, infrastructure overview, benefits/limitations.</p>
+
+<div class="score-bar" id="scoreBar">
+<div class="score-text">Score: <span id="scoreCount">0</span> / 15</div>
+<div class="btn-group">
+<button onclick="toggleAll(true)">Show All</button>
+<button onclick="toggleAll(false)">Hide All</button>
+<button onclick="resetAll()">Reset</button>
+</div>
+</div>
+
+<div id="qaContainer">
+
+<!-- Q1 -->
+<div class="qa-card" id="q1">
+<div class="qa-question" onclick="toggleAnswer(this)">
+<input type="checkbox" onclick="event.stopPropagation();updateScore()">
+<div class="q-text">Q1. Define cloud computing using the NIST definition. Explain its key elements.</div>
+<div class="expand-icon">&#9660;</div>
+</div>
+<div class="qa-answer"><div class="qa-answer-inner">
+<p>The NIST (National Institute of Standards and Technology) defines cloud computing as:</p>
+<blockquote><em>"A model for enabling ubiquitous, convenient, on-demand network access to a shared pool of configurable computing resources (e.g., networks, servers, storage, applications, and services) that can be rapidly provisioned and released with minimal management effort or service provider interaction."</em></blockquote>
+<p><strong>Key elements:</strong></p>
+<ul>
+<li><strong>Ubiquitous, convenient access</strong> — available from anywhere, any device, over the internet.</li>
+<li><strong>On-demand</strong> — resources provisioned instantly without human intervention from the provider.</li>
+<li><strong>Shared pool</strong> — resources are pooled and shared among multiple tenants (multi-tenancy).</li>
+<li><strong>Configurable</strong> — resources can be customised to user needs (instance types, storage sizes, network configs).</li>
+<li><strong>Rapidly provisioned and released</strong> — scale up in minutes, scale down when done. No weeks-long procurement.</li>
+<li><strong>Minimal management effort</strong> — self-service portals, APIs, and automation reduce manual work.</li>
+</ul>
+<p>The two core concepts behind "cloud" are <strong>abstraction</strong> (hiding implementation details from users) and <strong>virtualization</strong> (pooling and sharing physical resources as virtual resources).</p>
+</div></div>
+</div>
+
+<!-- Q2 -->
+<div class="qa-card" id="q2">
+<div class="qa-question" onclick="toggleAnswer(this)">
+<input type="checkbox" onclick="event.stopPropagation();updateScore()">
+<div class="q-text">Q2. List and explain the five essential characteristics of cloud computing as defined by NIST.</div>
+<div class="expand-icon">&#9660;</div>
+</div>
+<div class="qa-answer"><div class="qa-answer-inner">
+<table><thead><tr><th>Characteristic</th><th>Explanation</th><th>Example</th></tr></thead><tbody>
+<tr><td><strong>On-demand self-service</strong></td><td>Users provision resources (VMs, storage) automatically without contacting the provider.</td><td>Launch an EC2 instance via AWS console in 60 seconds.</td></tr>
+<tr><td><strong>Broad network access</strong></td><td>Resources accessible over the network via standard protocols (HTTP, APIs) from diverse devices.</td><td>Access Google Drive from phone, laptop, and tablet.</td></tr>
+<tr><td><strong>Resource pooling</strong></td><td>Provider's resources serve multiple tenants via a multi-tenant model. Resources dynamically assigned. Location transparent to users.</td><td>AWS runs millions of VMs on shared physical servers. You don't know which rack your VM occupies.</td></tr>
+<tr><td><strong>Rapid elasticity</strong></td><td>Resources scale outward/inward rapidly, often automatically, appearing unlimited to the user.</td><td>Netflix adds hundreds of servers during evening peak and releases them at 3 AM.</td></tr>
+<tr><td><strong>Measured service</strong></td><td>Resource usage is metered, monitored, and reported. Pay-per-use model provides transparency.</td><td>AWS bill shows 743 hours of EC2, 50 GB S3 — you pay only for actual consumption.</td></tr>
+</tbody></table>
+</div></div>
+</div>
+
+<!-- Q3 -->
+<div class="qa-card" id="q3">
+<div class="qa-question" onclick="toggleAnswer(this)">
+<input type="checkbox" onclick="event.stopPropagation();updateScore()">
+<div class="q-text">Q3. Trace the evolution of cloud computing from the 1960s to today.</div>
+<div class="expand-icon">&#9660;</div>
+</div>
+<div class="qa-answer"><div class="qa-answer-inner">
+<table><thead><tr><th>Era</th><th>Paradigm</th><th>Key Idea</th><th>Why it wasn't enough</th></tr></thead><tbody>
+<tr><td><strong>1960s</strong></td><td>Mainframe / Time-sharing</td><td>McCarthy proposed "computation as a public utility." Multiple users shared one mainframe.</td><td>Expensive, centralised, not scalable.</td></tr>
+<tr><td><strong>1970s-80s</strong></td><td>Personal Computing</td><td>Decentralised — a computer on every desk.</td><td>Isolated machines, no sharing.</td></tr>
+<tr><td><strong>1990s</strong></td><td>Client-Server &amp; Internet</td><td>Servers in data centres; WWW made info accessible.</td><td>Each app needed its own dedicated server. Over-provisioning.</td></tr>
+<tr><td><strong>Late 1990s</strong></td><td>Grid Computing</td><td>Federate distributed heterogeneous resources across organisations.</td><td>Complex setup, no standard APIs, no self-service, no pay-per-use.</td></tr>
+<tr><td><strong>Late 1990s</strong></td><td>Cluster Computing</td><td>Group of homogeneous tightly-coupled machines in one location.</td><td>Not elastic, single location only.</td></tr>
+<tr><td><strong>2000s</strong></td><td>Utility Computing</td><td>Computing as a metered utility (pay for what you use).</td><td>Limited scale, proprietary.</td></tr>
+<tr><td><strong>2006+</strong></td><td>Cloud Computing</td><td>Virtualisation + utility pricing + self-service + elasticity + broad access. AWS EC2 launched 2006.</td><td>Current paradigm — still evolving.</td></tr>
+</tbody></table>
+<p><strong>Key milestones:</strong> AWS EC2/S3 (2006), Google App Engine (2008), Microsoft Azure (2010), cloud becomes mainstream enterprise IT (~2014), cloud-native/serverless era (2020+).</p>
+</div></div>
+</div>
+
+<!-- Q4 -->
+<div class="qa-card" id="q4">
+<div class="qa-question" onclick="toggleAnswer(this)">
+<input type="checkbox" onclick="event.stopPropagation();updateScore()">
+<div class="q-text">Q4. Compare grid computing, cluster computing, and cloud computing.</div>
+<div class="expand-icon">&#9660;</div>
+</div>
+<div class="qa-answer"><div class="qa-answer-inner">
+<table><thead><tr><th>Aspect</th><th>Grid Computing</th><th>Cluster Computing</th><th>Cloud Computing</th></tr></thead><tbody>
+<tr><td><strong>Coupling</strong></td><td>Loosely coupled, heterogeneous, across administrative domains.</td><td>Tightly coupled, homogeneous, single location.</td><td>Provider-managed, standard APIs, global.</td></tr>
+<tr><td><strong>Resource mgmt</strong></td><td>Decentralised — each node has own manager.</td><td>Centralised scheduler, single system image.</td><td>Provider-managed, API-driven.</td></tr>
+<tr><td><strong>User interface</strong></td><td>Complex, requires specialised knowledge.</td><td>Direct network access.</td><td>Self-service portal, CLI, API.</td></tr>
+<tr><td><strong>Billing</strong></td><td>Typically free (academic/research).</td><td>Organisation-funded.</td><td>Pay-per-use, metered.</td></tr>
+<tr><td><strong>Elasticity</strong></td><td>Limited — pre-allocated resources.</td><td>Fixed — add nodes manually.</td><td>Automatic — scale in seconds.</td></tr>
+<tr><td><strong>Virtualisation</strong></td><td>Minimal.</td><td>Minimal.</td><td>Core technology.</td></tr>
+<tr><td><strong>Location</strong></td><td>Geographically distributed.</td><td>Single location.</td><td>Globally distributed regions.</td></tr>
+</tbody></table>
+</div></div>
+</div>
+
+<!-- Q5 -->
+<div class="qa-card" id="q5">
+<div class="qa-question" onclick="toggleAnswer(this)">
+<input type="checkbox" onclick="event.stopPropagation();updateScore()">
+<div class="q-text">Q5. Explain the three cloud service models (IaaS, PaaS, SaaS) with the responsibility matrix.</div>
+<div class="expand-icon">&#9660;</div>
+</div>
+<div class="qa-answer"><div class="qa-answer-inner">
+<p><strong>IaaS (Infrastructure as a Service):</strong> Provider gives you virtualised infrastructure (VMs, storage, network). You manage OS upward. Maximum control, maximum responsibility.</p>
+<ul><li><em>Examples:</em> AWS EC2, Azure VMs, Google Compute Engine.</li><li><em>Analogy:</em> Renting an empty apartment — you bring your own furniture.</li></ul>
+<p><strong>PaaS (Platform as a Service):</strong> Provider manages infrastructure + platform (OS, middleware, runtime). You only manage application code and data. Focus on development, not infrastructure.</p>
+<ul><li><em>Examples:</em> Heroku, Google App Engine, AWS Elastic Beanstalk.</li><li><em>Analogy:</em> Renting a furnished apartment — just bring personal belongings.</li></ul>
+<p><strong>SaaS (Software as a Service):</strong> Provider manages everything — infrastructure, platform, and application. You just use the software via a browser.</p>
+<ul><li><em>Examples:</em> Gmail, Salesforce, Zoom, Dropbox, Microsoft 365.</li><li><em>Analogy:</em> Staying at a hotel — everything is provided.</li></ul>
+<p><strong>Responsibility matrix:</strong></p>
+<table><thead><tr><th>Layer</th><th>On-Premises</th><th>IaaS</th><th>PaaS</th><th>SaaS</th></tr></thead><tbody>
+<tr><td>Applications</td><td>You</td><td>You</td><td>You</td><td>Provider</td></tr>
+<tr><td>Data</td><td>You</td><td>You</td><td>You</td><td>You*</td></tr>
+<tr><td>Runtime</td><td>You</td><td>You</td><td>Provider</td><td>Provider</td></tr>
+<tr><td>Middleware</td><td>You</td><td>You</td><td>Provider</td><td>Provider</td></tr>
+<tr><td>OS</td><td>You</td><td>You</td><td>Provider</td><td>Provider</td></tr>
+<tr><td>Virtualisation</td><td>You</td><td>Provider</td><td>Provider</td><td>Provider</td></tr>
+<tr><td>Servers/Storage/Network</td><td>You</td><td>Provider</td><td>Provider</td><td>Provider</td></tr>
+</tbody></table>
+<p><em>*In SaaS, the provider stores your data but you own it.</em></p>
+</div></div>
+</div>
+
+<!-- Q6 -->
+<div class="qa-card" id="q6">
+<div class="qa-question" onclick="toggleAnswer(this)">
+<input type="checkbox" onclick="event.stopPropagation();updateScore()">
+<div class="q-text">Q6. Compare IaaS, PaaS, and SaaS. When would you choose each?</div>
+<div class="expand-icon">&#9660;</div>
+</div>
+<div class="qa-answer"><div class="qa-answer-inner">
+<table><thead><tr><th>Aspect</th><th>IaaS</th><th>PaaS</th><th>SaaS</th></tr></thead><tbody>
+<tr><td><strong>Control</strong></td><td>Maximum (full OS access)</td><td>Medium (app code only)</td><td>Minimum (use as-is)</td></tr>
+<tr><td><strong>Flexibility</strong></td><td>Install anything</td><td>Limited to platform capabilities</td><td>Fixed functionality</td></tr>
+<tr><td><strong>Management burden</strong></td><td>High (patch OS, configure security)</td><td>Low (just deploy code)</td><td>None</td></tr>
+<tr><td><strong>Vendor lock-in risk</strong></td><td>Low (standard VMs)</td><td>Medium (provider-specific APIs)</td><td>High (data + workflow tied to provider)</td></tr>
+<tr><td><strong>Scaling</strong></td><td>Manual or auto-scaling config</td><td>Built-in auto-scaling</td><td>Provider handles completely</td></tr>
+<tr><td><strong>Cost model</strong></td><td>Per hour/GB (granular)</td><td>Per app/request</td><td>Per user/month (subscription)</td></tr>
+</tbody></table>
+<p><strong>When to choose:</strong></p>
+<ul>
+<li><strong>IaaS:</strong> You need full control over the environment, are running custom enterprise software, or need specific OS/hardware configurations.</li>
+<li><strong>PaaS:</strong> You want to focus purely on writing code without managing servers. Ideal for web apps, APIs, microservices.</li>
+<li><strong>SaaS:</strong> You need a standard business application (email, CRM, collaboration) without any development effort.</li>
+</ul>
+</div></div>
+</div>
+
+<!-- Q7 -->
+<div class="qa-card" id="q7">
+<div class="qa-question" onclick="toggleAnswer(this)">
+<input type="checkbox" onclick="event.stopPropagation();updateScore()">
+<div class="q-text">Q7. Explain the five cloud deployment models with examples.</div>
+<div class="expand-icon">&#9660;</div>
+</div>
+<div class="qa-answer"><div class="qa-answer-inner">
+<table><thead><tr><th>Model</th><th>Who owns it</th><th>Who uses it</th><th>Example</th></tr></thead><tbody>
+<tr><td><strong>Public</strong></td><td>Third-party provider (AWS, Azure, GCP)</td><td>Anyone — individuals, startups, enterprises</td><td>AWS EC2 for a startup's web app</td></tr>
+<tr><td><strong>Private</strong></td><td>Organisation itself (or dedicated third-party)</td><td>Single organisation only</td><td>A bank running OpenStack in its own data centre</td></tr>
+<tr><td><strong>Hybrid</strong></td><td>Combination of public + private</td><td>Organisation using both</td><td>Hospital: patient records on private cloud, analytics on AWS</td></tr>
+<tr><td><strong>Community</strong></td><td>Shared by organisations with common concerns</td><td>Specific community (same industry/regulation)</td><td>Government agencies sharing a FedRAMP cloud</td></tr>
+<tr><td><strong>Multi-Cloud</strong></td><td>Multiple public providers</td><td>Organisation using AWS + Azure + GCP simultaneously</td><td>Using AWS for compute, GCP for ML, Azure for enterprise apps</td></tr>
+</tbody></table>
+</div></div>
+</div>
+
+<!-- Q8 -->
+<div class="qa-card" id="q8">
+<div class="qa-question" onclick="toggleAnswer(this)">
+<input type="checkbox" onclick="event.stopPropagation();updateScore()">
+<div class="q-text">Q8. What is hybrid cloud? What is cloud bursting?</div>
+<div class="expand-icon">&#9660;</div>
+</div>
+<div class="qa-answer"><div class="qa-answer-inner">
+<p><strong>Hybrid cloud</strong> is a composition of two or more distinct cloud infrastructures (typically private + public) bound together by technology that enables data and application portability between them.</p>
+<p><strong>Cloud bursting</strong> is a deployment pattern where an application normally runs on private cloud, but when demand exceeds private cloud capacity, it "bursts" into the public cloud to handle the excess load. When demand subsides, the extra public cloud resources are released.</p>
+<p><strong>Example:</strong> An e-commerce company runs its website on a private cloud. During Black Friday, traffic spikes 10x. Instead of buying 10x servers that sit idle 364 days/year, the private cloud handles normal traffic and the excess bursts to AWS. After the sale, AWS instances are terminated.</p>
+<p><strong>Benefits:</strong> Cost efficiency (don't over-provision private cloud), flexibility, compliance (sensitive data stays private).</p>
+<p><strong>Challenges:</strong> Network latency between private and public, complex networking/security, data synchronisation.</p>
+</div></div>
+</div>
+
+<!-- Q9 -->
+<div class="qa-card" id="q9">
+<div class="qa-question" onclick="toggleAnswer(this)">
+<input type="checkbox" onclick="event.stopPropagation();updateScore()">
+<div class="q-text">Q9. Explain the four types of cloud infrastructure resources.</div>
+<div class="expand-icon">&#9660;</div>
+</div>
+<div class="qa-answer"><div class="qa-answer-inner">
+<p><strong>1. Compute:</strong> Processing power to run applications.</p>
+<ul><li>VMs (EC2, Azure VMs), Containers (ECS, GKE), Serverless (Lambda), Bare Metal.</li></ul>
+<p><strong>2. Storage:</strong> Durable, scalable data storage.</p>
+<ul><li><strong>Object storage</strong> (S3, Azure Blob) — files as objects with metadata, accessed via HTTP. Massively scalable.</li><li><strong>Block storage</strong> (EBS, Azure Managed Disks) — raw volumes attached to VMs like virtual hard drives. Low latency.</li><li><strong>File storage</strong> (EFS, Azure Files) — shared file systems accessible by multiple VMs via NFS/SMB.</li></ul>
+<p><strong>3. Network:</strong> Connectivity between resources and to the internet.</p>
+<ul><li>VPC (isolated virtual network), Subnets, Load Balancers, CDN, VPN/Direct Connect, Security Groups, DNS.</li></ul>
+<p><strong>4. Data Centres / Regions / Availability Zones:</strong></p>
+<ul><li><strong>Region</strong> = geographic area (e.g. Mumbai). Independent and isolated.</li><li><strong>Availability Zone (AZ)</strong> = one or more data centres within a region with independent power/cooling/network. Deploy across AZs for high availability.</li><li><strong>Edge Location</strong> = small data centre for CDN caching close to end users.</li></ul>
+</div></div>
+</div>
+
+<!-- Q10 -->
+<div class="qa-card" id="q10">
+<div class="qa-question" onclick="toggleAnswer(this)">
+<input type="checkbox" onclick="event.stopPropagation();updateScore()">
+<div class="q-text">Q10. What is the difference between a Region, an Availability Zone, and an Edge Location?</div>
+<div class="expand-icon">&#9660;</div>
+</div>
+<div class="qa-answer"><div class="qa-answer-inner">
+<table><thead><tr><th>Concept</th><th>What it is</th><th>Purpose</th><th>Example</th></tr></thead><tbody>
+<tr><td><strong>Region</strong></td><td>A geographic area containing multiple AZs. Completely independent from other regions.</td><td>Data sovereignty — data stays in the region. Geographic proximity to users.</td><td>ap-south-1 (Mumbai), us-east-1 (N. Virginia)</td></tr>
+<tr><td><strong>Availability Zone (AZ)</strong></td><td>One or more data centres within a region, with separate power, cooling, networking. Connected to other AZs in the same region by low-latency links.</td><td><strong>High availability</strong> — if one AZ fails, others keep running. Deploy across AZs.</td><td>ap-south-1a, ap-south-1b, ap-south-1c</td></tr>
+<tr><td><strong>Edge Location</strong></td><td>Smaller data centres at the network edge, worldwide.</td><td>Cache content (CDN) close to end users for low-latency delivery.</td><td>600+ CloudFront edge locations globally</td></tr>
+</tbody></table>
+<p><strong>Key insight:</strong> Regions provide isolation and data sovereignty. AZs within a region provide fault tolerance. Edge locations provide low-latency content delivery.</p>
+</div></div>
+</div>
+
+<!-- Q11 -->
+<div class="qa-card" id="q11">
+<div class="qa-question" onclick="toggleAnswer(this)">
+<input type="checkbox" onclick="event.stopPropagation();updateScore()">
+<div class="q-text">Q11. List five benefits and five limitations of cloud computing.</div>
+<div class="expand-icon">&#9660;</div>
+</div>
+<div class="qa-answer"><div class="qa-answer-inner">
+<p><strong>Benefits:</strong></p>
+<ol><li><strong>Cost efficiency</strong> — No upfront CapEx; pay-per-use OpEx. No idle hardware costs.</li><li><strong>Elasticity</strong> — Scale up/down automatically with demand. No over-provisioning.</li><li><strong>Speed and agility</strong> — Provision resources in minutes. Accelerates development and time-to-market.</li><li><strong>Global reach</strong> — Deploy in multiple regions worldwide with a few clicks.</li><li><strong>Reliability</strong> — Multi-AZ/multi-region architectures, provider SLAs of 99.9-99.999% uptime.</li></ol>
+<p><strong>Limitations:</strong></p>
+<ol><li><strong>Vendor lock-in</strong> — Provider-specific services/APIs make migration difficult.</li><li><strong>Security concerns</strong> — Data on shared infrastructure; multi-tenancy risks.</li><li><strong>Downtime</strong> — Providers do have outages (AWS us-east-1 incidents).</li><li><strong>Data transfer costs</strong> — Egress (data out of cloud) can be expensive.</li><li><strong>Compliance complexity</strong> — GDPR, HIPAA, data localisation laws require careful region selection.</li></ol>
+</div></div>
+</div>
+
+<!-- Q12 -->
+<div class="qa-card" id="q12">
+<div class="qa-question" onclick="toggleAnswer(this)">
+<input type="checkbox" onclick="event.stopPropagation();updateScore()">
+<div class="q-text">Q12. Explain the CapEx vs OpEx shift in cloud computing. Why does it matter?</div>
+<div class="expand-icon">&#9660;</div>
+</div>
+<div class="qa-answer"><div class="qa-answer-inner">
+<table><thead><tr><th>Aspect</th><th>CapEx (On-Premises)</th><th>OpEx (Cloud)</th></tr></thead><tbody>
+<tr><td><strong>Cost type</strong></td><td>Capital Expenditure — large upfront investment to buy hardware.</td><td>Operational Expenditure — ongoing, pay-as-you-go charges.</td></tr>
+<tr><td><strong>Timing</strong></td><td>Pay everything upfront before you use it.</td><td>Pay monthly/hourly only for what you consume.</td></tr>
+<tr><td><strong>Scaling</strong></td><td>Buy for peak capacity — hardware sits idle during normal periods.</td><td>Scale up for peak, scale down after — pay only during peak.</td></tr>
+<tr><td><strong>Depreciation</strong></td><td>Hardware depreciates over 3-5 years. Becomes obsolete.</td><td>Always using latest hardware/software — provider upgrades.</td></tr>
+<tr><td><strong>Risk</strong></td><td>You bear the risk of over-provisioning or under-provisioning.</td><td>Provider absorbs infrastructure risk.</td></tr>
+</tbody></table>
+<p><strong>Why it matters:</strong> CapEx requires predicting future needs years in advance. If you guess wrong (over-provision), you waste money. If you under-provision, you can't serve demand. OpEx eliminates this guessing game — you consume exactly what you need, when you need it.</p>
+</div></div>
+</div>
+
+<!-- Q13 -->
+<div class="qa-card" id="q13">
+<div class="qa-question" onclick="toggleAnswer(this)">
+<input type="checkbox" onclick="event.stopPropagation();updateScore()">
+<div class="q-text">Q13. What are FaaS and BaaS? How do they extend the traditional service models?</div>
+<div class="expand-icon">&#9660;</div>
+</div>
+<div class="qa-answer"><div class="qa-answer-inner">
+<p><strong>FaaS (Function as a Service):</strong> Run individual functions in response to events (HTTP request, file upload, database change). No servers to manage — you upload a function, define triggers, and the cloud executes it automatically. Pay per invocation (per millisecond of execution).</p>
+<ul><li><em>Examples:</em> AWS Lambda, Azure Functions, Google Cloud Functions.</li><li><em>Use case:</em> Image thumbnail generation on upload, webhook processing, scheduled tasks.</li></ul>
+<p><strong>BaaS (Backend as a Service):</strong> Pre-built backend services (authentication, database, push notifications, file storage) for mobile and web apps. Developers use APIs/SDKs without building or managing the backend.</p>
+<ul><li><em>Examples:</em> Firebase, AWS Amplify, Supabase.</li><li><em>Use case:</em> Mobile app that needs user login, real-time database, push notifications — all without writing backend code.</li></ul>
+<p><strong>How they extend traditional models:</strong> FaaS goes beyond PaaS by eliminating even the concept of a "server" or "application" — you just write functions. BaaS goes further by providing pre-built backend components, so developers don't even write the backend.</p>
+</div></div>
+</div>
+
+<!-- Q14 -->
+<div class="qa-card" id="q14">
+<div class="qa-question" onclick="toggleAnswer(this)">
+<input type="checkbox" onclick="event.stopPropagation();updateScore()">
+<div class="q-text">Q14. What is multi-tenancy? Why is it important in cloud computing?</div>
+<div class="expand-icon">&#9660;</div>
+</div>
+<div class="qa-answer"><div class="qa-answer-inner">
+<p><strong>Multi-tenancy</strong> is an architecture where a single instance of software or infrastructure serves multiple customers (tenants) simultaneously. Each tenant's data and configuration are logically isolated even though they share the same physical resources.</p>
+<p><strong>Why it's important:</strong></p>
+<ol><li><strong>Cost efficiency for the provider</strong> — One set of hardware serves thousands of customers instead of dedicating separate hardware to each. This economy of scale is what makes cloud affordable.</li><li><strong>Resource utilisation</strong> — When one tenant is idle, their resources can serve other tenants. Overall utilisation is much higher than dedicated hardware.</li><li><strong>Simplified management</strong> — The provider maintains one system, not thousands of separate ones.</li></ol>
+<p><strong>Risks:</strong></p>
+<ul><li><strong>Noisy neighbour</strong> — One tenant's heavy workload can affect another tenant's performance on the same physical host.</li><li><strong>Data isolation</strong> — A bug or misconfiguration could potentially expose one tenant's data to another. Cloud providers use extensive isolation mechanisms (VMs, network segmentation, encryption) to prevent this.</li></ul>
+</div></div>
+</div>
+
+<!-- Q15 -->
+<div class="qa-card" id="q15">
+<div class="qa-question" onclick="toggleAnswer(this)">
+<input type="checkbox" onclick="event.stopPropagation();updateScore()">
+<div class="q-text">Q15. What is the role of virtualization in cloud computing? Why is it called a "core technology"?</div>
+<div class="expand-icon">&#9660;</div>
+</div>
+<div class="qa-answer"><div class="qa-answer-inner">
+<p><strong>Virtualization</strong> is the technology that makes cloud computing possible. It creates a software-based (virtual) version of physical resources — compute, storage, network — allowing multiple virtual resources to share a single physical resource.</p>
+<p><strong>Why it's the core technology:</strong></p>
+<ol>
+<li><strong>Resource pooling</strong> — A single physical server can host 10-50 VMs, each running a different customer's workload. Without virtualisation, each customer would need a dedicated physical server — wasteful and expensive.</li>
+<li><strong>Isolation</strong> — Each VM is completely isolated from others on the same physical host. One VM's crash or security breach doesn't affect others. This enables safe multi-tenancy.</li>
+<li><strong>Elasticity</strong> — VMs can be created in seconds and destroyed in seconds. This enables the rapid provisioning and release that NIST requires.</li>
+<li><strong>Hardware abstraction</strong> — Users interact with virtual resources, not physical hardware. The provider can migrate VMs between physical servers (for maintenance, load balancing) without the user noticing.</li>
+<li><strong>Measured service</strong> — The hypervisor tracks exactly how much CPU, memory, storage, and network each VM consumes, enabling accurate metering and billing.</li>
+</ol>
+<p>Without virtualisation, cloud computing would be impossible — you'd be back to dedicated physical servers with no sharing, no elasticity, and no self-service.</p>
+</div></div>
+</div>
+
+</div><!-- end qaContainer -->
+</main>
+
+<button class="back-to-top" id="backToTop" onclick="window.scrollTo({top:0})">&#8593;</button>
+<script>
+function toggleAnswer(el){const card=el.closest('.qa-card');card.classList.toggle('open')}
+function updateScore(){const checks=document.querySelectorAll('.qa-card input[type=checkbox]');let c=0;checks.forEach(ch=>{const card=ch.closest('.qa-card');if(ch.checked){c++;card.classList.add('checked-off')}else{card.classList.remove('checked-off')}});document.getElementById('scoreCount').textContent=c}
+function toggleAll(show){document.querySelectorAll('.qa-card').forEach(c=>{show?c.classList.add('open'):c.classList.remove('open')})}
+function resetAll(){document.querySelectorAll('.qa-card input[type=checkbox]').forEach(ch=>{ch.checked=false});document.querySelectorAll('.qa-card').forEach(c=>{c.classList.remove('checked-off','open')});document.getElementById('scoreCount').textContent='0'}
+window.addEventListener('scroll',()=>{const s=document.documentElement,p=(s.scrollTop/(s.scrollHeight-s.clientHeight))*100;document.getElementById('progressBar').style.width=p+'%'});
+window.addEventListener('scroll',()=>{document.getElementById('backToTop').classList.toggle('visible',window.scrollY>400)});
+document.getElementById('sidebarToggle').addEventListener('click',()=>{document.getElementById('sidebar').classList.toggle('open')});
+document.querySelectorAll('.sidebar nav a').forEach(a=>a.addEventListener('click',()=>{if(window.innerWidth<=900)document.getElementById('sidebar').classList.remove('open')}));
+</script>
+</body>
+</html>

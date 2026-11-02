@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CS4: Hypervisors and Introduction to IaaS</title>
+<style>
+:root{--bg:#0f172a;--surface:#1e293b;--surface2:#334155;--border:#475569;--text:#e2e8f0;--text-muted:#94a3b8;--code-bg:#0d1117;--accent:#f59e0b;--accent-dim:rgba(245,158,11,.12);--accent-border:rgba(245,158,11,.3)}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;scroll-padding-top:80px}
+body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);line-height:1.7;min-height:100vh}
+.progress-bar{position:fixed;top:0;left:0;height:3px;background:var(--accent);z-index:1001;transition:width .25s}
+.sidebar{position:fixed;top:0;left:0;width:280px;height:100vh;background:var(--surface);border-right:1px solid var(--border);overflow-y:auto;z-index:100;transition:transform .3s}
+.sidebar-header{padding:20px;border-bottom:1px solid var(--border);text-align:center}
+.sidebar-header h2{font-size:1rem;color:var(--accent);margin-bottom:4px}
+.sidebar-header small{color:var(--text-muted);font-size:.75rem}
+.sidebar nav{padding:12px 0}
+.sidebar nav a{display:block;padding:8px 20px;color:var(--text-muted);text-decoration:none;font-size:.85rem;border-left:3px solid transparent;transition:all .2s}
+.sidebar nav a:hover,.sidebar nav a.active{color:var(--accent);background:var(--accent-dim);border-left-color:var(--accent)}
+.sidebar nav .nav-group{padding:10px 20px 4px;font-size:.7rem;text-transform:uppercase;letter-spacing:1px;color:var(--border);font-weight:700}
+.sidebar-toggle{display:none;position:fixed;top:12px;left:12px;z-index:200;background:var(--surface);border:1px solid var(--border);color:var(--text);padding:8px 12px;border-radius:6px;cursor:pointer;font-size:1.1rem}
+.main{margin-left:280px;max-width:900px;padding:40px 40px 100px}
+.main h1{font-size:2rem;color:var(--accent);margin-bottom:8px;line-height:1.3}
+.main .subtitle{color:var(--text-muted);font-size:.9rem;margin-bottom:32px;line-height:1.6}
+.main .subtitle strong{color:var(--text)}
+.main h2{font-size:1.45rem;color:var(--accent);margin:48px 0 16px;padding-bottom:8px;border-bottom:2px solid var(--accent-border)}
+.main h3{font-size:1.15rem;color:var(--text);margin:32px 0 12px}
+.main h4{font-size:1rem;color:var(--accent);margin:24px 0 8px}
+.main p{margin-bottom:14px}
+.main ul,.main ol{margin:0 0 16px 24px}
+.main li{margin-bottom:6px}
+.main li strong{color:var(--accent)}
+.main em{color:var(--text-muted);font-style:italic}
+.main blockquote{border-left:4px solid var(--accent);background:var(--accent-dim);padding:14px 20px;margin:16px 0;border-radius:0 8px 8px 0;color:var(--text-muted);font-style:italic}
+.main hr{border:none;border-top:1px solid var(--border);margin:40px 0}
+table{width:100%;border-collapse:collapse;margin:16px 0 24px;font-size:.88rem}
+thead th{background:var(--accent);color:#000;padding:10px 14px;text-align:left;font-weight:600}
+tbody td{padding:10px 14px;border-bottom:1px solid var(--border)}
+tbody tr:nth-child(even){background:var(--surface)}
+tbody tr:nth-child(odd){background:var(--surface2)}
+tbody tr:hover{background:var(--accent-dim)}
+td strong{color:var(--accent)}
+pre{background:var(--code-bg);border:1px solid var(--border);border-radius:8px;padding:18px;overflow-x:auto;margin:16px 0;font-size:.85rem;line-height:1.6}
+code{font-family:'Cascadia Code','Fira Code','Consolas',monospace;font-size:.88em}
+p code,li code,td code{background:var(--code-bg);padding:2px 7px;border-radius:4px;color:var(--accent);border:1px solid var(--border)}
+.back-to-top{position:fixed;bottom:30px;right:30px;width:44px;height:44px;background:var(--accent);color:#000;border:none;border-radius:50%;font-size:1.3rem;cursor:pointer;display:none;align-items:center;justify-content:center;box-shadow:0 4px 15px rgba(0,0,0,.3);z-index:100;transition:transform .2s}
+.back-to-top:hover{transform:scale(1.1)}
+.back-to-top.visible{display:flex}
+@media(max-width:900px){.sidebar{transform:translateX(-100%)}.sidebar.open{transform:translateX(0)}.sidebar-toggle{display:block}.main{margin-left:0;padding:70px 20px 100px}}
+@media print{.sidebar,.sidebar-toggle,.back-to-top,.progress-bar{display:none!important}.main{margin-left:0;max-width:100%}body{background:#fff;color:#000}table{font-size:.75rem}thead th{background:#333;color:#fff;-webkit-print-color-adjust:exact;print-color-adjust:exact}tbody tr:nth-child(even){background:#f0f0f0}tbody tr:nth-child(odd){background:#fff}pre{background:#f5f5f5;border:1px solid #ccc}code{color:#333}h1,h2,h3,h4{color:#111}a{color:#111;text-decoration:underline}}
+</style>
+</head>
+<body>
+<div class="progress-bar" id="progressBar"></div>
+<button class="sidebar-toggle" id="sidebarToggle">☰</button>
+<aside class="sidebar" id="sidebar">
+<div class="sidebar-header"><h2>CS4: Hypervisor &amp; IaaS</h2><small>Cloud Computing — BITS Pilani</small></div>
+<nav>
+<div class="nav-group">Study Materials</div>
+<a href="CS1-Introduction-to-Cloud-Computing.html">CS1 — Intro to Cloud</a>
+<a href="CS2-CS3-Virtualization.html">CS2-CS3 — Virtualization</a>
+<a href="CS4-Hypervisor-and-IaaS.html" class="active">CS4 — Hypervisor &amp; IaaS</a>
+<a href="CS5-IaaS-Services.html">CS5 — IaaS Services</a>
+<a href="CS6-Containers-and-Cloud-Native.html">CS6 — Containers</a>
+<div class="nav-group">Questions &amp; Answers</div>
+<a href="CS1-Questions-and-Answers.html">CS1 Q&amp;A (15 Qs)</a>
+<a href="CS2-CS3-Questions-and-Answers.html">CS2-CS3 Q&amp;A (6 Qs)</a>
+<a href="CS4-Questions-and-Answers.html">CS4 Q&amp;A (8 Qs)</a>
+<a href="CS5-Questions-and-Answers.html">CS5 Q&amp;A (10 Qs)</a>
+<a href="CS6-Questions-and-Answers.html">CS6 Q&amp;A (12 Qs)</a>
+<div class="nav-group">Sections</div>
+<a href="#s24">2.4 x86 Hardware Virtualization</a>
+<a href="#s31">3.1 Introduction to IaaS</a>
+<a href="#s32">3.2 IaaS Architecture</a>
+<a href="#s33">3.3 AWS as Reference Platform</a>
+<a href="#s34">3.4 Regions, AZs &amp; Edge</a>
+<a href="#s35">VM Provisioning &amp; Migration</a>
+</nav>
+</aside>
+
+<main class="main">
+<h1>CS4: Hypervisors and Introduction to IaaS</h1>
+<div class="subtitle">
+BITS Pilani — <strong>CSI ZG527 / SE ZG527 / SS ZG527: Cloud Computing</strong><br>
+<strong>References:</strong> T1: Ch2, Ch9 | T2: Ch3, Ch5 | R3 | R8<br>
+<strong>Contact Hours:</strong> 7-8, 13-14 (Handout Topics 2.4 + 3.1-3.4)<br>
+<strong>Class Slide:</strong> CS4 - HYPERVISOR_IAAS
+</div>
+<hr>
+
+<h2 id="s24">2.4 x86 Hardware Virtualization (Detailed)</h2>
+<h3>The Ring Problem Revisited</h3>
+<p>The x86 architecture uses four privilege levels (Ring 0-3). The OS kernel needs Ring 0 for hardware access. In virtualization, the hypervisor also needs Ring 0. This creates a conflict since only one entity can have Ring 0 at a time.</p>
+
+<h3>Solutions Implemented in Production</h3>
+<table>
+<thead><tr><th>Solution</th><th>How it works</th><th>Used by</th></tr></thead>
+<tbody>
+<tr><td><strong>Binary Translation</strong></td><td>Hypervisor at Ring 0, guest OS at Ring 1. Hypervisor scans guest instructions and replaces privileged ones at runtime.</td><td>Early VMware (before VT-x)</td></tr>
+<tr><td><strong>Para-virtualization</strong></td><td>Guest OS kernel modified to make hypercalls directly to hypervisor. No trapping needed.</td><td>Xen (PV mode)</td></tr>
+<tr><td><strong>Hardware-Assisted (VT-x/AMD-V)</strong></td><td>CPU adds VMX root mode (hypervisor) and non-root mode (guest). Hardware traps privileged instructions automatically.</td><td>KVM, ESXi, Hyper-V — <strong>dominant today</strong></td></tr>
+<tr><td><strong>Extended Page Tables (EPT/RVI)</strong></td><td>Hardware handles two-level address translation (guest virtual → guest physical → host physical) without software shadow page tables.</td><td>All modern hypervisors</td></tr>
+</tbody>
+</table>
+
+<h3>Hypervisor Deep-Dive</h3>
+<h4>Type 1 Hypervisors in Production</h4>
+<table>
+<thead><tr><th>Hypervisor</th><th>Developer</th><th>Key characteristics</th><th>Used by</th></tr></thead>
+<tbody>
+<tr><td><strong>KVM</strong> (Kernel-based Virtual Machine)</td><td>Open-source (Linux)</td><td>Built into Linux kernel. Uses hardware virtualization (VT-x). Lightweight — the Linux kernel IS the hypervisor.</td><td>AWS (Nitro/KVM), Google Cloud, DigitalOcean, Red Hat</td></tr>
+<tr><td><strong>VMware ESXi</strong></td><td>VMware (Broadcom)</td><td>Commercial bare-metal hypervisor. Mature ecosystem (vSphere, vCenter, vMotion). Industry standard for enterprise.</td><td>Enterprise private clouds, VMware Cloud on AWS</td></tr>
+<tr><td><strong>Microsoft Hyper-V</strong></td><td>Microsoft</td><td>Built into Windows Server. Strong Windows VM support. Also runs Linux guests.</td><td>Azure, enterprise Windows environments</td></tr>
+<tr><td><strong>Xen</strong></td><td>Open-source (Linux Foundation)</td><td>Pioneered para-virtualization. Supports both PV and HVM modes.</td><td>Citrix (XenServer), early AWS (before Nitro)</td></tr>
+</tbody>
+</table>
+
+<h4>Type 2 Hypervisors (Development/Testing Only)</h4>
+<table>
+<thead><tr><th>Hypervisor</th><th>Platform</th><th>Use case</th></tr></thead>
+<tbody>
+<tr><td><strong>Oracle VirtualBox</strong></td><td>Cross-platform (free)</td><td>Development, testing, learning</td></tr>
+<tr><td><strong>VMware Workstation/Fusion</strong></td><td>Windows/macOS (commercial)</td><td>Professional development</td></tr>
+<tr><td><strong>Parallels Desktop</strong></td><td>macOS (commercial)</td><td>Running Windows on Mac</td></tr>
+</tbody>
+</table>
+
+<h4>AWS Nitro System — Modern Cloud Hypervisor</h4>
+<p>AWS evolved from Xen to the <strong>Nitro System</strong>, a custom hypervisor architecture:</p>
+<ul>
+<li><strong>Nitro Hypervisor:</strong> Lightweight KVM-based hypervisor. Offloads networking, storage, and security to dedicated Nitro hardware cards.</li>
+<li><strong>Nitro Cards:</strong> Custom ASIC chips that handle VPC networking, EBS storage I/O, and instance monitoring — removing this work from the host CPU.</li>
+<li><strong>Nitro Security Chip:</strong> Hardware-based security that prevents unauthorized access to instance storage and memory.</li>
+<li><strong>Result:</strong> Near-bare-metal performance for VMs because the hypervisor overhead is offloaded to hardware.</li>
+</ul>
+
+<hr>
+
+<h2 id="s31">3.1 Introduction to IaaS</h2>
+<h3>What is IaaS?</h3>
+<p><strong>Infrastructure as a Service (IaaS)</strong> is the delivery of computing infrastructure — servers, storage, networking, and data centre resources — as on-demand, pay-per-use services over the internet.</p>
+<blockquote><em>"The delivery of services such as hardware, software, storage, networking, data center space, and various utility software elements on request. Both public and private versions of IaaS exist."</em></blockquote>
+
+<h3>Key Characteristics of IaaS</h3>
+<table>
+<thead><tr><th>Characteristic</th><th>Description</th></tr></thead>
+<tbody>
+<tr><td><strong>On-demand provisioning</strong></td><td>Users can spin up VMs, storage, and networks in minutes via a self-service portal or API. No procurement cycle.</td></tr>
+<tr><td><strong>Pay-per-use</strong></td><td>Billed based on resource consumption (per hour of compute, per GB of storage, per GB of data transfer). No upfront CapEx.</td></tr>
+<tr><td><strong>Elastic scaling</strong></td><td>Scale resources up during peaks, down during lulls. Automatically or manually.</td></tr>
+<tr><td><strong>Multi-tenancy</strong></td><td>Multiple customers share the same physical infrastructure, isolated by hypervisor and virtual networking.</td></tr>
+<tr><td><strong>Self-service</strong></td><td>Users provision resources through web consoles, CLIs, or APIs without contacting the provider.</td></tr>
+<tr><td><strong>Dynamic</strong></td><td>Infrastructure can be reconfigured, resized, or destroyed at any time.</td></tr>
+</tbody>
+</table>
+
+<h3>Public vs Private IaaS</h3>
+<table>
+<thead><tr><th>Aspect</th><th>Public IaaS</th><th>Private IaaS</th></tr></thead>
+<tbody>
+<tr><td><strong>Provider</strong></td><td>Third-party cloud provider (AWS, Azure, GCP)</td><td>Organisation's own IT team or dedicated third party</td></tr>
+<tr><td><strong>Users</strong></td><td>Anyone with a credit card</td><td>Internal users and sometimes partners</td></tr>
+<tr><td><strong>Infrastructure</strong></td><td>Shared across thousands of customers</td><td>Dedicated to one organisation</td></tr>
+<tr><td><strong>Sign-up</strong></td><td>Simple online registration</td><td>Internal approval process</td></tr>
+<tr><td><strong>Examples</strong></td><td>AWS EC2, Azure VMs, Google Compute Engine</td><td>OpenStack, VMware vSphere, AWS Outposts</td></tr>
+</tbody>
+</table>
+
+<h3>Why IaaS Matters</h3>
+<p>IaaS is the <strong>foundation</strong> on which PaaS and SaaS are built. The IaaS provider manages:</p>
+<ul>
+<li>Physical servers, racks, data centres</li>
+<li>Power, cooling, physical security</li>
+<li>Networking hardware (switches, routers, firewalls)</li>
+<li>Hypervisor layer</li>
+<li>Storage hardware (SAN, NAS, SSDs)</li>
+</ul>
+<p>The customer manages:</p>
+<ul>
+<li>Operating system (install, patch, configure)</li>
+<li>Middleware and runtime</li>
+<li>Applications and data</li>
+<li>Security configuration (firewalls, IAM)</li>
+</ul>
+
+<hr>
+
+<h2 id="s32">3.2 IaaS Architecture and Reference Model</h2>
+<h3>The IaaS Stack</h3>
+<pre><code>┌─────────────────────────────────────────────────┐
+│           Customer-Managed Layer                  │
+│  Applications, Data, Runtime, Middleware, OS      │
+├─────────────────────────────────────────────────┤
+│           Virtualisation Layer                    │
+│  VMs, Containers, Virtual Networks, Virtual Disks │
+├─────────────────────────────────────────────────┤
+│           Physical Infrastructure                 │
+│  Compute (servers), Storage (SAN/SSD),            │
+│  Network (switches/routers), Data Centres         │
+├─────────────────────────────────────────────────┤
+│           Management &amp; Orchestration              │
+│  Provisioning, Monitoring, Billing, IAM,          │
+│  Auto-scaling, Load Balancing                     │
+└─────────────────────────────────────────────────┘</code></pre>
+
+<h3>IaaS Components</h3>
+<table>
+<thead><tr><th>Component</th><th>What it provides</th><th>AWS Example</th></tr></thead>
+<tbody>
+<tr><td><strong>Compute</strong></td><td>Virtual machines (instances) with configurable CPU, memory, GPU</td><td>EC2 (Elastic Compute Cloud)</td></tr>
+<tr><td><strong>Storage</strong></td><td>Block storage (virtual disks), Object storage (files), File storage (shared)</td><td>EBS (block), S3 (object), EFS (file)</td></tr>
+<tr><td><strong>Networking</strong></td><td>Virtual private clouds, subnets, load balancers, DNS, CDN</td><td>VPC, ELB, Route 53, CloudFront</td></tr>
+<tr><td><strong>Security</strong></td><td>Firewalls, identity management, encryption, DDoS protection</td><td>Security Groups, IAM, KMS, Shield</td></tr>
+<tr><td><strong>Management</strong></td><td>Monitoring, auto-scaling, provisioning APIs, billing</td><td>CloudWatch, Auto Scaling, CloudFormation</td></tr>
+</tbody>
+</table>
+
+<hr>
+
+<h2 id="s33">3.3 AWS as an IaaS Reference Platform</h2>
+<h3>Why AWS as Reference?</h3>
+<p>AWS is the largest and most mature cloud provider (33% market share as of 2024). It launched in 2006 and has the broadest service catalogue.</p>
+<blockquote><em>"Amazon launched AWS so that other organizations could benefit from Amazon's experience and investment in running a large-scale distributed, transactional IT infrastructure. AWS has been operating since 2006, and today serves hundreds of thousands of customers worldwide."</em></blockquote>
+
+<h3>AWS Distinguishing Characteristics</h3>
+<table>
+<thead><tr><th>Characteristic</th><th>Description</th></tr></thead>
+<tbody>
+<tr><td><strong>Flexible</strong></td><td>Supports any programming model, OS, database, and architecture. Mix and match as needed.</td></tr>
+<tr><td><strong>Cost-effective</strong></td><td>Pay only for what you use. No upfront commitments.</td></tr>
+<tr><td><strong>Scalable and elastic</strong></td><td>Add/remove resources to meet demand and manage costs.</td></tr>
+<tr><td><strong>Secure</strong></td><td>Built with security best practices. End-to-end encryption. Compliance certifications.</td></tr>
+<tr><td><strong>Experienced</strong></td><td>Leverages Amazon's 15+ years of large-scale infrastructure experience.</td></tr>
+</tbody>
+</table>
+
+<h3>Key AWS IaaS Services Overview</h3>
+<table>
+<thead><tr><th>Category</th><th>Service</th><th>What it does</th></tr></thead>
+<tbody>
+<tr><td><strong>Compute</strong></td><td>EC2</td><td>Resizable VMs in the cloud. Full OS control.</td></tr>
+<tr><td><strong>Compute</strong></td><td>Auto Scaling</td><td>Automatically scale EC2 capacity based on demand.</td></tr>
+<tr><td><strong>Compute</strong></td><td>Elastic Load Balancing</td><td>Distribute traffic across multiple EC2 instances.</td></tr>
+<tr><td><strong>Networking</strong></td><td>VPC</td><td>Isolated virtual network you define.</td></tr>
+<tr><td><strong>Networking</strong></td><td>Route 53</td><td>DNS service (domain name → IP address).</td></tr>
+<tr><td><strong>Storage</strong></td><td>S3</td><td>Object storage — any amount of data, any time, from anywhere.</td></tr>
+<tr><td><strong>Storage</strong></td><td>EBS</td><td>Block storage volumes attached to EC2 instances.</td></tr>
+<tr><td><strong>Storage</strong></td><td>Glacier</td><td>Extremely low-cost archival storage.</td></tr>
+<tr><td><strong>CDN</strong></td><td>CloudFront</td><td>Content delivery via global edge locations.</td></tr>
+<tr><td><strong>Management</strong></td><td>CloudWatch</td><td>Monitoring for cloud resources and applications.</td></tr>
+<tr><td><strong>Deployment</strong></td><td>Elastic Beanstalk</td><td>PaaS-like deployment for web apps (deploys on EC2 behind the scenes).</td></tr>
+</tbody>
+</table>
+
+<hr>
+
+<h2 id="s34">3.4 Regions, Availability Zones, and Edge Locations</h2>
+<h3>The AWS Global Infrastructure Hierarchy</h3>
+<pre><code>Region (e.g. ap-south-1 = Mumbai)
+├── Availability Zone 1 (ap-south-1a) — one or more data centres
+├── Availability Zone 2 (ap-south-1b) — separate power, network, cooling
+└── Availability Zone 3 (ap-south-1c) — physically separated (km apart)
+
+Edge Locations — 600+ worldwide (CDN caching points)</code></pre>
+
+<table>
+<thead><tr><th>Concept</th><th>What it is</th><th>Why it matters</th></tr></thead>
+<tbody>
+<tr><td><strong>Region</strong></td><td>A geographic area with multiple AZs. Completely independent from other regions. Data stays within a region unless you move it.</td><td><strong>Data sovereignty</strong> — comply with regulations requiring data to stay in specific countries. <strong>Latency</strong> — deploy close to users.</td></tr>
+<tr><td><strong>Availability Zone (AZ)</strong></td><td>One or more data centres within a region with independent power, cooling, networking. Connected to other AZs by low-latency links.</td><td><strong>High availability</strong> — deploy across multiple AZs so if one fails, others keep running. AWS SLAs require multi-AZ deployment.</td></tr>
+<tr><td><strong>Edge Location</strong></td><td>Small data centres at the network edge worldwide. Used by CloudFront (CDN) and Route 53.</td><td><strong>Low latency</strong> — cache content close to end users. A user in Delhi gets content from a Delhi edge location, not from Mumbai region.</td></tr>
+</tbody>
+</table>
+
+<h3>Designing for High Availability</h3>
+<p><strong>Single-AZ deployment:</strong> If that AZ fails, your application is down.</p>
+<p><strong>Multi-AZ deployment:</strong> Application runs in 2+ AZs. If one fails, the load balancer routes traffic to healthy AZs. This is the <strong>minimum recommended architecture</strong> for production workloads.</p>
+<p><strong>Multi-Region deployment:</strong> Application runs in 2+ regions. If an entire region has an outage (rare but happens), the other region takes over. Used for mission-critical, globally distributed applications.</p>
+
+<hr>
+
+<h2 id="s35">VM Provisioning and Migration</h2>
+<p><em>(From Lecture 7 — VM Management)</em></p>
+
+<h3>VM Lifecycle</h3>
+<p>A virtual machine goes through distinct phases during its life:</p>
+<pre><code>1. IT Service Request
+   → Analyse server resource pool
+   → Match resources with requirements
+       ↓
+2. VM Provisioning
+   → Load OS + applications on VM instance
+   → Customise and configure (IP, network, storage)
+   → Start the server
+       ↓
+3. VM in Operation
+   → Serves requests
+   → Supports migration
+   → Scale on-demand compute resources
+       ↓
+4. Release VM
+   → End of service
+   → Compute resources reallocated to another VM</code></pre>
+
+<h3>VM Provisioning Process</h3>
+<ol>
+<li><strong>Select server</strong> from pool of available servers with appropriate OS template.</li>
+<li><strong>Load software</strong> — device drivers, middleware, application packages.</li>
+<li><strong>Customise and configure</strong> — IP address, network connectivity, storage attachment.</li>
+<li><strong>Virtual server is ready</strong> to serve requests.</li>
+</ol>
+<p>In cloud: This entire process takes <strong>minutes</strong> (e.g. AWS EC2 provisioning). In traditional IT: This takes <strong>weeks</strong> (procurement, shipping, racking, cabling).</p>
+
+<h3>VM Migration Techniques</h3>
+<table>
+<thead><tr><th>Technique</th><th>What moves</th><th>VM state during migration</th><th>Shared storage required?</th><th>Downtime</th></tr></thead>
+<tbody>
+<tr><td><strong>Hot/Live Migration</strong></td><td>Running VM from one physical host to another. VM stays powered on.</td><td>Running</td><td>Yes</td><td>Milliseconds (almost none)</td></tr>
+<tr><td><strong>Cold/Regular Migration</strong></td><td>Powered-off VM from one host to another. Disks and config files moved.</td><td>Powered off</td><td>No</td><td>Minutes (VM is off during move)</td></tr>
+<tr><td><strong>Live Storage Migration</strong></td><td>VM's virtual disks and config from one data store to another. VM stays running.</td><td>Running</td><td>No (moving between stores)</td><td>None</td></tr>
+</tbody>
+</table>
+
+<h3>Live Migration Algorithm (Xen Hypervisor)</h3>
+<table>
+<thead><tr><th>Stage</th><th>What happens</th></tr></thead>
+<tbody>
+<tr><td><strong>Stage 0: Pre-Migration</strong></td><td>Active VM exists on Host A.</td></tr>
+<tr><td><strong>Stage 1: Reservation</strong></td><td>Request sent to migrate VM from Host A to Host B. Resources reserved on B.</td></tr>
+<tr><td><strong>Stage 2: Iterative Pre-Copy</strong></td><td>First iteration: ALL memory pages copied from A to B. Subsequent iterations: only <strong>dirtied pages</strong> (pages modified since last copy) are re-copied. Each iteration copies fewer pages.</td></tr>
+<tr><td><strong>Stage 3: Stop-and-Copy</strong></td><td>VM on A is suspended. Remaining dirty pages + CPU state copied to B. Network traffic routed to B. Consistent copy now exists on both A and B.</td></tr>
+<tr><td><strong>Stage 4: Commitment</strong></td><td>B confirms successful receipt of complete VM image. A acknowledges. Original VM on A is discarded. B becomes primary host.</td></tr>
+<tr><td><strong>Stage 5: Activation</strong></td><td>Migrated VM on B is activated. Device drivers reattached. IP addresses advertised on new network.</td></tr>
+</tbody>
+</table>
+<p><strong>Key insight:</strong> Most of the data is copied WHILE the VM is still running (pre-copy). The actual downtime (stop-and-copy) is only milliseconds because only the last few dirty pages need to be transferred.</p>
+
+<h3>Cloud Provisioning Platforms</h3>
+<table>
+<thead><tr><th>Platform</th><th>Type</th><th>Key feature</th></tr></thead>
+<tbody>
+<tr><td><strong>Amazon EC2</strong></td><td>Public cloud</td><td>Provision VMs in minutes via API. Pay-as-you-use. Auto Scaling + CloudWatch + ELB.</td></tr>
+<tr><td><strong>Eucalyptus</strong></td><td>Private/Hybrid cloud</td><td>Open-source. API-compatible with AWS (EC2, S3, EBS). Runs on-premises.</td></tr>
+<tr><td><strong>OpenNebula</strong></td><td>Private/Hybrid/Public cloud</td><td>Open-source VM orchestrator. Supports KVM, VMware, Xen. Manages storage, network, and compute.</td></tr>
+<tr><td><strong>Aneka</strong></td><td>Distributed cloud</td><td>.NET-based platform for building distributed applications on cloud. APIs for resource management.</td></tr>
+</tbody>
+</table>
+
+<hr>
+<p><em>End of CS4</em></p>
+</main>
+
+<button class="back-to-top" id="backToTop" onclick="window.scrollTo({top:0})">&#8593;</button>
+<script>
+window.addEventListener('scroll',()=>{const s=document.documentElement,p=(s.scrollTop/(s.scrollHeight-s.clientHeight))*100;document.getElementById('progressBar').style.width=p+'%'});
+window.addEventListener('scroll',()=>{document.getElementById('backToTop').classList.toggle('visible',window.scrollY>400)});
+document.getElementById('sidebarToggle').addEventListener('click',()=>{document.getElementById('sidebar').classList.toggle('open')});
+document.querySelectorAll('.sidebar nav a').forEach(a=>a.addEventListener('click',()=>{if(window.innerWidth<=900)document.getElementById('sidebar').classList.remove('open')}));
+const observer=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting){document.querySelectorAll('.sidebar nav a').forEach(a=>a.classList.remove('active'));const link=document.querySelector(`.sidebar nav a[href="#${e.target.id}"]`);if(link)link.classList.add('active')}})},{threshold:0.2,rootMargin:'-80px 0px -60% 0px'});
+document.querySelectorAll('h2[id]').forEach(h=>observer.observe(h));
+</script>
+</body>
+</html>

@@ -1,0 +1,2341 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Chapter 3: Non-Linear Data Structures — Questions and Answers</title>
+<style>:root{--bg:#0f172a;--surface:#1e293b;--surface2:#334155;--border:#475569;--text:#e2e8f0;--text-muted:#94a3b8;--code-bg:#0d1117;--accent:#10b981;--accent-dim:rgba(16,185,129,.15);--accent-border:rgba(16,185,129,.3);--header-gradient:linear-gradient(135deg,#064e3b,#059669,#10b981)}*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}html{scroll-behavior:smooth}body{font-family:"Segoe UI",system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.7;display:flex;min-height:100vh}.sidebar{position:fixed;top:0;left:0;width:280px;height:100vh;background:var(--surface);border-right:1px solid var(--border);overflow-y:auto;padding:1.5rem 0;z-index:100}.sidebar-header{padding:0 1.5rem 1.5rem;border-bottom:1px solid var(--border);margin-bottom:1rem}.sidebar-header h2{font-size:1rem;color:var(--accent)}.sidebar nav a{display:block;padding:.55rem 1.5rem;color:var(--text-muted);text-decoration:none;font-size:.85rem;border-left:3px solid transparent}.sidebar nav a:hover,.sidebar nav a.active{color:var(--accent);background:var(--accent-dim);border-left-color:var(--accent)}.sidebar nav a.sub{padding-left:2.5rem;font-size:.8rem}.main{margin-left:280px;flex:1;max-width:900px;padding:2rem 3rem 4rem}.page-header{background:var(--header-gradient);border-radius:16px;padding:2.5rem;margin-bottom:2.5rem}.page-header .badge{display:inline-block;background:rgba(0,0,0,.3);color:#fff;padding:.25rem .75rem;border-radius:20px;font-size:.75rem;margin-bottom:.75rem}.page-header h1{font-size:2rem;color:#fff}h2{font-size:1.5rem;color:var(--accent);margin:2.5rem 0 1rem;padding-bottom:.5rem;border-bottom:2px solid var(--accent-border)}h3{font-size:1.15rem;color:var(--text);margin:1.8rem 0 .8rem}p{margin-bottom:1rem}strong{color:var(--text)}.table-wrap{overflow-x:auto;margin:1.2rem 0;border-radius:10px;border:1px solid var(--border)}table{width:100%;border-collapse:collapse;font-size:.88rem}thead th{background:var(--accent);color:#000;padding:.75rem 1rem;text-align:left;font-weight:600}tbody tr:nth-child(even){background:var(--surface)}tbody tr:nth-child(odd){background:var(--surface2)}tbody tr:hover{background:var(--accent-dim)}td{padding:.7rem 1rem;border-top:1px solid var(--border)}pre{background:var(--code-bg);border:1px solid var(--border);border-radius:10px;padding:1.2rem;overflow-x:auto;margin:1.2rem 0;font-size:.85rem;line-height:1.6}code{font-family:"Cascadia Code","Fira Code",monospace;color:#e6edf3}p code,li code,td code{background:var(--code-bg);padding:.15rem .4rem;border-radius:4px;font-size:.85em;color:var(--accent)}.callout{background:var(--accent-dim);border-left:4px solid var(--accent);border-radius:0 10px 10px 0;padding:1rem 1.2rem;margin:1.2rem 0}.callout p{margin:0}ul,ol{margin:0 0 1rem 1.5rem}li{margin-bottom:.4rem}li strong{color:var(--accent)}.back-top{position:fixed;bottom:2rem;right:2rem;width:44px;height:44px;background:var(--accent);color:#000;border:none;border-radius:50%;cursor:pointer;font-size:1.3rem;display:none;align-items:center;justify-content:center;z-index:100}.back-top.show{display:flex}@media(max-width:900px){.sidebar{display:none}.main{margin-left:0;padding:2rem 1.2rem}}</style></head><body>
+<aside class="sidebar"><div class="sidebar-header"><h2>DSA</h2></div><nav>
+    <a href="#table-of-contents">Table of Contents</a>
+    <a href="#-">---</a>
+    <a href="#q1-define-the-following-tree-terminology-with-examples-root-leaf-internal-node-parent-child-sibling-ancestor-descendant-depth-height-subtree-degree" class="sub">Q1. Define the following tree terminology with exa...</a>
+    <a href="#q2-what-is-a-binary-tree-state-the-properties-and-types-of-binary-trees" class="sub">Q2. What is a binary tree? State the properties an...</a>
+    <a href="#q3-what-is-the-relationship-between-the-number-of-leaves-and-internal-nodes-in-a-full-binary-tree" class="sub">Q3. What is the relationship between the number of...</a>
+    <a href="#q4-given-a-binary-tree-with-20-nodes-what-is-the-minimum-and-maximum-possible-height" class="sub">Q4. Given a binary tree with 20 nodes, what is the...</a>
+    <a href="#q5-a-binary-tree-has-10-leaf-nodes-what-is-the-minimum-number-of-nodes-it-can-have-what-if-it-must-be-a-full-binary-tree" class="sub">Q5. A binary tree has 10 leaf nodes. What is the m...</a>
+    <a href="#-_1">---</a>
+    <a href="#q6-perform-preorder-inorder-postorder-and-level-order-traversals-on-the-following-tree" class="sub">Q6. Perform preorder, inorder, postorder, and leve...</a>
+    <a href="#q7-given-the-preorder-and-inorder-traversals-construct-the-unique-binary-tree" class="sub">Q7. Given the preorder and inorder traversals, con...</a>
+    <a href="#q8-given-the-inorder-and-postorder-traversals-construct-the-binary-tree" class="sub">Q8. Given the inorder and postorder traversals, co...</a>
+    <a href="#q9-can-you-construct-a-unique-binary-tree-from-preorder-and-postorder-traversals-alone-why-or-why-not" class="sub">Q9. Can you construct a unique binary tree from pr...</a>
+    <a href="#q10-write-pseudocode-for-iterative-inorder-traversal-using-a-stack-trace-it-on" class="sub">Q10. Write pseudocode for iterative inorder traver...</a>
+    <a href="#-_2">---</a>
+    <a href="#q11-insert-the-following-keys-into-an-initially-empty-bst-in-the-given-order-50-30-70-20-40-60-80-35-45-show-the-tree-after-each-insertion" class="sub">Q11. Insert the following keys into an initially e...</a>
+    <a href="#q12-search-for-key-35-and-key-55-in-the-bst-from-q11-show-the-comparison-trace" class="sub">Q12. Search for key 35 and key 55 in the BST from ...</a>
+    <a href="#q13-delete-keys-20-40-and-50-in-that-order-from-the-bst-in-q11-show-the-tree-after-each-deletion" class="sub">Q13. Delete keys 20, 40, and 50 (in that order) fr...</a>
+    <a href="#q14-what-is-the-worst-case-and-best-case-height-of-a-bst-with-n-nodes-when-does-each-occur" class="sub">Q14. What is the worst-case and best-case height o...</a>
+    <a href="#q15-compare-bst-with-a-sorted-array-and-an-unsorted-array-for-search-insert-and-delete-operations" class="sub">Q15. Compare BST with a sorted array and an unsort...</a>
+    <a href="#-_3">---</a>
+    <a href="#q16-define-a-max-heap-what-are-its-properties-how-is-it-stored-in-an-array" class="sub">Q16. Define a max-heap. What are its properties? H...</a>
+    <a href="#q17-insert-the-values-10-20-15-30-25-5-35-into-an-initially-empty-max-heap-show-the-heap-after-each-insertion" class="sub">Q17. Insert the values 10, 20, 15, 30, 25, 5, 35 i...</a>
+    <a href="#q18-delete-the-maximum-element-twice-from-the-max-heap-35-25-30-10-20-5-15-show-each-step" class="sub">Q18. Delete the maximum element twice from the max...</a>
+    <a href="#q19-perform-heap-sort-on-the-array-4-10-3-5-1-8-7-2-9-6-show-each-step" class="sub">Q19. Perform Heap Sort on the array [4, 10, 3, 5, ...</a>
+    <a href="#q20-compare-heap-sort-with-other-sorting-algorithms" class="sub">Q20. Compare Heap Sort with other sorting algorith...</a>
+    <a href="#-_4">---</a>
+    <a href="#q21-define-a-graph-explain-directed-vs-undirected-weighted-vs-unweighted-and-give-the-adjacency-matrix-and-adjacency-list-for" class="sub">Q21. Define a graph. Explain directed vs undirecte...</a>
+    <a href="#q22-compare-adjacency-matrix-vs-adjacency-list-representations" class="sub">Q22. Compare adjacency matrix vs adjacency list re...</a>
+    <a href="#q23-given-the-following-directed-graph-write-the-adjacency-matrix-and-adjacency-list-also-state-the-in-degree-and-out-degree-of-each-vertex" class="sub">Q23. Given the following directed graph, write the...</a>
+    <a href="#-_5">---</a>
+    <a href="#q24-perform-bfs-on-the-following-graph-starting-from-vertex-a-show-the-queue-state-and-discovery-order" class="sub">Q24. Perform BFS on the following graph starting f...</a>
+    <a href="#q25-perform-dfs-on-the-same-graph-starting-from-vertex-a-show-the-stackrecursion-state-and-discovery-order" class="sub">Q25. Perform DFS on the same graph starting from v...</a>
+    <a href="#q26-compare-bfs-and-dfs" class="sub">Q26. Compare BFS and DFS.</a>
+    <a href="#q27-perform-bfs-and-dfs-on-the-following-directed-graph-from-vertex-0-also-identify-any-back-edges-dfs" class="sub">Q27. Perform BFS and DFS on the following directed...</a>
+    <a href="#-_6">---</a>
+    <a href="#q28-apply-the-floyd-warshall-algorithm-to-find-all-pairs-shortest-paths-for" class="sub">Q28. Apply the Floyd-Warshall algorithm to find al...</a>
+    <a href="#q29-compare-floyd-warshall-with-dijkstras-algorithm" class="sub">Q29. Compare Floyd-Warshall with Dijkstra's algori...</a>
+    <a href="#q30-comprehensive-comparison-bst-vs-heap-bfs-vs-dfs-adjacency-matrix-vs-adjacency-list" class="sub">Q30. Comprehensive comparison: BST vs Heap, BFS vs...</a>
+</nav></aside>
+<main class="main"><div class="page-header"><span class="badge">Chapter 3 Questions and Answers</span><h1>Chapter 3: Non-Linear Data Structures — Questions and Answers</h1></div>
+<h1 id="chapter-3-non-linear-data-structures-questions-and-answers">Chapter 3: Non-Linear Data Structures — Questions and Answers</h1>
+<div class="callout">
+<p>BITS Pilani — DSA Exam Preparation
+30 questions covering Trees, Binary Trees, BST, Heaps, Heap Sort, Graphs, BFS, DFS, Floyd-Warshall.
+References: T1 (Goodrich &amp; Tamassia), R1 (CLRS) Ch 6, 12, 22, 25</p>
+</div>
+<hr />
+<h2 id="table-of-contents">Table of Contents</h2>
+<ul>
+<li><a href="#section-a-tree-terminology--concepts-q1q5">Section A: Tree Terminology &amp; Concepts (Q1–Q5)</a></li>
+<li><a href="#section-b-binary-tree-traversals-q6q10">Section B: Binary Tree Traversals (Q6–Q10)</a></li>
+<li><a href="#section-c-bst-operations-q11q15">Section C: BST Operations (Q11–Q15)</a></li>
+<li><a href="#section-d-heaps--heap-sort-q16q20">Section D: Heaps &amp; Heap Sort (Q16–Q20)</a></li>
+<li><a href="#section-e-graph-representations-q21q23">Section E: Graph Representations (Q21–Q23)</a></li>
+<li><a href="#section-f-bfs--dfs-traversals-q24q27">Section F: BFS &amp; DFS Traversals (Q24–Q27)</a></li>
+<li><a href="#section-g-floyd-warshall--comparisons-q28q30">Section G: Floyd-Warshall &amp; Comparisons (Q28–Q30)</a></li>
+</ul>
+<h2 id="-">---</h2>
+<h1 id="section-a-tree-terminology-concepts-q1q5">Section A: Tree Terminology &amp; Concepts (Q1–Q5)</h1>
+<hr />
+<h3 id="q1-define-the-following-tree-terminology-with-examples-root-leaf-internal-node-parent-child-sibling-ancestor-descendant-depth-height-subtree-degree">Q1. Define the following tree terminology with examples: root, leaf, internal node, parent, child, sibling, ancestor, descendant, depth, height, subtree, degree.</h3>
+<p><strong>Answer:</strong></p>
+<p>Consider this tree:</p>
+<pre><code>            A           ← root (depth 0)
+          / | \
+         B  C   D       ← depth 1
+        / \     |
+       E   F    G       ← depth 2
+           |
+           H            ← depth 3
+</code></pre>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Term</th>
+<th>Definition</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Root</strong></td>
+<td>The topmost node with no parent</td>
+<td>A</td>
+</tr>
+<tr>
+<td><strong>Leaf (external node)</strong></td>
+<td>A node with no children</td>
+<td>E, H, C, G</td>
+</tr>
+<tr>
+<td><strong>Internal node</strong></td>
+<td>A node with at least one child</td>
+<td>A, B, D, F</td>
+</tr>
+<tr>
+<td><strong>Parent</strong></td>
+<td>The node directly above a given node</td>
+<td>Parent of E is B</td>
+</tr>
+<tr>
+<td><strong>Child</strong></td>
+<td>A node directly below a given node</td>
+<td>Children of A are B, C, D</td>
+</tr>
+<tr>
+<td><strong>Sibling</strong></td>
+<td>Nodes sharing the same parent</td>
+<td>B, C, D are siblings</td>
+</tr>
+<tr>
+<td><strong>Ancestor</strong></td>
+<td>Any node on the path from a node to the root</td>
+<td>Ancestors of H: F, B, A</td>
+</tr>
+<tr>
+<td><strong>Descendant</strong></td>
+<td>Any node in the subtree rooted at a node</td>
+<td>Descendants of B: E, F, H</td>
+</tr>
+<tr>
+<td><strong>Depth</strong></td>
+<td>Number of edges from root to the node</td>
+<td>Depth of F = 2</td>
+</tr>
+<tr>
+<td><strong>Height</strong></td>
+<td>Number of edges on the longest path from node to a leaf</td>
+<td>Height of B = 2 (B→F→H)</td>
+</tr>
+<tr>
+<td><strong>Height of tree</strong></td>
+<td>Height of the root</td>
+<td>Height of tree = 3 (A→B→F→H)</td>
+</tr>
+<tr>
+<td><strong>Subtree</strong></td>
+<td>Tree formed by a node and all its descendants</td>
+<td>Subtree rooted at B: B(E, F(H))</td>
+</tr>
+<tr>
+<td><strong>Degree</strong></td>
+<td>Number of children of a node</td>
+<td>Degree of A = 3, degree of E = 0</td>
+</tr>
+</tbody>
+</table></div>
+<hr />
+<h3 id="q2-what-is-a-binary-tree-state-the-properties-and-types-of-binary-trees">Q2. What is a binary tree? State the properties and types of binary trees.</h3>
+<p><strong>Answer:</strong></p>
+<p>A <strong>binary tree</strong> is a tree in which every node has at most 2 children, called the <strong>left child</strong> and <strong>right child</strong>.</p>
+<p><strong>Properties:</strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Formula</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Max nodes at level i</td>
+<td>2^i</td>
+</tr>
+<tr>
+<td>Max nodes in tree of height h</td>
+<td>2^(h+1) − 1</td>
+</tr>
+<tr>
+<td>Min height for n nodes</td>
+<td>⌊log₂ n⌋</td>
+</tr>
+<tr>
+<td>For n₀ leaves and n₂ internal nodes with 2 children</td>
+<td>n₀ = n₂ + 1</td>
+</tr>
+<tr>
+<td>Number of edges</td>
+<td>n − 1 (for n nodes)</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Types:</strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Definition</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Full (proper) binary tree</strong></td>
+<td>Every node has 0 or 2 children (no node has exactly 1 child)</td>
+<td>Decision tree</td>
+</tr>
+<tr>
+<td><strong>Complete binary tree</strong></td>
+<td>All levels fully filled except possibly the last; last level filled left to right</td>
+<td>Binary heap</td>
+</tr>
+<tr>
+<td><strong>Perfect binary tree</strong></td>
+<td>All internal nodes have 2 children and all leaves at the same level</td>
+<td>Exactly 2^(h+1) − 1 nodes</td>
+</tr>
+<tr>
+<td><strong>Degenerate (skewed) tree</strong></td>
+<td>Every internal node has exactly 1 child (essentially a linked list)</td>
+<td>Worst-case BST</td>
+</tr>
+<tr>
+<td><strong>Balanced binary tree</strong></td>
+<td>Height difference between left and right subtrees of every node ≤ 1</td>
+<td>AVL tree</td>
+</tr>
+</tbody>
+</table></div>
+<hr />
+<h3 id="q3-what-is-the-relationship-between-the-number-of-leaves-and-internal-nodes-in-a-full-binary-tree">Q3. What is the relationship between the number of leaves and internal nodes in a full binary tree?</h3>
+<p><strong>Answer:</strong></p>
+<p>In a <strong>full binary tree</strong> (every node has 0 or 2 children):</p>
+<p><strong>n₀ = n₂ + 1</strong></p>
+<p>Where:
+- n₀ = number of leaf nodes (0 children)
+- n₂ = number of internal nodes (2 children)</p>
+<p><strong>Proof:</strong></p>
+<p>Total nodes n = n₀ + n₂ (no nodes with 1 child in a full binary tree).</p>
+<p>Count edges: Every node except the root has exactly one incoming edge → total edges = n − 1.
+Each internal node contributes exactly 2 outgoing edges → total edges = 2 · n₂.</p>
+<p>So:</p>
+<pre><code>n − 1 = 2 · n₂
+(n₀ + n₂) − 1 = 2 · n₂
+n₀ = n₂ + 1  ✓
+</code></pre>
+<p><strong>Example:</strong> A full binary tree with 7 internal nodes has 8 leaves.</p>
+<hr />
+<h3 id="q4-given-a-binary-tree-with-20-nodes-what-is-the-minimum-and-maximum-possible-height">Q4. Given a binary tree with 20 nodes, what is the minimum and maximum possible height?</h3>
+<p><strong>Answer:</strong></p>
+<p><strong>Minimum height (complete binary tree):</strong></p>
+<pre><code>h_min = ⌊log₂ 20⌋ = ⌊4.32⌋ = 4
+</code></pre>
+<p>A complete binary tree of height 4 can hold between 2⁴ = 16 and 2⁵ − 1 = 31 nodes. 20 fits. ✓</p>
+<pre><code>Level 0:  1 node   (total: 1)
+Level 1:  2 nodes  (total: 3)
+Level 2:  4 nodes  (total: 7)
+Level 3:  8 nodes  (total: 15)
+Level 4:  5 nodes  (total: 20)  ← last level partially filled
+</code></pre>
+<p><strong>Maximum height (degenerate/skewed tree):</strong></p>
+<pre><code>h_max = n − 1 = 19
+</code></pre>
+<p>Each node has exactly one child, forming a chain.</p>
+<hr />
+<h3 id="q5-a-binary-tree-has-10-leaf-nodes-what-is-the-minimum-number-of-nodes-it-can-have-what-if-it-must-be-a-full-binary-tree">Q5. A binary tree has 10 leaf nodes. What is the minimum number of nodes it can have? What if it must be a full binary tree?</h3>
+<p><strong>Answer:</strong></p>
+<p><strong>Full binary tree:</strong> Since n₀ = n₂ + 1, we need n₂ = 10 − 1 = 9 internal nodes.
+Total = 10 + 9 = <strong>19 nodes</strong>.</p>
+<p><strong>Any binary tree (not necessarily full):</strong> We can have nodes with 1 child. The minimum is when we have the maximum possible nodes with 1 child arranged optimally. However, the absolute minimum number of nodes is still constrained. With 10 leaves, we need at least 10 leaves + 9 internal nodes = <strong>19 nodes</strong> (a full binary tree is actually minimal for leaf count since nodes with 1 child add nodes without adding leaves).</p>
+<p>Wait — if a node has exactly 1 child, it adds a node but doesn't increase the leaf count. So having nodes with only 1 child <em>increases</em> total nodes for the same leaf count. Therefore the <strong>minimum</strong> is the full binary tree: <strong>19 nodes</strong>.</p>
+<h2 id="-_1">---</h2>
+<h1 id="section-b-binary-tree-traversals-q6q10">Section B: Binary Tree Traversals (Q6–Q10)</h1>
+<hr />
+<h3 id="q6-perform-preorder-inorder-postorder-and-level-order-traversals-on-the-following-tree">Q6. Perform preorder, inorder, postorder, and level-order traversals on the following tree:</h3>
+<pre><code>         15
+        /  \
+       10    25
+      / \   / \
+     5  12 20  30
+       /     \
+      11      22
+</code></pre>
+<p><strong>Answer:</strong></p>
+<p><strong>Preorder (Root → Left → Right):</strong></p>
+<pre><code>Visit root first, then recursively visit left subtree, then right subtree.
+
+15 → 10 → 5 → 12 → 11 → 25 → 20 → 22 → 30
+
+Result: 15, 10, 5, 12, 11, 25, 20, 22, 30
+</code></pre>
+<p><strong>Inorder (Left → Root → Right):</strong></p>
+<pre><code>Recursively visit left subtree, then root, then right subtree.
+
+5 → 10 → 11 → 12 → 15 → 20 → 22 → 25 → 30
+
+Result: 5, 10, 11, 12, 15, 20, 22, 25, 30
+(Note: For a BST, inorder always gives sorted order ✓)
+</code></pre>
+<p><strong>Postorder (Left → Right → Root):</strong></p>
+<pre><code>Recursively visit left subtree, then right subtree, then root.
+
+5 → 11 → 12 → 10 → 22 → 20 → 30 → 25 → 15
+
+Result: 5, 11, 12, 10, 22, 20, 30, 25, 15
+</code></pre>
+<p><strong>Level-order (BFS):</strong></p>
+<pre><code>Visit nodes level by level, left to right.
+
+Level 0: 15
+Level 1: 10, 25
+Level 2: 5, 12, 20, 30
+Level 3: 11, 22
+
+Result: 15, 10, 25, 5, 12, 20, 30, 11, 22
+</code></pre>
+<hr />
+<h3 id="q7-given-the-preorder-and-inorder-traversals-construct-the-unique-binary-tree">Q7. Given the preorder and inorder traversals, construct the unique binary tree.</h3>
+<p><strong>Preorder:</strong> A, B, D, E, H, C, F, G
+<strong>Inorder:</strong> D, B, H, E, A, F, C, G</p>
+<p><strong>Answer:</strong></p>
+<p><strong>Step-by-step construction:</strong></p>
+<p><strong>Step 1:</strong> First element of preorder = <strong>A</strong> → A is the root.
+In inorder, A splits: Left subtree = {D, B, H, E}, Right subtree = {F, C, G}.</p>
+<pre><code>         A
+        / \
+   {D,B,H,E} {F,C,G}
+</code></pre>
+<p><strong>Step 2:</strong> Next preorder element = <strong>B</strong> → B is root of left subtree.
+In inorder {D, B, H, E}, B splits: Left = {D}, Right = {H, E}.</p>
+<pre><code>         A
+        / \
+       B   {F,C,G}
+      / \
+    {D} {H,E}
+</code></pre>
+<p><strong>Step 3:</strong> Next preorder = <strong>D</strong> → D is root of B's left subtree. D has no children (single element).</p>
+<p><strong>Step 4:</strong> Next preorder = <strong>E</strong> → E is root of {H, E}. In inorder, E splits: Left = {H}, Right = {}.</p>
+<p><strong>Step 5:</strong> Next preorder = <strong>H</strong> → H is left child of E.</p>
+<p><strong>Step 6:</strong> Next preorder = <strong>C</strong> → C is root of right subtree {F, C, G}.
+In inorder {F, C, G}, C splits: Left = {F}, Right = {G}.</p>
+<p><strong>Step 7:</strong> F is left child of C, G is right child of C.</p>
+<p><strong>Final tree:</strong></p>
+<pre><code>            A
+          /   \
+         B     C
+        / \   / \
+       D   E F   G
+          /
+         H
+</code></pre>
+<p><strong>Verification:</strong>
+- Preorder: A, B, D, E, H, C, F, G ✓
+- Inorder: D, B, H, E, A, F, C, G ✓</p>
+<hr />
+<h3 id="q8-given-the-inorder-and-postorder-traversals-construct-the-binary-tree">Q8. Given the inorder and postorder traversals, construct the binary tree.</h3>
+<p><strong>Inorder:</strong> 4, 2, 5, 1, 6, 3, 7
+<strong>Postorder:</strong> 4, 5, 2, 6, 7, 3, 1</p>
+<p><strong>Answer:</strong></p>
+<p><strong>Key insight:</strong> The last element of postorder is the root. Process postorder from right to left.</p>
+<p><strong>Step 1:</strong> Last of postorder = <strong>1</strong> → root.
+Inorder splits at 1: Left = {4, 2, 5}, Right = {6, 3, 7}.</p>
+<p><strong>Step 2:</strong> Next from end of postorder = <strong>3</strong> → root of right subtree {6, 3, 7}.
+Inorder splits at 3: Left = {6}, Right = {7}.</p>
+<p><strong>Step 3:</strong> Next = <strong>7</strong> → right child of 3.
+<strong>Step 4:</strong> Next = <strong>6</strong> → left child of 3.</p>
+<p><strong>Step 5:</strong> Next = <strong>2</strong> → root of left subtree {4, 2, 5}.
+Inorder splits at 2: Left = {4}, Right = {5}.</p>
+<p><strong>Step 6:</strong> Next = <strong>5</strong> → right child of 2.
+<strong>Step 7:</strong> Next = <strong>4</strong> → left child of 2.</p>
+<p><strong>Final tree:</strong></p>
+<pre><code>           1
+         /   \
+        2     3
+       / \   / \
+      4   5 6   7
+</code></pre>
+<p><strong>Verification:</strong>
+- Inorder: 4, 2, 5, 1, 6, 3, 7 ✓
+- Postorder: 4, 5, 2, 6, 7, 3, 1 ✓</p>
+<hr />
+<h3 id="q9-can-you-construct-a-unique-binary-tree-from-preorder-and-postorder-traversals-alone-why-or-why-not">Q9. Can you construct a unique binary tree from preorder and postorder traversals alone? Why or why not?</h3>
+<p><strong>Answer:</strong></p>
+<p><strong>No.</strong> Preorder and postorder together do NOT uniquely determine a binary tree (unless the tree is a full binary tree).</p>
+<p><strong>Counterexample:</strong> Consider these two different trees:</p>
+<pre><code>Tree 1:       Tree 2:
+    A             A
+   /               \
+  B                 B
+</code></pre>
+<ul>
+<li>Tree 1: Preorder = A, B | Postorder = B, A</li>
+<li>Tree 2: Preorder = A, B | Postorder = B, A</li>
+</ul>
+<p>Both trees have identical preorder AND postorder, but they are different (B is left child vs. right child).</p>
+<p><strong>Why?</strong> Preorder tells you root → left → right, postorder tells you left → right → root. Neither tells you where the left subtree ends and the right subtree begins. <strong>Inorder is needed</strong> because the root's position in inorder divides nodes into left and right subtrees.</p>
+<p><strong>Exception:</strong> If the tree is a <strong>full binary tree</strong> (every node has 0 or 2 children), then preorder + postorder uniquely determine the tree because there's no ambiguity about which side a single child belongs to.</p>
+<hr />
+<h3 id="q10-write-pseudocode-for-iterative-inorder-traversal-using-a-stack-trace-it-on">Q10. Write pseudocode for iterative inorder traversal using a stack. Trace it on:</h3>
+<pre><code>       4
+      / \
+     2   6
+    / \   \
+   1   3   7
+</code></pre>
+<p><strong>Answer:</strong></p>
+<p><strong>Pseudocode:</strong></p>
+<pre><code>IterativeInorder(root):
+    stack = empty stack
+    curr = root
+    while curr ≠ NULL or stack is not empty:
+        while curr ≠ NULL:         // go as far left as possible
+            stack.push(curr)
+            curr = curr.left
+        curr = stack.pop()         // backtrack
+        print(curr.data)           // visit node
+        curr = curr.right          // go right
+</code></pre>
+<p><strong>Trace:</strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Step</th>
+<th>curr</th>
+<th>Stack</th>
+<th>Output</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>4</td>
+<td>[4]</td>
+<td></td>
+</tr>
+<tr>
+<td>2</td>
+<td>2</td>
+<td>[4, 2]</td>
+<td></td>
+</tr>
+<tr>
+<td>3</td>
+<td>1</td>
+<td>[4, 2, 1]</td>
+<td></td>
+</tr>
+<tr>
+<td>4</td>
+<td>NULL (1.left)</td>
+<td>[4, 2, 1]</td>
+<td></td>
+</tr>
+<tr>
+<td>5</td>
+<td>pop 1, go right</td>
+<td>[4, 2]</td>
+<td><strong>1</strong></td>
+</tr>
+<tr>
+<td>6</td>
+<td>NULL (1.right)</td>
+<td>[4, 2]</td>
+<td></td>
+</tr>
+<tr>
+<td>7</td>
+<td>pop 2, go right</td>
+<td>[4]</td>
+<td><strong>2</strong></td>
+</tr>
+<tr>
+<td>8</td>
+<td>3</td>
+<td>[4, 3]</td>
+<td></td>
+</tr>
+<tr>
+<td>9</td>
+<td>NULL (3.left)</td>
+<td>[4, 3]</td>
+<td></td>
+</tr>
+<tr>
+<td>10</td>
+<td>pop 3, go right</td>
+<td>[4]</td>
+<td><strong>3</strong></td>
+</tr>
+<tr>
+<td>11</td>
+<td>NULL (3.right)</td>
+<td>[4]</td>
+<td></td>
+</tr>
+<tr>
+<td>12</td>
+<td>pop 4, go right</td>
+<td>[]</td>
+<td><strong>4</strong></td>
+</tr>
+<tr>
+<td>13</td>
+<td>6</td>
+<td>[6]</td>
+<td></td>
+</tr>
+<tr>
+<td>14</td>
+<td>NULL (6.left)</td>
+<td>[6]</td>
+<td></td>
+</tr>
+<tr>
+<td>15</td>
+<td>pop 6, go right</td>
+<td>[]</td>
+<td><strong>6</strong></td>
+</tr>
+<tr>
+<td>16</td>
+<td>7</td>
+<td>[7]</td>
+<td></td>
+</tr>
+<tr>
+<td>17</td>
+<td>NULL (7.left)</td>
+<td>[7]</td>
+<td></td>
+</tr>
+<tr>
+<td>18</td>
+<td>pop 7, go right</td>
+<td>[]</td>
+<td><strong>7</strong></td>
+</tr>
+<tr>
+<td>19</td>
+<td>NULL, stack empty → done</td>
+<td>[]</td>
+<td></td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Output: 1, 2, 3, 4, 6, 7</strong> ✓ (sorted order for BST)</p>
+<h2 id="-_2">---</h2>
+<h1 id="section-c-bst-operations-q11q15">Section C: BST Operations (Q11–Q15)</h1>
+<hr />
+<h3 id="q11-insert-the-following-keys-into-an-initially-empty-bst-in-the-given-order-50-30-70-20-40-60-80-35-45-show-the-tree-after-each-insertion">Q11. Insert the following keys into an initially empty BST in the given order: 50, 30, 70, 20, 40, 60, 80, 35, 45. Show the tree after each insertion.</h3>
+<p><strong>Answer:</strong></p>
+<p><strong>BST Insert Rule:</strong> If key &lt; current node → go left; if key &gt; current node → go right; insert at the NULL position found.</p>
+<pre><code>Insert 50:          50
+
+Insert 30:          50
+                   /
+                  30
+
+Insert 70:          50
+                   / \
+                  30  70
+
+Insert 20:          50
+                   / \
+                  30  70
+                 /
+                20
+
+Insert 40:          50
+                   / \
+                  30  70
+                 / \
+                20  40
+
+Insert 60:          50
+                   / \
+                  30  70
+                 / \ /
+                20 40 60
+
+Insert 80:          50
+                   /  \
+                  30   70
+                 / \  / \
+                20 40 60 80
+
+Insert 35:          50
+                   /  \
+                  30   70
+                 / \  / \
+                20 40 60 80
+                  /
+                 35
+
+Insert 45:          50
+                   /  \
+                  30   70
+                 / \  / \
+                20 40 60 80
+                  / \
+                 35  45
+</code></pre>
+<p><strong>Final BST:</strong></p>
+<pre><code>             50
+           /    \
+         30      70
+        / \     / \
+       20  40  60  80
+          / \
+         35  45
+</code></pre>
+<p><strong>Inorder traversal (sorted): 20, 30, 35, 40, 45, 50, 60, 70, 80</strong> ✓</p>
+<hr />
+<h3 id="q12-search-for-key-35-and-key-55-in-the-bst-from-q11-show-the-comparison-trace">Q12. Search for key 35 and key 55 in the BST from Q11. Show the comparison trace.</h3>
+<p><strong>Answer:</strong></p>
+<p><strong>Search for 35:</strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Step</th>
+<th>Current Node</th>
+<th>Comparison</th>
+<th>Action</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>50</td>
+<td>35 &lt; 50</td>
+<td>Go left</td>
+</tr>
+<tr>
+<td>2</td>
+<td>30</td>
+<td>35 &gt; 30</td>
+<td>Go right</td>
+</tr>
+<tr>
+<td>3</td>
+<td>40</td>
+<td>35 &lt; 40</td>
+<td>Go left</td>
+</tr>
+<tr>
+<td>4</td>
+<td>35</td>
+<td>35 = 35</td>
+<td><strong>Found!</strong> ✓</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Comparisons: 4</strong> (path length from root to node + 1)</p>
+<p><strong>Search for 55 (not in tree):</strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Step</th>
+<th>Current Node</th>
+<th>Comparison</th>
+<th>Action</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>50</td>
+<td>55 &gt; 50</td>
+<td>Go right</td>
+</tr>
+<tr>
+<td>2</td>
+<td>70</td>
+<td>55 &lt; 70</td>
+<td>Go left</td>
+</tr>
+<tr>
+<td>3</td>
+<td>60</td>
+<td>55 &lt; 60</td>
+<td>Go left</td>
+</tr>
+<tr>
+<td>4</td>
+<td>NULL</td>
+<td>—</td>
+<td><strong>Not found</strong> ✗</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Comparisons: 3</strong> (reached NULL after 3 comparisons)</p>
+<p><strong>Time complexity:</strong> O(h) where h = height of BST. For this balanced tree, h = 3, so O(log n). For a skewed BST, h = n−1, so O(n) worst case.</p>
+<hr />
+<h3 id="q13-delete-keys-20-40-and-50-in-that-order-from-the-bst-in-q11-show-the-tree-after-each-deletion">Q13. Delete keys 20, 40, and 50 (in that order) from the BST in Q11. Show the tree after each deletion.</h3>
+<p><strong>Answer:</strong></p>
+<p><strong>Three cases for BST deletion:</strong>
+1. <strong>Leaf node</strong> — simply remove it.
+2. <strong>One child</strong> — replace node with its child.
+3. <strong>Two children</strong> — replace with inorder successor (smallest in right subtree) or inorder predecessor (largest in left subtree), then delete that successor/predecessor.</p>
+<p><strong>Starting tree:</strong></p>
+<pre><code>             50
+           /    \
+         30      70
+        / \     / \
+       20  40  60  80
+          / \
+         35  45
+</code></pre>
+<p><strong>Delete 20 (Case 1: leaf node):</strong>
+Node 20 has no children → simply remove it.</p>
+<pre><code>             50
+           /    \
+         30      70
+          \     / \
+          40  60  80
+         / \
+        35  45
+</code></pre>
+<p><strong>Delete 40 (Case 3: two children):</strong>
+Node 40 has two children (35 and 45). Find inorder successor of 40 → <strong>45</strong> (smallest in right subtree of 40, but 40's right child is 45 which is a leaf).</p>
+<p>Replace 40 with 45:</p>
+<pre><code>             50
+           /    \
+         30      70
+          \     / \
+          45  60  80
+         /
+        35
+</code></pre>
+<p><strong>Delete 50 (Case 3: two children):</strong>
+Node 50 has two children (30 and 70). Find inorder successor of 50 → <strong>60</strong> (leftmost node in right subtree).</p>
+<p>Replace 50 with 60, then delete 60 from its original position (Case 1: leaf after moving):</p>
+<pre><code>             60
+           /    \
+         30      70
+          \       \
+          45      80
+         /
+        35
+</code></pre>
+<p><strong>Inorder of final tree: 30, 35, 45, 60, 70, 80</strong> ✓</p>
+<hr />
+<h3 id="q14-what-is-the-worst-case-and-best-case-height-of-a-bst-with-n-nodes-when-does-each-occur">Q14. What is the worst-case and best-case height of a BST with n nodes? When does each occur?</h3>
+<p><strong>Answer:</strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Aspect</th>
+<th>Best Case</th>
+<th>Worst Case</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Height</strong></td>
+<td>⌊log₂ n⌋</td>
+<td>n − 1</td>
+</tr>
+<tr>
+<td><strong>Shape</strong></td>
+<td>Complete / balanced tree</td>
+<td>Skewed tree (degenerate)</td>
+</tr>
+<tr>
+<td><strong>Occurs when</strong></td>
+<td>Keys inserted in a balanced order (e.g., median first)</td>
+<td>Keys inserted in sorted or reverse-sorted order</td>
+</tr>
+<tr>
+<td><strong>Search time</strong></td>
+<td>O(log n)</td>
+<td>O(n)</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Example for n = 7:</strong></p>
+<p>Best case (insert: 4, 2, 6, 1, 3, 5, 7):</p>
+<pre><code>        4
+      /   \
+     2     6         height = 2 = ⌊log₂ 7⌋
+    / \   / \
+   1   3 5   7
+</code></pre>
+<p>Worst case (insert: 1, 2, 3, 4, 5, 6, 7):</p>
+<pre><code>1
+ \
+  2
+   \
+    3               height = 6 = n − 1
+     \
+      4
+       \
+        5
+         \
+          6
+           \
+            7
+</code></pre>
+<p><strong>Solution:</strong> Use self-balancing BSTs (AVL, Red-Black) to guarantee O(log n) height.</p>
+<hr />
+<h3 id="q15-compare-bst-with-a-sorted-array-and-an-unsorted-array-for-search-insert-and-delete-operations">Q15. Compare BST with a sorted array and an unsorted array for search, insert, and delete operations.</h3>
+<p><strong>Answer:</strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Operation</th>
+<th>Unsorted Array</th>
+<th>Sorted Array</th>
+<th>BST (balanced)</th>
+<th>BST (worst)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Search</td>
+<td>O(n)</td>
+<td>O(log n) binary search</td>
+<td>O(log n)</td>
+<td>O(n)</td>
+</tr>
+<tr>
+<td>Insert</td>
+<td>O(1) append</td>
+<td>O(n) shift elements</td>
+<td>O(log n)</td>
+<td>O(n)</td>
+</tr>
+<tr>
+<td>Delete</td>
+<td>O(n) find + shift</td>
+<td>O(n) shift elements</td>
+<td>O(log n)</td>
+<td>O(n)</td>
+</tr>
+<tr>
+<td>Min/Max</td>
+<td>O(n)</td>
+<td>O(1) first/last</td>
+<td>O(log n)</td>
+<td>O(n)</td>
+</tr>
+<tr>
+<td>Sorted traversal</td>
+<td>O(n log n) sort</td>
+<td>O(n) scan</td>
+<td>O(n) inorder</td>
+<td>O(n)</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Key insight:</strong> A balanced BST offers O(log n) for all three operations — the best overall trade-off. Sorted arrays are great for search-heavy workloads but poor for frequent inserts/deletes.</p>
+<h2 id="-_3">---</h2>
+<h1 id="section-d-heaps-heap-sort-q16q20">Section D: Heaps &amp; Heap Sort (Q16–Q20)</h1>
+<hr />
+<h3 id="q16-define-a-max-heap-what-are-its-properties-how-is-it-stored-in-an-array">Q16. Define a max-heap. What are its properties? How is it stored in an array?</h3>
+<p><strong>Answer:</strong></p>
+<p>A <strong>max-heap</strong> is a complete binary tree where every node's value is ≥ the values of its children.</p>
+<p><strong>Heap property:</strong> For every node i (except root): <code>A[parent(i)] ≥ A[i]</code></p>
+<p><strong>Array representation</strong> (1-indexed):</p>
+<pre><code>Parent of node i:      ⌊i/2⌋
+Left child of node i:  2i
+Right child of node i: 2i + 1
+</code></pre>
+<p><strong>Example:</strong></p>
+<pre><code>Tree:           90
+              /    \
+            80      70
+           / \     /
+          50  60  30
+
+Array (1-indexed): [_, 90, 80, 70, 50, 60, 30]
+                       1   2   3   4   5   6
+</code></pre>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Root (max element)</td>
+<td>A[1]</td>
+</tr>
+<tr>
+<td>Last element</td>
+<td>A[n]</td>
+</tr>
+<tr>
+<td>Last internal node</td>
+<td>A[⌊n/2⌋]</td>
+</tr>
+<tr>
+<td>Height</td>
+<td>⌊log₂ n⌋</td>
+</tr>
+<tr>
+<td>Shape</td>
+<td>Always a complete binary tree</td>
+</tr>
+</tbody>
+</table></div>
+<hr />
+<h3 id="q17-insert-the-values-10-20-15-30-25-5-35-into-an-initially-empty-max-heap-show-the-heap-after-each-insertion">Q17. Insert the values 10, 20, 15, 30, 25, 5, 35 into an initially empty max-heap. Show the heap after each insertion.</h3>
+<p><strong>Answer:</strong></p>
+<p><strong>Heap insert:</strong> Add element at the end (next available position in complete tree), then <strong>bubble up</strong> (swap with parent while larger than parent).</p>
+<p><strong>Insert 10:</strong></p>
+<pre><code>Array: [10]
+Tree:  10
+</code></pre>
+<p><strong>Insert 20:</strong> Add at end, bubble up (20 &gt; 10 → swap).</p>
+<pre><code>Array: [20, 10]
+Tree:   20
+       /
+      10
+</code></pre>
+<p><strong>Insert 15:</strong> Add at end (right child of 20). 15 &lt; 20 → no swap needed.</p>
+<pre><code>Array: [20, 10, 15]
+Tree:   20
+       / \
+      10  15
+</code></pre>
+<p><strong>Insert 30:</strong> Add at position 4 (left child of 10). 30 &gt; 10 → swap. 30 &gt; 20 → swap.</p>
+<pre><code>Step 1: [20, 10, 15, 30] → 30 &gt; parent 10 → swap → [20, 30, 15, 10]
+Step 2: 30 &gt; parent 20 → swap → [30, 20, 15, 10]
+
+Tree:   30
+       / \
+      20  15
+     /
+    10
+</code></pre>
+<p><strong>Insert 25:</strong> Add at position 5 (right child of 20). 25 &gt; 20 → swap. 25 &lt; 30 → stop.</p>
+<pre><code>[30, 20, 15, 10, 25] → swap 25 and 20 → [30, 25, 15, 10, 20]
+
+Tree:   30
+       / \
+      25  15
+     / \
+    10  20
+</code></pre>
+<p><strong>Insert 5:</strong> Add at position 6 (left child of 15). 5 &lt; 15 → no swap.</p>
+<pre><code>Array: [30, 25, 15, 10, 20, 5]
+Tree:   30
+       / \
+      25  15
+     / \ /
+    10 20 5
+</code></pre>
+<p><strong>Insert 35:</strong> Add at position 7 (right child of 15). 35 &gt; 15 → swap. 35 &gt; 30 → swap.</p>
+<pre><code>Step 1: [30, 25, 15, 10, 20, 5, 35] → swap 35 and 15 → [30, 25, 35, 10, 20, 5, 15]
+Step 2: swap 35 and 30 → [35, 25, 30, 10, 20, 5, 15]
+
+Final tree:     35
+              /    \
+            25      30
+           / \     / \
+          10  20  5   15
+</code></pre>
+<p><strong>Final max-heap array: [35, 25, 30, 10, 20, 5, 15]</strong> ✓</p>
+<hr />
+<h3 id="q18-delete-the-maximum-element-twice-from-the-max-heap-35-25-30-10-20-5-15-show-each-step">Q18. Delete the maximum element twice from the max-heap [35, 25, 30, 10, 20, 5, 15]. Show each step.</h3>
+<p><strong>Answer:</strong></p>
+<p><strong>Heap delete-max:</strong> Replace root with last element, reduce size, then <strong>bubble down</strong> (sift-down / heapify) — swap with the larger child while smaller than a child.</p>
+<p><strong>First delete-max (remove 35):</strong></p>
+<p>Step 1: Replace root 35 with last element 15. Heap size: 6.</p>
+<pre><code>Array: [15, 25, 30, 10, 20, 5]
+Tree:    15
+       /    \
+      25     30
+     / \    /
+    10  20  5
+</code></pre>
+<p>Step 2: Bubble down 15. Children: 25, 30. Larger child: 30. 15 &lt; 30 → swap.</p>
+<pre><code>Array: [30, 25, 15, 10, 20, 5]
+Tree:    30
+       /    \
+      25     15
+     / \    /
+    10  20  5
+</code></pre>
+<p>Step 3: Bubble down 15. Children: 5. 15 &gt; 5 → stop.</p>
+<p><strong>Extracted: 35. Heap: [30, 25, 15, 10, 20, 5]</strong> ✓</p>
+<p><strong>Second delete-max (remove 30):</strong></p>
+<p>Step 1: Replace root 30 with last element 5. Heap size: 5.</p>
+<pre><code>Array: [5, 25, 15, 10, 20]
+Tree:    5
+       /   \
+      25    15
+     / \
+    10  20
+</code></pre>
+<p>Step 2: Bubble down 5. Children: 25, 15. Larger: 25. 5 &lt; 25 → swap.</p>
+<pre><code>Array: [25, 5, 15, 10, 20]
+Tree:    25
+       /   \
+       5    15
+     / \
+    10  20
+</code></pre>
+<p>Step 3: Bubble down 5. Children: 10, 20. Larger: 20. 5 &lt; 20 → swap.</p>
+<pre><code>Array: [25, 20, 15, 10, 5]
+Tree:    25
+       /   \
+      20    15
+     / \
+    10   5
+</code></pre>
+<p><strong>Extracted: 30. Heap: [25, 20, 15, 10, 5]</strong> ✓</p>
+<hr />
+<h3 id="q19-perform-heap-sort-on-the-array-4-10-3-5-1-8-7-2-9-6-show-each-step">Q19. Perform Heap Sort on the array [4, 10, 3, 5, 1, 8, 7, 2, 9, 6]. Show each step.</h3>
+<p><strong>Answer:</strong></p>
+<p><strong>Heap Sort algorithm:</strong>
+1. <strong>Build max-heap</strong> from the array using bottom-up heapify.
+2. <strong>Repeatedly extract max:</strong> swap root (max) with last element, reduce heap size, heapify root.</p>
+<p><strong>Phase 1: Build Max-Heap</strong></p>
+<p>Array: [4, 10, 3, 5, 1, 8, 7, 2, 9, 6] (n = 10)</p>
+<p>Start heapifying from last internal node = ⌊10/2⌋ = index 5 (value 1, 1-indexed).</p>
+<p>Actually, let me use 0-indexed: parent = ⌊(n-2)/2⌋ = 4 (value 1).</p>
+<p><strong>0-indexed array:</strong> [4, 10, 3, 5, 1, 8, 7, 2, 9, 6]</p>
+<pre><code>Parent(i) = ⌊(i-1)/2⌋, Left(i) = 2i+1, Right(i) = 2i+2
+</code></pre>
+<p><strong>Heapify index 4 (value 1):</strong> Children: 9 (idx 9), no right. 1 &lt; 6 → swap 1 and 6.</p>
+<pre><code>[4, 10, 3, 5, 6, 8, 7, 2, 9, 1]
+</code></pre>
+<p><strong>Heapify index 3 (value 5):</strong> Children: 2 (idx 7), 9 (idx 8). Largest = 9 → swap 5 and 9.</p>
+<pre><code>[4, 10, 3, 9, 6, 8, 7, 2, 5, 1]
+</code></pre>
+<p><strong>Heapify index 2 (value 3):</strong> Children: 8 (idx 5), 7 (idx 6). Largest = 8 → swap 3 and 8.</p>
+<pre><code>[4, 10, 8, 9, 6, 3, 7, 2, 5, 1]
+</code></pre>
+<p><strong>Heapify index 1 (value 10):</strong> Children: 9 (idx 3), 6 (idx 4). Largest = 10 → no swap.</p>
+<pre><code>[4, 10, 8, 9, 6, 3, 7, 2, 5, 1]
+</code></pre>
+<p><strong>Heapify index 0 (value 4):</strong> Children: 10 (idx 1), 8 (idx 2). Largest = 10 → swap 4 and 10.</p>
+<pre><code>[10, 4, 8, 9, 6, 3, 7, 2, 5, 1]
+</code></pre>
+<p>Bubble down 4 at index 1: Children: 9 (idx 3), 6 (idx 4). Largest = 9 → swap 4 and 9.</p>
+<pre><code>[10, 9, 8, 4, 6, 3, 7, 2, 5, 1]
+</code></pre>
+<p>Bubble down 4 at index 3: Children: 2 (idx 7), 5 (idx 8). Largest = 5 → swap 4 and 5.</p>
+<pre><code>[10, 9, 8, 5, 6, 3, 7, 2, 4, 1]
+</code></pre>
+<p><strong>Max-heap built: [10, 9, 8, 5, 6, 3, 7, 2, 4, 1]</strong></p>
+<p><strong>Phase 2: Extract Max Repeatedly</strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Step</th>
+<th>Swap root with last</th>
+<th>Heap (after heapify)</th>
+<th>Sorted portion</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>swap 10↔1</td>
+<td>[9, 6, 8, 5, 1, 3, 7, 2, 4]</td>
+<td>[10]</td>
+</tr>
+<tr>
+<td>2</td>
+<td>swap 9↔4</td>
+<td>[8, 6, 7, 5, 1, 3, 4, 2]</td>
+<td>[9, 10]</td>
+</tr>
+<tr>
+<td>3</td>
+<td>swap 8↔2</td>
+<td>[7, 6, 4, 5, 1, 3, 2]</td>
+<td>[8, 9, 10]</td>
+</tr>
+<tr>
+<td>4</td>
+<td>swap 7↔2</td>
+<td>[6, 5, 4, 2, 1, 3]</td>
+<td>[7, 8, 9, 10]</td>
+</tr>
+<tr>
+<td>5</td>
+<td>swap 6↔3</td>
+<td>[5, 3, 4, 2, 1]</td>
+<td>[6, 7, 8, 9, 10]</td>
+</tr>
+<tr>
+<td>6</td>
+<td>swap 5↔1</td>
+<td>[4, 3, 1, 2]</td>
+<td>[5, 6, 7, 8, 9, 10]</td>
+</tr>
+<tr>
+<td>7</td>
+<td>swap 4↔2</td>
+<td>[3, 2, 1]</td>
+<td>[4, 5, 6, 7, 8, 9, 10]</td>
+</tr>
+<tr>
+<td>8</td>
+<td>swap 3↔1</td>
+<td>[2, 1]</td>
+<td>[3, 4, 5, 6, 7, 8, 9, 10]</td>
+</tr>
+<tr>
+<td>9</td>
+<td>swap 2↔1</td>
+<td>[1]</td>
+<td>[2, 3, 4, 5, 6, 7, 8, 9, 10]</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Sorted array: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]</strong> ✓</p>
+<p><strong>Time complexity:</strong>
+- Build heap: O(n)
+- n extractions × O(log n) heapify each = O(n log n)
+- <strong>Total: O(n log n)</strong> — in-place, not stable</p>
+<hr />
+<h3 id="q20-compare-heap-sort-with-other-sorting-algorithms">Q20. Compare Heap Sort with other sorting algorithms.</h3>
+<p><strong>Answer:</strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Heap Sort</th>
+<th>Merge Sort</th>
+<th>Quick Sort</th>
+<th>Insertion Sort</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Worst case</td>
+<td>O(n log n)</td>
+<td>O(n log n)</td>
+<td>O(n²)</td>
+<td>O(n²)</td>
+</tr>
+<tr>
+<td>Average case</td>
+<td>O(n log n)</td>
+<td>O(n log n)</td>
+<td>O(n log n)</td>
+<td>O(n²)</td>
+</tr>
+<tr>
+<td>Best case</td>
+<td>O(n log n)</td>
+<td>O(n log n)</td>
+<td>O(n log n)</td>
+<td>O(n)</td>
+</tr>
+<tr>
+<td>Space</td>
+<td>O(1) in-place</td>
+<td>O(n)</td>
+<td>O(log n) stack</td>
+<td>O(1) in-place</td>
+</tr>
+<tr>
+<td>Stable?</td>
+<td>No</td>
+<td>Yes</td>
+<td>No (typical)</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>Adaptive?</td>
+<td>No</td>
+<td>No</td>
+<td>No</td>
+<td>Yes</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>When to use Heap Sort:</strong>
+- When O(n log n) worst-case guarantee is needed AND O(1) extra space is required.
+- Not preferred when stability matters (use Merge Sort) or when average-case speed matters (Quick Sort is typically faster due to better cache performance).</p>
+<p><strong>BST vs Heap comparison:</strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Aspect</th>
+<th>BST</th>
+<th>Max-Heap</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Structure</td>
+<td>BST property (left &lt; root &lt; right)</td>
+<td>Heap property (parent ≥ children)</td>
+</tr>
+<tr>
+<td>Find max</td>
+<td>O(log n) — rightmost node</td>
+<td>O(1) — root</td>
+</tr>
+<tr>
+<td>Find min</td>
+<td>O(log n) — leftmost node</td>
+<td>O(n) — must search leaves</td>
+</tr>
+<tr>
+<td>Search any key</td>
+<td>O(log n)</td>
+<td>O(n) — no search structure</td>
+</tr>
+<tr>
+<td>Insert</td>
+<td>O(log n)</td>
+<td>O(log n)</td>
+</tr>
+<tr>
+<td>Delete specific</td>
+<td>O(log n)</td>
+<td>O(n) — must find first</td>
+</tr>
+<tr>
+<td>Sorted order</td>
+<td>O(n) inorder traversal</td>
+<td>O(n log n) — repeated extraction</td>
+</tr>
+<tr>
+<td>Use case</td>
+<td>Dictionary, ordered set</td>
+<td>Priority queue</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="-_4">---</h2>
+<h1 id="section-e-graph-representations-q21q23">Section E: Graph Representations (Q21–Q23)</h1>
+<hr />
+<h3 id="q21-define-a-graph-explain-directed-vs-undirected-weighted-vs-unweighted-and-give-the-adjacency-matrix-and-adjacency-list-for">Q21. Define a graph. Explain directed vs undirected, weighted vs unweighted, and give the adjacency matrix and adjacency list for:</h3>
+<pre><code>Undirected graph:
+    A ---3--- B
+    |         |
+    2         4
+    |         |
+    C ---1--- D ---5--- E
+</code></pre>
+<p><strong>Answer:</strong></p>
+<p><strong>Definitions:</strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Term</th>
+<th>Definition</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Graph G = (V, E)</strong></td>
+<td>A set of vertices V and edges E connecting pairs of vertices</td>
+</tr>
+<tr>
+<td><strong>Undirected</strong></td>
+<td>Edges have no direction: (u,v) = (v,u)</td>
+</tr>
+<tr>
+<td><strong>Directed (digraph)</strong></td>
+<td>Edges have direction: (u,v) ≠ (v,u)</td>
+</tr>
+<tr>
+<td><strong>Weighted</strong></td>
+<td>Each edge has an associated numerical weight/cost</td>
+</tr>
+<tr>
+<td><strong>Unweighted</strong></td>
+<td>All edges have equal weight (or weight = 1)</td>
+</tr>
+<tr>
+<td><strong>Degree</strong></td>
+<td>Number of edges incident to a vertex (in undirected graph)</td>
+</tr>
+<tr>
+<td><strong>In-degree / Out-degree</strong></td>
+<td>Number of incoming / outgoing edges (in directed graph)</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Adjacency Matrix (weighted):</strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th></th>
+<th>A</th>
+<th>B</th>
+<th>C</th>
+<th>D</th>
+<th>E</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>A</strong></td>
+<td>0</td>
+<td>3</td>
+<td>2</td>
+<td>∞</td>
+<td>∞</td>
+</tr>
+<tr>
+<td><strong>B</strong></td>
+<td>3</td>
+<td>0</td>
+<td>∞</td>
+<td>4</td>
+<td>∞</td>
+</tr>
+<tr>
+<td><strong>C</strong></td>
+<td>2</td>
+<td>∞</td>
+<td>0</td>
+<td>1</td>
+<td>∞</td>
+</tr>
+<tr>
+<td><strong>D</strong></td>
+<td>∞</td>
+<td>4</td>
+<td>1</td>
+<td>0</td>
+<td>5</td>
+</tr>
+<tr>
+<td><strong>E</strong></td>
+<td>∞</td>
+<td>∞</td>
+<td>∞</td>
+<td>5</td>
+<td>0</td>
+</tr>
+</tbody>
+</table></div>
+<p>(∞ means no direct edge; matrix is symmetric for undirected graphs)</p>
+<p><strong>Adjacency List:</strong></p>
+<pre><code>A → [(B, 3), (C, 2)]
+B → [(A, 3), (D, 4)]
+C → [(A, 2), (D, 1)]
+D → [(B, 4), (C, 1), (E, 5)]
+E → [(D, 5)]
+</code></pre>
+<hr />
+<h3 id="q22-compare-adjacency-matrix-vs-adjacency-list-representations">Q22. Compare adjacency matrix vs adjacency list representations.</h3>
+<p><strong>Answer:</strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Aspect</th>
+<th>Adjacency Matrix</th>
+<th>Adjacency List</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Space</td>
+<td>O(V²)</td>
+<td>O(V + E)</td>
+</tr>
+<tr>
+<td>Check if edge (u,v) exists</td>
+<td>O(1) — direct lookup</td>
+<td>O(deg(u)) — scan u's list</td>
+</tr>
+<tr>
+<td>List all neighbours of u</td>
+<td>O(V) — scan entire row</td>
+<td>O(deg(u)) — scan u's list</td>
+</tr>
+<tr>
+<td>Add edge</td>
+<td>O(1)</td>
+<td>O(1)</td>
+</tr>
+<tr>
+<td>Remove edge</td>
+<td>O(1)</td>
+<td>O(deg(u))</td>
+</tr>
+<tr>
+<td>Better for</td>
+<td>Dense graphs (E ≈ V²)</td>
+<td>Sparse graphs (E &lt;&lt; V²)</td>
+</tr>
+<tr>
+<td>Memory for 1000 vertices, 5000 edges</td>
+<td>1,000,000 entries</td>
+<td>~11,000 entries (V + 2E)</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Decision guide:</strong>
+- <strong>Use adjacency matrix</strong> when: the graph is dense, you need O(1) edge lookup, or V is small.
+- <strong>Use adjacency list</strong> when: the graph is sparse (most real-world graphs), you iterate over neighbours often (BFS/DFS), or memory is a concern.</p>
+<hr />
+<h3 id="q23-given-the-following-directed-graph-write-the-adjacency-matrix-and-adjacency-list-also-state-the-in-degree-and-out-degree-of-each-vertex">Q23. Given the following directed graph, write the adjacency matrix and adjacency list. Also state the in-degree and out-degree of each vertex.</h3>
+<pre><code>Directed graph:
+    A → B → D
+    ↓ ↗   ↓
+    C ← ← E
+</code></pre>
+<p>Edges: A→B, A→C, B→D, C→B, D→E, E→C</p>
+<p><strong>Answer:</strong></p>
+<p><strong>Adjacency Matrix:</strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th></th>
+<th>A</th>
+<th>B</th>
+<th>C</th>
+<th>D</th>
+<th>E</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>A</strong></td>
+<td>0</td>
+<td>1</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td><strong>B</strong></td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>1</td>
+<td>0</td>
+</tr>
+<tr>
+<td><strong>C</strong></td>
+<td>0</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td><strong>D</strong></td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>1</td>
+</tr>
+<tr>
+<td><strong>E</strong></td>
+<td>0</td>
+<td>0</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+</tr>
+</tbody>
+</table></div>
+<p>(NOT symmetric — this is a directed graph)</p>
+<p><strong>Adjacency List:</strong></p>
+<pre><code>A → [B, C]
+B → [D]
+C → [B]
+D → [E]
+E → [C]
+</code></pre>
+<p><strong>Degree table:</strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Vertex</th>
+<th>In-degree</th>
+<th>Out-degree</th>
+<th>Total degree</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A</td>
+<td>0</td>
+<td>2</td>
+<td>2</td>
+</tr>
+<tr>
+<td>B</td>
+<td>2 (from A, C)</td>
+<td>1</td>
+<td>3</td>
+</tr>
+<tr>
+<td>C</td>
+<td>2 (from A, E)</td>
+<td>1</td>
+<td>3</td>
+</tr>
+<tr>
+<td>D</td>
+<td>1 (from B)</td>
+<td>1</td>
+<td>2</td>
+</tr>
+<tr>
+<td>E</td>
+<td>1 (from D)</td>
+<td>1</td>
+<td>2</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Sum of in-degrees = Sum of out-degrees = |E| = 6</strong> ✓</p>
+<h2 id="-_5">---</h2>
+<h1 id="section-f-bfs-dfs-traversals-q24q27">Section F: BFS &amp; DFS Traversals (Q24–Q27)</h1>
+<hr />
+<h3 id="q24-perform-bfs-on-the-following-graph-starting-from-vertex-a-show-the-queue-state-and-discovery-order">Q24. Perform BFS on the following graph starting from vertex A. Show the queue state and discovery order.</h3>
+<pre><code>        A
+       / \
+      B   C
+     / \   \
+    D   E   F
+        |   |
+        G   H
+</code></pre>
+<p>Edges: A-B, A-C, B-D, B-E, C-F, E-G, F-H</p>
+<p><strong>Answer:</strong></p>
+<p><strong>BFS uses a queue (FIFO) and visits vertices level by level.</strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Step</th>
+<th>Dequeue</th>
+<th>Process</th>
+<th>Enqueue unvisited neighbours</th>
+<th>Queue</th>
+<th>Visited</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0</td>
+<td>—</td>
+<td>—</td>
+<td>A</td>
+<td>[A]</td>
+<td>{A}</td>
+</tr>
+<tr>
+<td>1</td>
+<td>A</td>
+<td>visit A</td>
+<td>B, C</td>
+<td>[B, C]</td>
+<td>{A, B, C}</td>
+</tr>
+<tr>
+<td>2</td>
+<td>B</td>
+<td>visit B</td>
+<td>D, E</td>
+<td>[C, D, E]</td>
+<td>{A, B, C, D, E}</td>
+</tr>
+<tr>
+<td>3</td>
+<td>C</td>
+<td>visit C</td>
+<td>F</td>
+<td>[D, E, F]</td>
+<td>{A, B, C, D, E, F}</td>
+</tr>
+<tr>
+<td>4</td>
+<td>D</td>
+<td>visit D</td>
+<td>(none new)</td>
+<td>[E, F]</td>
+<td>{A, B, C, D, E, F}</td>
+</tr>
+<tr>
+<td>5</td>
+<td>E</td>
+<td>visit E</td>
+<td>G</td>
+<td>[F, G]</td>
+<td>{A, B, C, D, E, F, G}</td>
+</tr>
+<tr>
+<td>6</td>
+<td>F</td>
+<td>visit F</td>
+<td>H</td>
+<td>[G, H]</td>
+<td>{A, B, C, D, E, F, G, H}</td>
+</tr>
+<tr>
+<td>7</td>
+<td>G</td>
+<td>visit G</td>
+<td>(none new)</td>
+<td>[H]</td>
+<td>{A, B, C, D, E, F, G, H}</td>
+</tr>
+<tr>
+<td>8</td>
+<td>H</td>
+<td>visit H</td>
+<td>(none new)</td>
+<td>[]</td>
+<td>{A, B, C, D, E, F, G, H}</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>BFS order: A → B → C → D → E → F → G → H</strong></p>
+<p><strong>BFS tree edges:</strong> A-B, A-C, B-D, B-E, C-F, E-G, F-H</p>
+<p><strong>Properties of BFS:</strong>
+- Visits vertices in order of distance from source
+- Finds shortest path (in unweighted graphs)
+- Time: O(V + E) with adjacency list</p>
+<hr />
+<h3 id="q25-perform-dfs-on-the-same-graph-starting-from-vertex-a-show-the-stackrecursion-state-and-discovery-order">Q25. Perform DFS on the same graph starting from vertex A. Show the stack/recursion state and discovery order.</h3>
+<pre><code>        A
+       / \
+      B   C
+     / \   \
+    D   E   F
+        |   |
+        G   H
+</code></pre>
+<p><strong>Answer:</strong></p>
+<p><strong>DFS uses a stack (or recursion) and goes as deep as possible before backtracking.</strong></p>
+<p><strong>Recursive DFS trace (visiting neighbours in alphabetical order):</strong></p>
+<pre><code>DFS(A):
+  Visit A. Recurse on unvisited neighbours: B, C.
+    DFS(B):
+      Visit B. Recurse on unvisited: D, E.
+        DFS(D):
+          Visit D. No unvisited neighbours. Backtrack.
+        DFS(E):
+          Visit E. Recurse on unvisited: G.
+            DFS(G):
+              Visit G. No unvisited neighbours. Backtrack.
+          Backtrack from E.
+      Backtrack from B.
+    DFS(C):
+      Visit C. Recurse on unvisited: F.
+        DFS(F):
+          Visit F. Recurse on unvisited: H.
+            DFS(H):
+              Visit H. No unvisited neighbours. Backtrack.
+          Backtrack from F.
+      Backtrack from C.
+  Done.
+</code></pre>
+<p><strong>DFS order: A → B → D → E → G → C → F → H</strong></p>
+<p><strong>DFS tree edges:</strong> A-B, B-D, B-E, E-G, A-C, C-F, F-H</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Step</th>
+<th>Current</th>
+<th>Stack (call stack)</th>
+<th>Visited</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>A</td>
+<td>[A]</td>
+<td>{A}</td>
+</tr>
+<tr>
+<td>2</td>
+<td>B</td>
+<td>[A, B]</td>
+<td>{A, B}</td>
+</tr>
+<tr>
+<td>3</td>
+<td>D</td>
+<td>[A, B, D]</td>
+<td>{A, B, D}</td>
+</tr>
+<tr>
+<td>4</td>
+<td>backtrack</td>
+<td>[A, B]</td>
+<td>{A, B, D}</td>
+</tr>
+<tr>
+<td>5</td>
+<td>E</td>
+<td>[A, B, E]</td>
+<td>{A, B, D, E}</td>
+</tr>
+<tr>
+<td>6</td>
+<td>G</td>
+<td>[A, B, E, G]</td>
+<td>{A, B, D, E, G}</td>
+</tr>
+<tr>
+<td>7</td>
+<td>backtrack×3</td>
+<td>[A]</td>
+<td>{A, B, D, E, G}</td>
+</tr>
+<tr>
+<td>8</td>
+<td>C</td>
+<td>[A, C]</td>
+<td>{A, B, C, D, E, G}</td>
+</tr>
+<tr>
+<td>9</td>
+<td>F</td>
+<td>[A, C, F]</td>
+<td>{A, B, C, D, E, F, G}</td>
+</tr>
+<tr>
+<td>10</td>
+<td>H</td>
+<td>[A, C, F, H]</td>
+<td>{A, B, C, D, E, F, G, H}</td>
+</tr>
+</tbody>
+</table></div>
+<hr />
+<h3 id="q26-compare-bfs-and-dfs">Q26. Compare BFS and DFS.</h3>
+<p><strong>Answer:</strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Aspect</th>
+<th>BFS</th>
+<th>DFS</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Data structure</td>
+<td>Queue (FIFO)</td>
+<td>Stack (LIFO) / Recursion</td>
+</tr>
+<tr>
+<td>Strategy</td>
+<td>Level by level (breadth-first)</td>
+<td>Go deep, then backtrack (depth-first)</td>
+</tr>
+<tr>
+<td>Time complexity</td>
+<td>O(V + E)</td>
+<td>O(V + E)</td>
+</tr>
+<tr>
+<td>Space complexity</td>
+<td>O(V) — queue can hold entire level</td>
+<td>O(V) — stack depth = longest path</td>
+</tr>
+<tr>
+<td>Shortest path?</td>
+<td>Yes (unweighted graphs)</td>
+<td>No guarantee</td>
+</tr>
+<tr>
+<td>Complete?</td>
+<td>Yes (finds goal if it exists)</td>
+<td>Yes (in finite graphs)</td>
+</tr>
+<tr>
+<td>When to use</td>
+<td>Shortest path, level-order, nearby nodes</td>
+<td>Cycle detection, topological sort, connected components, path existence</td>
+</tr>
+<tr>
+<td>Memory in wide graphs</td>
+<td>High (stores all nodes at a level)</td>
+<td>Low (only stores current path)</td>
+</tr>
+<tr>
+<td>Memory in deep graphs</td>
+<td>Low</td>
+<td>High (deep recursion stack)</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Example where they differ:</strong></p>
+<pre><code>Graph:  1 — 2 — 3 — 4
+        |
+        5 — 6
+
+Finding path from 1 to 4:
+  BFS: 1 → 2 → 5 → 3 → 6 → 4  (finds shortest: 1-2-3-4, length 3)
+  DFS: 1 → 2 → 3 → 4           (may find it directly, but not guaranteed shortest)
+</code></pre>
+<hr />
+<h3 id="q27-perform-bfs-and-dfs-on-the-following-directed-graph-from-vertex-0-also-identify-any-back-edges-dfs">Q27. Perform BFS and DFS on the following directed graph from vertex 0. Also identify any back edges (DFS).</h3>
+<pre><code>0 → 1 → 3
+↓ ↗     ↓
+2       4
+</code></pre>
+<p>Edges: 0→1, 0→2, 1→3, 2→1, 3→4</p>
+<p><strong>Answer:</strong></p>
+<p><strong>BFS from vertex 0:</strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Step</th>
+<th>Dequeue</th>
+<th>Enqueue</th>
+<th>Queue</th>
+<th>Visited</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0</td>
+<td>—</td>
+<td>0</td>
+<td>[0]</td>
+<td>{0}</td>
+</tr>
+<tr>
+<td>1</td>
+<td>0</td>
+<td>1, 2</td>
+<td>[1, 2]</td>
+<td>{0, 1, 2}</td>
+</tr>
+<tr>
+<td>2</td>
+<td>1</td>
+<td>3</td>
+<td>[2, 3]</td>
+<td>{0, 1, 2, 3}</td>
+</tr>
+<tr>
+<td>3</td>
+<td>2</td>
+<td>(1 visited)</td>
+<td>[3]</td>
+<td>{0, 1, 2, 3}</td>
+</tr>
+<tr>
+<td>4</td>
+<td>3</td>
+<td>4</td>
+<td>[4]</td>
+<td>{0, 1, 2, 3, 4}</td>
+</tr>
+<tr>
+<td>5</td>
+<td>4</td>
+<td>(none)</td>
+<td>[]</td>
+<td>{0, 1, 2, 3, 4}</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>BFS order: 0 → 1 → 2 → 3 → 4</strong></p>
+<p><strong>DFS from vertex 0:</strong></p>
+<pre><code>DFS(0): Visit 0. Neighbours: 1, 2.
+  DFS(1): Visit 1. Neighbours: 3.
+    DFS(3): Visit 3. Neighbours: 4.
+      DFS(4): Visit 4. No unvisited neighbours. Backtrack.
+    Backtrack from 3.
+  Backtrack from 1.
+  DFS(2): Visit 2. Neighbours: 1 (already visited → this edge 2→1 is a cross edge).
+  Backtrack from 2.
+Done.
+</code></pre>
+<p><strong>DFS order: 0 → 1 → 3 → 4 → 2</strong></p>
+<p><strong>Edge classification (DFS):</strong>
+- <strong>Tree edges:</strong> 0→1, 1→3, 3→4, 0→2
+- <strong>Cross edge:</strong> 2→1 (1 is already fully processed, not an ancestor)
+- <strong>No back edges</strong> → the graph has <strong>no cycles</strong> ✓</p>
+<p>(A back edge in DFS indicates a cycle in a directed graph.)</p>
+<h2 id="-_6">---</h2>
+<h1 id="section-g-floyd-warshall-comparisons-q28q30">Section G: Floyd-Warshall &amp; Comparisons (Q28–Q30)</h1>
+<hr />
+<h3 id="q28-apply-the-floyd-warshall-algorithm-to-find-all-pairs-shortest-paths-for">Q28. Apply the Floyd-Warshall algorithm to find all-pairs shortest paths for:</h3>
+<pre><code>Directed weighted graph:
+    1 →(3)→ 2
+    ↑       ↓
+   (7)     (1)
+    ↑       ↓
+    4 ←(2)← 3
+
+    Also: 1→4 weight 8, 2→4 weight ∞, 3→1 weight ∞, 4→2 weight ∞
+</code></pre>
+<p>Edge list: (1→2, w=3), (2→3, w=1), (3→4, w=2), (4→1, w=7)</p>
+<p><strong>Answer:</strong></p>
+<p><strong>Floyd-Warshall finds shortest paths between ALL pairs of vertices.</strong></p>
+<p><strong>Algorithm:</strong></p>
+<pre><code>for k = 1 to V:
+    for i = 1 to V:
+        for j = 1 to V:
+            dist[i][j] = min(dist[i][j], dist[i][k] + dist[k][j])
+</code></pre>
+<p><strong>Initial distance matrix D⁰ (direct edges):</strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th></th>
+<th>1</th>
+<th>2</th>
+<th>3</th>
+<th>4</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>1</strong></td>
+<td>0</td>
+<td>3</td>
+<td>∞</td>
+<td>∞</td>
+</tr>
+<tr>
+<td><strong>2</strong></td>
+<td>∞</td>
+<td>0</td>
+<td>1</td>
+<td>∞</td>
+</tr>
+<tr>
+<td><strong>3</strong></td>
+<td>∞</td>
+<td>∞</td>
+<td>0</td>
+<td>2</td>
+</tr>
+<tr>
+<td><strong>4</strong></td>
+<td>7</td>
+<td>∞</td>
+<td>∞</td>
+<td>0</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>k = 1 (allow paths through vertex 1):</strong>
+Check if going through vertex 1 improves any path.
+- D[4][2] = min(∞, D[4][1] + D[1][2]) = min(∞, 7+3) = <strong>10</strong>
+- D[4][3]: min(∞, D[4][1]+D[1][3]) = min(∞, 7+∞) = ∞ (no improvement)</p>
+<p>D¹:</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th></th>
+<th>1</th>
+<th>2</th>
+<th>3</th>
+<th>4</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>1</strong></td>
+<td>0</td>
+<td>3</td>
+<td>∞</td>
+<td>∞</td>
+</tr>
+<tr>
+<td><strong>2</strong></td>
+<td>∞</td>
+<td>0</td>
+<td>1</td>
+<td>∞</td>
+</tr>
+<tr>
+<td><strong>3</strong></td>
+<td>∞</td>
+<td>∞</td>
+<td>0</td>
+<td>2</td>
+</tr>
+<tr>
+<td><strong>4</strong></td>
+<td>7</td>
+<td><strong>10</strong></td>
+<td>∞</td>
+<td>0</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>k = 2 (allow paths through vertices 1, 2):</strong>
+- D[1][3] = min(∞, D[1][2] + D[2][3]) = min(∞, 3+1) = <strong>4</strong>
+- D[4][3] = min(∞, D[4][2] + D[2][3]) = min(∞, 10+1) = <strong>11</strong></p>
+<p>D²:</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th></th>
+<th>1</th>
+<th>2</th>
+<th>3</th>
+<th>4</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>1</strong></td>
+<td>0</td>
+<td>3</td>
+<td><strong>4</strong></td>
+<td>∞</td>
+</tr>
+<tr>
+<td><strong>2</strong></td>
+<td>∞</td>
+<td>0</td>
+<td>1</td>
+<td>∞</td>
+</tr>
+<tr>
+<td><strong>3</strong></td>
+<td>∞</td>
+<td>∞</td>
+<td>0</td>
+<td>2</td>
+</tr>
+<tr>
+<td><strong>4</strong></td>
+<td>7</td>
+<td>10</td>
+<td><strong>11</strong></td>
+<td>0</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>k = 3 (allow paths through vertices 1, 2, 3):</strong>
+- D[1][4] = min(∞, D[1][3] + D[3][4]) = min(∞, 4+2) = <strong>6</strong>
+- D[2][4] = min(∞, D[2][3] + D[3][4]) = min(∞, 1+2) = <strong>3</strong>
+- D[4][4] = min(0, D[4][3] + D[3][4]) = min(0, 11+2) = 0 (no change)</p>
+<p>D³:</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th></th>
+<th>1</th>
+<th>2</th>
+<th>3</th>
+<th>4</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>1</strong></td>
+<td>0</td>
+<td>3</td>
+<td>4</td>
+<td><strong>6</strong></td>
+</tr>
+<tr>
+<td><strong>2</strong></td>
+<td>∞</td>
+<td>0</td>
+<td>1</td>
+<td><strong>3</strong></td>
+</tr>
+<tr>
+<td><strong>3</strong></td>
+<td>∞</td>
+<td>∞</td>
+<td>0</td>
+<td>2</td>
+</tr>
+<tr>
+<td><strong>4</strong></td>
+<td>7</td>
+<td>10</td>
+<td>11</td>
+<td>0</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>k = 4 (allow paths through all vertices):</strong>
+- D[2][1] = min(∞, D[2][4] + D[4][1]) = min(∞, 3+7) = <strong>10</strong>
+- D[3][1] = min(∞, D[3][4] + D[4][1]) = min(∞, 2+7) = <strong>9</strong>
+- D[3][2] = min(∞, D[3][4] + D[4][2]) = min(∞, 2+10) = <strong>12</strong>
+- D[1][1] = min(0, D[1][4] + D[4][1]) = min(0, 6+7) = 0 (no change — no negative cycle)</p>
+<p><strong>Final D⁴ (all-pairs shortest paths):</strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th></th>
+<th>1</th>
+<th>2</th>
+<th>3</th>
+<th>4</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>1</strong></td>
+<td>0</td>
+<td>3</td>
+<td>4</td>
+<td>6</td>
+</tr>
+<tr>
+<td><strong>2</strong></td>
+<td>10</td>
+<td>0</td>
+<td>1</td>
+<td>3</td>
+</tr>
+<tr>
+<td><strong>3</strong></td>
+<td>9</td>
+<td>12</td>
+<td>0</td>
+<td>2</td>
+</tr>
+<tr>
+<td><strong>4</strong></td>
+<td>7</td>
+<td>10</td>
+<td>11</td>
+<td>0</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Verification:</strong> Shortest 1→4: 1→2→3→4 with cost 3+1+2 = 6 ✓
+Shortest 4→2: 4→1→2 with cost 7+3 = 10 ✓</p>
+<p><strong>Time: O(V³). Space: O(V²).</strong></p>
+<hr />
+<h3 id="q29-compare-floyd-warshall-with-dijkstras-algorithm">Q29. Compare Floyd-Warshall with Dijkstra's algorithm.</h3>
+<p><strong>Answer:</strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Aspect</th>
+<th>Floyd-Warshall</th>
+<th>Dijkstra's</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Problem</strong></td>
+<td>All-pairs shortest paths</td>
+<td>Single-source shortest paths</td>
+</tr>
+<tr>
+<td><strong>Algorithm type</strong></td>
+<td>Dynamic programming</td>
+<td>Greedy</td>
+</tr>
+<tr>
+<td><strong>Negative weights</strong></td>
+<td>Handles negative edges (detects negative cycles)</td>
+<td>Cannot handle negative weights</td>
+</tr>
+<tr>
+<td><strong>Time complexity</strong></td>
+<td>O(V³)</td>
+<td>O((V + E) log V) with min-heap</td>
+</tr>
+<tr>
+<td><strong>Space</strong></td>
+<td>O(V²)</td>
+<td>O(V + E)</td>
+</tr>
+<tr>
+<td><strong>For all-pairs</strong></td>
+<td>O(V³) — single run</td>
+<td>Run V times: O(V(V+E) log V)</td>
+</tr>
+<tr>
+<td><strong>Better when</strong></td>
+<td>Dense graphs, negative weights, or all-pairs needed</td>
+<td>Sparse graphs, single source, non-negative weights</td>
+</tr>
+<tr>
+<td><strong>Implementation</strong></td>
+<td>Simple triple loop</td>
+<td>More complex (priority queue)</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>When to use which:</strong>
+- Use <strong>Floyd-Warshall</strong> when you need shortest paths between ALL pairs and V is small (≤ ~500) or the graph has negative edges.
+- Use <strong>Dijkstra</strong> (run V times) when the graph is sparse (E &lt;&lt; V²) and weights are non-negative. Total: O(V · (V+E) log V) which can be better than O(V³) for sparse graphs.</p>
+<hr />
+<h3 id="q30-comprehensive-comparison-bst-vs-heap-bfs-vs-dfs-adjacency-matrix-vs-adjacency-list">Q30. Comprehensive comparison: BST vs Heap, BFS vs DFS, Adjacency Matrix vs Adjacency List.</h3>
+<p><strong>Answer:</strong></p>
+<p><strong>BST vs Heap:</strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Aspect</th>
+<th>BST (balanced)</th>
+<th>Max-Heap</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Ordering</strong></td>
+<td>Left &lt; Root &lt; Right (total order)</td>
+<td>Parent ≥ Children (partial order)</td>
+</tr>
+<tr>
+<td><strong>Purpose</strong></td>
+<td>Searching, ordered operations</td>
+<td>Priority queue (get max/min fast)</td>
+</tr>
+<tr>
+<td><strong>Find max</strong></td>
+<td>O(log n) — go right</td>
+<td>O(1) — root</td>
+</tr>
+<tr>
+<td><strong>Find any key</strong></td>
+<td>O(log n)</td>
+<td>O(n)</td>
+</tr>
+<tr>
+<td><strong>Insert</strong></td>
+<td>O(log n)</td>
+<td>O(log n)</td>
+</tr>
+<tr>
+<td><strong>Delete max</strong></td>
+<td>O(log n)</td>
+<td>O(log n)</td>
+</tr>
+<tr>
+<td><strong>Delete any</strong></td>
+<td>O(log n)</td>
+<td>O(n) find + O(log n) fix</td>
+</tr>
+<tr>
+<td><strong>Sorted output</strong></td>
+<td>O(n) inorder</td>
+<td>O(n log n) repeated extract</td>
+</tr>
+<tr>
+<td><strong>Shape</strong></td>
+<td>Depends on insertion order (can be skewed)</td>
+<td>Always complete binary tree</td>
+</tr>
+<tr>
+<td><strong>Array storage</strong></td>
+<td>Awkward (may have gaps)</td>
+<td>Natural (level-by-level)</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>BFS vs DFS (repeated for reference):</strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Aspect</th>
+<th>BFS</th>
+<th>DFS</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Data structure</strong></td>
+<td>Queue</td>
+<td>Stack / Recursion</td>
+</tr>
+<tr>
+<td><strong>Order</strong></td>
+<td>Level-by-level</td>
+<td>Deep as possible first</td>
+</tr>
+<tr>
+<td><strong>Shortest path (unweighted)</strong></td>
+<td>✓ Yes</td>
+<td>✗ No guarantee</td>
+</tr>
+<tr>
+<td><strong>Cycle detection</strong></td>
+<td>Can detect</td>
+<td>Natural (back edges)</td>
+</tr>
+<tr>
+<td><strong>Topological sort</strong></td>
+<td>Kahn's algorithm (BFS-based)</td>
+<td>Reverse postorder (DFS-based)</td>
+</tr>
+<tr>
+<td><strong>Memory</strong></td>
+<td>O(branching factor^d)</td>
+<td>O(depth × branching factor)</td>
+</tr>
+<tr>
+<td><strong>Connected components</strong></td>
+<td>✓</td>
+<td>✓</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Adjacency Matrix vs Adjacency List:</strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Aspect</th>
+<th>Matrix</th>
+<th>List</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Space</strong></td>
+<td>O(V²) always</td>
+<td>O(V + E)</td>
+</tr>
+<tr>
+<td><strong>Edge lookup</strong></td>
+<td>O(1)</td>
+<td>O(deg(v))</td>
+</tr>
+<tr>
+<td><strong>Iterate neighbours</strong></td>
+<td>O(V)</td>
+<td>O(deg(v))</td>
+</tr>
+<tr>
+<td><strong>Add edge</strong></td>
+<td>O(1)</td>
+<td>O(1)</td>
+</tr>
+<tr>
+<td><strong>Best for</strong></td>
+<td>Dense graphs, frequent edge queries</td>
+<td>Sparse graphs, BFS/DFS traversals</td>
+</tr>
+<tr>
+<td><strong>Real-world graphs</strong></td>
+<td>Rarely used (most are sparse)</td>
+<td>Standard choice</td>
+</tr>
+</tbody>
+</table></div>
+<hr />
+<p><em>End of Chapter 3 Questions and Answers</em></p>
+<p><em>Q&amp;A prepared for Chapter 3: Non-Linear Data Structures — BITS Pilani</em>
+<em>References: Goodrich &amp; Tamassia (2006) Ch 7, 8, 9; CLRS (2009) Ch 6, 12, 22, 25</em></p>
+</main><button class="back-top" id="bt">&#8593;</button>
+<script>var b=document.getElementById("bt");window.onscroll=function(){b.classList.toggle("show",document.documentElement.scrollTop>400)};b.onclick=function(){window.scrollTo({top:0,behavior:"smooth"})};</script>
+</body></html>

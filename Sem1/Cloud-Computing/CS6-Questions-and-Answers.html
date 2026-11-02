@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CS6: Containers &amp; Cloud-Native — Questions &amp; Answers</title>
+<style>
+:root{--bg:#0f172a;--surface:#1e293b;--surface2:#334155;--border:#475569;--text:#e2e8f0;--text-muted:#94a3b8;--code-bg:#0d1117;--accent:#ec4899;--accent-dim:rgba(236,72,153,.12);--accent-border:rgba(236,72,153,.3);--green:#22c55e;--green-dim:rgba(34,197,94,.15)}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}html{scroll-behavior:smooth;scroll-padding-top:80px}body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);line-height:1.7;min-height:100vh}
+.progress-bar{position:fixed;top:0;left:0;height:3px;background:var(--accent);z-index:1001;transition:width .25s}
+.sidebar{position:fixed;top:0;left:0;width:280px;height:100vh;background:var(--surface);border-right:1px solid var(--border);overflow-y:auto;z-index:100;transition:transform .3s}.sidebar-header{padding:20px;border-bottom:1px solid var(--border);text-align:center}.sidebar-header h2{font-size:1rem;color:var(--accent);margin-bottom:4px}.sidebar-header small{color:var(--text-muted);font-size:.75rem}.sidebar nav{padding:12px 0}.sidebar nav a{display:block;padding:8px 20px;color:var(--text-muted);text-decoration:none;font-size:.85rem;border-left:3px solid transparent;transition:all .2s}.sidebar nav a:hover,.sidebar nav a.active{color:var(--accent);background:var(--accent-dim);border-left-color:var(--accent)}.sidebar nav .nav-group{padding:10px 20px 4px;font-size:.7rem;text-transform:uppercase;letter-spacing:1px;color:var(--border);font-weight:700}
+.sidebar-toggle{display:none;position:fixed;top:12px;left:12px;z-index:200;background:var(--surface);border:1px solid var(--border);color:var(--text);padding:8px 12px;border-radius:6px;cursor:pointer;font-size:1.1rem}
+.main{margin-left:280px;max-width:900px;padding:40px 40px 100px}.main h1{font-size:2rem;color:var(--accent);margin-bottom:8px;line-height:1.3}.main .subtitle{color:var(--text-muted);font-size:.9rem;margin-bottom:24px}
+.score-bar{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px 24px;margin-bottom:32px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;position:sticky;top:0;z-index:50}.score-bar .score-text{font-size:1.1rem;font-weight:700;color:var(--accent)}.score-bar .score-text span{color:var(--green)}.score-bar .btn-group{display:flex;gap:8px}.score-bar button{padding:6px 16px;border-radius:6px;border:1px solid var(--border);background:var(--surface2);color:var(--text);cursor:pointer;font-size:.82rem;transition:all .2s}.score-bar button:hover{background:var(--accent);color:#fff;border-color:var(--accent)}
+.qa-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;margin-bottom:16px;overflow:hidden;transition:border-color .2s}.qa-card:hover{border-color:var(--accent-border)}.qa-card.checked-off{border-color:var(--green);background:var(--green-dim)}
+.qa-question{padding:16px 20px;cursor:pointer;display:flex;align-items:flex-start;gap:14px;user-select:none}.qa-question input[type=checkbox]{width:20px;height:20px;margin-top:3px;accent-color:var(--green);cursor:pointer;flex-shrink:0}.qa-question .q-text{flex:1;font-weight:600;color:var(--text);font-size:.95rem}.qa-question .expand-icon{color:var(--accent);font-size:1.2rem;transition:transform .3s;flex-shrink:0;margin-top:2px}.qa-card.open .expand-icon{transform:rotate(180deg)}
+.qa-answer{max-height:0;overflow:hidden;transition:max-height .4s ease}.qa-card.open .qa-answer{max-height:8000px}.qa-answer-inner{padding:0 20px 20px 54px;color:var(--text)}.qa-answer-inner p{margin-bottom:12px}.qa-answer-inner ul,.qa-answer-inner ol{margin:0 0 12px 20px}.qa-answer-inner li{margin-bottom:4px}.qa-answer-inner strong{color:var(--accent)}.qa-answer-inner em{color:var(--text-muted)}
+table{width:100%;border-collapse:collapse;margin:12px 0 16px;font-size:.85rem}thead th{background:var(--accent);color:#fff;padding:8px 12px;text-align:left;font-weight:600}tbody td{padding:8px 12px;border-bottom:1px solid var(--border)}tbody tr:nth-child(even){background:var(--surface)}tbody tr:nth-child(odd){background:var(--surface2)}tbody tr:hover{background:var(--accent-dim)}td strong{color:var(--accent)}
+pre{background:var(--code-bg);border:1px solid var(--border);border-radius:8px;padding:14px;overflow-x:auto;margin:12px 0;font-size:.83rem;line-height:1.5}code{font-family:'Cascadia Code','Fira Code','Consolas',monospace;font-size:.86em}p code,li code,td code{background:var(--code-bg);padding:2px 6px;border-radius:4px;color:var(--accent);border:1px solid var(--border)}
+.back-to-top{position:fixed;bottom:30px;right:30px;width:44px;height:44px;background:var(--accent);color:#fff;border:none;border-radius:50%;font-size:1.3rem;cursor:pointer;display:none;align-items:center;justify-content:center;box-shadow:0 4px 15px rgba(0,0,0,.3);z-index:100;transition:transform .2s}.back-to-top:hover{transform:scale(1.1)}.back-to-top.visible{display:flex}
+@media(max-width:900px){.sidebar{transform:translateX(-100%)}.sidebar.open{transform:translateX(0)}.sidebar-toggle{display:block}.main{margin-left:0;padding:70px 20px 100px}.score-bar{flex-direction:column;align-items:stretch;text-align:center}}
+@media print{.sidebar,.sidebar-toggle,.back-to-top,.progress-bar,.score-bar{display:none!important}.main{margin-left:0;max-width:100%}body{background:#fff;color:#000}.qa-card{border:1px solid #ccc;break-inside:avoid}.qa-answer{max-height:none!important}.qa-question .expand-icon{display:none}table{font-size:.75rem}thead th{background:#333;color:#fff;-webkit-print-color-adjust:exact;print-color-adjust:exact}tbody tr:nth-child(even){background:#f0f0f0}tbody tr:nth-child(odd){background:#fff}pre{background:#f5f5f5;border:1px solid #ccc}code{color:#333}h1{color:#111}}
+</style>
+</head>
+<body>
+<div class="progress-bar" id="progressBar"></div>
+<button class="sidebar-toggle" id="sidebarToggle">☰</button>
+<aside class="sidebar" id="sidebar">
+<div class="sidebar-header"><h2>CS6 Q&amp;A</h2><small>12 Questions</small></div>
+<nav>
+<div class="nav-group">Study Materials</div>
+<a href="CS1-Introduction-to-Cloud-Computing.html">CS1 — Intro to Cloud</a><a href="CS2-CS3-Virtualization.html">CS2-CS3 — Virtualization</a><a href="CS4-Hypervisor-and-IaaS.html">CS4 — Hypervisor &amp; IaaS</a><a href="CS5-IaaS-Services.html">CS5 — IaaS Services</a><a href="CS6-Containers-and-Cloud-Native.html">CS6 — Containers</a>
+<div class="nav-group">Questions &amp; Answers</div>
+<a href="CS1-Questions-and-Answers.html">CS1 Q&amp;A (15 Qs)</a><a href="CS2-CS3-Questions-and-Answers.html">CS2-CS3 Q&amp;A (6 Qs)</a><a href="CS4-Questions-and-Answers.html">CS4 Q&amp;A (8 Qs)</a><a href="CS5-Questions-and-Answers.html">CS5 Q&amp;A (10 Qs)</a><a href="CS6-Questions-and-Answers.html" class="active">CS6 Q&amp;A (12 Qs)</a>
+</nav>
+</aside>
+<main class="main">
+<h1>CS6: Containers and Cloud-Native — Questions &amp; Answers</h1>
+<p class="subtitle">12 questions covering: Docker, namespaces/cgroups, system vs app containers, VMs vs containers, Kubernetes, cloud-native principles, 12-factor app.</p>
+<div class="score-bar"><div class="score-text">Score: <span id="scoreCount">0</span> / 12</div><div class="btn-group"><button onclick="toggleAll(true)">Show All</button><button onclick="toggleAll(false)">Hide All</button><button onclick="resetAll()">Reset</button></div></div>
+<div id="qaContainer">
+
+<div class="qa-card"><div class="qa-question" onclick="toggleAnswer(this)"><input type="checkbox" onclick="event.stopPropagation();updateScore()"><div class="q-text">Q1. What is a container? How does it differ from a VM at the architecture level?</div><div class="expand-icon">&#9660;</div></div><div class="qa-answer"><div class="qa-answer-inner">
+<p>A <strong>container</strong> is a lightweight, standalone, executable package containing an application and all its dependencies (code, runtime, libraries, settings). Containers share the host OS kernel but run in isolated user spaces.</p>
+<pre><code>VM Architecture:                    Container Architecture:
+┌──────┐ ┌──────┐ ┌──────┐        ┌──────┐ ┌──────┐ ┌──────┐
+│App A │ │App B │ │App C │        │App A │ │App B │ │App C │
+│Libs  │ │Libs  │ │Libs  │        │Libs  │ │Libs  │ │Libs  │
+│Guest │ │Guest │ │Guest │        ├──────┴─┴──────┴─┴──────┤
+│ OS   │ │ OS   │ │ OS   │        │   Container Runtime     │
+├──────┴─┴──────┴─┴──────┤        ├─────────────────────────┤
+│      Hypervisor         │        │   Host OS Kernel        │
+├─────────────────────────┤        ├─────────────────────────┤
+│   Physical Hardware     │        │   Physical Hardware     │
+└─────────────────────────┘        └─────────────────────────┘</code></pre>
+<p><strong>Key difference:</strong> VMs virtualize the <strong>hardware</strong> (each gets its own kernel). Containers virtualize the <strong>OS</strong> (all share one kernel). This makes containers much lighter (MBs vs GBs), faster to start (milliseconds vs minutes), and higher density (hundreds vs tens per host), but with weaker isolation (shared kernel).</p>
+</div></div></div>
+
+<div class="qa-card"><div class="qa-question" onclick="toggleAnswer(this)"><input type="checkbox" onclick="event.stopPropagation();updateScore()"><div class="q-text">Q2. Explain Docker images, layers, and the Dockerfile build process.</div><div class="expand-icon">&#9660;</div></div><div class="qa-answer"><div class="qa-answer-inner">
+<p><strong>Docker image:</strong> A read-only template containing application code, runtime, libraries, dependencies, and configuration. Images are the blueprint from which containers are created.</p>
+<p><strong>Layers:</strong> Images are built in layers. Each Dockerfile instruction creates a layer. Layers are cached and shared — if two images use the same base, that base layer is stored once.</p>
+<pre><code>Layer stack:
+┌──────────────────────┐
+│ LAYER 4: COPY app.py │  ← Application code
+├──────────────────────┤
+│ LAYER 3: RUN pip     │  ← Dependencies
+├──────────────────────┤
+│ LAYER 2: RUN apt     │  ← System packages
+├──────────────────────┤
+│ LAYER 1: python:3.11 │  ← Base image
+└──────────────────────┘</code></pre>
+<p><strong>Dockerfile example:</strong></p>
+<pre><code>FROM python:3.11-slim          # Base image
+WORKDIR /app                   # Set working directory
+COPY requirements.txt .        # Copy dependency file
+RUN pip install -r requirements.txt  # Install dependencies
+COPY . .                       # Copy application code
+EXPOSE 8000                    # Document port
+CMD ["python", "app.py"]       # Default run command</code></pre>
+<p><strong>Build process:</strong> <code>docker build -t myapp .</code> reads the Dockerfile, executes each instruction creating a layer, and produces a tagged image. Each layer is cached — rebuild is fast if only the last layers change.</p>
+</div></div></div>
+
+<div class="qa-card"><div class="qa-question" onclick="toggleAnswer(this)"><input type="checkbox" onclick="event.stopPropagation();updateScore()"><div class="q-text">Q3. What are Docker volumes? Why are they needed?</div><div class="expand-icon">&#9660;</div></div><div class="qa-answer"><div class="qa-answer-inner">
+<p>By default, data inside a container is <strong>ephemeral</strong> — when the container is deleted, data is lost. <strong>Volumes</strong> provide persistent storage that survives container restarts and deletions.</p>
+<table><thead><tr><th>Type</th><th>Description</th><th>Use case</th></tr></thead><tbody>
+<tr><td><strong>Volume</strong></td><td>Managed by Docker, stored in Docker-managed area on host.</td><td>Database storage, application state.</td></tr>
+<tr><td><strong>Bind mount</strong></td><td>Maps a specific host directory into the container.</td><td>Development — mount source code for live editing.</td></tr>
+<tr><td><strong>tmpfs mount</strong></td><td>Stored in host memory only. Lost when container stops.</td><td>Sensitive data that shouldn't be on disk.</td></tr>
+</tbody></table>
+<pre><code>docker volume create mydata
+docker run -v mydata:/var/lib/mysql mysql:8      # Named volume
+docker run -v /host/path:/app/data myapp         # Bind mount</code></pre>
+<p><strong>Why needed:</strong> Containers follow the "cattle, not pets" philosophy — they're disposable and replaceable. But data (databases, user uploads, logs) must persist across container replacements. Volumes decouple data lifecycle from container lifecycle.</p>
+</div></div></div>
+
+<div class="qa-card"><div class="qa-question" onclick="toggleAnswer(this)"><input type="checkbox" onclick="event.stopPropagation();updateScore()"><div class="q-text">Q4. Explain Linux namespaces. List the six types and what each isolates.</div><div class="expand-icon">&#9660;</div></div><div class="qa-answer"><div class="qa-answer-inner">
+<p><strong>Namespaces</strong> provide <strong>isolation</strong> — each container gets its own view of system resources, preventing it from seeing or affecting other containers.</p>
+<table><thead><tr><th>Namespace</th><th>What it isolates</th><th>Effect</th></tr></thead><tbody>
+<tr><td><strong>PID</strong></td><td>Process IDs</td><td>Container sees only its own processes. PID 1 inside container ≠ PID 1 on host.</td></tr>
+<tr><td><strong>NET</strong></td><td>Network stack</td><td>Container has its own IP address, routing table, ports. Port 80 in container A doesn't conflict with port 80 in container B.</td></tr>
+<tr><td><strong>MNT</strong></td><td>File system mounts</td><td>Container has its own root filesystem. Cannot see host or other containers' files.</td></tr>
+<tr><td><strong>UTS</strong></td><td>Hostname and domain</td><td>Container can have its own hostname (e.g. "web-server-1").</td></tr>
+<tr><td><strong>IPC</strong></td><td>Inter-process communication</td><td>Container has its own message queues, semaphores, shared memory segments.</td></tr>
+<tr><td><strong>USER</strong></td><td>User/group IDs</td><td>Container's root (UID 0) can map to a non-root user on host. Improves security.</td></tr>
+</tbody></table>
+<p><strong>Key insight:</strong> Namespaces answer "what can you see?" — they create the illusion that each container is an independent system.</p>
+</div></div></div>
+
+<div class="qa-card"><div class="qa-question" onclick="toggleAnswer(this)"><input type="checkbox" onclick="event.stopPropagation();updateScore()"><div class="q-text">Q5. Explain Linux cgroups. What resources do they control?</div><div class="expand-icon">&#9660;</div></div><div class="qa-answer"><div class="qa-answer-inner">
+<p><strong>Cgroups (Control Groups)</strong> limit, account for, and isolate <strong>resource usage</strong> of a group of processes (a container).</p>
+<table><thead><tr><th>Resource</th><th>What cgroups control</th><th>Example</th></tr></thead><tbody>
+<tr><td><strong>CPU</strong></td><td>CPU time/cores allocated</td><td>Container A: max 2 cores</td></tr>
+<tr><td><strong>Memory</strong></td><td>RAM limit</td><td>Container B: max 512 MB (OOM-killed if exceeded)</td></tr>
+<tr><td><strong>Disk I/O</strong></td><td>Read/write bandwidth</td><td>Container C: max 100 MB/s</td></tr>
+<tr><td><strong>Network</strong></td><td>Network bandwidth</td><td>Container D: max 1 Gbps</td></tr>
+<tr><td><strong>PIDs</strong></td><td>Max number of processes</td><td>Container E: max 100 processes (prevents fork bombs)</td></tr>
+</tbody></table>
+<p><strong>Key insight:</strong> Cgroups answer "how much can you use?" — they prevent one container from consuming all host resources.</p>
+<p><strong>Together:</strong> Namespaces (isolation) + Cgroups (resource limits) = a container. Namespaces ensure container A can't see container B. Cgroups ensure container A can't starve container B of resources.</p>
+</div></div></div>
+
+<div class="qa-card"><div class="qa-question" onclick="toggleAnswer(this)"><input type="checkbox" onclick="event.stopPropagation();updateScore()"><div class="q-text">Q6. Compare system containers and application containers.</div><div class="expand-icon">&#9660;</div></div><div class="qa-answer"><div class="qa-answer-inner">
+<table><thead><tr><th>Aspect</th><th>System Container</th><th>Application Container</th></tr></thead><tbody>
+<tr><td><strong>Purpose</strong></td><td>Lightweight VM replacement — run a full OS environment</td><td>Package and run a single application/microservice</td></tr>
+<tr><td><strong>Processes</strong></td><td>Multiple (init system, sshd, cron, apps)</td><td>One main process (the application)</td></tr>
+<tr><td><strong>Init system</strong></td><td>Full init (systemd)</td><td>No init — app IS the main process</td></tr>
+<tr><td><strong>Lifecycle</strong></td><td>Long-lived (weeks/months, like a server)</td><td>Often short-lived (seconds to hours, replaceable)</td></tr>
+<tr><td><strong>Philosophy</strong></td><td>"Pet" — maintain, patch, upgrade</td><td>"Cattle" — replace, don't repair</td></tr>
+<tr><td><strong>Examples</strong></td><td>LXC, LXD, systemd-nspawn</td><td>Docker, Podman</td></tr>
+<tr><td><strong>K8s integration</strong></td><td>Less common</td><td>Native (pods run application containers)</td></tr>
+</tbody></table>
+<p><strong>In cloud-native:</strong> Application containers (Docker) dominate. System containers are used for specific scenarios needing a full OS-like environment (development, legacy hosting).</p>
+</div></div></div>
+
+<div class="qa-card"><div class="qa-question" onclick="toggleAnswer(this)"><input type="checkbox" onclick="event.stopPropagation();updateScore()"><div class="q-text">Q7. Compare VMs and containers across 10 dimensions. When would you use each?</div><div class="expand-icon">&#9660;</div></div><div class="qa-answer"><div class="qa-answer-inner">
+<table><thead><tr><th>Aspect</th><th>Virtual Machines</th><th>Containers</th></tr></thead><tbody>
+<tr><td><strong>Virtualizes</strong></td><td>Hardware (CPU, memory, disk)</td><td>OS (process space, filesystem, network)</td></tr>
+<tr><td><strong>Kernel</strong></td><td>Each VM has its own kernel</td><td>All containers share host kernel</td></tr>
+<tr><td><strong>Size</strong></td><td>GBs (full OS + app)</td><td>MBs (app + libraries only)</td></tr>
+<tr><td><strong>Boot time</strong></td><td>Seconds to minutes</td><td>Milliseconds to seconds</td></tr>
+<tr><td><strong>Overhead</strong></td><td>Heavy (full OS per VM)</td><td>Light (no separate OS)</td></tr>
+<tr><td><strong>Density</strong></td><td>10-50 per host</td><td>100-1000+ per host</td></tr>
+<tr><td><strong>Isolation</strong></td><td>Strong (separate kernels, hypervisor boundary)</td><td>Moderate (shared kernel, namespace isolation)</td></tr>
+<tr><td><strong>Security</strong></td><td>More secure (smaller attack surface)</td><td>Less secure (shared kernel vulnerabilities)</td></tr>
+<tr><td><strong>Portability</strong></td><td>Less (large images, hypervisor-specific formats)</td><td>Highly portable (Docker images run anywhere)</td></tr>
+<tr><td><strong>Use case</strong></td><td>Legacy apps, different OS needs, strong isolation</td><td>Microservices, CI/CD, cloud-native apps</td></tr>
+</tbody></table>
+<p><strong>Use VMs when:</strong> Different OS needed, strong isolation required, legacy apps, custom kernel.</p>
+<p><strong>Use containers when:</strong> Microservices, CI/CD, high density, fast startup, cloud-native.</p>
+<p><strong>In practice:</strong> Containers run inside VMs — VMs provide tenant isolation, containers provide lightweight app packaging.</p>
+</div></div></div>
+
+<div class="qa-card"><div class="qa-question" onclick="toggleAnswer(this)"><input type="checkbox" onclick="event.stopPropagation();updateScore()"><div class="q-text">Q8. What is Kubernetes? List its key concepts and explain what it does.</div><div class="expand-icon">&#9660;</div></div><div class="qa-answer"><div class="qa-answer-inner">
+<p><strong>Kubernetes (K8s)</strong> is the de facto standard container orchestration platform, originally developed by Google. It automates deployment, scaling, and management of containerized applications across clusters of machines.</p>
+<p><strong>Key concepts:</strong></p>
+<table><thead><tr><th>Concept</th><th>What it is</th></tr></thead><tbody>
+<tr><td><strong>Pod</strong></td><td>Smallest deployable unit — one or more containers sharing network/storage.</td></tr>
+<tr><td><strong>Node</strong></td><td>Physical/virtual machine running pods (has kubelet, kube-proxy, container runtime).</td></tr>
+<tr><td><strong>Cluster</strong></td><td>Set of nodes managed by a control plane.</td></tr>
+<tr><td><strong>Deployment</strong></td><td>Declares desired state ("run 3 replicas of myapp:v2"). K8s ensures reality matches.</td></tr>
+<tr><td><strong>Service</strong></td><td>Stable network endpoint load-balancing traffic across ephemeral pods.</td></tr>
+<tr><td><strong>Namespace</strong></td><td>Virtual partition within cluster for organisation and access control.</td></tr>
+<tr><td><strong>ConfigMap/Secret</strong></td><td>External configuration and sensitive data injected into pods.</td></tr>
+</tbody></table>
+<p><strong>What K8s does:</strong> Scheduling, self-healing, scaling (HPA), load balancing, rolling updates, rollback, secret management, storage orchestration.</p>
+</div></div></div>
+
+<div class="qa-card"><div class="qa-question" onclick="toggleAnswer(this)"><input type="checkbox" onclick="event.stopPropagation();updateScore()"><div class="q-text">Q9. What are cloud-native design principles? Explain microservices, declarative deployment, and portability.</div><div class="expand-icon">&#9660;</div></div><div class="qa-answer"><div class="qa-answer-inner">
+<p><strong>Cloud-native</strong> = designing applications specifically FOR the cloud — exploiting elasticity, resilience, scalability, and managed services.</p>
+<p><strong>Microservices:</strong> Break a monolith into small, independent services. Each has its own codebase, deploys independently, communicates via APIs, can scale independently, can use different technologies.</p>
+<ul><li><em>Monolith:</em> Deploy entire app for any change. Scale everything. One bug crashes all.</li><li><em>Microservices:</em> Deploy individual services. Scale what's needed. One failure is contained.</li></ul>
+<p><strong>Declarative deployment:</strong> Instead of step-by-step scripts, declare the desired state and let the system achieve it.</p>
+<pre><code>spec:
+  replicas: 3              # "I want 3 copies"
+  containers:
+  - image: myapp:v2.0      # "Running this version"</code></pre>
+<p>Kubernetes ensures this is always true — if a pod dies, K8s creates a new one.</p>
+<p><strong>Portability:</strong> Applications run on any cloud without modification.</p>
+<ul><li>Containers = same image runs on AWS/Azure/GCP/laptop.</li><li>Kubernetes = same API on EKS/GKE/AKS.</li><li>IaC (Terraform) = same code provisions on any provider.</li></ul>
+</div></div></div>
+
+<div class="qa-card"><div class="qa-question" onclick="toggleAnswer(this)"><input type="checkbox" onclick="event.stopPropagation();updateScore()"><div class="q-text">Q10. What is the "noisy neighbour" problem? How do VMs and containers address it differently?</div><div class="expand-icon">&#9660;</div></div><div class="qa-answer"><div class="qa-answer-inner">
+<p>The <strong>noisy neighbour problem</strong> occurs when one tenant's heavy workload on shared physical infrastructure degrades performance for other tenants on the same host.</p>
+<p><strong>In VMs:</strong> The hypervisor allocates dedicated resources (CPU cores, RAM) to each VM. A VM can't exceed its allocation. However, shared resources like disk I/O and network bandwidth can still be contended. Hypervisors use CPU scheduling (fair-share, priority) and I/O throttling to mitigate.</p>
+<p><strong>In containers:</strong> Cgroups limit CPU, memory, and I/O per container. However, containers share the kernel, which means kernel-level resources (kernel threads, network stack, filesystem cache) can still be contended. The shared kernel makes the noisy neighbour problem slightly worse than with VMs.</p>
+<p><strong>Mitigation strategies:</strong></p>
+<ul><li>Set CPU and memory <strong>limits</strong> (not just requests) in Kubernetes.</li><li>Use <strong>resource quotas</strong> per namespace.</li><li>Use <strong>dedicated node pools</strong> for sensitive workloads.</li><li>Use <strong>VM-level isolation</strong> for strong tenant boundaries, containers within VMs for app isolation.</li></ul>
+</div></div></div>
+
+<div class="qa-card"><div class="qa-question" onclick="toggleAnswer(this)"><input type="checkbox" onclick="event.stopPropagation();updateScore()"><div class="q-text">Q11. Explain the Docker container lifecycle with commands.</div><div class="expand-icon">&#9660;</div></div><div class="qa-answer"><div class="qa-answer-inner">
+<pre><code>Image (blueprint) → Container (running instance) → Stopped → Removed
+
+docker build -t myapp .              # Build image from Dockerfile
+docker images                        # List local images
+docker push registry.com/myapp:v1    # Push image to registry
+docker pull registry.com/myapp:v1    # Pull image from registry
+
+docker run -d -p 8000:8000 myapp     # Create + start container
+docker ps                            # List running containers
+docker ps -a                         # List all containers (including stopped)
+docker logs &lt;id&gt;                     # View container stdout/stderr
+docker exec -it &lt;id&gt; /bin/bash       # Open shell inside running container
+
+docker stop &lt;id&gt;                     # Stop container (SIGTERM)
+docker start &lt;id&gt;                    # Restart stopped container
+docker rm &lt;id&gt;                       # Remove stopped container
+docker rmi myapp                     # Remove image</code></pre>
+<p><strong>Key flags:</strong></p>
+<ul><li><code>-d</code> = detached (background)</li><li><code>-p 8000:8000</code> = map host port 8000 to container port 8000</li><li><code>-v mydata:/app/data</code> = mount volume</li><li><code>-e KEY=VALUE</code> = set environment variable</li><li><code>--name mycontainer</code> = assign a name</li><li><code>--rm</code> = auto-remove container when it exits</li></ul>
+</div></div></div>
+
+<div class="qa-card"><div class="qa-question" onclick="toggleAnswer(this)"><input type="checkbox" onclick="event.stopPropagation();updateScore()"><div class="q-text">Q12. What is the 12-Factor App methodology? List at least 6 factors.</div><div class="expand-icon">&#9660;</div></div><div class="qa-answer"><div class="qa-answer-inner">
+<p>The <strong>12-Factor App</strong> is a methodology for building modern, cloud-native SaaS applications that are portable, scalable, and maintainable.</p>
+<table><thead><tr><th>Factor</th><th>Principle</th><th>Why it matters for cloud</th></tr></thead><tbody>
+<tr><td><strong>1. Codebase</strong></td><td>One codebase in version control, many deploys (dev, staging, prod).</td><td>Consistency across environments.</td></tr>
+<tr><td><strong>2. Dependencies</strong></td><td>Explicitly declare and isolate all dependencies (no system-wide packages).</td><td>Containers bundle all dependencies — no "works on my machine."</td></tr>
+<tr><td><strong>3. Config</strong></td><td>Store config in environment variables, NOT in code.</td><td>Same image deployed to dev/staging/prod with different env vars.</td></tr>
+<tr><td><strong>4. Backing services</strong></td><td>Treat databases, caches, queues as attached resources swappable via config.</td><td>Switch from local PostgreSQL to RDS by changing a URL.</td></tr>
+<tr><td><strong>5. Build, release, run</strong></td><td>Strictly separate build (compile), release (build + config), and run (execute) stages.</td><td>Enables reproducible deployments and rollbacks.</td></tr>
+<tr><td><strong>6. Processes</strong></td><td>Run the app as one or more stateless processes.</td><td>Horizontal scaling — any instance can handle any request.</td></tr>
+<tr><td><strong>7. Port binding</strong></td><td>Export services via port binding (the app is self-contained).</td><td>Containers expose ports — no external web server needed.</td></tr>
+<tr><td><strong>8. Concurrency</strong></td><td>Scale out via the process model (more instances, not bigger instances).</td><td>Cloud-native horizontal scaling.</td></tr>
+<tr><td><strong>9. Disposability</strong></td><td>Fast startup, graceful shutdown. Processes are disposable.</td><td>Containers start in milliseconds, can be killed and replaced.</td></tr>
+<tr><td><strong>10. Dev/prod parity</strong></td><td>Keep dev, staging, and production as similar as possible.</td><td>Containers ensure identical environments everywhere.</td></tr>
+<tr><td><strong>11. Logs</strong></td><td>Treat logs as event streams (write to stdout, not files).</td><td>Container runtime captures stdout; shipped to log aggregation.</td></tr>
+<tr><td><strong>12. Admin processes</strong></td><td>Run admin/management tasks as one-off processes.</td><td>Use docker exec or Kubernetes Jobs for migrations, scripts.</td></tr>
+</tbody></table>
+</div></div></div>
+
+</div>
+</main>
+<button class="back-to-top" id="backToTop" onclick="window.scrollTo({top:0})">&#8593;</button>
+<script>
+function toggleAnswer(el){el.closest('.qa-card').classList.toggle('open')}
+function updateScore(){const checks=document.querySelectorAll('.qa-card input[type=checkbox]');let c=0;checks.forEach(ch=>{const card=ch.closest('.qa-card');if(ch.checked){c++;card.classList.add('checked-off')}else{card.classList.remove('checked-off')}});document.getElementById('scoreCount').textContent=c}
+function toggleAll(show){document.querySelectorAll('.qa-card').forEach(c=>{show?c.classList.add('open'):c.classList.remove('open')})}
+function resetAll(){document.querySelectorAll('.qa-card input[type=checkbox]').forEach(ch=>{ch.checked=false});document.querySelectorAll('.qa-card').forEach(c=>{c.classList.remove('checked-off','open')});document.getElementById('scoreCount').textContent='0'}
+window.addEventListener('scroll',()=>{const s=document.documentElement,p=(s.scrollTop/(s.scrollHeight-s.clientHeight))*100;document.getElementById('progressBar').style.width=p+'%'});
+window.addEventListener('scroll',()=>{document.getElementById('backToTop').classList.toggle('visible',window.scrollY>400)});
+document.getElementById('sidebarToggle').addEventListener('click',()=>{document.getElementById('sidebar').classList.toggle('open')});
+document.querySelectorAll('.sidebar nav a').forEach(a=>a.addEventListener('click',()=>{if(window.innerWidth<=900)document.getElementById('sidebar').classList.remove('open')}));
+</script>
+</body>
+</html>

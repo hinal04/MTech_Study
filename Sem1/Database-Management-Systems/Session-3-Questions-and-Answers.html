@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Session 3: Questions &amp; Answers — Distributed DB Foundations</title>
+<style>
+  :root {
+    --bg: #0f172a;
+    --surface: #1e293b;
+    --surface2: #334155;
+    --border: #475569;
+    --text: #e2e8f0;
+    --text-muted: #94a3b8;
+    --code-bg: #0d1117;
+    --accent: #34d399;
+    --accent-dim: rgba(52,211,153,.12);
+    --radius: 10px;
+    --transition: .3s ease;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.7;
+    display: flex;
+    min-height: 100vh;
+  }
+
+  /* ── Sidebar ── */
+  .sidebar {
+    position: fixed; top: 0; left: 0;
+    width: 280px; height: 100vh;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    overflow-y: auto; padding: 24px 16px;
+    z-index: 100;
+    transition: transform var(--transition);
+  }
+  .sidebar h2 { font-size: .85rem; text-transform: uppercase; letter-spacing: .08em; color: var(--text-muted); margin-bottom: 12px; }
+  .sidebar a {
+    display: block; padding: 7px 12px; margin-bottom: 2px;
+    border-radius: 6px; font-size: .85rem;
+    color: var(--text-muted); text-decoration: none;
+    transition: background var(--transition), color var(--transition);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .sidebar a:hover, .sidebar a:focus { background: var(--accent-dim); color: var(--accent); }
+
+  /* ── Main content ── */
+  .main { margin-left: 280px; flex: 1; padding: 48px 48px 80px; max-width: 920px; }
+
+  /* ── Header ── */
+  .header { margin-bottom: 36px; }
+  .header h1 { font-size: 2rem; font-weight: 700; color: var(--text); }
+  .header .subtitle { font-size: 1.05rem; color: var(--text-muted); margin-top: 4px; }
+
+  /* ── Toolbar ── */
+  .toolbar {
+    display: flex; flex-wrap: wrap; gap: 10px;
+    align-items: center; margin-bottom: 28px;
+  }
+  .toolbar button {
+    background: var(--surface); color: var(--accent);
+    border: 1px solid var(--border); border-radius: 6px;
+    padding: 8px 18px; font-size: .85rem; cursor: pointer;
+    transition: background var(--transition), border-color var(--transition);
+  }
+  .toolbar button:hover { background: var(--surface2); border-color: var(--accent); }
+  .score-badge {
+    margin-left: auto;
+    background: var(--accent-dim); border: 1px solid var(--accent);
+    border-radius: 20px; padding: 6px 18px;
+    font-size: .85rem; font-weight: 600; color: var(--accent);
+  }
+
+  /* ── Card ── */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    margin-bottom: 18px;
+    overflow: hidden;
+    transition: border-color var(--transition);
+  }
+  .card:hover { border-color: var(--accent); }
+  .card-header {
+    display: flex; align-items: center; gap: 14px;
+    padding: 16px 20px; cursor: pointer;
+    user-select: none;
+  }
+  .q-badge {
+    flex-shrink: 0;
+    width: 36px; height: 36px;
+    display: flex; align-items: center; justify-content: center;
+    background: var(--accent); color: var(--bg);
+    border-radius: 8px; font-weight: 700; font-size: .85rem;
+  }
+  .q-text { flex: 1; font-weight: 600; font-size: .97rem; }
+  .chevron {
+    flex-shrink: 0; width: 20px; height: 20px;
+    transition: transform var(--transition);
+    color: var(--text-muted);
+  }
+  .card.open .chevron { transform: rotate(180deg); }
+  .card-body {
+    max-height: 0; overflow: hidden;
+    transition: max-height .45s ease;
+  }
+  .card.open .card-body { max-height: 8000px; }
+  .card-inner { padding: 0 20px 20px 70px; }
+
+  /* ── Checkbox ── */
+  .review-check {
+    display: flex; align-items: center; gap: 8px;
+    padding: 10px 20px 14px 70px; border-top: 1px solid var(--border);
+    font-size: .82rem; color: var(--text-muted);
+  }
+  .review-check input[type=checkbox] {
+    accent-color: var(--accent); width: 16px; height: 16px; cursor: pointer;
+  }
+
+  /* ── Content styling ── */
+  .card-inner p { margin-bottom: 10px; }
+  .card-inner strong { color: var(--accent); }
+  .card-inner ul, .card-inner ol { margin: 8px 0 12px 20px; }
+  .card-inner li { margin-bottom: 4px; }
+  .card-inner table {
+    width: 100%; border-collapse: collapse;
+    margin: 12px 0; font-size: .88rem;
+  }
+  .card-inner th, .card-inner td {
+    border: 1px solid var(--border);
+    padding: 8px 12px; text-align: left;
+  }
+  .card-inner th { background: var(--surface2); color: var(--accent); font-weight: 600; }
+  .card-inner td { background: var(--surface); }
+  .card-inner code {
+    background: var(--code-bg); padding: 2px 6px;
+    border-radius: 4px; font-size: .88em; color: var(--accent);
+  }
+  .card-inner pre {
+    background: var(--code-bg); border: 1px solid var(--border);
+    border-radius: 8px; padding: 16px; overflow-x: auto;
+    margin: 12px 0; font-size: .85rem; line-height: 1.6;
+  }
+  .card-inner pre code { background: none; padding: 0; color: var(--text); }
+
+  /* ── Hamburger (mobile) ── */
+  .menu-toggle {
+    display: none; position: fixed; top: 14px; left: 14px;
+    z-index: 200; background: var(--surface); border: 1px solid var(--border);
+    border-radius: 8px; padding: 8px 10px; cursor: pointer; color: var(--text);
+  }
+
+  /* ── Print ── */
+  @media print {
+    .sidebar, .toolbar, .menu-toggle, .review-check, .chevron { display: none !important; }
+    .main { margin-left: 0; padding: 20px; max-width: 100%; }
+    .card-body { max-height: none !important; overflow: visible !important; }
+    .card { break-inside: avoid; border: 1px solid #ccc; }
+    body { background: #fff; color: #000; }
+    .card-inner strong { color: #059669; }
+    .card-inner th { background: #d1fae5; color: #065f46; }
+    .card-inner td { background: #fff; }
+    .card-inner pre, .card-inner code { background: #f1f5f9; color: #1e293b; }
+  }
+
+  /* ── Responsive ── */
+  @media (max-width: 860px) {
+    .sidebar { transform: translateX(-100%); }
+    .sidebar.open { transform: translateX(0); }
+    .menu-toggle { display: block; }
+    .main { margin-left: 0; padding: 24px 16px 60px; }
+  }
+</style>
+</head>
+<body>
+
+<button class="menu-toggle" onclick="document.querySelector('.sidebar').classList.toggle('open')" aria-label="Toggle sidebar">&#9776;</button>
+
+<nav class="sidebar" id="sidebar">
+  <h2>Quick Jump</h2>
+  <a href="#q1">Q1. Why distributed databases?</a>
+  <a href="#q2">Q2. Centralised vs Distributed</a>
+  <a href="#q3">Q3. Transparency goals</a>
+  <a href="#q4">Q4. Shared-Nothing/Disk/Memory</a>
+  <a href="#q5">Q5. Fragmentation (H &amp; V)</a>
+  <a href="#q6">Q6. Partitioning strategies</a>
+  <a href="#q7">Q7. Sync vs Async replication</a>
+  <a href="#q8">Q8. Replication topologies</a>
+  <a href="#q9">Q9. Conflict resolution</a>
+  <a href="#q10">Q10. Distributed concurrency</a>
+  <a href="#q11">Q11. Homogeneous vs Heterogeneous</a>
+  <a href="#q12">Q12. Design questions &amp; goals</a>
+  <a href="#q13">Q13. Primary vs Derived fragmentation</a>
+  <a href="#q14">Q14. Five fundamental challenges</a>
+  <a href="#q15">Q15. Leader-Follower replication</a>
+  <a href="#q16">Q16. Leaderless &amp; quorum (W+R&gt;N)</a>
+</nav>
+
+<div class="main">
+  <div class="header">
+    <h1>Session 3: Questions &amp; Answers</h1>
+    <div class="subtitle">Distributed DB Foundations &mdash; 16 Questions</div>
+  </div>
+
+  <div class="toolbar">
+    <button onclick="toggleAll(true)">Show All</button>
+    <button onclick="toggleAll(false)">Hide All</button>
+    <div class="score-badge" id="score">Reviewed: 0 / 16</div>
+  </div>
+
+  <!-- Q1 -->
+  <div class="card" id="q1">
+    <div class="card-header" onclick="toggleCard(this)">
+      <span class="q-badge">1</span>
+      <span class="q-text">Why do we need distributed databases? List the key drivers.</span>
+      <svg class="chevron" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"/></svg>
+    </div>
+    <div class="card-body"><div class="card-inner">
+      <table>
+        <tr><th>Driver</th><th>Explanation</th></tr>
+        <tr><td><strong>Organisational distribution</strong></td><td>Companies operate in multiple locations, each generating local data. A hospital chain wants patient records near the hospital, not on a distant server.</td></tr>
+        <tr><td><strong>Improved performance</strong></td><td>Data placed close to users reduces network latency from 100&ndash;200ms (cross-continent) to sub-millisecond (local).</td></tr>
+        <tr><td><strong>Scalability</strong></td><td>Horizontal scaling (add more nodes) has no theoretical ceiling, unlike vertical scaling (bigger server) which hits hardware limits.</td></tr>
+        <tr><td><strong>Availability &amp; reliability</strong></td><td>With 3 replicas, data survives 2 simultaneous node failures. A single-server system has zero fault tolerance.</td></tr>
+        <tr><td><strong>Local autonomy</strong></td><td>Each site manages its own data (local schema, backups, tuning) while participating in the global system.</td></tr>
+      </table>
+    </div></div>
+    <label class="review-check"><input type="checkbox" onchange="updateScore()"> Reviewed</label>
+  </div>
+
+  <!-- Q2 -->
+  <div class="card" id="q2">
+    <div class="card-header" onclick="toggleCard(this)">
+      <span class="q-badge">2</span>
+      <span class="q-text">Compare centralised and distributed database systems.</span>
+      <svg class="chevron" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"/></svg>
+    </div>
+    <div class="card-body"><div class="card-inner">
+      <table>
+        <tr><th>Aspect</th><th>Centralised</th><th>Distributed</th></tr>
+        <tr><td>Data location</td><td>Single site</td><td>Multiple networked sites</td></tr>
+        <tr><td>Single point of failure</td><td>Yes &mdash; server down = system down</td><td>No &mdash; other nodes continue</td></tr>
+        <tr><td>Scalability</td><td>Vertical (bigger machine, has a ceiling)</td><td>Horizontal (add machines, no ceiling)</td></tr>
+        <tr><td>Remote user latency</td><td>High (every request crosses network)</td><td>Low (data near user)</td></tr>
+        <tr><td>Complexity</td><td>Simpler administration</td><td>Much higher (partitioning, replication, distributed transactions, failure handling)</td></tr>
+        <tr><td>Cost model</td><td>Expensive high-end hardware</td><td>Commodity hardware + operational overhead</td></tr>
+      </table>
+    </div></div>
+    <label class="review-check"><input type="checkbox" onchange="updateScore()"> Reviewed</label>
+  </div>
+
+  <!-- Q3 -->
+  <div class="card" id="q3">
+    <div class="card-header" onclick="toggleCard(this)">
+      <span class="q-badge">3</span>
+      <span class="q-text">What are the transparency goals of a Distributed DBMS? Why are they important?</span>
+      <svg class="chevron" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"/></svg>
+    </div>
+    <div class="card-body"><div class="card-inner">
+      <p>Transparency means the user interacts with the distributed system <strong>as if it were a single, centralised database</strong>. The DDBMS hides the complexity of distribution.</p>
+      <table>
+        <tr><th>Transparency</th><th>User doesn&rsquo;t need to know&hellip;</th></tr>
+        <tr><td><strong>Location</strong></td><td>&hellip;where data is physically stored. Query uses table names, not server addresses.</td></tr>
+        <tr><td><strong>Fragmentation</strong></td><td>&hellip;that a table is split across multiple sites. The full table appears intact.</td></tr>
+        <tr><td><strong>Replication</strong></td><td>&hellip;that multiple copies exist. Reads and writes go to &ldquo;the data,&rdquo; not specific replicas.</td></tr>
+        <tr><td><strong>Concurrency</strong></td><td>&hellip;that other transactions run simultaneously. Each user perceives exclusive access.</td></tr>
+        <tr><td><strong>Failure</strong></td><td>&hellip;that a node or network link has failed. The system masks failures and continues.</td></tr>
+      </table>
+      <p><strong>Why important:</strong> Without transparency, every application would need to know which server holds which fragment, how to handle replica consistency, and what to do when nodes fail. This would make application development impossibly complex.</p>
+    </div></div>
+    <label class="review-check"><input type="checkbox" onchange="updateScore()"> Reviewed</label>
+  </div>
+
+  <!-- Q4 -->
+  <div class="card" id="q4">
+    <div class="card-header" onclick="toggleCard(this)">
+      <span class="q-badge">4</span>
+      <span class="q-text">Explain Shared-Nothing, Shared-Disk, and Shared-Memory architectures.</span>
+      <svg class="chevron" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"/></svg>
+    </div>
+    <div class="card-body"><div class="card-inner">
+      <p><strong>Shared-Nothing:</strong> Each node has its own CPU, memory, and disk. Communication only via network. Most scalable &mdash; adding a node adds independent resources. Failure of one node doesn&rsquo;t affect others. Used by Cassandra, CockroachDB, Spanner, DynamoDB.</p>
+      <p><strong>Shared-Disk:</strong> All nodes share a common storage layer (SAN/NAS). Each node has own CPU and memory. Easier data sharing but storage can be a bottleneck. Nodes must coordinate disk access carefully. Example: Oracle RAC.</p>
+      <p><strong>Shared-Memory:</strong> All processors share same memory and disk. Single multi-core server. Limited scalability due to memory bus contention. Not truly distributed.</p>
+      <p><strong>In practice:</strong> Shared-Nothing dominates modern cloud-native distributed systems because of its superior scalability and fault isolation.</p>
+    </div></div>
+    <label class="review-check"><input type="checkbox" onchange="updateScore()"> Reviewed</label>
+  </div>
+
+  <!-- Q5 -->
+  <div class="card" id="q5">
+    <div class="card-header" onclick="toggleCard(this)">
+      <span class="q-badge">5</span>
+      <span class="q-text">What is data fragmentation? Explain horizontal and vertical fragmentation with examples.</span>
+      <svg class="chevron" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"/></svg>
+    </div>
+    <div class="card-body"><div class="card-inner">
+      <p><strong>Fragmentation</strong> splits a relation into smaller pieces distributed across sites to improve locality and performance.</p>
+      <p><strong>Horizontal fragmentation</strong> splits by <strong>rows</strong> based on a predicate:</p>
+      <pre><code>London site: σ_{Region='London'}(EMPLOYEE)  → employees in London
+Mumbai site: σ_{Region='Mumbai'}(EMPLOYEE)  → employees in Mumbai</code></pre>
+      <p>Reconstruction: UNION of all fragments.</p>
+      <p><strong>Vertical fragmentation</strong> splits by <strong>columns</strong> (PK always included):</p>
+      <pre><code>HR site:      Emp_ID, Name, Hire_Date
+Payroll site: Emp_ID, Salary, Bank_Account</code></pre>
+      <p>Reconstruction: Natural JOIN on Emp_ID.</p>
+      <p><strong>Hybrid:</strong> Both applied &mdash; first split by columns, then each column-fragment by rows.</p>
+      <p><strong>Correctness requirements:</strong></p>
+      <ol>
+        <li><strong>Completeness</strong> &mdash; every tuple in at least one fragment.</li>
+        <li><strong>Reconstruction</strong> &mdash; original table can be rebuilt.</li>
+        <li><strong>Disjointness</strong> (preferred) &mdash; no tuple in more than one fragment.</li>
+      </ol>
+    </div></div>
+    <label class="review-check"><input type="checkbox" onchange="updateScore()"> Reviewed</label>
+  </div>
+
+  <!-- Q6 -->
+  <div class="card" id="q6">
+    <div class="card-header" onclick="toggleCard(this)">
+      <span class="q-badge">6</span>
+      <span class="q-text">Compare range, hash, list, and consistent hashing partitioning strategies.</span>
+      <svg class="chevron" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"/></svg>
+    </div>
+    <div class="card-body"><div class="card-inner">
+      <table>
+        <tr><th>Strategy</th><th>How rows are assigned</th><th>Pros</th><th>Cons</th></tr>
+        <tr><td><strong>Range</strong></td><td>Key ranges (e.g. Jan&ndash;Mar &rarr; node 1)</td><td>Efficient range queries; simple.</td><td>Hot spots if data skewed (e.g. recent dates accessed most).</td></tr>
+        <tr><td><strong>Hash</strong></td><td>hash(key) mod N &rarr; node number</td><td>Even distribution; no hot spots.</td><td>Range queries scan ALL nodes; rehash needed when nodes change.</td></tr>
+        <tr><td><strong>List</strong></td><td>Explicit value lists (e.g. UK &rarr; node 1, India &rarr; node 2)</td><td>Easy to understand; good for categories.</td><td>Imbalanced if some categories much larger.</td></tr>
+        <tr><td><strong>Consistent hashing</strong></td><td>Hash ring; each node owns a range. Adding/removing a node moves only adjacent data.</td><td>Elastic scaling; minimal data movement.</td><td>More complex; slight imbalance (fixed with virtual nodes).</td></tr>
+      </table>
+    </div></div>
+    <label class="review-check"><input type="checkbox" onchange="updateScore()"> Reviewed</label>
+  </div>
+
+  <!-- Q7 -->
+  <div class="card" id="q7">
+    <div class="card-header" onclick="toggleCard(this)">
+      <span class="q-badge">7</span>
+      <span class="q-text">Why do we replicate data? Compare synchronous and asynchronous replication.</span>
+      <svg class="chevron" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"/></svg>
+    </div>
+    <div class="card-body"><div class="card-inner">
+      <p><strong>Why:</strong> Availability (survive node failures), read performance (distribute reads across replicas), latency (serve from nearest replica), fault tolerance (survive data centre outages).</p>
+      <table>
+        <tr><th>Aspect</th><th>Synchronous (Eager)</th><th>Asynchronous (Lazy)</th></tr>
+        <tr><td>Write confirmation</td><td>All replicas must confirm before commit.</td><td>Primary commits first; replicas updated later.</td></tr>
+        <tr><td>Consistency</td><td><strong>Strong</strong> &mdash; all replicas always agree.</td><td><strong>Eventual</strong> &mdash; replicas may temporarily diverge.</td></tr>
+        <tr><td>Write latency</td><td>Higher (wait for slowest replica + network RTT).</td><td>Lower (only wait for primary).</td></tr>
+        <tr><td>Failure risk</td><td>Writes block if any replica is down.</td><td>Writes succeed but data may be lost if primary fails before propagation.</td></tr>
+        <tr><td>Use case</td><td>Financial transactions, inventory.</td><td>Social feeds, analytics, caching.</td></tr>
+      </table>
+    </div></div>
+    <label class="review-check"><input type="checkbox" onchange="updateScore()"> Reviewed</label>
+  </div>
+
+  <!-- Q8 -->
+  <div class="card" id="q8">
+    <div class="card-header" onclick="toggleCard(this)">
+      <span class="q-badge">8</span>
+      <span class="q-text">Explain the three replication topologies and their trade-offs.</span>
+      <svg class="chevron" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"/></svg>
+    </div>
+    <div class="card-body"><div class="card-inner">
+      <p><strong>Single-leader (primary&ndash;replica):</strong> One node accepts all writes; replicas serve reads.</p>
+      <ul>
+        <li><strong>Pros:</strong> Simple, no write conflicts, easy consistency reasoning.</li>
+        <li><strong>Cons:</strong> Leader is bottleneck and SPOF. Failover (promoting a replica) can be complex and may cause brief unavailability.</li>
+      </ul>
+      <p><strong>Multi-leader:</strong> Multiple nodes accept writes; changes replicated between leaders.</p>
+      <ul>
+        <li><strong>Pros:</strong> Low write latency in multi-region setups (each region has a local leader).</li>
+        <li><strong>Cons:</strong> Write conflicts when two leaders modify the same data. Needs conflict resolution (LWW, CRDTs, or application logic).</li>
+      </ul>
+      <p><strong>Leaderless (peer-to-peer):</strong> Any node accepts reads and writes. Consistency via quorum (R+W&gt;N).</p>
+      <ul>
+        <li><strong>Pros:</strong> No SPOF, highest availability.</li>
+        <li><strong>Cons:</strong> Most complex. Quorum overhead. Conflict resolution required. Examples: Cassandra, DynamoDB.</li>
+      </ul>
+    </div></div>
+    <label class="review-check"><input type="checkbox" onchange="updateScore()"> Reviewed</label>
+  </div>
+
+  <!-- Q9 -->
+  <div class="card" id="q9">
+    <div class="card-header" onclick="toggleCard(this)">
+      <span class="q-badge">9</span>
+      <span class="q-text">What is the conflict resolution problem in multi-leader/leaderless systems? Describe three strategies.</span>
+      <svg class="chevron" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"/></svg>
+    </div>
+    <div class="card-body"><div class="card-inner">
+      <p><strong>Problem:</strong> Two nodes independently update the same row (e.g. Node A sets name=&ldquo;Alice&rdquo;, Node B sets name=&ldquo;Alicia&rdquo; at the same time). When they sync, which value wins?</p>
+      <table>
+        <tr><th>Strategy</th><th>How it works</th><th>Pros</th><th>Cons</th></tr>
+        <tr><td><strong>Last-writer-wins (LWW)</strong></td><td>Highest timestamp wins. Earlier write discarded.</td><td>Simple.</td><td>Data loss. Depends on clock synchronisation.</td></tr>
+        <tr><td><strong>CRDTs</strong></td><td>Mathematically designed data structures that auto-merge (counters, sets, registers).</td><td>No data loss. Automatic.</td><td>Limited to specific data types. Can&rsquo;t model arbitrary logic.</td></tr>
+        <tr><td><strong>Application-level</strong></td><td>App defines merge rules (e.g. show both versions, merge fields, pick by edit count).</td><td>Most flexible.</td><td>Most complex for developers.</td></tr>
+      </table>
+    </div></div>
+    <label class="review-check"><input type="checkbox" onchange="updateScore()"> Reviewed</label>
+  </div>
+
+  <!-- Q10 -->
+  <div class="card" id="q10">
+    <div class="card-header" onclick="toggleCard(this)">
+      <span class="q-badge">10</span>
+      <span class="q-text">What is distributed concurrency control? Compare centralised locking vs distributed locking.</span>
+      <svg class="chevron" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"/></svg>
+    </div>
+    <div class="card-body"><div class="card-inner">
+      <p>In a distributed system, transactions may need locks at multiple sites. Three approaches:</p>
+      <table>
+        <tr><th>Approach</th><th>How it works</th><th>Pros</th><th>Cons</th></tr>
+        <tr><td><strong>Centralised locking</strong></td><td>One designated node manages all locks.</td><td>Simple; no distributed deadlocks.</td><td>Bottleneck + SPOF.</td></tr>
+        <tr><td><strong>Primary copy locking</strong></td><td>Each data item has a designated primary; locks go there.</td><td>Load distributed across nodes.</td><td>Must track primaries; handle primary failure.</td></tr>
+        <tr><td><strong>Distributed locking</strong></td><td>Locks acquired at the node storing the data.</td><td>No single bottleneck.</td><td>Distributed deadlock detection needed.</td></tr>
+      </table>
+      <p><strong>Distributed deadlock detection:</strong> Centralised detector (one node builds global wait-for graph), distributed detector (sites exchange edges), or timeout (assume deadlock if waiting too long).</p>
+    </div></div>
+    <label class="review-check"><input type="checkbox" onchange="updateScore()"> Reviewed</label>
+  </div>
+
+  <!-- Q11 -->
+  <div class="card" id="q11">
+    <div class="card-header" onclick="toggleCard(this)">
+      <span class="q-badge">11</span>
+      <span class="q-text">Differentiate between homogeneous and heterogeneous distributed databases.</span>
+      <svg class="chevron" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"/></svg>
+    </div>
+    <div class="card-body"><div class="card-inner">
+      <table>
+        <tr><th>Aspect</th><th>Homogeneous</th><th>Heterogeneous</th></tr>
+        <tr><td>DBMS software</td><td>Same at all sites (e.g. all PostgreSQL).</td><td>Different at different sites (Oracle + PostgreSQL + MySQL).</td></tr>
+        <tr><td>Data model</td><td>Identical across sites.</td><td>May differ (relational + document + graph).</td></tr>
+        <tr><td>Query language</td><td>Same (all use same SQL dialect).</td><td>Different; translation/middleware needed.</td></tr>
+        <tr><td>Management</td><td>Easier &mdash; uniform configuration, upgrades, and tuning.</td><td>Harder &mdash; must maintain compatibility across different systems.</td></tr>
+        <tr><td>Example</td><td>All branches run PostgreSQL 15.</td><td>London runs Oracle, Mumbai runs MongoDB, Tokyo runs MySQL.</td></tr>
+      </table>
+    </div></div>
+    <label class="review-check"><input type="checkbox" onchange="updateScore()"> Reviewed</label>
+  </div>
+
+  <!-- Q12 -->
+  <div class="card" id="q12">
+    <div class="card-header" onclick="toggleCard(this)">
+      <span class="q-badge">12</span>
+      <span class="q-text">What are the key design questions when building a distributed database? What goals should guide the design?</span>
+      <svg class="chevron" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"/></svg>
+    </div>
+    <div class="card-body"><div class="card-inner">
+      <p><strong>Four design questions:</strong></p>
+      <ol>
+        <li><strong>What to fragment?</strong> &mdash; Large transaction tables (orders, events) benefit most. Small lookup tables usually don&rsquo;t.</li>
+        <li><strong>How to fragment?</strong> &mdash; Horizontal (by rows), vertical (by columns), or hybrid. Depends on query access patterns.</li>
+        <li><strong>Where to place fragments?</strong> &mdash; Place data close to the applications that use it most frequently.</li>
+        <li><strong>What to replicate?</strong> &mdash; Replicate read-heavy data for performance; keep write-heavy data at fewer sites to reduce write amplification.</li>
+      </ol>
+      <p><strong>Design goals:</strong></p>
+      <ul>
+        <li><strong>Locality of reference:</strong> Minimise network traffic for common queries.</li>
+        <li><strong>Load balancing:</strong> Distribute data evenly; avoid hot spots.</li>
+        <li><strong>Minimise network transfers:</strong> The most expensive distributed operation.</li>
+        <li><strong>Meet availability SLAs:</strong> Replicate critical data, accepting higher write cost.</li>
+      </ul>
+    </div></div>
+    <label class="review-check"><input type="checkbox" onchange="updateScore()"> Reviewed</label>
+  </div>
+
+  <!-- Q13 -->
+  <div class="card" id="q13">
+    <div class="card-header" onclick="toggleCard(this)">
+      <span class="q-badge">13</span>
+      <span class="q-text">Distinguish between primary and derived horizontal fragmentation with examples.</span>
+      <svg class="chevron" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"/></svg>
+    </div>
+    <div class="card-body"><div class="card-inner">
+      <p><strong>Primary horizontal fragmentation:</strong> The condition is based on attributes of the <strong>same relation</strong> being fragmented.</p>
+      <ul>
+        <li>Example: Fragment EMPLOYEE by Region: &sigma;<sub>Region=&lsquo;London&rsquo;</sub>(EMPLOYEE) &rarr; London site.</li>
+        <li>The predicate (Region) belongs to EMPLOYEE itself.</li>
+      </ul>
+      <p><strong>Derived horizontal fragmentation:</strong> The condition is based on an attribute of a <strong>related relation</strong> (via a foreign key), not the relation being fragmented.</p>
+      <ul>
+        <li>Example: Fragment PROJECT by the department that controls it. DEPARTMENT is fragmented by location &rarr; PROJECT is fragmented derivatively based on its controlling department&rsquo;s location.</li>
+        <li>PROJECT doesn&rsquo;t have a Location column used for fragmentation &mdash; it inherits the fragmentation from DEPARTMENT through the FK relationship.</li>
+      </ul>
+      <p><strong>When to use each:</strong> Primary when the relation has a natural partitioning attribute (Region, Country). Derived when the relation should follow the fragmentation of a parent/referenced table for data locality.</p>
+    </div></div>
+    <label class="review-check"><input type="checkbox" onchange="updateScore()"> Reviewed</label>
+  </div>
+
+  <!-- Q14 -->
+  <div class="card" id="q14">
+    <div class="card-header" onclick="toggleCard(this)">
+      <span class="q-badge">14</span>
+      <span class="q-text">List and explain the five fundamental challenges in distributed database systems.</span>
+      <svg class="chevron" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"/></svg>
+    </div>
+    <div class="card-body"><div class="card-inner">
+      <ol>
+        <li><strong>Communication delays</strong> &mdash; Messages between nodes travel over a network with non-zero latency (milliseconds within a data centre, hundreds of milliseconds across continents). Every inter-node operation is slower than a local one.</li>
+        <li><strong>Node failures</strong> &mdash; Individual nodes can crash, restart, or become unreachable at any time. The system must handle partial failures gracefully &mdash; continuing to operate even when some nodes are down.</li>
+        <li><strong>Maintaining consistency</strong> &mdash; When data is replicated across multiple sites, all copies must eventually agree. Keeping them in sync despite concurrent writes and network delays is extremely difficult. This is the core of the CAP theorem trade-off (Session 4).</li>
+        <li><strong>Concurrency control</strong> &mdash; Multiple transactions at different sites may modify the same data simultaneously. Distributed locking is harder than single-node locking, and deadlocks can span multiple nodes.</li>
+        <li><strong>Coordination overhead</strong> &mdash; Any protocol requiring node agreement (2PC, consensus) adds latency and message overhead. The more nodes involved, the slower the coordination.</li>
+      </ol>
+    </div></div>
+    <label class="review-check"><input type="checkbox" onchange="updateScore()"> Reviewed</label>
+  </div>
+
+  <!-- Q15 -->
+  <div class="card" id="q15">
+    <div class="card-header" onclick="toggleCard(this)">
+      <span class="q-badge">15</span>
+      <span class="q-text">Explain Leader-Follower replication step by step. What is replication lag?</span>
+      <svg class="chevron" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"/></svg>
+    </div>
+    <div class="card-body"><div class="card-inner">
+      <p><strong>How Leader-Follower works:</strong></p>
+      <ol>
+        <li>All writes are sent to the <strong>Leader</strong> (primary) node.</li>
+        <li>Leader updates its local database.</li>
+        <li>Leader sends changes to <strong>Followers</strong> (replicas/secondaries).</li>
+        <li>Followers apply changes to their local copies.</li>
+        <li>Reads may be served by leader or followers (configurable).</li>
+      </ol>
+      <p><strong>Replication lag:</strong> When replication is asynchronous, followers may not have received the latest writes yet. The delay between a write on the leader and its appearance on a follower is called <strong>replication lag</strong>. During this window, a read from a follower returns stale data.</p>
+      <p><strong>Failover:</strong> If the leader crashes, a follower is promoted as the new leader. With asynchronous replication, the promoted follower may have missed some recent writes &mdash; those writes are effectively <strong>lost</strong> unless the old leader recovers and its log can be reconciled.</p>
+    </div></div>
+    <label class="review-check"><input type="checkbox" onchange="updateScore()"> Reviewed</label>
+  </div>
+
+  <!-- Q16 -->
+  <div class="card" id="q16">
+    <div class="card-header" onclick="toggleCard(this)">
+      <span class="q-badge">16</span>
+      <span class="q-text">What is leaderless replication? Explain the quorum condition W + R > N.</span>
+      <svg class="chevron" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"/></svg>
+    </div>
+    <div class="card-body"><div class="card-inner">
+      <p>In <strong>leaderless replication</strong> (used by Cassandra, DynamoDB), there is no designated leader. Any node can accept reads and writes.</p>
+      <p><strong>How it works:</strong></p>
+      <ol>
+        <li>Client sends writes to <strong>multiple replicas</strong> directly (or via a coordinator).</li>
+        <li>A write succeeds if <strong>W</strong> replicas acknowledge it.</li>
+        <li>A read queries <strong>R</strong> replicas and returns the most recent value.</li>
+        <li>Differences between replicas are repaired via <strong>read repair</strong> (fix stale replicas during reads) or <strong>anti-entropy</strong> (background synchronisation).</li>
+      </ol>
+      <p><strong>Quorum condition: W + R &gt; N</strong></p>
+      <p>Where N = total replicas, W = write acknowledgements, R = read replicas.</p>
+      <p>This ensures the read set and write set <strong>overlap</strong> &mdash; at least one replica contacted during a read must have the latest write.</p>
+      <p><strong>Example (N=3):</strong></p>
+      <ul>
+        <li>W=2, R=2: 2+2=4 &gt; 3 &rarr; overlap guaranteed &rarr; <strong>strong consistency</strong> &#10003;</li>
+        <li>W=1, R=1: 1+1=2 &le; 3 &rarr; no overlap guaranteed &rarr; may read stale data &#10007;</li>
+      </ul>
+      <p><strong>Trade-off:</strong> Higher W/R &rarr; stronger consistency but higher latency and lower availability. Lower W/R &rarr; faster but may read stale.</p>
+    </div></div>
+    <label class="review-check"><input type="checkbox" onchange="updateScore()"> Reviewed</label>
+  </div>
+
+</div><!-- .main -->
+
+<script>
+  function toggleCard(header) {
+    header.closest('.card').classList.toggle('open');
+  }
+  function toggleAll(show) {
+    document.querySelectorAll('.card').forEach(c => {
+      show ? c.classList.add('open') : c.classList.remove('open');
+    });
+  }
+  function updateScore() {
+    const total = document.querySelectorAll('.review-check input').length;
+    const checked = document.querySelectorAll('.review-check input:checked').length;
+    document.getElementById('score').textContent = `Reviewed: ${checked} / ${total}`;
+  }
+  // Close sidebar on link click (mobile)
+  document.querySelectorAll('.sidebar a').forEach(a => {
+    a.addEventListener('click', () => {
+      document.querySelector('.sidebar').classList.remove('open');
+    });
+  });
+</script>
+</body>
+</html>
